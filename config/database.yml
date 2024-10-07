@@ -2,8 +2,8 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: 5
-  username: admin123 # Substitua pelo seu nome de usuário do PostgreSQL
-  password: admin123   # Substitua pela sua senha do PostgreSQL
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
   host: localhost
 
 development:
@@ -17,5 +17,3 @@ test:
 production:
   <<: *default
   database: IOT_production
-  username: admin123
-  password: admin123

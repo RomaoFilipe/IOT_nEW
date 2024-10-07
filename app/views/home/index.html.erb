@@ -1,0 +1,4 @@
+<h1>Bem-vindo, <%= current_user.email %>!</h1>
+<p>Você está logado.</p>
+<%= link_to 'Sair', destroy_user_session_path, method: :delete %>
+

@@ -20,6 +20,11 @@ gem "jbuilder"
 # gem "redis", ">= 4.0.1"
 
 gem "pg"
+gem 'devise'
+gem 'sass-rails', '>= 6'
+
+
+gem 'dotenv-rails', groups: [:development, :test]
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
