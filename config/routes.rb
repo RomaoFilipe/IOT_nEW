@@ -1,18 +1,22 @@
 Rails.application.routes.draw do
-  get "home/index"
+  # Configuração do Devise para o sistema de autenticação
   devise_for :users
-  resources :users # Apenas se você quiser gerenciar usuários manualmente
-  root to: 'home#index' # Defina sua rota raiz como desejar
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  # Define a rota do Devise para o login
+  devise_scope :user do
+    root to: 'devise/sessions#new' # Redireciona a rota raiz para a página de login
+  end
+
+  # Rota para a página "home" após o login
+  get '/home', to: 'home#index', as: 'home'
+
+
+  # Outras rotas que já tens no sistema
+
+  # Rota para health check do sistema
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/*
+  # Rotas para PWA
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-
-  # Defines the root path route ("/")
-  # root "posts#index"
 end

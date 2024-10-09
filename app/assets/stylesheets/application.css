@@ -1,273 +1,131 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-  }
-  
-  .flash {
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5px;
-  }
-  
-  .flash.notice {
-    background-color: #d9edf7;
-    color: #31708f;
-  }
-  
-  .flash.alert {
-    background-color: #f2dede;
-    color: #a94442;
-  }
-  * {
+/* Global Styles */
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-h1.h2 {
-    color: #333333; /* Cor mais escura para melhor contraste */
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
 body {
+    background-color: #f7f9fc;
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa; /* Cor de fundo mais clara */
-    margin: 0;
-    padding: 0;
 }
 
-.container-fluid {
-    padding: 20px; /* Ajuste de espaçamento interno */
-}
-
-
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.login-box {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-h2 {
-    color: #ffffff;
-    margin-bottom: 20px;
-}
-
-.textbox {
-    margin: 15px 0;
-}
-
-.textbox input {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-}
-
-.remember-me {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.remember-me input {
-    margin-right: 5px;
-}
-
-.btn {
-    background-color: #6C63FF;
-    color: white;
-    border: none;
-    padding: 10px;
-    width: 100%;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.btn:hover {
-    background-image: image("background");
-}
-
-.footer-links {
-    margin-top: 15px;
-}
-
-.footer-links a {
-    color: #ffffff;
-    text-decoration: none;
-}
-
-.footer-links p {
-    color: #ffffff;
-}
-
-
-
-
-
-
-
+/* Navbar */
 .navbar {
-    margin-left: 250px; /* Ajusta o espaço para a barra lateral */
-    width: calc(100% - 250px); /* Deixa a barra superior ocupar o espaço correto */
-    height: 80px; /* Aumenta a altura da barra superior */
-    background-color: #007bff;
-    z-index: 999; /* Deixa a barra superior abaixo da barra lateral */
+    height: 60px;
+    padding-left: 260px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.navbar .dropdown {
-    margin-right: 20px;
-}
-
-.sidebar {
-    background-color: #f8f9fa;
-    min-height: 100vh;
-    width: 250px;
-    position: fixed; /* Torna a barra lateral fixa */
-    top: 0;
-    left: 0;
-    padding-top: 20px;
-    z-index: 1000; /* Coloca a sidebar acima dos outros elementos */
-}
-
-.sidebar-profile {
-    text-align: center;
-    padding: 20px;
-    background-color: #ffffff; /* Cor de fundo branco para o perfil */
-    border-radius: 0 0 10px 10px;
-}
-
-.sidebar-profile img {
-    border-radius: 50%; /* Imagem de perfil redonda */
-    width: 80px; /* Tamanho da imagem */
-    margin-bottom: 10px;
-}
-
-.sidebar-profile h5 {
-    font-size: 16px;
-    margin-bottom: 10px;
-    color: #333333; /* Cor do nome */
-}
-
-.sidebar-icons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.sidebar-icons i {
-    background-color: #f4f4f4;
-    border-radius: 5px;
-    padding: 10px;
-    color: #007bff;
-    font-size: 16px;
+.navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+    color: #28a745;
 }
 
 .navbar .btn-link {
-    color: white;
-    margin-right: 20px;
+    color: #333;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #ffffff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 80px;
 }
 
 .sidebar .nav-link {
-    color: #333333;
     padding: 15px;
+    font-size: 16px;
     display: flex;
     align-items: center;
-    font-size: 16px;
-    margin: 10px 0; /* Espaçamento entre os itens */
-    border-radius: 8px; /* Bordas arredondadas nos itens */
-    transition: background-color 0.3s ease-in-out;
-}
-
-
-
-.navbar .badge {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    background-color: red;
-    border-radius: 50%;
+    color: #333;
 }
 
 .sidebar .nav-link i {
     margin-right: 10px;
-    font-size: 18px; /* Tamanho maior dos ícones */
-    color: #007bff;
+    font-size: 18px;
+    color: #28a745;
 }
 
-.sidebar .nav-link.active {
-    background-color: #007bff; /* Cor de fundo ativo */
-    color: white; /* Texto e ícone em branco */
+.sidebar.collapsed .nav-link span {
+    display: none;
 }
 
-.sidebar .nav-link.active i {
-    color: white; /* Ícone branco no item ativo */
-}
-
-.sidebar .nav-link:hover {
-    background-color: #e2e6ea; /* Fundo mais escuro ao passar o mouse */
-}
-
-.card-header {
-    background-color: #007bff;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-    padding: 15px;
-    border-radius: 5px 5px 0 0; /* Bordas arredondadas no topo */
-}
-
-.card {
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra suave */
-    transition: transform 0.2s ease-in-out; /* Adiciona uma animação suave */
-}
-
-.card:hover {
-    transform: translateY(-5px); /* Eleva o cartão ligeiramente ao passar o mouse */
-}
-
-/* Estilos para os gráficos */
-.canvas-container {
-    padding: 15px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.card-footer {
-    background-color: transparent;
-    border-top: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.top-cards {
-    display: flex;
-    justify-content: space-around;
-    margin-left: 250px; /* Deixa espaço para a barra lateral */
-    margin-top: 20px; /* Adiciona espaçamento superior */
-    padding: 20px;
-}
-
-.top-cards .card {
-    flex: 1;
-    margin: 0 10px; /* Adiciona espaçamento entre os cartões */
+.sidebar.collapsed .nav-link i {
     text-align: center;
+    margin-right: 0;
 }
 
-/* Conteúdo Principal */
+/* Main Content */
 .main-content {
-    margin-left: 250px; /* Deixa espaço para a barra lateral */
+    margin-left: 260px;
     padding: 20px;
-    padding-top: 100px; /* Adiciona um espaçamento superior para compensar a barra superior */
+    transition: all 0.3s ease;
+}
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: 80px;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 18px;
+    color: #28a745;
+}
+
+/* Profile Image */
+.sidebar-profile {
+    padding: 20px;
+}
+
+.sidebar-profile img {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.sidebar-profile h5 {
+    font-size: 18px;
+    color: #28a745;
+}
+
+.sidebar-profile small {
+    color: #6c757d;
+}
+
+/* Sidebar transitions */
+.sidebar.collapsed .sidebar-profile img,
+.sidebar.collapsed .sidebar-profile h5,
+.sidebar.collapsed .sidebar-profile small {
+    display: none;
+}
+
+/* Cards and Widgets */
+.progress {
+    height: 10px;
+    border-radius: 5px;
+}
+
+.card .list-group-item {
+    border: none;
+    padding: 10px;
+    font-size: 14px;
 }
