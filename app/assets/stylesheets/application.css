@@ -18,6 +18,21 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+#toggleSidebar {
+    width: 40px;  /* Definir uma largura fixa */
+    height: 40px; /* Definir uma altura fixa */
+    padding: 0;   /* Remover qualquer espaçamento interno */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#toggleSidebar i {
+    font-size: 1.5rem;  /* Ajustar o tamanho do ícone */
+    color: #28a745;     /* A cor verde que combina com o resto do layout */
+}
+
+
 .navbar-brand {
     font-size: 24px;
     font-weight: bold;
@@ -128,4 +143,93 @@ body {
     border: none;
     padding: 10px;
     font-size: 14px;
+}
+
+/* Login Page Styles */
+.login-box {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-box h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #28a745;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.field {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.field label {
+    font-weight: bold;
+    color: #333;
+}
+
+.form-control {
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
+}
+
+.btn {
+    background-color: #28a745;
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+}
+
+.btn:hover {
+    background-color: #218838;
+}
+
+.remember-me {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.remember-me label {
+    margin-left: 8px;
+    color: #28a745;
+}
+
+.footer-links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.footer-links a {
+    color: #28a745;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive login for small screens */
+@media (max-width: 768px) {
+    .login-box {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    .btn {
+        font-size: 14px;
+    }
 }

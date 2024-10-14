@@ -29,7 +29,10 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><%= link_to 'Sign out', destroy_user_session_path, method: :delete, class: 'dropdown-item' %></li>
+<%= form_with(url: destroy_user_session_path, method: :delete, local: true) do %>
+  <%= submit_tag "Sign out", class: "btn btn-link" %>
+<% end %>
+
                 </ul>
             </div>
         </div>
@@ -185,6 +188,7 @@
 <script>
     document.getElementById('toggleSidebar').addEventListener('click', function () {
         document.getElementById('sidebar').classList.toggle('collapsed');
+        document.querySelector('.main-content').classList.toggle('collapsed');
     });
 
     // Exemplo de gráfico usando Chart.js
