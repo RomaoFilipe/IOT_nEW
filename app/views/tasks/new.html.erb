@@ -1,0 +1,35 @@
+<%= form_with(model: @task, local: true) do |form| %>
+  <div>
+    <%= form.label :name, "Task Name" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :description, "Description" %>
+    <%= form.text_area :description %>
+  </div>
+
+  <div>
+    <%= form.label :date, "Date" %>
+    <%= form.date_field :date %>
+  </div>
+
+  <div id="time-fields">
+    <%= form.label :time, "Time" %>
+    <%= form.time_field :time %>
+  </div>
+
+  <div>
+    <%= form.label :location, "Location" %>
+    <%= form.text_field :location %>
+  </div>
+
+  <div>
+    <%= form.label :all_day, "All Day" %>
+    <%= form.check_box :all_day, { id: 'all_day_checkbox' } %>
+  </div>
+
+  <div>
+    <%= form.submit "Create Task" %>
+  </div>
+<% end %>

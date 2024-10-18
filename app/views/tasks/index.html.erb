@@ -1,0 +1,11 @@
+<div id="calendar"></div>
+
+<div id="calendar" data-tasks="<%= raw @tasks.to_json %>"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    $('#calendar').fullCalendar({
+      events: <%= raw @tasks.to_json %>
+    });
+  });
+</script>

@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   # Configuração do Devise para o sistema de autenticação
   devise_for :users
 
+
   # Define a rota do Devise para o login
   devise_scope :user do
     root to: 'devise/sessions#new' # Redireciona a rota raiz para a página de login
@@ -9,6 +10,12 @@ Rails.application.routes.draw do
 
   # Rota para a página "home" após o login
   get '/home', to: 'home#index', as: 'home'
+
+
+  Rails.application.routes.draw do
+    get 'calendar', to: 'tasks#index'
+    resources :tasks, only: [:new, :create, :index]
+  end
 
 
   # Outras rotas que já tens no sistema

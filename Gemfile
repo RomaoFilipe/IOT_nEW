@@ -18,6 +18,8 @@ gem "stimulus-rails"
 gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
+gem 'carrierwave', '~> 2.0'
+gem 'fullcalendar-rails'
 
 gem "pg"
 gem 'devise'

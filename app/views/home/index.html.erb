@@ -10,61 +10,7 @@
 </head>
 <body>
 
-<!-- Navbar que inclui o botão para expandir/recolher a sidebar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
-    <div class="container-fluid">
-        <button id="toggleSidebar" class="btn btn-outline-success me-2">
-            <i class="bi bi-list"></i> <!-- Ícone para recolher/expandir -->
-        </button>
-        <a class="navbar-brand ms-3" href="#">Agriculture Dashboard</a>
-        <div class="ms-auto d-flex align-items-center">
-            <button class="btn btn-link text-dark me-3">
-                <i class="bi bi-bell"></i>
-                <span class="badge bg-danger">7</span>
-            </button>
-            <div class="dropdown">
-                <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="profile.jpg" alt="Profile" width="32" height="32" class="rounded-circle me-2">
-                    <strong>Taylor</strong>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-<%= form_with(url: destroy_user_session_path, method: :delete, local: true) do %>
-  <%= submit_tag "Sign out", class: "btn btn-link" %>
-<% end %>
 
-                </ul>
-            </div>
-        </div>
-    </div>
-</nav>
-
-<div class="d-flex">
-    <!-- Sidebar -->
-    <nav id="sidebar" class="sidebar bg-light shadow-sm">
-        <div class="sidebar-profile text-center py-4">
-            <img src="profile.jpg" alt="Profile Picture" class="rounded-circle" width="80" height="80">
-            <h6 class="mt-2 mb-1">Floyd Howard</h6>
-            <p class="text-muted mb-3">Administrator</p>
-        </div>
-        <ul class="nav flex-column text-start px-3">
-            <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="#">
-                    <i class="bi bi-house-door me-2"></i> <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="#">
-                    <i class="bi bi-bar-chart me-2"></i> <span>Analytics</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="#">
-                    <i class="bi bi-calendar me-2"></i> <span>Calendar</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
 
     <!-- Conteúdo Principal -->
     <div class="main-content flex-grow-1 p-4">
@@ -75,36 +21,36 @@
             <div class="col-md-3">
                 <div class="card shadow-sm border-0 bg-white">
                     <div class="card-body text-center">
-                        <h6 class="card-title text-success">Weekly Sales</h6>
-                        <h2 class="card-value">$47K</h2>
-                        <p class="text-muted small">+3.5% compared to last week</p>
+                        <h6 class="card-title text-success">MES </h6>
+                        <h2 class="card-value">47K</h2>
+                        <p class="text-muted small">ULTIMO MES</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm border-0 bg-white">
                     <div class="card-body text-center">
-                        <h6 class="card-title text-success">Total Orders</h6>
+                        <h6 class="card-title text-success">Total</h6>
                         <h2 class="card-value">58.4K</h2>
-                        <p class="text-muted small">+13.6% increase</p>
+                        <p class="text-muted small">LEGUMES</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm border-0 bg-white">
                     <div class="card-body text-center">
-                        <h6 class="card-title text-success">Market Share</h6>
+                        <h6 class="card-title text-success">Share</h6>
                         <h2 class="card-value">26M</h2>
-                        <p class="text-muted small">Samsung, Huawei, Apple</p>
+                        <p class="text-muted small">FRUTAS</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm border-0 bg-white">
                     <div class="card-body text-center">
-                        <h6 class="card-title text-success">Weather</h6>
+                        <h6 class="card-title text-success">TEMPERATURA</h6>
                         <h2 class="card-value">31°C</h2>
-                        <p class="text-muted small">Sunny</p>
+                        <p class="text-muted small">CALOR</p>
                     </div>
                 </div>
             </div>
@@ -115,7 +61,7 @@
             <div class="col-md-8">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
-                        <h5 class="card-title">Total Sales</h5>
+                        <h5 class="card-title">Total de plantações</h5>
                         <canvas id="salesChart"></canvas>
                     </div>
                 </div>
@@ -123,7 +69,7 @@
             <div class="col-md-4">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
-                        <h5 class="card-title">Running Projects</h5>
+                        <h5 class="card-title">Projeto</h5>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 Falcon <span class="badge bg-success rounded-pill">90%</span>

@@ -1,29 +1,63 @@
-<h2>Sign up</h2>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Agriculture Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-page">
+    <div class="login-box">
+        <h2>Sign up</h2>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+        <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { multipart: true }) do |f| %>
+          <%= render "devise/shared/error_messages", resource: resource %>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+          <!-- Campo para o nome -->
+          <div class="field">
+            <%= f.label :name, "Nome" %><br />
+            <%= f.text_field :name, placeholder: "Nome", class: "form-control" %>
+          </div>
 
-  <div class="field">
-    <%= f.label :password %>
-    <% if @minimum_password_length %>
-    <em>(<%= @minimum_password_length %> characters minimum)</em>
-    <% end %><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-  </div>
+          <!-- Campo para o email -->
+          <div class="field">
+            <%= f.label :email, "Email" %><br />
+            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+          </div>
 
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
+          <!-- Campo para a senha -->
+          <div class="field">
+            <%= f.label :password, "Password" %>
+            <% if @minimum_password_length %>
+            <em>(<%= @minimum_password_length %> characters minimum)</em>
+            <% end %><br />
+            <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
+          </div>
 
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
-<% end %>
+          <!-- Campo para confirmação da senha -->
+          <div class="field">
+            <%= f.label :password_confirmation, "Confirm Password" %><br />
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
+          </div>
 
-<%= render "devise/shared/links" %>
+          <!-- Campo para upload de foto -->
+          <div class="field">
+            <%= f.label :photo, "Upload Profile Picture" %><br />
+            <%= f.file_field :photo, class: "form-control" %>
+          </div>
+
+          <!-- Botão de submissão -->
+          <div class="actions">
+            <%= f.submit "Sign up", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+
+        <div class="footer-links">
+            <p>Already have an account? <%= link_to "Log in", new_session_path(resource_name) %></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
