@@ -12,10 +12,10 @@ Rails.application.routes.draw do
   get '/home', to: 'home#index', as: 'home'
 
 
-  Rails.application.routes.draw do
-    get 'calendar', to: 'tasks#index'
-    resources :tasks, only: [:new, :create, :index]
-  end
+
+  get 'calendar', to: 'tasks#index'
+  resources :tasks, only: [:new, :create, :index]
+
 
 
   # Outras rotas que já tens no sistema
