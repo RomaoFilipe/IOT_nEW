@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Crop events" %>
+
+<h1>Crop events</h1>
+
+<div id="crop_events">
+  <% @crop_events.each do |crop_event| %>
+    <%= render crop_event %>
+    <p>
+      <%= link_to "Show this crop event", crop_event %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New crop event", new_crop_event_path %>

@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @crop_event %>
+
+<div>
+  <%= link_to "Edit this crop event", edit_crop_event_path(@crop_event) %> |
+  <%= link_to "Back to crop events", crop_events_path %>
+
+  <%= button_to "Destroy this crop event", @crop_event, method: :delete %>
+</div>

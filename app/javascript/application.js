@@ -1,6 +1,7 @@
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction'; // Import necessário para a seleção de datas
 import "@hotwired/turbo-rails";
 import "controllers";
 import Rails from "@rails/ujs";
@@ -38,12 +39,12 @@ document.addEventListener("DOMContentLoaded", function() {
         setTimeout(function() {
             flashNotice.classList.remove("show");
             flashNotice.classList.add("hide");
-        }, 5000); // 5000 milissegundos = 5 segundos
+        }, 5000);
 
         // Remove o flash da DOM após 5.5 segundos
         setTimeout(function() {
             flashNotice.remove();
-        }, 5500); 
+        }, 5500);
     }
 
     if (loginPopup) {
@@ -84,12 +85,18 @@ document.addEventListener("DOMContentLoaded", function() {
     const calendarEl = document.getElementById('calendar');
     if (calendarEl) {
         var calendar = new Calendar(calendarEl, {
-            plugins: [dayGridPlugin, timeGridPlugin],
+            plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin], // Adiciona plugins necessários
             initialView: 'dayGridMonth', // Exibe a visualização de mês no início
             locale: 'pt-br', // Coloca a linguagem do calendário em português
-            editable: true,
-            events: calendarEl.dataset.tasks // Carrega os eventos via dataset
+            editable: true, // Permite a edição de eventos
+            selectable: true, // Permite seleção de datas
+            events: '/crop_events.json', // Carrega os eventos via JSON
+            dateClick: function(info) {
+                // Redireciona para a criação de eventos ao clicar em uma data
+                window.location.href = `/crop_events/new?start_time=${info.dateStr}`;
+            }
         });
+
         calendar.render();
     }
 });

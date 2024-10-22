@@ -1,0 +1,2 @@
+class CropEvent < ApplicationRecord
+end
