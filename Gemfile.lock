@@ -382,6 +382,7 @@ DEPENDENCIES
   fullcalendar-rails
   importmap-rails
   jbuilder
+  momentjs-rails
   pg
   puma (>= 5.0)
   rails (~> 7.2.1)
