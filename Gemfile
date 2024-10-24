@@ -20,8 +20,6 @@ gem "jbuilder"
 # gem "redis", ">= 4.0.1"
 gem 'carrierwave', '~> 2.0'
 gem 'fullcalendar-rails'
-gem 'momentjs-rails'
-gem 'rails-assets-momentjs'
 gem "pg"
 gem 'devise'
 gem 'sass-rails', '>= 6'

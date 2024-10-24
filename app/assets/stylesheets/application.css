@@ -2,7 +2,10 @@
 @import "@fullcalendar/daygrid/main.css";
 @import "@fullcalendar/timegrid/main.css";
 
-
+/*
+ *= require_self
+ *= require_tree .
+ */
 
 /* Global Styles */
 * {
@@ -19,7 +22,7 @@ body {
 /* Navbar */
 .navbar {
     height: 60px;
-    padding-left: 260px;
+    padding-left: 250px; /* Mude para corresponder à largura da sidebar */
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -89,13 +92,13 @@ body {
 
 /* Main Content */
 .main-content {
-    margin-left: 130px;
+    margin-left: 250px; /* Ajustado para coincidir com a largura da sidebar */
     padding: 20px;
     transition: all 0.3s ease;
 }
 
 .sidebar.collapsed ~ .main-content {
-    margin-left: 80px;
+    margin-left: 80px; /* Ajustado para quando a sidebar está colapsada */
 }
 
 /* Card Styles */

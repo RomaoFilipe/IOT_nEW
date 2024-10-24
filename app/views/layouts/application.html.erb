@@ -1,100 +1,29 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= content_for(:title) || "IoT Agricultural Platform" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
+<head>
+  <title><%= content_for(:title) || "IoT Agricultural Platform" %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  
+<%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
+<%= javascript_include_tag "application", "data-turbo-track": "reload" %>
+<%= javascript_importmap_tags %>
 
-    <%= yield :head %>
+</head>
 
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+<body>
+  <% unless devise_controller? %>
+    <!-- Navbar e Sidebar são exibidos apenas se não for um controlador do Devise -->
+    <%= render 'shared/navbar' %>
+    <%= render 'shared/sidebar' %>
+  <% end %>
 
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
-    <%= javascript_include_tag 'application', 'data-turbo-track': 'reload' %>
-  </head>
+<div class="main-content">
+  <turbo-frame id="main-content">
+    <%= yield %> <!-- Conteúdo principal que será atualizado -->
+  </turbo-frame>
+</div>
 
-  <body data-sign-out-path="<%= destroy_user_session_path %>" data-sign-in-path="<%= new_user_session_path %>">
-    
-    <!-- Navbar e Sidebar aparecem apenas se não for um controlador do Devise -->
-    <% unless devise_controller? %>
-      <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
-        <div class="container-fluid">
-          <button id="toggleSidebar" class="btn btn-outline-success me-2">
-            <i class="bi bi-list"></i> <!-- Ícone para recolher/expandir -->
-          </button>
-          <a class="navbar-brand ms-3" href="#">Agriculture Dashboard</a>
-          <div class="ms-auto d-flex align-items-center">
-            <button class="btn btn-link text-dark me-3">
-              <i class="bi bi-bell"></i>
-              <span class="badge bg-danger">7</span>
-            </button>
-            <div class="dropdown">
-              <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                <% if user_signed_in? %>
-                  <%= image_tag(current_user.photo.url, alt: "Profile", width: 32, height: 32, class: "rounded-circle me-2") if current_user.photo.present? %>
-                  <strong><%= current_user.name %></strong>
-                <% else %>
-                  <strong>Guest</strong>
-                <% end %>
-              </a>
-
-              <ul class="dropdown-menu dropdown-menu-end">
-                <% if user_signed_in? %>
-                  <li><a class="dropdown-item" href="#">Profile</a></li>
-                  <li>
-                    <%= form_with(url: destroy_user_session_path, method: :delete, local: true) do %>
-                      <%= submit_tag "Sign out", class: "dropdown-item" %>
-                    <% end %>
-                  </li>
-                <% else %>
-                  <li><a class="dropdown-item" href="<%= new_user_session_path %>">Sign in</a></li>
-                <% end %>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <!-- Sidebar -->
-      <div class="sidebar">
-        <div class="sidebar-profile text-center py-4">
-          <% if user_signed_in? %>
-            <%= image_tag(current_user.photo.url, alt: "Profile Picture", class: "rounded-circle", width: "80", height: "80") if current_user.photo.present? %>
-            <h6 class="mt-2 mb-1"><%= current_user.name %></h6>
-            <p class="text-muted mb-3">Administrator</p>
-          <% else %>
-            <p class="text-muted mb-3">Not logged in</p>
-          <% end %>
-        </div>
-        <ul class="nav flex-column text-start px-3">
-          <li class="nav-item">
-            <%= link_to 'Dashboard', home_path, class: "nav-link d-flex align-items-center" %>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link d-flex align-items-center" href="#">
-              <i class="bi bi-bar-chart me-2"></i> <span>Analytics</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link d-flex align-items-center" href="#">
-              <i class="bi bi-calendar me-2"></i> <span>Calendar</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    <% end %>
-
-    <!-- Conteúdo principal da aplicação -->
-    <div class="main-content">
-      <%= yield %> <!-- Aqui será inserido o conteúdo específico de cada página -->
-    </div>
-
-  </body>
+</body>
 </html>
