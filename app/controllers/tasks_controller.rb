@@ -1,6 +1,5 @@
 class TasksController < ApplicationController
-  before_action :set_task, only: %i[show edit update destroy]
-  before_action :set_crops, only: %i[new edit create update]
+  before_action :set_task, only: [:show, :edit, :update, :destroy]
 
   # GET /tasks
   # GET /tasks.json
@@ -74,6 +73,6 @@ class TasksController < ApplicationController
 
   # Parâmetros permitidos para criação/atualização de tarefa
   def task_params
-    params.require(:task).permit(:crop_id, :name, :start_time, :end_time, :description)
+    params.require(:task).permit(:title, :start, :end, :task_type, :status, :notes)
   end
 end
