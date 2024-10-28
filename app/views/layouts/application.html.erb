@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
-  
-<%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
-<%= javascript_include_tag "application", "data-turbo-track": "reload" %>
-<%= javascript_importmap_tags %>
 
+  <!-- Stylesheets and JavaScript imports -->
+  <%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
 </head>
 
 <body>
   <% unless devise_controller? %>
-    <!-- Navbar e Sidebar são exibidos apenas se não for um controlador do Devise -->
+    <!-- Navbar and Sidebar are displayed only if not a Devise controller -->
     <%= render 'shared/navbar' %>
     <%= render 'shared/sidebar' %>
   <% end %>
 
-<div class="main-content">
-  <turbo-frame id="main-content">
-    <%= yield %> <!-- Conteúdo principal que será atualizado -->
-  </turbo-frame>
-</div>
-
+  <!-- Main Content Area with Turbo Frame for dynamic content loading -->
+  <div class="main-content">
+    <turbo-frame id="main-content">
+      <%= yield %> <!-- Main content will be dynamically updated here -->
+    </turbo-frame>
+  </div>
 </body>
 </html>

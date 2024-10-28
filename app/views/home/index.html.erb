@@ -92,6 +92,16 @@
             </div>
         </div>
 
+        <h1>Gestão Agrícola</h1>
+<ul>
+  <% Crop.all.each do |crop| %>
+    <li>
+      <strong><%= crop.name %></strong> - Plantado em: <%= crop.planted_on %>, Colheita Esperada: <%= crop.expected_harvest %>
+      <br>Próxima Tarefa: <%= crop.tasks.order(:start_time).first&.name || "Nenhuma tarefa agendada" %>
+    </li>
+  <% end %>
+</ul>
+
         <!-- Armazenamento e Outros Cartões -->
         <div class="row g-3 mt-4">
             <div class="col-md-4">

@@ -23,6 +23,9 @@ gem 'fullcalendar-rails'
 gem "pg"
 gem 'devise'
 gem 'sass-rails', '>= 6'
+# Gemfile
+gem 'chartkick'
+gem 'groupdate'
 
 
 gem 'dotenv-rails', groups: [:development, :test]
