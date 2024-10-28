@@ -1,0 +1,11 @@
+<% content_for :title, "New crop" %>
+
+<h1>New crop</h1>
+
+<%= render "form", crop: @crop %>
+
+<br>
+
+<div>
+  <%= link_to "Back to crops", crops_path %>
+</div>

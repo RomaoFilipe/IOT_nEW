@@ -20,10 +20,12 @@ gem "jbuilder"
 # gem "redis", ">= 4.0.1"
 gem 'carrierwave', '~> 2.0'
 gem 'fullcalendar-rails'
-
 gem "pg"
 gem 'devise'
 gem 'sass-rails', '>= 6'
+# Gemfile
+gem 'chartkick'
+gem 'groupdate'
 
 
 gem 'dotenv-rails', groups: [:development, :test]
