@@ -1,0 +1,36 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+  <div class="container-fluid">
+    <button id="toggleSidebar" class="btn btn-outline-success me-2">
+      <i class="bi bi-list"></i>
+    </button>
+    <a class="navbar-brand ms-3" href="#">Agriculture Dashboard</a>
+    <div class="ms-auto d-flex align-items-center">
+      <button class="btn btn-link text-dark me-3">
+        <i class="bi bi-bell"></i>
+        <span class="badge bg-danger">7</span>
+      </button>
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+          <% if user_signed_in? %>
+            <%= image_tag(current_user.photo.url, alt: "Profile", width: 32, height: 32, class: "rounded-circle me-2") if current_user.photo.present? %>
+            <strong><%= current_user.name %></strong>
+          <% else %>
+            <strong>Guest</strong>
+          <% end %>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <% if user_signed_in? %>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li>
+              <%= form_with(url: destroy_user_session_path, method: :delete, local: true) do %>
+                <%= submit_tag "Sign out", class: "dropdown-item" %>
+              <% end %>
+            </li>
+          <% else %>
+            <li><a class="dropdown-item" href="<%= new_user_session_path %>">Sign in</a></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>

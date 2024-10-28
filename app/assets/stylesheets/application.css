@@ -1,3 +1,8 @@
+
+ @import '@fullcalendar/core/main.css';
+ @import '@fullcalendar/daygrid/main.css';
+ @import '@fullcalendar/timegrid/main.css';
+ 
 /* Global Styles */
 * {
     margin: 0;
@@ -13,7 +18,7 @@ body {
 /* Navbar */
 .navbar {
     height: 60px;
-    padding-left: 260px;
+    padding-left: 250px; /* Mude para corresponder à largura da sidebar */
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -83,13 +88,13 @@ body {
 
 /* Main Content */
 .main-content {
-    margin-left: 260px;
+    margin-left: 130px; /* Ajustado para coincidir com a largura da sidebar */
     padding: 20px;
     transition: all 0.3s ease;
 }
 
 .sidebar.collapsed ~ .main-content {
-    margin-left: 80px;
+    margin-left: 80px; /* Ajustado para quando a sidebar está colapsada */
 }
 
 /* Card Styles */
@@ -145,18 +150,28 @@ body {
     font-size: 14px;
 }
 
+
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 100% da altura da viewport */
+    background-image: url('../images/backgroud.jpg'); /* Imagem de fundo */
+    background-size: cover;
+    background-position: center;
+}
+
 /* Login Page Styles */
 .login-box {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.9); /* Fundo branco com opacidade */
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     max-width: 400px;
     width: 100%;
-    margin: auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
 }
 
@@ -233,3 +248,139 @@ body {
         font-size: 14px;
     }
 }
+
+
+/* Alerta */
+
+/* Alerta Estilo do pop-up */
+.flash {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background-color: #28a745;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+  }
+  
+  .flash.fade-out {
+    opacity: 0;
+  }
+  
+  /* Popup Styles */
+  .popup {
+    display: none; /* Escondido por padrão */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #28a745; /* Cor de fundo verde */
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  
+  .popup.show {
+    display: block;
+    opacity: 1;
+  }
+  
+  .popup.hide {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+
+  /* Toast Notification Styles */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #28a745; /* Verde de sucesso */
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0; /* Inicialmente invisível */
+    z-index: 1000;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(-20px); /* Começa ligeiramente acima */
+}
+
+.toast-notification.show {
+    opacity: 1; /* Mostra a notificação */
+    transform: translateY(0); /* Volta à posição original */
+}
+
+.toast-notification.hide {
+    opacity: 0; /* Desvanece a notificação */
+    transform: translateY(-20px); /* Desce ligeiramente ao desaparecer */
+}
+
+.toast-notification.error {
+    background-color: #dc3545; /* Vermelho para erros */
+}
+
+
+
+
+
+/* Estilo básico do calendário */
+#calendar {
+    max-width: 90%;
+    margin: 0 auto;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  .fc-event {
+    background-color: #3498db !important; /* Cor dos eventos */
+    border: none !important;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  
+  .fc-event:hover {
+    background-color: #2980b9 !important; /* Hover dos eventos */
+  }
+  
+  .fc-toolbar {
+    background-color: #2c3e50; /* Cor da barra superior */
+    color: #ecf0f1;
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .fc-button {
+    background-color: #3498db;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    margin: 2px;
+    padding: 10px;
+  }
+  
+  .fc-button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Estilo da data atual */
+  .fc-today {
+    background-color: #ecf0f1 !important;
+    border-radius: 10px;
+    color: #2c3e50;
+  }
+  
+  .fc-day-grid-event {
+    white-space: normal;
+  }
+  
+  #calendar {
+    max-width: 900px;
+    margin: 0 auto;
+  }

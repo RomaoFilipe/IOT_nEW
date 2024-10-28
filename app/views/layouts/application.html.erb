@@ -1,35 +1,29 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= content_for(:title) || "IoT Agricultural Platform" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    
-    <%= csrf_meta_tags %> <!-- Apenas uma vez -->
-    <%= csp_meta_tag %>
+<head>
+  <title><%= content_for(:title) || "IoT Agricultural Platform" %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
 
-    <%= yield :head %>
+  <!-- Stylesheets and JavaScript imports -->
+  <%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+</head>
 
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-    
-    <!-- Stylesheets -->
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %> <!-- Se usar Turbo -->
-    
-    <!-- JavaScript Importmap ou UJS -->
-    <%= javascript_importmap_tags %> <!-- Para Hotwire/Turbo -->
-    
-    <%= javascript_include_tag 'application', 'data-turbo-track': 'reload' %> <!-- Se usar Turbolinks ou Turbo -->
-    <%= javascript_include_tag 'Script' %> <!-- Certifique-se de que o nome está correto -->
-  </head>
+<body>
+  <% unless devise_controller? %>
+    <!-- Navbar and Sidebar are displayed only if not a Devise controller -->
+    <%= render 'shared/navbar' %>
+    <%= render 'shared/sidebar' %>
+  <% end %>
 
-  <body>
-    <% flash.each do |key, value| %>
-      <div class="flash <%= key %>"><%= value %></div>
-    <% end %>
-
-    <%= yield %>
-  </body>
+  <!-- Main Content Area with Turbo Frame for dynamic content loading -->
+  <div class="main-content">
+    <turbo-frame id="main-content">
+      <%= yield %> <!-- Main content will be dynamically updated here -->
+    </turbo-frame>
+  </div>
+</body>
 </html>
