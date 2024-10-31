@@ -20,7 +20,10 @@
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
           <% if user_signed_in? %>
-            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li class="nav-item">
+              <%= link_to 'Profile', user_profile_path(current_user), class: "nav-link" %>
+
+            </li>
             <li>
               <%= form_with(url: destroy_user_session_path, method: :delete, local: true) do %>
                 <%= submit_tag "Sign out", class: "dropdown-item" %>
