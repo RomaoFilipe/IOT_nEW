@@ -4,22 +4,8 @@ class TasksController < ApplicationController
   # GET /tasks
   # GET /tasks.json
   def index
-    @tasks = Task.all
-
-    respond_to do |format|
-      format.html
-      format.json do
-        render json: @tasks.map do |task|
-          {
-            id: task.id,
-            title: task.name,
-            start: task.start_time,
-            end: task.end_time,
-            color: task.crop.name == 'Irrigação' ? '#28a745' : '#007bff'
-          }
-        end
-      end
-    end
+    tasks = Task.all
+    render json: tasks.map { |task| { id: task.id, title: task.title, start: task.start, end: task.end, task_type: task.task_type, status: task.status } }
   end
 
   # GET /tasks/1
@@ -35,12 +21,11 @@ class TasksController < ApplicationController
 
   # POST /tasks
   def create
-    @task = Task.new(task_params)
-
-    if @task.save
-      redirect_to @task, notice: 'Tarefa criada com sucesso.'
+    task = Task.new(task_params)
+    if task.save
+      render json: task, status: :created
     else
-      render :new, status: :unprocessable_entity
+      render json: task.errors, status: :unprocessable_entity
     end
   end
 
@@ -71,6 +56,7 @@ class TasksController < ApplicationController
     @crops = Crop.all
   end
 
+  private
   # Parâmetros permitidos para criação/atualização de tarefa
   def task_params
     params.require(:task).permit(:title, :start, :end, :task_type, :status, :notes)

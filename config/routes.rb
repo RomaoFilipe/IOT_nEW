@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   # Configuração do Devise para o sistema de autenticação
   devise_for :users
-  resources :tasks
+  resources :tasks, only: [:index, :create]
+
 
 
   # Define a rota do Devise para o login
