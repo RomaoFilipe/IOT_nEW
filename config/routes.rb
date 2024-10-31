@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   # Configuração do Devise para o sistema de autenticação
   devise_for :users
   resources :tasks, only: [:index, :create]
+  resources :profiles, only: [:show, :edit, :update]
 
 
 
@@ -18,4 +19,7 @@ Rails.application.routes.draw do
 
   # Rota para o calendário
   get '/calendar', to: 'calendar#index', as: 'calendar'
+
+  get 'profile/:id', to: 'profiles#show', as: 'user_profile'
+
 end

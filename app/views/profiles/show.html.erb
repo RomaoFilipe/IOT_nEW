@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agriculture Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Arquivo CSS personalizado -->
+</head>
+<body>
+  <div class="main-content flex-grow-1 p-4"> 
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="profile-photo">
+      <%= image_tag @user.photo.url, class: "rounded-circle profile-img" %>
+    </div>
+    <h2 class="profile-name"><%= @user.name %></h2>
+    <p class="profile-email"><%= @user.email %></p>
+    <p class="profile-created-at">Conta criada em: <%= @user.created_at.strftime("%d/%m/%Y") %></p>
+    <%= link_to 'Editar Perfil', edit_profile_path(@user), class: "btn btn-outline-primary edit-profile-button" %>
+  </div>
+</div>
+
+
+</div>
+</body>

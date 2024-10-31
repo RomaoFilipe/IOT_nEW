@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agriculture Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Arquivo CSS personalizado -->
+</head>
+<body>
+    <div class="main-content flex-grow-1 p-4"> 
+<div class="edit-profile-page">
+  <h2 class="profile-title">Editar Perfil</h2>
+  <div class="edit-profile-form">
+    <%= form_for @user, url: profile_path(@user), method: :patch, html: { multipart: true } do |f| %>
+      <div class="form-group">
+        <%= f.label :name, "Nome" %>
+        <%= f.text_field :name, class: "form-control" %>
+      </div>
+      
+      <div class="form-group">
+        <%= f.label :email, "Email" %>
+        <%= f.email_field :email, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password, "Nova Password" %>
+        <%= f.password_field :password, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password_confirmation, "Confirmar Password" %>
+        <%= f.password_field :password_confirmation, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :photo, "Foto de Perfil" %>
+        <%= f.file_field :photo, class: "form-control-file" %>
+        <% if @user.photo.present? %>
+          <div class="current-photo">
+            <%= image_tag @user.photo.url, class: "profile-img-small" %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="form-group">
+        <%= f.submit "Atualizar Perfil", class: "btn btn-primary mt-3" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+</div> 
+</body>
+</html>
