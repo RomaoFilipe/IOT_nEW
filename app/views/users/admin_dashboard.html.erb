@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agriculture Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="users.css.scss"> <!-- Arquivo CSS personalizado -->
+    <link rel="stylesheet" href="application.css">
+</head>
+
+<body>
+<div class="main-content flex-grow-1 p-4">
+<h1>Painel de Administração</h1>
+<p>Aqui você pode visualizar todas as contas de usuários.</p>
+
+<div class="users-container">
+  <% @users.each do |user| %>
+    <div class="user-box">
+      <h3><%= user.name %></h3>
+      <p>Email: <%= user.email %></p>
+      <p>Conta criada em: <%= user.created_at.strftime("%d/%m/%Y") %></p>
+      <% if user.admin? %>
+        <p class="admin-badge">Administrador</p>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+</div>
+</body>
+</html>

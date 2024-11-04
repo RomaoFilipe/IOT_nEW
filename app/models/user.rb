@@ -5,4 +5,8 @@ class User < ApplicationRecord
 
   # Montar o uploader para o campo photo usando CarrierWave
   mount_uploader :photo, PhotoUploader
+
+  def admin?
+    self.admin
+  end
 end

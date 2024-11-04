@@ -20,9 +20,11 @@
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
           <% if user_signed_in? %>
+              <div class="alert alert-warning">
+                Você está visualizando a conta de <%= current_user.name %>. <%= link_to 'Voltar para minha conta', retornar_como_admin_path, method: :delete %>
+              </div>
             <li class="nav-item">
               <%= link_to 'Profile', user_profile_path(current_user), class: "nav-link" %>
-
             </li>
             <li>
               <%= form_with(url: destroy_user_session_path, method: :delete, local: true) do %>

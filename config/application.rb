@@ -11,10 +11,12 @@ module IoTAgriculturalPlatform
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.2
 
-    # Please, add to the `ignore` list any other `lib` subdirectories that do
-    # not contain `.rb` files, or that should not be reloaded or eager loaded.
-    # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks])
+    # Ignorar diretórios específicos no lib que não contêm arquivos .rb
+    config.autoload_paths += Dir[Rails.root.join('lib', '{assets,tasks}')]
+    config.eager_load_paths += Dir[Rails.root.join('lib', '{assets,tasks}')]
+
+    # Evitar erro de callback para ações ausentes
+    config.action_controller.raise_on_missing_callback_actions = false
 
     # Configuration for the application, engines, and railties goes here.
     #
