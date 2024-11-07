@@ -1,82 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agriculture Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="styles.css" />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="<%= form_authenticity_token %>">
 
-    
+  <title>Agriculture Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="styles.css" />
 
-    <!-- FullCalendar Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.global.min.js"></script>
-  </head>
+  <!-- FullCalendar CSS and Scripts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/main.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.15/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.15/index.global.min.js"></script>
+</head>
 
-  <body>
-    <div id="calendar"></div>
+<body>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Gestão Agrícola</h2>
+  <button type="button" class="btn btn-primary mb-3" id="openTaskModalBtn">Nova Tarefa</button>
+  <div id="calendar" class="mb-3"></div>
+</div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        var calendarEl = document.getElementById("calendar");
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: "dayGridMonth",
-          selectable: true, // Permite seleção de datas
-          editable: true,   // Permite arrastar e editar eventos
-          events: "/tasks.json", // Carrega tarefas do controlador Tasks
+<!-- Modal de criação/edição de tarefa -->
+<div class="modal" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="taskModalLabel">Nova Tarefa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="taskForm">
+          <input type="hidden" id="taskId"> <!-- Armazena o ID da tarefa -->
+          <div class="mb-3">
+            <label for="taskTitle" class="form-label">Título da Tarefa</label>
+            <input type="text" class="form-control" id="taskTitle" required>
+          </div>
+          <div class="mb-3">
+            <label for="taskType" class="form-label">Tipo de Tarefa</label>
+            <input type="text" class="form-control" id="taskType" required>
+          </div>
+          <div class="mb-3">
+            <label for="taskStatus" class="form-label">Status</label>
+            <select class="form-select" id="taskStatus" required>
+              <option value="Pendente">Pendente</option>
+              <option value="Concluída">Concluída</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="taskStart" class="form-label">Data e Hora de Início</label>
+            <input type="datetime-local" class="form-control" id="taskStart" required>
+          </div>
+          <div class="mb-3">
+            <label for="taskEnd" class="form-label">Data e Hora de Término</label>
+            <input type="datetime-local" class="form-control" id="taskEnd" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="saveTaskBtn">Salvar Tarefa</button>
+        <button type="button" class="btn btn-danger" id="deleteTaskBtn" style="display: none;">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-          select: function (info) {
-            var title = prompt("Enter Task Title:");
-            var taskType = prompt("Enter Task Type (e.g., Planting, Watering, Harvesting):");
-            var status = "Pending"; // Define um status padrão para a tarefa
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var calendarEl = document.getElementById("calendar");
 
-            if (title) {
-              var taskData = {
-                title: title,
-                start: info.startStr,
-                end: info.endStr,
-                task_type: taskType,
-                status: status,
-              };
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: "dayGridMonth",
+      headerToolbar: {
+        left: "prev,next today",
+        center: "title",
+        right: "dayGridMonth,timeGridWeek,timeGridDay"
+      },
+      selectable: true,
+      editable: true,
+      events: "/tasks.json",
 
-              // Envia um POST para criar a nova tarefa
-              fetch("/tasks", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ task: taskData }),
-              })
-                .then((response) => response.json())
-                .then((task) => {
-                  // Adiciona a nova tarefa ao calendário
-                  calendar.addEvent({
-                    id: task.id,
-                    title: task.title,
-                    start: task.start,
-                    end: task.end,
-                    task_type: task.task_type,
-                    status: task.status,
-                  });
-                });
+      select: function (info) {
+        const startDate = new Date(info.startStr);
+        startDate.setHours(8, 0, 0, 0); // Define hora padrão 08:00
+        document.getElementById("taskStart").value = startDate.toISOString().slice(0, 16);
+        document.getElementById("taskEnd").value = "";
+        document.getElementById("taskForm").reset();
+        document.getElementById("taskModalLabel").textContent = "Nova Tarefa";
+        document.getElementById("saveTaskBtn").textContent = "Salvar Tarefa";
+        document.getElementById("deleteTaskBtn").style.display = "none";
+        new bootstrap.Modal(document.getElementById("taskModal")).show();
+      },
+
+      eventClick: function (info) {
+        var event = info.event;
+        document.getElementById("taskId").value = event.id;
+        document.getElementById("taskTitle").value = event.title;
+        document.getElementById("taskType").value = event.extendedProps.task_type;
+        document.getElementById("taskStatus").value = event.extendedProps.status;
+        document.getElementById("taskStart").value = event.start.toISOString().slice(0, 16);
+        document.getElementById("taskEnd").value = event.end ? event.end.toISOString().slice(0, 16) : "";
+        document.getElementById("taskModalLabel").textContent = "Editar Tarefa";
+        document.getElementById("saveTaskBtn").textContent = "Atualizar Tarefa";
+        document.getElementById("deleteTaskBtn").style.display = "inline-block";
+        new bootstrap.Modal(document.getElementById("taskModal")).show();
+      },
+    });
+
+    calendar.render();
+
+    const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+
+    document.getElementById("saveTaskBtn").addEventListener("click", function () {
+      var taskId = document.getElementById("taskId").value;
+      var title = document.getElementById("taskTitle").value;
+      var taskType = document.getElementById("taskType").value;
+      var status = document.getElementById("taskStatus").value;
+      var start = document.getElementById("taskStart").value;
+      var end = document.getElementById("taskEnd").value;
+
+      var method = taskId ? "PATCH" : "POST";
+      var url = taskId ? `/tasks/${taskId}` : "/tasks";
+
+      if (title && taskType && status) {
+        var taskData = {
+          title: title,
+          start: start,
+          end: end,
+          task_type: taskType,
+          status: status,
+        };
+
+        fetch(url, {
+          method: method,
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken
+          },
+          body: JSON.stringify({ task: taskData }),
+        })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("Erro ao salvar a tarefa.");
+          }
+        })
+        .then((task) => {
+          toastr.success("Tarefa salva com sucesso!");
+
+          // Adiciona ou atualiza o evento no calendário
+          if (taskId) {
+            let event = calendar.getEventById(taskId);
+            if (event) {
+              event.setProp("title", title);
+              event.setExtendedProp("task_type", taskType);
+              event.setExtendedProp("status", status);
+              event.setStart(start);
+              event.setEnd(end);
             }
-            calendar.unselect(); // Desseleciona o intervalo no calendário
-          },
+          } else {
+            calendar.addEvent({
+              id: task.id,
+              title: task.title,
+              start: task.start,
+              end: task.end,
+              task_type: task.task_type,
+              status: task.status,
+            });
+          }
 
-          eventClick: function (info) {
-            alert(
-              "Task: " +
-                info.event.title +
-                "\nType: " +
-                info.event.extendedProps.task_type +
-                "\nStatus: " +
-                info.event.extendedProps.status
-            );
-          },
+          bootstrap.Modal.getInstance(document.getElementById("taskModal")).hide();
+          document.getElementById("taskForm").reset();
+        })
+        .catch((error) => {
+          toastr.error(error.message || "Erro ao salvar a tarefa.");
         });
+      }
+    });
 
-        calendar.render();
-      });
-    </script>
-  </body>
+    document.getElementById("deleteTaskBtn").addEventListener("click", function () {
+      var taskId = document.getElementById("taskId").value;
+
+      if (taskId) {
+        fetch(`/tasks/${taskId}`, {
+          method: "DELETE",
+          headers: {
+            "X-CSRF-Token": csrfToken
+          },
+        })
+        .then((response) => {
+          if (response.ok) {
+            toastr.success("Tarefa excluída com sucesso!");
+            calendar.getEventById(taskId).remove();
+            bootstrap.Modal.getInstance(document.getElementById("taskModal")).hide();
+          } else {
+            throw new Error("Erro ao excluir a tarefa.");
+          }
+        })
+        .catch((error) => {
+          toastr.error(error.message || "Erro ao excluir a tarefa.");
+        });
+      }
+    });
+  });
+</script>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script>
+  toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": true,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+  };
+</script>
+
+</body>
 </html>
