@@ -9,9 +9,183 @@
     <link rel="stylesheet" href="styles.css"> <!-- Arquivo CSS personalizado -->
 </head>
 <body>
-<div class="main-content flex-grow-1 p-4">
-<h1>Analytics</h1>
-<p>Aqui estarão as suas análises de dados.</p>
+
+<div class="container mt-5">
+    <h1 class="h3 mb-4">Dashboard</h1>
+
+    <!-- Resumo e Alertas -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-success">MÊS</h6>
+                    <h2 class="card-value">47K</h2>
+                    <p class="text-muted small">ÚLTIMO MÊS</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-success">Total</h6>
+                    <h2 class="card-value">58.4K</h2>
+                    <p class="text-muted small">LEGUMES</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-success">Share</h6>
+                    <h2 class="card-value">26M</h2>
+                    <p class="text-muted small">FRUTAS</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-success">TEMPERATURA</h6>
+                    <h2 class="card-value">31°C</h2>
+                    <p class="text-muted small">CALOR</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Gráficos e Análise -->
+    <div class="row g-3">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Produtividade Geral</h5>
+                    <canvas id="productivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Alertas e Notificações</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Tarefas pendentes: 3</li>
+                        <li class="list-group-item">Previsão de chuva para amanhã</li>
+                        <li class="list-group-item">Colheita de milho agendada</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumo de Colheitas -->
+    <h2 class="mt-4">Resumo de Colheitas</h2>
+    <ul>
+        <% Crop.all.each do |crop| %>
+            <li>
+                <strong><%= crop.name %></strong> - Plantado em: <%= crop.planted_on %>, Colheita Esperada: <%= crop.expected_harvest %>
+                <br>Próxima Tarefa: <%= crop.tasks.order(:start_time).first&.name || "Nenhuma tarefa agendada" %>
+            </li>
+        <% end %>
+    </ul>
+
+    <!-- Armazenamento e Projetos em Andamento -->
+    <div class="row g-3 mt-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Uso de Armazenamento</h5>
+                    <p>Usando 1466 MB de 2 GB</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Produtos Mais Vendidos</h5>
+                    <p>Receita: $3189</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Arquivos Compartilhados</h5>
+                    <p>Total de Arquivos: 100</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Seção Analytics -->
+<div class="container mt-5">
+    <h2 class="mb-4">Analytics</h2>
+
+    <!-- Gráficos de Análise Detalhada -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Análise de Produtividade por Safra</h5>
+                    <canvas id="yieldChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Consumo de Recursos por Cultura</h5>
+                    <canvas id="resourceUsageChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eficiência e Histórico -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Eficiência de Tarefas</h5>
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Previsões de Rendimento</h5>
+                    <canvas id="forecastChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Gráficos do Dashboard e Analytics usando Chart.js
+    var ctxProductivity = document.getElementById('productivityChart').getContext('2d');
+    new Chart(ctxProductivity, { /* Dados para produtividade geral */ });
+
+    var ctxYield = document.getElementById('yieldChart').getContext('2d');
+    new Chart(ctxYield, { /* Dados para análise de produtividade por safra */ });
+
+    var ctxResourceUsage = document.getElementById('resourceUsageChart').getContext('2d');
+    new Chart(ctxResourceUsage, { /* Dados para consumo de recursos por cultura */ });
+
+    var ctxEfficiency = document.getElementById('efficiencyChart').getContext('2d');
+    new Chart(ctxEfficiency, { /* Dados para eficiência de tarefas */ });
+
+    var ctxForecast = document.getElementById('forecastChart').getContext('2d');
+    new Chart(ctxForecast, { /* Dados para previsões de rendimento */ });
+</script>
+
 </body>
 </html>

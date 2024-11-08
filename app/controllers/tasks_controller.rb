@@ -1,10 +1,11 @@
 class TasksController < ApplicationController
+  before_action :authenticate_user! # Certifique-se de que o usuário está autenticado
   before_action :set_task, only: [:show, :edit, :update, :destroy]
 
   # GET /tasks
   def index
-    tasks = Task.all
-    render json: tasks.map { |task| { id: task.id, title: task.title, start: task.start, end: task.end, task_type: task.task_type, status: task.status } }
+    @tasks = current_user.tasks # Busca apenas tarefas do usuário atual
+    render json: @tasks
   end
 
   # GET /tasks/1
@@ -19,15 +20,15 @@ class TasksController < ApplicationController
   def edit; end
 
   # POST /tasks
-def create
-  task = Task.new(task_params)
-  if task.save
-    render json: task, status: :created
-  else
-    render json: task.errors, status: :unprocessable_entity
-  end
-end
+  def create
+    @task = current_user.tasks.build(task_params) # Associa a tarefa ao usuário atual
 
+    if @task.save
+      render json: @task, status: :created
+    else
+      render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
 
   # PATCH/PUT /tasks/1
   def update
@@ -54,5 +55,4 @@ end
   def task_params
     params.require(:task).permit(:title, :start, :end, :task_type, :status)
   end
-
 end

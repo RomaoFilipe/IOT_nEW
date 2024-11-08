@@ -5,6 +5,7 @@ class User < ApplicationRecord
 
   # Montar o uploader para o campo photo usando CarrierWave
   mount_uploader :photo, PhotoUploader
+  has_many :tasks, dependent: :destroy
 
   def admin?
     self.admin
