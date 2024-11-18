@@ -15,6 +15,7 @@
 
     <!-- Resumo e Alertas -->
     <div class="row g-3 mb-4">
+        <!-- Estatísticas principais -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0 bg-white">
                 <div class="card-body text-center">
@@ -58,7 +59,7 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <h5 class="card-title">Produtividade Geral</h5>
+                    <h5 class="card-title">Produtividade Geral (Mensal)</h5>
                     <canvas id="productivityChart"></canvas>
                 </div>
             </div>
@@ -77,55 +78,8 @@
         </div>
     </div>
 
-    <!-- Resumo de Colheitas -->
-    <h2 class="mt-4">Resumo de Colheitas</h2>
-    <ul>
-        <% Crop.all.each do |crop| %>
-            <li>
-                <strong><%= crop.name %></strong> - Plantado em: <%= crop.planted_on %>, Colheita Esperada: <%= crop.expected_harvest %>
-                <br>Próxima Tarefa: <%= crop.tasks.order(:start_time).first&.name || "Nenhuma tarefa agendada" %>
-            </li>
-        <% end %>
-    </ul>
-
-    <!-- Armazenamento e Projetos em Andamento -->
-    <div class="row g-3 mt-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Uso de Armazenamento</h5>
-                    <p>Usando 1466 MB de 2 GB</p>
-                    <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Produtos Mais Vendidos</h5>
-                    <p>Receita: $3189</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Arquivos Compartilhados</h5>
-                    <p>Total de Arquivos: 100</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Seção Analytics -->
-<div class="container mt-5">
-    <h2 class="mb-4">Analytics</h2>
-
-    <!-- Gráficos de Análise Detalhada -->
-    <div class="row">
+    <!-- Gráficos Detalhados de Analytics -->
+    <div class="row mt-4">
         <div class="col-md-6">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
@@ -144,7 +98,6 @@
         </div>
     </div>
 
-    <!-- Eficiência e Histórico -->
     <div class="row mt-4">
         <div class="col-md-6">
             <div class="card shadow-sm border-0">
@@ -163,6 +116,25 @@
             </div>
         </div>
     </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Temperatura Média Mensal</h5>
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Tarefas Pendentes x Concluídas</h5>
+                    <canvas id="tasksChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- JavaScript para gráficos -->
@@ -170,21 +142,142 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Gráficos do Dashboard e Analytics usando Chart.js
+    // Produtividade Geral (Mensal)
     var ctxProductivity = document.getElementById('productivityChart').getContext('2d');
-    new Chart(ctxProductivity, { /* Dados para produtividade geral */ });
+    new Chart(ctxProductivity, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [{
+                label: 'Produtividade (toneladas)',
+                data: [50, 60, 55, 70, 80, 75, 90],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                fill: false,
+            }]
+        },
+        options: {
+            responsive: true,
+        }
+    });
 
-    var ctxYield = document.getElementById('yieldChart').getContext('2d');
-    new Chart(ctxYield, { /* Dados para análise de produtividade por safra */ });
+// Gráfico de Barras para Produtividade por Safra usando os dados de tarefas
+fetch('/tasks.json')
+    .then(response => response.json())
+    .then(tasks => {
+        // Processa os dados das tarefas para agregação
+        const productionData = tasks.reduce((acc, task) => {
+            if (task.quantity_produced && task.crop_type) {
+                acc[task.crop_type] = (acc[task.crop_type] || 0) + task.quantity_produced;
+            }
+            return acc;
+        }, {});
 
+        // Cria o gráfico com os dados agregados
+        var ctxYield = document.getElementById('yieldChart').getContext('2d');
+        new Chart(ctxYield, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(productionData),
+                datasets: [{
+                    label: 'Produtividade (kg)',
+                    data: Object.values(productionData),
+                    backgroundColor: ['#4CAF50', '#FF6384', '#36A2EB', '#FFCE56'],
+                }]
+            },
+            options: {
+                responsive: true,
+            }
+        });
+    })
+    .catch(error => console.error("Erro ao carregar os dados de produtividade:", error));
+
+
+
+    // Consumo de Recursos por Cultura
     var ctxResourceUsage = document.getElementById('resourceUsageChart').getContext('2d');
-    new Chart(ctxResourceUsage, { /* Dados para consumo de recursos por cultura */ });
+    new Chart(ctxResourceUsage, {
+        type: 'pie',
+        data: {
+            labels: ['Água', 'Fertilizante', 'Pesticida', 'Combustível'],
+            datasets: [{
+                data: [40, 30, 20, 10],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50'],
+            }]
+        },
+        options: {
+            responsive: true,
+        }
+    });
 
+    // Eficiência de Tarefas
     var ctxEfficiency = document.getElementById('efficiencyChart').getContext('2d');
-    new Chart(ctxEfficiency, { /* Dados para eficiência de tarefas */ });
+    new Chart(ctxEfficiency, {
+        type: 'line',
+        data: {
+            labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+            datasets: [{
+                label: 'Eficiência (%)',
+                data: [85, 90, 80, 95],
+                borderColor: '#36A2EB',
+                fill: false,
+            }]
+        },
+        options: {
+            responsive: true,
+        }
+    });
 
+    // Previsões de Rendimento
     var ctxForecast = document.getElementById('forecastChart').getContext('2d');
-    new Chart(ctxForecast, { /* Dados para previsões de rendimento */ });
+    new Chart(ctxForecast, {
+        type: 'line',
+        data: {
+            labels: ['Set', 'Out', 'Nov', 'Dez'],
+            datasets: [{
+                label: 'Previsão de Rendimento (toneladas)',
+                data: [100, 120, 140, 160],
+                borderColor: '#FF6384',
+                fill: false,
+            }]
+        },
+        options: {
+            responsive: true,
+        }
+    });
+
+    // Temperatura Média Mensal
+    var ctxTemperature = document.getElementById('temperatureChart').getContext('2d');
+    new Chart(ctxTemperature, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+            datasets: [{
+                label: 'Temperatura Média (°C)',
+                data: [22, 24, 27, 30, 33, 31, 28, 26],
+                borderColor: '#FF5722',
+                fill: false,
+            }]
+        },
+        options: {
+            responsive: true,
+        }
+    });
+
+    // Tarefas Pendentes x Concluídas
+    var ctxTasks = document.getElementById('tasksChart').getContext('2d');
+    new Chart(ctxTasks, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pendentes', 'Concluídas'],
+            datasets: [{
+                data: [15, 35],
+                backgroundColor: ['#FFCE56', '#4CAF50'],
+            }]
+        },
+        options: {
+            responsive: true,
+        }
+    });
 </script>
 
 </body>

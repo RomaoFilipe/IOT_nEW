@@ -1,5 +1,4 @@
-
- @import '@fullcalendar/core/main.css';
+@import '@fullcalendar/core/main.css';
  @import '@fullcalendar/daygrid/main.css';
  @import '@fullcalendar/timegrid/main.css';
  
@@ -615,3 +614,15 @@ body {
         background-color: #45a049;
       }
     }
+
+    .fc-event-pendente {
+      background-color: orange !important;
+      border-color: orange !important;
+      color: white; /* Ajuste de contraste para o texto */
+    }
+    
+    .fc-event-concluida {
+      background-color: green !important;
+      border-color: green !important;
+      color: white; /* Ajuste de contraste para o texto */
+    } 
