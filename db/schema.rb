@@ -10,19 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_07_123918) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_18_220608) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "crop_events", force: :cascade do |t|
-    t.string "name"
-    t.text "description"
-    t.string "event_type"
-    t.datetime "start_time"
-    t.datetime "end_time"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
 
   create_table "crops", force: :cascade do |t|
     t.string "name"
@@ -33,24 +23,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_123918) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "events", force: :cascade do |t|
-    t.string "title"
-    t.text "description"
-    t.datetime "start_time"
-    t.datetime "end_time"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "tasks", force: :cascade do |t|
-    t.string "name"
-    t.text "description"
-    t.date "date"
-    t.time "time"
-    t.string "location"
-    t.boolean "all_day"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.string "title"
     t.datetime "start"
     t.datetime "end"
@@ -58,6 +31,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_123918) do
     t.string "status"
     t.text "notes"
     t.integer "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -71,6 +46,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_123918) do
     t.string "name"
     t.string "photo"
     t.boolean "admin", default: false
+    t.string "encrypted_name"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

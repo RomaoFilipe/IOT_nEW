@@ -490,139 +490,20 @@ body {
     margin-top: 10px;
 }
 .container {
-    max-width: 1100px;
-    margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px); /* Altura da viewport menos a navbar */
+  margin-top: 0; /* Remove margens extras */
 }
 
 
-
-
-
-
-
-       /* Estilo do container do calendário */
-       #calendar {
-        height: auto;
-        min-height: 800px; /* Define uma altura mínima maior */
-        max-height: none; /* Remove qualquer limitação de altura */
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        padding: 20px;
-        background-color: #ffffff;
-      }
-
-      /* Responsividade da toolbar do FullCalendar */
-      .fc-toolbar.fc-header-toolbar {
-        flex-wrap: wrap;
-        gap: 10px;
-        justify-content: center;
-      }
-  
-      /* Título e layout centralizado */
-/* Container principal do calendário */
-        .calendar-container {
-          background: #ffffff;
-          padding: 20px;
-          border-radius: 10px;
-          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-          margin-top: 20px;
-          max-width: 100%; /* Ocupa a largura total da tela */
-          width: 90vw; /* Opcional: define uma largura que se adapta melhor a telas maiores */
-        }
-  
-        .fc-toolbar-title {
-          font-size: 1.5rem;
-          font-weight: 600;
-          color: #4a4a4a;
-        }
-    
-  
-      /* Estilos dos botões de navegação */
-      .fc-button {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 6px 10px;
-        font-size: 0.8rem;
-        margin: 0 2px;
-      }
-  /* Ajustes de responsividade para o modal em dispositivos móveis */
-  @media (max-width: 768px) {
-    #calendar {
-      padding: 15px;
-      min-height: 600px; /* Reduz a altura mínima em telas menores */
-    }
-
-      .modal-content {
-        padding: 10px;
-      }
-    
-      .fc-toolbar-title {
-        font-size: 1.2rem;
-      }
-    
-      /* Ajuste do botão de navegação e visualização */
-      .fc-button {
-        padding: 4px 8px;
-        font-size: 0.75rem;
-      }
-    }
-    
-    /* Ajustes para a exibição do calendário */
-    @media (max-width: 768px) {
-      #calendar {
-        padding: 10px;
-      }
-    
-      .calendar-container {
-        padding: 15px;
-        width: 100%;
-      }
-
-      .fc-button:hover {
-        background-color: #45a049;
-      }
-  
-      /* Dias da semana e números dos dias */
-      .fc-daygrid-day-number {
-        color: #666;
-        font-weight: 600;
-        font-size: 1rem;
-      }
-  
-      .fc-daygrid-weekday {
-        color: #4CAF50;
-        font-weight: 600;
-        font-size: 0.9rem;
-      }
-  
-      /* Dia selecionado */
-      .fc-daygrid-day.fc-day-today {
-        background-color: rgba(76, 175, 80, 0.1);
-        border-radius: 8px;
-        border: 1px solid #4CAF50;
-      }
-  
-      /* Visual do modal */
-      .modal-header, .btn-primary {
-        background-color: #4CAF50;
-        color: #ffffff;
-      }
-  
-      .btn-primary:hover {
-        background-color: #45a049;
-      }
-    }
-
-    .fc-event-pendente {
-      background-color: orange !important;
-      border-color: orange !important;
-      color: white; /* Ajuste de contraste para o texto */
-    }
-    
-    .fc-event-concluida {
-      background-color: green !important;
-      border-color: green !important;
-      color: white; /* Ajuste de contraste para o texto */
-    } 
+#three-container {
+  position: fixed; /* Fixa na parte superior da página */
+  top: 0;
+  left: 0;
+  width: 100vw; /* Largura total da janela */
+  height: 400px; /* Altura fixa inicial */
+  z-index: 100; /* Garantir que fique acima de outros elementos */
+  background-color: #fa1919;
+  border-bottom: 1px solid hsl(0, 80%, 47%);
+}

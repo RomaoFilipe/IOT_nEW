@@ -11,275 +11,141 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- FullCalendar CSS and Scripts -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/main.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/index.global.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.global.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.15/index.global.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.15/index.global.min.js"></script>
+  <style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+    }
+
+    #three-js-container {
+        width: 100%;
+        height: 700px;
+        background-color: #e0e0e0;
+        border: 1px solid #ccc;
+    }
+  </style>
 </head>
 
 <body>
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Gestão Agrícola</h2>
-  <!-- Botão de adicionar tarefa com ícone "+" -->
-  <div id="calendar" class="mb-3"></div>
-</div>
+<div id="three-js-container"></div>
 
-<!-- Modal de criação/edição de tarefa -->
-<div class="modal" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="taskModalLabel">Nova Tarefa</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-    <form id="taskForm">
-        <input type="hidden" id="taskId"> <!-- Armazena o ID da tarefa -->
-        
-        <div class="mb-3">
-            <label for="taskTitle" class="form-label">Título da Tarefa</label>
-            <input type="text" class="form-control" id="taskTitle" required>
-        </div>
-        
-        <div class="mb-3">
-            <label for="taskType" class="form-label">Tipo de Tarefa</label>
-            <input type="text" class="form-control" id="taskType" required>
-        </div>
-        
-        <div class="mb-3">
-            <label for="taskStatus" class="form-label">Status</label>
-            <select class="form-select" id="taskStatus" required>
-                <option value="Pendente">Pendente</option>
-                <option value="Concluída">Concluída</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="cropType" class="form-label">Tipo de Cultura</label>
-            <input type="text" class="form-control" id="cropType" placeholder="Ex: Milho, Soja">
-        </div>
-
-        <div class="mb-3">
-            <label for="quantityProduced" class="form-label">Quantidade Produzida (kg)</label>
-            <input type="number" class="form-control" id="quantityProduced" placeholder="Ex: 100">
-        </div>
-
-        <div class="mb-3">
-            <label for="resourceUsed" class="form-label">Recurso Utilizado</label>
-            <select class="form-select" id="resourceUsed">
-                <option value="Água">Água</option>
-                <option value="Fertilizante">Fertilizante</option>
-                <option value="Pesticida">Pesticida</option>
-                <option value="Combustível">Combustível</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="taskStart" class="form-label">Data e Hora de Início</label>
-            <input type="datetime-local" class="form-control" id="taskStart" required>
-        </div>
-        
-        <div class="mb-3">
-            <label for="taskEnd" class="form-label">Data e Hora de Término</label>
-            <input type="datetime-local" class="form-control" id="taskEnd" required>
-        </div>
-    </form>
-</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="saveTaskBtn">Salvar Tarefa</button>
-        <button type="button" class="btn btn-danger" id="deleteTaskBtn" style="display: none;">Excluir</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Importação do Three.js, GLTFLoader e OrbitControls -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
- document.addEventListener("DOMContentLoaded", function () {
-  var calendarEl = document.getElementById("calendar");
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('three-js-container');
 
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "dayGridMonth",
-    headerToolbar: {
-      left: "prev,next today addTaskButton",
-      center: "title",
-      right: "dayGridMonth,timeGridWeek,timeGridDay"
-    },
-    customButtons: {
-      addTaskButton: {
-        text: "+",
-        click: function() {
-          document.getElementById("taskForm").reset();
-          document.getElementById("taskModalLabel").textContent = "Nova Tarefa";
-          document.getElementById("saveTaskBtn").textContent = "Salvar Tarefa";
-          document.getElementById("deleteTaskBtn").style.display = "none";
-          new bootstrap.Modal(document.getElementById("taskModal")).show();
-        }
-      }
-    },
-    selectable: true,
-    editable: true,
-    events: "/tasks.json",
-    displayEventTime: true,
-    dayMaxEvents: true, // Permite múltiplos eventos no mesmo dia
+        if (container) {
+            // Configuração da cena, câmera e renderizador
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(0xf4f4f4);
+            container.appendChild(renderer.domElement);
 
-    select: function (info) {
-      const startDate = new Date(info.startStr);
-      startDate.setHours(8, 0, 0, 0);
-      const formattedStartDate = startDate.toISOString().slice(0, 16);
-      document.getElementById("taskStart").value = formattedStartDate;
-      document.getElementById("taskEnd").value = ""; 
-      document.getElementById("taskForm").reset();
-      
-      document.getElementById("taskModalLabel").textContent = "Nova Tarefa";
-      document.getElementById("saveTaskBtn").textContent = "Salvar Tarefa";
-      document.getElementById("deleteTaskBtn").style.display = "none";
-      new bootstrap.Modal(document.getElementById("taskModal")).show();
-    },
+            // Adicionar luz ambiente
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
 
-    events: function(fetchInfo, successCallback, failureCallback) {
-      fetch(/tasks.json)
-        .then(response => response.json())
-        .then(data => {
-          const styledEvents = data.map(event => {
-            return {
-              ...event,
-              className: event.status === "Pendente" ? "fc-event-pendente" : event.status === "Concluída" ? "fc-event-concluida" : ""
-            };
-          });
-          successCallback(styledEvents);
-        })
-        .catch(error => {
-          console.error("Erro ao carregar tarefas:", error);
-          failureCallback(error);
-        });
-    },
+            // Configurar controles Orbit
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 40;
+            controls.maxDistance = 200;
+            controls.maxPolarAngle = Math.PI / 2;
 
-    eventClick: function (info) {
-      var event = info.event;
-      document.getElementById("taskId").value = event.id;
-      document.getElementById("taskTitle").value = event.title;
-      document.getElementById("taskType").value = event.extendedProps.task_type;
-      document.getElementById("taskStatus").value = event.extendedProps.status;
-      document.getElementById("taskStart").value = event.start.toISOString().slice(0, 16);
-      document.getElementById("taskEnd").value = event.end ? event.end.toISOString().slice(0, 16) : "";
-      document.getElementById("taskModalLabel").textContent = "Editar Tarefa";
-      document.getElementById("saveTaskBtn").textContent = "Atualizar Tarefa";
-      document.getElementById("deleteTaskBtn").style.display = "inline-block";
-      new bootstrap.Modal(document.getElementById("taskModal")).show();
-    },
-  });
+            // Carregar modelos GLTF
+            const loader = new THREE.GLTFLoader();
 
-  calendar.render();
+            loader.load(
+                'cenario/scene.gltf',
+                (gltf) => {
+                    const planeModel = gltf.scene;
+                    planeModel.scale.set(200, 200, 200);
+                    planeModel.position.set(0, 0, 0);
+                    scene.add(planeModel);
 
-  const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+                    // Calcular o centro e o tamanho do modelo
+                    const planeBox = new THREE.Box3().setFromObject(planeModel);
+                    const planeCenter = planeBox.getCenter(new THREE.Vector3());
+                    const planeSize = planeBox.getSize(new THREE.Vector3());
 
-  document.getElementById("saveTaskBtn").addEventListener("click", function () {
-    var taskId = document.getElementById("taskId").value;
-    var title = document.getElementById("taskTitle").value;
-    var taskType = document.getElementById("taskType").value;
-    var status = document.getElementById("taskStatus").value;
-    var start = document.getElementById("taskStart").value;
-    var end = document.getElementById("taskEnd").value;
-    
-    var cropType = document.getElementById("cropType").value;
-    var quantityProduced = document.getElementById("quantityProduced").value;
-    var resourceUsed = document.getElementById("resourceUsed").value;
+                    // Ajustar a posição da câmera para uma visão isométrica
+                    const distance = Math.max(planeSize.x, planeSize.y, planeSize.z) * 2.5;
+                    camera.position.set(
+                        planeCenter.x + distance / 2.5,
+                        planeCenter.y + distance / 3,
+                        planeCenter.z + distance / 2.5
+                    );
+                    camera.lookAt(planeCenter);
 
-    var method = taskId ? "PATCH" : "POST";
-    var url = taskId ? /tasks/${taskId} : "/tasks";
+                    // Atualizar campo de visão (FOV) para capturar mais do cenário
+                    camera.fov = 70; // Reduzido ligeiramente para abrir mais o campo de visão
+                    camera.updateProjectionMatrix();
 
-    if (title && taskType && status) {
-        var taskData = {
-            title: title,
-            start: start,
-            end: end,
-            task_type: taskType,
-            status: status,
-            crop_type: cropType,
-            quantity_produced: quantityProduced,
-            resource_used: resourceUsed,
-        };
+                    // Carregar modelo campo2/scene.gltf
+                    loader.load(
+                        'campo2/scene.gltf',
+                        (gltf2) => {
+                            const campModel = gltf2.scene;
+                            campModel.scale.set(5, 5, 5);
+                            campModel.position.set(0, 0, 0);
+                            scene.add(campModel);
 
-        fetch(url, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-Token": csrfToken
-            },
-            body: JSON.stringify({ task: taskData }),
-        })
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error("Erro ao salvar a tarefa.");
+                            // Agrupar modelos para ajustar a câmera
+                            const group = new THREE.Group();
+                            group.add(planeModel);
+                            group.add(campModel);
+                            scene.add(group);
+
+                            // Ajustar câmera para a visão final
+                            const groupBox = new THREE.Box3().setFromObject(group);
+                            const groupCenter = groupBox.getCenter(new THREE.Vector3());
+                            const groupDistance = Math.max(groupBox.getSize(new THREE.Vector3()).x, groupBox.getSize(new THREE.Vector3()).y) * 2.5;
+
+                            camera.position.set(
+                                groupCenter.x + groupDistance / 2.5,
+                                groupCenter.y + groupDistance / 2.2,
+                                groupCenter.z + groupDistance / 2.5
+                            );
+                            camera.lookAt(groupCenter);
+                        },
+                        undefined,
+                        (error) => console.error('Erro ao carregar o modelo campo2:', error)
+                    );
+                },
+                undefined,
+                (error) => console.error('Erro ao carregar o modelo cenario:', error)
+            );
+
+            // Atualizar renderizador e câmera ao redimensionar a janela
+            window.addEventListener('resize', () => {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+                controls.update();
+            });
+
+            // Loop de animação
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
             }
-        })
-        .then((task) => {
-            toastr.success("Tarefa salva com sucesso!");
-            calendar.refetchEvents(); // Atualiza os eventos no calendário sem precisar de um refresh completo
-            bootstrap.Modal.getInstance(document.getElementById("taskModal")).hide();
-            document.getElementById("taskForm").reset();
-        })
-        .catch((error) => {
-            toastr.error(error.message || "Erro ao salvar a tarefa.");
-        });
-    }
-  });
-
-  document.getElementById("deleteTaskBtn").addEventListener("click", function () {
-    var taskId = document.getElementById("taskId").value;
-
-    if (taskId) {
-      fetch(/tasks/${taskId}, {
-        method: "DELETE",
-        headers: {
-          "X-CSRF-Token": csrfToken
-        },
-      })
-      .then((response) => {
-        if (response.ok) {
-          toastr.success("Tarefa excluída com sucesso!");
-          calendar.getEventById(taskId).remove(); // Remove o evento dinamicamente do calendário
-          bootstrap.Modal.getInstance(document.getElementById("taskModal")).hide();
+            animate();
         } else {
-          throw new Error("Erro ao excluir a tarefa.");
+            console.error("O contêiner #three-js-container não foi encontrado.");
         }
-      })
-      .catch((error) => {
-        toastr.error(error.message || "Erro ao excluir a tarefa.");
-      });
-    }
-  });
-});
-
+    });
 </script>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script>
-  toastr.options = {
-    "closeButton": true,
-    "debug": false,
-    "newestOnTop": true,
-    "progressBar": true,
-    "positionClass": "toast-top-right",
-    "preventDuplicates": true,
-    "showDuration": "300",
-    "hideDuration": "1000",
-    "timeOut": "3000",
-    "extendedTimeOut": "1000",
-    "showEasing": "swing",
-    "hideEasing": "linear",
-    "showMethod": "fadeIn",
-    "hideMethod": "fadeOut"
-  };
-</script>
-
 </body>
 </html>
