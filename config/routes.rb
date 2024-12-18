@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :users, only: [:index, :edit, :update, :destroy]
   resources :tasks, only: [:index, :create, :update, :destroy]
   resources :profiles, only: [:show, :edit, :update]
+  resources :fields, only: [:create, :index, :destroy, :show]
 
 
   # Define a rota do Devise para o login
@@ -17,8 +18,7 @@ Rails.application.routes.draw do
   # Rota para a página de analytics
   get '/analytics', to: 'analytics#index', as: 'analytics'
 
-  # Rota para o calendário
-  get '/calendar', to: 'calendar#index', as: 'calendar'
+  
 
   get 'profile/:id', to: 'profiles#show', as: 'user_profile'
 
@@ -29,4 +29,6 @@ Rails.application.routes.draw do
 
   get 'users/:id/entrar_como', to: 'users#entrar_como', as: 'entrar_como_user'
   delete 'retornar_como_admin', to: 'users#retornar_como_admin', as: 'retornar_como_admin'
+
+
 end

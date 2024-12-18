@@ -1,0 +1,56 @@
+<h1 class="text-center">Detalhes do Terreno: <%= @field.name %></h1>
+
+<div class="row mt-4">
+  <div class="col-md-8">
+    <!-- Container para o modelo 3D -->
+    <div id="terrain-3d" style="width: 100%; height: 600px; background-color: #e0e0e0;"></div>
+  </div>
+
+  <div class="col-md-4">
+    <!-- Informações do Terreno -->
+    <h4>Informações do Terreno</h4>
+    <ul class="list-group">
+      <li class="list-group-item"><strong>Nome:</strong> <%= @field.name %></li>
+      <li class="list-group-item"><strong>Tipo de Plantação:</strong> <%= @field.field_type %></li>
+      <li class="list-group-item"><strong>Temperatura:</strong> <%= @sensor_data[:temperature] %> °C</li>
+      <li class="list-group-item"><strong>Umidade:</strong> <%= @sensor_data[:humidity] %> %</li>
+      <li class="list-group-item"><strong>Luz Solar:</strong> <%= @sensor_data[:light] %> lux</li>
+      <li class="list-group-item"><strong>Status:</strong> <%= @sensor_data[:status] %></li>
+    </ul>
+    <%= link_to 'Voltar', fields_path, class: "btn btn-secondary mt-3" %>
+  </div>
+</div>
+
+<!-- Script para renderizar o modelo 3D -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('terrain-3d');
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(renderer.domElement);
+
+  const light = new THREE.AmbientLight(0xffffff, 0.8);
+  scene.add(light);
+
+  const loader = new THREE.GLTFLoader();
+  loader.load('/trigo2/scene.gltf', (gltf) => {
+    const model = gltf.scene;
+    model.scale.set(200, 200, 200);
+    model.position.set(0, 0, 0);
+    scene.add(model);
+
+    camera.position.set(0, 150, 300);
+    camera.lookAt(0, 0, 0);
+  });
+
+  const animate = () => {
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  };
+  animate();
+});
+</script>

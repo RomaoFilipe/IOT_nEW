@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_18_220608) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_17_162832) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "agricultural_fields", force: :cascade do |t|
+    t.string "name"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_agricultural_fields_on_user_id"
+  end
 
   create_table "crops", force: :cascade do |t|
     t.string "name"
@@ -21,6 +29,36 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_18_220608) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "fields", force: :cascade do |t|
+    t.string "name"
+    t.string "field_type"
+    t.float "position_x"
+    t.float "position_y"
+    t.float "position_z"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.string "model_path"
+  end
+
+  create_table "plantations", force: :cascade do |t|
+    t.string "name"
+    t.string "crop_type"
+    t.text "info"
+    t.integer "max_fields"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "plots", force: :cascade do |t|
+    t.string "name"
+    t.string "crop_type"
+    t.bigint "field_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field_id"], name: "index_plots_on_field_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -50,4 +88,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_18_220608) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  add_foreign_key "agricultural_fields", "users"
 end
