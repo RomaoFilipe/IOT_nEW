@@ -33,3 +33,6 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+public/cenario/scene.bin
+public/plane/scene.bin
+public/trigo2/scene.bin
