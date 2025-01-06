@@ -4,8 +4,6 @@ source "https://rubygems.org"
 gem "rails", "~> 7.2.1"
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
-# Use sqlite3 as the database for Active Record
-gem "sqlite3", ">= 1.4"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
@@ -19,13 +17,19 @@ gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 gem 'carrierwave', '~> 2.0'
-gem 'fullcalendar-rails'
 gem "pg"
 gem 'devise'
 gem 'sass-rails', '>= 6'
 # Gemfile
 gem 'chartkick'
 gem 'groupdate'
+gem "redis", "~> 5.0"
+gem "bcrypt", "~> 3.1.7"
+gem "image_processing", "~> 1.2"
+gem 'bootstrap', '~> 5.3.0'
+gem 'webpacker', '~> 5.4.0'
+gem 'jquery-rails', '~> 4.5.0'
+
 
 
 gem 'dotenv-rails', groups: [:development, :test]

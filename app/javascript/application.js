@@ -1,13 +1,11 @@
 //= require rails-ujs
 //= require_tree .
 
-import '@fullcalendar/core/main.css';
-import '@fullcalendar/daygrid/main.css';
-import '@fullcalendar/timegrid/main.css';
-import { Calendar } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction'; // Import necessário para a seleção de datas
+import "bootstrap";
+import "@popperjs/core";
+import "jquery";
+import "./three_scene";
+import "./field_management";
 import "@hotwired/turbo-rails";
 import "controllers";
 import Rails from "@rails/ujs";

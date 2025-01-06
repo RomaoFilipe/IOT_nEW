@@ -4,7 +4,8 @@ Rails.application.routes.draw do
   resources :users, only: [:index, :edit, :update, :destroy]
   resources :tasks, only: [:index, :create, :update, :destroy]
   resources :profiles, only: [:show, :edit, :update]
-  resources :fields, only: [:create, :index, :destroy, :show]
+  resources :fields, only: [:index, :show, :create, :destroy]
+
 
 
   # Define a rota do Devise para o login
