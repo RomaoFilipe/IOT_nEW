@@ -43,3 +43,7 @@ public/trigo2/scene.bin
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+
+
+public/cenario/scene.bin
+public/PlaneQuadrado/scene.bin
