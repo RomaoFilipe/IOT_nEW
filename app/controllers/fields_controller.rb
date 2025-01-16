@@ -6,52 +6,42 @@ class FieldsController < ApplicationController
   end
 
   def index
-    # Recupera os terrenos do usuário atual
     @fields = current_user.fields
-
-    # Dados de exemplo para demonstração (caso o usuário não tenha terrenos)
-    if @fields.empty?
-      @fields = [
-        Field.new(id: 1, name: "Terreno Exemplo 1", field_type: "Milho", model_path: "trigo2/scene.gltf", position_x: 10, position_y: 0, position_z: -20),
-        Field.new(id: 2, name: "Terreno Exemplo 2", field_type: "Trigo", model_path: "PlaneQuadrado/scene.gltf", position_x: 30, position_y: 0, position_z: 40)
-      ]
-    end
-
-    # Dados simulados para exibição nos modais
-    @weather_forecast = {
-      "quinta" => 25,
-      "sexta" => 27,
-      "sábado" => 26,
-      "domingo" => 28,
-      "segunda" => 24
-    }
-
+    @weather_forecast = [
+      { day: "segunda", temperature: "23.2", rain: "5.6", wind_speed: "19.4" },
+      { day: "terça", temperature: "29.9", rain: "0.4", wind_speed: "9.5" },
+      { day: "quarta", temperature: "25.8", rain: "6.2", wind_speed: "7.4" },
+      { day: "quinta", temperature: "21.1", rain: "6.3", wind_speed: "9.3" },
+      { day: "sexta", temperature: "28.4", rain: "0.0", wind_speed: "7.1" }
+    ]
+  
     @soil_analysis = {
       ph_level: 6.5,
       nitrogen: "Moderado",
       phosphorus: "Moderado",
       potassium: "Moderado"
     }
-
-    @irrigation_schedule = ["00:00", "06:00", "12:00", "18:00"]
-
+  
+    @irrigation_schedule = ["00:00", "06:00", "12:00", "18:00"] unless @irrigation_schedule
+  
     @resource_consumption = {
       water: "120L/day",
       fertilizer: "2.5kg/week",
       energy: "5kWh/day"
     }
-
+  
     @activity_history = [
       "Ciclo de irrigação automático completado",
       "Umidade do solo baixa detectada",
       "Fertilizante aplicado"
     ]
-
+  
     respond_to do |format|
       format.html
       format.json { render json: @fields.as_json(only: [:id, :name, :field_type, :model_path, :position_x, :position_y, :position_z]) }
     end
   end
+  
 
   def show
     # Tenta encontrar o terreno pelo ID

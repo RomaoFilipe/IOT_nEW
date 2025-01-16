@@ -457,165 +457,179 @@ body {
   
 
 
-
-
-
-
-
-
-  .user-card {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    transition: transform 0.2s ease;
+/* Modal Styling */
+.modal-content {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #ffffff;
 }
-.user-card:hover {
-    transform: translateY(-5px);
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+  padding: 15px 20px;
+  background-color: #f8f9fa;
 }
-.user-card img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin-bottom: 10px;
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
 }
-.btn-edit, .btn-delete {
-    width: 100px;
-    margin-top: 10px;
+
+.modal-body {
+  padding: 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #555;
+  background-color: #ffffff;
 }
-.container {
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 15px;
   display: flex;
-  flex-direction: column;
-  height: calc(100vh - 60px); /* Altura da viewport menos a navbar */
-  margin-top: 0; /* Remove margens extras */
+  justify-content: flex-end;
+  background-color: #f8f9fa;
 }
 
-
-#three-container {
-  position: fixed; /* Fixa na parte superior da página */
-  top: 0;
-  left: 0;
-  width: 100vw; /* Largura total da janela */
-  height: 400px; /* Altura fixa inicial */
-  z-index: 100; /* Garantir que fique acima de outros elementos */
-  background-color: #fa1919;
-  border-bottom: 1px solid hsl(0, 80%, 47%);
+/* Weather Section */
+.weather-card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin: 5px;
+  min-width: 80px;
 }
 
-#modal-field-weather,
-  #modal-field-soil,
-  #modal-field-irrigation,
-  #modal-field-resources,
-  #modal-field-history {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    background-color: #f8f9fa;
-  }
+.weather-card i {
+  font-size: 1.5rem;
+  color: #007bff;
+  margin-bottom: 8px;
+}
 
-  #modal-field-weather .weather-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
-    border-radius: 8px;
-    background-color: #ffffff;
-    margin: 5px;
-    flex: 1;
-    text-align: center;
-    border: 1px solid #dee2e6;
-  }
+.weather-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+}
 
-  #modal-field-weather .d-flex {
-    justify-content: space-around;
-  }
+/* Soil Analysis Section */
+.card-soil {
+  background-color: #f9fdf9;
+  border: 1px solid #e2e8e2;
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 20px;
+}
 
-  #modal-field-irrigation .badge {
-    padding: 10px 15px;
-    font-size: 14px;
-    border-radius: 6px;
-    margin: 8px 5px;
-    display: inline-block;
-    background-color: #007bff;
-    color: #fff;
-  }
+.card-soil h5 {
+  color: #28a745;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
 
-  #modal-field-history ul li {
-    display: flex;
-    align-items: center;
-    margin: 8px 0;
-  }
+.card-soil p {
+  font-size: 0.95rem;
+  color: #555;
+}
 
-  #modal-field-history ul li:before {
-    content: '•';
-    color: #007bff;
-    font-size: 20px;
-    margin-right: 10px;
-  }
+/* Irrigation Schedule Section */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 botões por linha */
+  gap: 10px; /* Espaçamento entre os botões */
+  justify-items: center;
+  padding: 10px;
+}
 
-  #modal-field-resources .resource-card {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+.hour-button {
+  width: 60px; /* Largura fixa */
+  height: 60px; /* Altura igual à largura para manter o formato quadrado */
+  font-size: 12px; /* Tamanho da fonte ajustado */
+  text-align: center;
+  border: 1px solid #dee2e6; /* Cor da borda */
+  border-radius: 4px; /* Cantos levemente arredondados */
+  background-color: #f8f9fa; /* Fundo cinza claro */
+  color: #6c757d; /* Cor do texto */
+  font-weight: bold; /* Texto em negrito */
+  transition: all 0.3s ease; /* Transição suave para efeitos */
+  display: flex; /* Para alinhar o texto */
+  align-items: center; /* Centraliza verticalmente */
+  justify-content: center; /* Centraliza horizontalmente */
+}
 
-  #modal-field-resources .resource-card i {
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
+.hour-button.selected {
+  background-color: #007bff; /* Fundo azul quando selecionado */
+  color: #ffffff; /* Texto branco quando selecionado */
+  border-color: #0056b3; /* Cor da borda quando selecionado */
+}
 
-  #modal-field-resources .resource-card strong {
-    font-size: 18px;
-    color: #333;
-  }
+.hour-button:hover {
+  background-color: #e9ecef; /* Fundo cinza claro ao passar o mouse */
+  color: #343a40; /* Texto escuro ao passar o mouse */
+  cursor: pointer; /* Aparece como uma mão ao passar o mouse */
+}
 
-  h5 {
-    font-weight: bold;
-    margin-bottom: 15px;
-    text-align: center;
-  }
+/* Activity History Section */
+.card-activity {
+  background-color: #fff4e5;
+  border: 1px solid #ffd28a;
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 20px;
+}
 
-  .container-section {
-    display: flex;
-    gap: 15px;
-  }
+.card-activity h5 {
+  color: #ff9800;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
 
-  .container-section > div {
-    flex: 1;
-  }
+.card-activity ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-  #modal-field-resources .d-flex {
-    gap: 20px;
-    justify-content: space-between;
-  }
+.card-activity ul li {
+  padding: 8px;
+  border-bottom: 1px solid #ffd28a;
+  font-size: 0.9rem;
+}
 
-  .modal-content {
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.card-activity ul li:last-child {
+  border-bottom: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(3, 1fr); /* Reduz para 3 botões por linha em telas menores */
+    gap: 8px; /* Espaçamento reduzido */
   }
   
-  .modal-title {
-    font-size: 1.5rem;
-    color: #333;
+  .hour-button {
+    width: 50px; /* Botões menores para telas menores */
+    height: 50px; /* Mantém o formato quadrado */
+    font-size: 10px; /* Texto menor */
   }
-  
-  #modal-field-name {
-    font-weight: bold;
-    font-size: 1.2rem;
+
+  .grid-container {
+      grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
   }
-  
-  #modal-field-type {
-    color: #555;
+
+  .hour-button {
+      width: 50px;
+      height: 35px;
+      font-size: 0.75rem;
   }
+
+  .weather-card {
+      padding: 10px;
+      font-size: 0.85rem;
+  }
+}

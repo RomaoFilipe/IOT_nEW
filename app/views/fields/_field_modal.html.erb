@@ -1,0 +1,156 @@
+<div class="modal fade" id="fieldDetailsModal-<%= field.id %>" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalhes do Terreno</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h4 class="mb-3">Nome do Terreno: <%= field.name %></h4>
+        <p><strong>Tipo de Plantação:</strong> <%= field.field_type %></p>
+        <p><strong>Modelo 3D:</strong> <%= field.model_path %></p>
+        <p><strong>Posição:</strong> X: <%= field.position_x %>, Y: <%= field.position_y %>, Z: <%= field.position_z %></p>
+
+        <!-- Weather Forecast -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bg-light text-center">
+            <h5 class="mb-0">5-Day Weather Forecast</h5>
+          </div>
+          <div class="card-body d-flex justify-content-around">
+            <% @weather_forecast.each do |forecast| %>
+              <div class="weather-card text-center px-2">
+                <p class="fw-bold text-muted mb-1"><%= forecast[:day].capitalize %></p>
+                <i class="fas fa-cloud fa-2x text-primary"></i>
+                <p class="fs-5 fw-bold mt-2"><%= forecast[:temperature] %>&deg;C</p>
+                <div class="text-muted">
+                  <p class="mb-1"><i class="fas fa-tint"></i> <%= forecast[:rain] %>mm</p>
+                  <p><i class="fas fa-wind"></i> <%= forecast[:wind_speed] %>km/h</p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Soil Analysis and Irrigation Schedule Side by Side -->
+        <div class="d-flex gap-3">
+          <div class="card flex-fill">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0">Soil Analysis</h5>
+            </div>
+            <div class="card-body">
+              <p><strong>pH Level:</strong> <%= @soil_analysis[:ph_level] %></p>
+              <p><strong>Nitrogen (N):</strong> Moderate (45%)</p>
+              <p><strong>Phosphorus (P):</strong> Moderate (35%)</p>
+              <p><strong>Potassium (K):</strong> Moderate (40%)</p>
+            </div>
+          </div>
+
+          <div class="card flex-fill">
+            <div class="card-header bg-primary text-white text-center">
+              <h5 class="mb-0">Irrigation Schedule</h5>
+            </div>
+            <div class="card-body">
+              <% (0..23).each do |hour| %>
+                <button 
+                  type="button" 
+                  class="btn hour-button" 
+                  data-hour="<%= hour %>">
+                  <%= "%02d:00" % hour %>
+                </button>
+              <% end %>
+              <p class="mt-3 text-muted text-center">
+                <span id="selected-count">0</span> scheduled irrigation times
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resource Consumption -->
+        <div class="card my-4 shadow-sm">
+          <div class="card-header bg-light text-center">
+            <h5 class="mb-0">Resource Consumption</h5>
+          </div>
+          <div class="card-body d-flex justify-content-around">
+            <div class="text-center">
+              <i class="fas fa-tint fa-2x text-primary"></i>
+              <p class="fw-bold mt-2">Water Usage</p>
+              <p>120L/day</p>
+            </div>
+            <div class="text-center">
+              <i class="fas fa-leaf fa-2x text-success"></i>
+              <p class="fw-bold mt-2">Fertilizer</p>
+              <p>2.5kg/week</p>
+            </div>
+            <div class="text-center">
+              <i class="fas fa-bolt fa-2x text-warning"></i>
+              <p class="fw-bold mt-2">Energy</p>
+              <p>5kWh/day</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity History -->
+        <div class="card my-3">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">Activity History</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              <% @activity_history.each do |activity| %>
+                <li class="list-group-item d-flex align-items-center">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <%= activity %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Predictions & Alerts -->
+        <div class="card my-4 shadow-sm">
+          <div class="card-header bg-light text-center">
+            <h5 class="mb-0">Predictions & Alerts</h5>
+          </div>
+          <div class="card-body d-flex justify-content-around">
+            <div class="text-center">
+              <i class="fas fa-chart-line fa-2x text-purple"></i>
+              <p class="fw-bold mt-2">Expected Yield</p>
+              <p>4.2 tons/hectare</p>
+            </div>
+            <div class="text-center">
+              <i class="fas fa-hourglass-start fa-2x text-orange"></i>
+              <p class="fw-bold mt-2">Days to Harvest</p>
+              <p>45 days</p>
+            </div>
+            <div class="text-center">
+              <i class="fas fa-seedling fa-2x text-green"></i>
+              <p class="fw-bold mt-2">Growth Stage</p>
+              <p>Flowering</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <%= button_to "Eliminar Terreno", field_path(field), method: :delete, class: "btn btn-danger" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.hour-button');
+    const selectedCount = document.getElementById('selected-count');
+    let count = 0;
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        button.classList.toggle('selected');
+        count = document.querySelectorAll('.hour-button.selected').length;
+        selectedCount.textContent = count;
+      });
+    });
+  });
+</script>
