@@ -3,25 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agriculture Dashboard</title>
+    <title>Gerenciar Usuários</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="styles.css"> <!-- Arquivo CSS personalizado -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="main-content flex-grow-1 p-4"> 
-<div class="profile-container">
-  <div class="profile-header">
-    <div class="profile-photo">
-      <%= image_tag @user.photo.url, class: "rounded-circle profile-img" %>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto mt-10">
+    <h1 class="text-3xl font-bold text-green-600 text-center mb-8">Gerenciar Usuários</h1>
+
+    <!-- Perfil do Usuário -->
+    <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+      <div class="flex items-center gap-6">
+        <div>
+          <img src="<%= @user.photo.url %>" alt="Foto do Usuário" class="rounded-full w-24 h-24 object-cover">
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800"><%= @user.name %></h2>
+          <p class="text-gray-600 text-sm">Email: <%= @user.email %></p>
+          <p class="text-gray-600 text-sm">Conta criada em: <%= @user.created_at.strftime("%d/%m/%Y") %></p>
+          <%= link_to 'Editar Perfil', edit_profile_path(@user), class: "mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition" %>
+        </div>
+      </div>
     </div>
-    <h2 class="profile-name"><%= @user.name %></h2>
-    <p class="profile-email"><%= @user.email %></p>
-    <p class="profile-created-at">Conta criada em: <%= @user.created_at.strftime("%d/%m/%Y") %></p>
-    <%= link_to 'Editar Perfil', edit_profile_path(@user), class: "btn btn-outline-primary edit-profile-button" %>
+
+    <!-- Lista de Usuários -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Lista de Usuários</h2>
+      <table class="min-w-full bg-white border border-gray-200">
+        <thead>
+          <tr>
+            <th class="py-2 px-4 border-b">Nome</th>
+            <th class="py-2 px-4 border-b">Email</th>
+            <th class="py-2 px-4 border-b">Data de Criação</th>
+            <th class="py-2 px-4 border-b">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @users.each do |user| %>
+            <tr>
+              <td class="py-2 px-4 border-b text-gray-700"><%= user.name %></td>
+              <td class="py-2 px-4 border-b text-gray-700"><%= user.email %></td>
+              <td class="py-2 px-4 border-b text-gray-700"><%= user.created_at.strftime("%d/%m/%Y") %></td>
+              <td class="py-2 px-4 border-b">
+                <%= link_to 'Editar', edit_user_path(user), class: "text-blue-500 hover:underline" %>
+                |
+                <%= link_to 'Excluir', user_path(user), method: :delete, data: { confirm: "Tem certeza que deseja excluir este usuário?" }, class: "text-red-500 hover:underline" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Botão de adicionar novo usuário -->
+    <div class="mt-6 text-center">
+      <%= link_to 'Adicionar Novo Usuário', new_user_path, class: "inline-block bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition" %>
+    </div>
   </div>
-</div>
 
-
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+</html>

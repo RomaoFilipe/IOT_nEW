@@ -30,6 +30,9 @@ gem 'bootstrap', '~> 5.3.0'
 gem 'webpacker', '~> 5.4.0'
 gem 'jquery-rails', '~> 4.5.0'
 
+gem "pundit"
+
+
 
 
 gem 'dotenv-rails', groups: [:development, :test]

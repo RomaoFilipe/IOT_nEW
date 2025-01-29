@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   # Configuração do Devise para o sistema de autenticação
   devise_for :users
-  resources :users, only: [:index, :edit, :update, :destroy]
+  resources :users, only: [:index, :new, :create, :edit, :update, :destroy]
   resources :tasks, only: [:index, :create, :update, :destroy]
   resources :profiles, only: [:show, :edit, :update]
   resources :fields, only: [:index, :show, :create, :destroy]

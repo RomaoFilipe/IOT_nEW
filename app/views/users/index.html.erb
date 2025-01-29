@@ -3,44 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agriculture Dashboard</title>
+    <title>Gerenciamento de Usuários</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="users.css.scss"> <!-- Arquivo CSS personalizado -->
-    <link rel="stylesheet" href="application.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .badge-admin { background-color: #e2bff0; color: #6f42c1; }
+        .badge-manager { background-color: #b3d4fc; color: #0d6efd; }
+        .badge-operator { background-color: #e9ecef; color: #6c757d; }
+        .status-active { color: #28a745; font-weight: bold; }
+        .status-inactive { color: #dc3545; font-weight: bold; }
+        .btn-save {
+            background-color: #007bff;
+            color: white;
+            font-size: 0.9rem;
+        }
+        .btn-save:hover {
+            background-color: #0056b3;
+        }
+        .action-icons a {
+            text-decoration: none;
+            margin: 0 5px;
+        }
+        .action-icons .edit-icon { color: #0d6efd; }
+        .action-icons .delete-icon { color: #dc3545; }
+        .form-inline {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+    </style>
 </head>
-
-<body>
-<div class="main-content flex-grow-1 p-4">
+<body class="bg-light">
 <div class="container my-5">
-    <h1 class="mb-4">Lista de Usuários</h1>
-    <div class="row">
-      <% @users.each do |user| %>
-        <div class="col-md-4"> <!-- Organiza em 3 colunas por linha -->
-          <div class="user-card">
-            <% if user.photo.present? %>
-              <%= image_tag user.photo.url, alt: "#{user.name}'s Photo", class: "img-fluid rounded-circle mb-3" %>
-            <% else %>
-                <strong>Guest</strong>            
-                <% end %>
-            <p><strong>Nome:</strong> <%= user.name %></p>
-            <p><strong>Email:</strong> <%= user.email %></p>
-            <p><strong>Data de criação:</strong> <%= user.created_at.strftime("%d/%m/%Y") %></p>
-            <%= link_to 'Editar', edit_user_path(user), class: 'btn btn-primary btn-sm me-2' %>
-            <%= form_with(url: user_path(user), method: :delete, local: true) do %>
-              <%= submit_tag 'Excluir', data: { confirm: 'Tem certeza?' }, class: 'btn btn-danger' %>
-            <% end %>
-          </div>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Gerenciamento de Usuários</h4>
         </div>
-      <% end %>
+        <div class="card-body">
+            <table class="table table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Função</th>
+                        <th>Status</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% @users.each do |user| %>
+                    <tr>
+                        <td><%= user.name %></td>
+                        <td><%= user.email %></td>
+                        <td>
+                            <div class="form-inline">
+                                <%= form_with(model: user, url: user_path(user), method: :patch, local: true, class: "d-inline") do |f| %>
+                                    <%= f.select :role, User.roles.keys.map { |role| [role.humanize, role] }, {}, class: 'form-select form-select-sm' %>
+                                    <%= f.submit 'Salvar', class: 'btn btn-save btn-sm' %>
+                                <% end %>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-inline">
+                                <%= form_with(model: user, url: user_path(user), method: :patch, local: true, class: "d-inline") do |f| %>
+                                    <%= f.select :status, [['Ativo', 'active'], ['Inativo', 'inactive']], {}, class: 'form-select form-select-sm' %>
+                                    <%= f.submit 'Salvar', class: 'btn btn-save btn-sm' %>
+                                <% end %>
+                            </div>
+                        </td>
+                        <td class="text-center action-icons">
+                            <%= link_to edit_user_path(user), class: "edit-icon" do %>
+                                <i class="fas fa-edit"></i>
+                            <% end %>
+                            <%= link_to user_path(user), method: :delete, data: { confirm: 'Tem certeza?' }, class: "delete-icon" do %>
+                                <i class="fas fa-trash-alt"></i>
+                            <% end %>
+                        </td>
+                    </tr>
+                    <% end %>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
-<script>
-  alert("JavaScript está funcionando!");
-</script>
-
 </html>

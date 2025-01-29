@@ -3,210 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IoT Agricultural Control Dashboard</title>
+    <title>IoT Agricultural Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-   
+    <style>
+        .card:hover {
+            transform: translateY(-5px);
+            transition: 0.3s ease;
+        }
+        .metric {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
 </head>
-<body>
-<div class="container mt-5">
+<body class="bg-light">
 
+    <div class="container py-5">
+        <h1 class="text-center text-success fw-bold mb-5">Painel de Controle IoT Agrícola</h1>
 
+        <!-- Métricas Principais -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card p-4 text-center shadow-sm">
+                    <i class="bi bi-thermometer-sun text-primary" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Temperatura Atual</p>
+                    <p class="metric text-primary">30°C</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-4 text-center shadow-sm">
+                    <i class="bi bi-moisture text-info" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Umidade do Solo</p>
+                    <p class="metric text-info">55%</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-4 text-center shadow-sm">
+                    <i class="bi bi-brightness-high text-warning" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Luz Solar</p>
+                    <p class="metric text-warning">450 lux</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-4 text-center shadow-sm">
+                    <i class="bi bi-droplet-half text-success" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Status da Irrigação</p>
+                    <p class="metric text-success">Ativo</p>
+                </div>
+            </div>
+        </div>
 
-<div class="container-fluid p-4">
-    <h1 class="mb-4">Painel de Controle IoT Agrícola</h1>
+        <!-- Controle de Dispositivos -->
+        <h4 class="section-title mb-4">Controle de Dispositivos</h4>
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card p-4 text-center shadow-sm">
+                    <i class="bi bi-droplet text-success" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Controle de Irrigação</p>
+                    <button class="btn btn-primary mt-3">Ativar/Desativar</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4 text-center shadow-sm">
+                    <i class="bi bi-fan text-info" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Ventilação</p>
+                    <button class="btn btn-primary mt-3">Ativar/Desativar</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4 text-center shadow-sm">
+                    <i class="bi bi-lightbulb text-warning" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Iluminação</p>
+                    <button class="btn btn-primary mt-3">Ativar/Desativar</button>
+                </div>
+            </div>
+        </div>
 
-    <!-- Seção de Monitoramento em Tempo Real -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-white">
-                <div class="card-body text-center">
-                    <h6>Temperatura Atual</h6>
-                    <h3 id="temperature">30°C</h3>
-                    <p class="small">Atualizado a cada 5 min</p>
+        <!-- Gráficos e Alertas -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card p-4 shadow-sm">
+                    <h5 class="section-title mb-3">Histórico de Temperatura</h5>
+                    <canvas id="temperatureChart"></canvas>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-white">
-                <div class="card-body text-center">
-                    <h6>Umidade do Solo</h6>
-                    <h3 id="soilMoisture">55%</h3>
-                    <p class="small">Ideal: 40-60%</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-white">
-                <div class="card-body text-center">
-                    <h6>Luz Solar</h6>
-                    <h3 id="sunlight">450 lux</h3>
-                    <p class="small">Última leitura</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-white">
-                <div class="card-body text-center">
-                    <h6>Status da Irrigação</h6>
-                    <h3 id="irrigationStatus">Ativo</h3>
-                    <p class="small">Automação em funcionamento</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Controle de Dispositivos -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h4>Controle de Dispositivos</h4>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center">
-                    <h5>Controle de Irrigação</h5>
-                    <p>Status atual: <span id="irrigationStatusControl">Ativo</span></p>
-                    <button class="btn btn-primary" onclick="toggleIrrigation()">Ativar/Desativar Irrigação</button>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center">
-                    <h5>Ventilação</h5>
-                    <p>Status atual: <span id="ventilationStatus">Inativo</span></p>
-                    <button class="btn btn-primary" onclick="toggleVentilation()">Ativar/Desativar Ventilação</button>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center">
-                    <h5>Iluminação</h5>
-                    <p>Status atual: <span id="lightingStatus">Inativo</span></p>
-                    <button class="btn btn-primary" onclick="toggleLighting()">Ativar/Desativar Iluminação</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Automação Inteligente -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h4>Configurações de Automação Inteligente</h4>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5>Gatilhos Baseados em Temperatura</h5>
-                    <p>Ativar ventilação automaticamente se a temperatura ultrapassar:</p>
-                    <input type="number" id="temperatureTrigger" class="form-control" placeholder="Ex: 35" />
-                    <button class="btn btn-success mt-3" onclick="setTemperatureTrigger()">Salvar Gatilho</button>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5>Gatilhos Baseados em Umidade</h5>
-                    <p>Ativar irrigação automaticamente se a umidade do solo cair abaixo de:</p>
-                    <input type="number" id="moistureTrigger" class="form-control" placeholder="Ex: 40" />
-                    <button class="btn btn-success mt-3" onclick="setMoistureTrigger()">Salvar Gatilho</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Relatórios e Análise de Dados -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h4>Relatórios e Análise de Dados</h4>
-        </div>
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Histórico de Temperatura e Umidade</h5>
-                    <canvas id="historicalChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Alertas e Notificações</h5>
-                    <ul class="list-group list-group-flush" id="alertList">
-                        <li class="list-group-item">Alerta de alta temperatura: 37°C em 11/11/2024</li>
-                        <li class="list-group-item">Umidade do solo abaixo de 40% em 10/11/2024</li>
+            <div class="col-md-6">
+                <div class="card p-4 shadow-sm">
+                    <h5 class="section-title mb-3">Alertas</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">Alta temperatura detectada</li>
+                        <li class="list-group-item">Umidade abaixo do ideal</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
-</div>
-</div>
-<!-- Scripts para funcionalidades e gráficos -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-    // Gráfico histórico de temperatura e umidade
-    const ctx = document.getElementById('historicalChart').getContext('2d');
-    const historicalChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['12:00', '13:00', '14:00', '15:00', '16:00'],
-            datasets: [
-                {
+    <script>
+        // Gráfico de exemplo
+        const ctx = document.getElementById('temperatureChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
+                datasets: [{
                     label: 'Temperatura (°C)',
-                    data: [28, 29, 30, 29, 28],
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    yAxisID: 'y'
-                },
-                {
-                    label: 'Umidade (%)',
-                    data: [45, 50, 52, 48, 47],
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    yAxisID: 'y1'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true, type: 'linear', position: 'left' },
-                y1: { beginAtZero: true, type: 'linear', position: 'right' }
+                    data: [30, 32, 28, 31, 29],
+                    borderColor: '#28a745',
+                    tension: 0.4,
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: true
             }
-        }
-    });
-
-    // Funções de controle de dispositivos
-    function toggleIrrigation() {
-        const status = document.getElementById("irrigationStatusControl");
-        status.textContent = (status.textContent === "Ativo") ? "Inativo" : "Ativo";
-    }
-
-    function toggleVentilation() {
-        const status = document.getElementById("ventilationStatus");
-        status.textContent = (status.textContent === "Ativo") ? "Inativo" : "Ativo";
-    }
-
-    function toggleLighting() {
-        const status = document.getElementById("lightingStatus");
-        status.textContent = (status.textContent === "Ativo") ? "Inativo" : "Ativo";
-    }
-
-    // Configuração dos gatilhos de automação
-    function setTemperatureTrigger() {
-        const triggerValue = document.getElementById("temperatureTrigger").value;
-        alert(Gatilho de temperatura configurado para ${triggerValue}°C.);
-    }
-
-    function setMoistureTrigger() {
-        const triggerValue = document.getElementById("moistureTrigger").value;
-        alert(Gatilho de umidade configurado para ${triggerValue}%.);
-    }
-</script>
+        });
+    </script>
 </body>
 </html>

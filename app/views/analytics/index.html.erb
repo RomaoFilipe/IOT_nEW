@@ -3,282 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agriculture Dashboard</title>
+    <title>Agriculture IoT Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="styles.css"> <!-- Arquivo CSS personalizado -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
 </head>
-<body>
+<body class="bg-light">
+    <div class="container py-4">
+        <h1 class="text-center text-success mb-4">Agriculture IoT Dashboard</h1>
 
-<div class="container mt-5">
-    <h1 class="h3 mb-4">Dashboard</h1>
+        <!-- Seção: Índice de Vegetação (NDVI) -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Índice de Vegetação Normalizado (NDVI)</h5>
+                        <canvas id="ndviChart"></canvas>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Resumo e Alertas -->
-    <div class="row g-3 mb-4">
-        <!-- Estatísticas principais -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title text-success">MÊS</h6>
-                    <h2 class="card-value">47K</h2>
-                    <p class="text-muted small">ÚLTIMO MÊS</p>
+            <!-- Gráfico de Previsão de Colheita -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Previsão de Colheita</h5>
+                        <canvas id="harvestForecastChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title text-success">Total</h6>
-                    <h2 class="card-value">58.4K</h2>
-                    <p class="text-muted small">LEGUMES</p>
+
+        <!-- Seção: Recursos e Sustentabilidade -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Uso de Água por Dia</h5>
+                        <canvas id="waterUsageChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Eficiência de Energia</h5>
+                        <canvas id="energyEfficiencyChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title text-success">Share</h6>
-                    <h2 class="card-value">26M</h2>
-                    <p class="text-muted small">FRUTAS</p>
+
+        <!-- Gráficos Avançados de Clima e Ambiente -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Impacto Climático no Rendimento</h5>
+                        <canvas id="climateImpactChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Mapa de Calor do Campo</h5>
+                        <canvas id="heatmapChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title text-success">TEMPERATURA</h6>
-                    <h2 class="card-value">31°C</h2>
-                    <p class="text-muted small">CALOR</p>
+
+        <!-- Análise Econômica e Sustentabilidade -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">ROI por Cultura</h5>
+                        <canvas id="roiChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Carbono Sequestrado</h5>
+                        <canvas id="carbonSequestrationChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Seção de Gráficos e Análise -->
-    <div class="row g-3">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Produtividade Geral (Mensal)</h5>
-                    <canvas id="productivityChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Alertas e Notificações</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Tarefas pendentes: 3</li>
-                        <li class="list-group-item">Previsão de chuva para amanhã</li>
-                        <li class="list-group-item">Colheita de milho agendada</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gráficos Detalhados de Analytics -->
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Análise de Produtividade por Safra</h5>
-                    <canvas id="yieldChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Consumo de Recursos por Cultura</h5>
-                    <canvas id="resourceUsageChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Eficiência de Tarefas</h5>
-                    <canvas id="efficiencyChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Previsões de Rendimento</h5>
-                    <canvas id="forecastChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Temperatura Média Mensal</h5>
-                    <canvas id="temperatureChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">Tarefas Pendentes x Concluídas</h5>
-                    <canvas id="tasksChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- JavaScript para gráficos -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-    // Produtividade Geral (Mensal)
-    var ctxProductivity = document.getElementById('productivityChart').getContext('2d');
-    new Chart(ctxProductivity, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-            datasets: [{
-                label: 'Produtividade (toneladas)',
-                data: [50, 60, 55, 70, 80, 75, 90],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false,
-            }]
-        },
-        options: {
-            responsive: true,
-        }
-    });
-
-// Gráfico de Barras para Produtividade por Safra usando os dados de tarefas
-fetch('/tasks.json')
-    .then(response => response.json())
-    .then(tasks => {
-        // Processa os dados das tarefas para agregação
-        const productionData = tasks.reduce((acc, task) => {
-            if (task.quantity_produced && task.crop_type) {
-                acc[task.crop_type] = (acc[task.crop_type] || 0) + task.quantity_produced;
-            }
-            return acc;
-        }, {});
-
-        // Cria o gráfico com os dados agregados
-        var ctxYield = document.getElementById('yieldChart').getContext('2d');
-        new Chart(ctxYield, {
-            type: 'bar',
+    <script>
+        // Gráfico NDVI
+        new Chart(document.getElementById('ndviChart'), {
+            type: 'line',
             data: {
-                labels: Object.keys(productionData),
+                labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
                 datasets: [{
-                    label: 'Produtividade (kg)',
-                    data: Object.values(productionData),
-                    backgroundColor: ['#4CAF50', '#FF6384', '#36A2EB', '#FFCE56'],
+                    label: 'NDVI',
+                    data: [0.6, 0.7, 0.8, 0.85],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    fill: true
                 }]
             },
-            options: {
-                responsive: true,
-            }
+            options: { responsive: true }
         });
-    })
-    .catch(error => console.error("Erro ao carregar os dados de produtividade:", error));
 
+        // Gráfico de Previsão de Colheita
+        new Chart(document.getElementById('harvestForecastChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Milho', 'Soja', 'Trigo', 'Arroz'],
+                datasets: [{
+                    label: 'Previsão (toneladas)',
+                    data: [120, 95, 130, 110],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50']
+                }]
+            },
+            options: { responsive: true }
+        });
 
+        // Gráfico de Uso de Água
+        new Chart(document.getElementById('waterUsageChart'), {
+            type: 'line',
+            data: {
+                labels: ['01', '02', '03', '04', '05', '06', '07'],
+                datasets: [{
+                    label: 'Consumo (litros)',
+                    data: [400, 450, 420, 500, 480, 470, 490],
+                    borderColor: '#36A2EB',
+                    fill: false
+                }]
+            },
+            options: { responsive: true }
+        });
 
-    // Consumo de Recursos por Cultura
-    var ctxResourceUsage = document.getElementById('resourceUsageChart').getContext('2d');
-    new Chart(ctxResourceUsage, {
-        type: 'pie',
-        data: {
-            labels: ['Água', 'Fertilizante', 'Pesticida', 'Combustível'],
-            datasets: [{
-                data: [40, 30, 20, 10],
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50'],
-            }]
-        },
-        options: {
-            responsive: true,
-        }
-    });
+        // Gráfico de Eficiência de Energia
+        new Chart(document.getElementById('energyEfficiencyChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Painéis Solares', 'Energia Eólica', 'Rede Elétrica'],
+                datasets: [{
+                    data: [60, 25, 15],
+                    backgroundColor: ['#FFCE56', '#4CAF50', '#36A2EB']
+                }]
+            },
+            options: { responsive: true }
+        });
 
-    // Eficiência de Tarefas
-    var ctxEfficiency = document.getElementById('efficiencyChart').getContext('2d');
-    new Chart(ctxEfficiency, {
-        type: 'line',
-        data: {
-            labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-            datasets: [{
-                label: 'Eficiência (%)',
-                data: [85, 90, 80, 95],
-                borderColor: '#36A2EB',
-                fill: false,
-            }]
-        },
-        options: {
-            responsive: true,
-        }
-    });
+        // Gráfico de Impacto Climático
+        new Chart(document.getElementById('climateImpactChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                datasets: [{
+                    label: 'Impacto no Rendimento (%)',
+                    data: [10, -5, 15, 20],
+                    backgroundColor: '#FF5722'
+                }]
+            },
+            options: { responsive: true }
+        });
 
-    // Previsões de Rendimento
-    var ctxForecast = document.getElementById('forecastChart').getContext('2d');
-    new Chart(ctxForecast, {
-        type: 'line',
-        data: {
-            labels: ['Set', 'Out', 'Nov', 'Dez'],
-            datasets: [{
-                label: 'Previsão de Rendimento (toneladas)',
-                data: [100, 120, 140, 160],
-                borderColor: '#FF6384',
-                fill: false,
-            }]
-        },
-        options: {
-            responsive: true,
-        }
-    });
+        // Gráfico de ROI por Cultura
+        new Chart(document.getElementById('roiChart'), {
+            type: 'line',
+            data: {
+                labels: ['Milho', 'Soja', 'Trigo', 'Arroz'],
+                datasets: [{
+                    label: 'ROI (%)',
+                    data: [15, 20, 18, 22],
+                    borderColor: '#4CAF50',
+                    fill: false
+                }]
+            },
+            options: { responsive: true }
+        });
 
-    // Temperatura Média Mensal
-    var ctxTemperature = document.getElementById('temperatureChart').getContext('2d');
-    new Chart(ctxTemperature, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-            datasets: [{
-                label: 'Temperatura Média (°C)',
-                data: [22, 24, 27, 30, 33, 31, 28, 26],
-                borderColor: '#FF5722',
-                fill: false,
-            }]
-        },
-        options: {
-            responsive: true,
-        }
-    });
-
-    // Tarefas Pendentes x Concluídas
-    var ctxTasks = document.getElementById('tasksChart').getContext('2d');
-    new Chart(ctxTasks, {
-        type: 'doughnut',
-        data: {
-            labels: ['Pendentes', 'Concluídas'],
-            datasets: [{
-                data: [15, 35],
-                backgroundColor: ['#FFCE56', '#4CAF50'],
-            }]
-        },
-        options: {
-            responsive: true,
-        }
-    });
-</script>
-
+        // Gráfico de Carbono Sequestrado
+        new Chart(document.getElementById('carbonSequestrationChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                datasets: [{
+                    label: 'Carbono Sequestrado (kg)',
+                    data: [100, 120, 140, 160],
+                    borderColor: '#36A2EB',
+                    fill: false
+                }]
+            },
+            options: { responsive: true }
+        });
+    </script>
 </body>
 </html>

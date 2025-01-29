@@ -10,17 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_17_162832) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_17_181251) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "agricultural_fields", force: :cascade do |t|
-    t.string "name"
-    t.bigint "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_agricultural_fields_on_user_id"
-  end
 
   create_table "crops", force: :cascade do |t|
     t.string "name"
@@ -43,36 +35,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_17_162832) do
     t.string "model_path"
   end
 
-  create_table "plantations", force: :cascade do |t|
-    t.string "name"
-    t.string "crop_type"
-    t.text "info"
-    t.integer "max_fields"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "plots", force: :cascade do |t|
-    t.string "name"
-    t.string "crop_type"
-    t.bigint "field_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["field_id"], name: "index_plots_on_field_id"
-  end
-
-  create_table "tasks", force: :cascade do |t|
-    t.string "title"
-    t.datetime "start"
-    t.datetime "end"
-    t.string "task_type"
-    t.string "status"
-    t.text "notes"
-    t.integer "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -84,10 +46,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_17_162832) do
     t.string "name"
     t.string "photo"
     t.boolean "admin", default: false
-    t.string "encrypted_name"
+    t.string "role"
+    t.string "status", default: "active"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
-
-  add_foreign_key "agricultural_fields", "users"
 end

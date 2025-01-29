@@ -1,37 +1,54 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
   <div class="container-fluid">
-    <button id="toggleSidebar" class="btn btn-outline-success me-2">
+    <!-- Botão para abrir/fechar a sidebar -->
+    <button id="toggleSidebar" class="btn btn-outline-success me-3" aria-label="Toggle Sidebar">
       <i class="bi bi-list"></i>
     </button>
-    <a class="navbar-brand ms-3" href="#">Agriculture Dashboard</a>
+
+    <!-- Nome do Dashboard -->
+    <a class="navbar-brand ms-3 fw-bold text-success" href="#">Agriculture Dashboard</a>
+
+    <!-- Conteúdo alinhado à direita -->
     <div class="ms-auto d-flex align-items-center">
-      <button class="btn btn-link text-dark me-3">
-        <i class="bi bi-bell"></i>
-        <span class="badge bg-danger">7</span>
+      <!-- Notificações -->
+      <button class="btn btn-link position-relative text-dark me-3" aria-label="Notifications">
+        <i class="bi bi-bell fs-5"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">7</span>
       </button>
+
+      <!-- Dropdown do Perfil -->
       <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+        <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
           <% if user_signed_in? %>
-            <%= image_tag(current_user.photo.url, alt: "Profile", width: 32, height: 32, class: "rounded-circle me-2") if current_user.photo.present? %>
+            <%= image_tag(current_user.photo.url, alt: "Profile Picture", width: 32, height: 32, class: "rounded-circle me-2") if current_user.photo.present? %>
             <strong><%= current_user.name %></strong>
           <% else %>
             <strong>Guest</strong>
           <% end %>
         </a>
-        <ul class="dropdown-menu dropdown-menu-end">
+        <ul class="dropdown-menu dropdown-menu-end text-small shadow" aria-labelledby="dropdownUser">
           <% if user_signed_in? %>
-              <div class="alert alert-warning">
-                Você está visualizando a conta de <%= current_user.name %>. <%= link_to 'Voltar para minha conta', retornar_como_admin_path, method: :delete %>
-              </div>
-            <li class="nav-item">
-              <%= link_to 'Profile', user_profile_path(current_user), class: "nav-link" %>
+            <!-- Alerta de "Entrar como outro usuário" -->
+            <% if session[:admin_user_id] %>
+              <li>
+                <div class="alert alert-warning m-2 p-2">
+                  Você está visualizando a conta de <%= current_user.name %>.
+                  <%= link_to 'Voltar para minha conta', retornar_como_admin_path, method: :delete, class: 'text-primary' %>
+                </div>
+              </li>
+            <% end %>
+            <!-- Link para o perfil -->
+            <li>
+              <%= link_to 'Profile', user_profile_path(current_user), class: "dropdown-item" %>
             </li>
+            <!-- Logout -->
             <li>
               <%= form_with(url: destroy_user_session_path, method: :delete, local: true) do %>
-                <%= submit_tag "Sign out", class: "dropdown-item" %>
+                <%= submit_tag "Sign out", class: "dropdown-item text-danger" %>
               <% end %>
             </li>
           <% else %>
+            <!-- Login -->
             <li><a class="dropdown-item" href="<%= new_user_session_path %>">Sign in</a></li>
           <% end %>
         </ul>

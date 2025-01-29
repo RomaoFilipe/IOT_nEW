@@ -5,40 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Agriculture Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: url(<%= asset_path('pexels-timmossholder-974314.jpg') %>) no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-box {
+            background: rgba(4, 105, 4, 0.7)
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: black;
+            width: 400px; /* Largura inicial */
+            max-width: 90%; /* Para dispositivos menores */
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .login-box .btn {
+            width: 100%;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .login-box .btn:hover {
+            background-color: #218838;
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .footer-links a {
+            color: #28a745;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
-<body class="login-page"> <!-- Adicionei a classe login-page -->
+<body>
     <div class="login-box">
         <h2>Log in</h2>
-
-        
         <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-            <div class="field">
+            <div class="mb-3">
                 <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "Email", class: "form-control" %>
             </div>
-
-            <div class="field">
+            <div class="mb-3">
                 <%= f.password_field :password, autocomplete: "current-password", placeholder: "Password", class: "form-control" %>
             </div>
-
             <% if devise_mapping.rememberable? %>
-                <div class="remember-me">
-                    <%= f.check_box :remember_me %>
-                    <%= f.label :remember_me %>
+                <div class="mb-3 form-check">
+                    <%= f.check_box :remember_me, class: "form-check-input" %>
+                    <%= f.label :remember_me, class: "form-check-label" %>
                 </div>
             <% end %>
-
-            <div class="actions">
-                <%= f.submit "Log in", class: "btn" %>
+            <div>
+                <%= f.submit "Log in", class: "btn btn-success" %>
             </div>
         <% end %>
-
         <div class="footer-links">
             <%= link_to "Forgot Password?", new_password_path(resource_name) %>
             <p>Don't have an account? <%= link_to "Register", new_registration_path(resource_name) %></p>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

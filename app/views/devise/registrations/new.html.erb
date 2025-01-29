@@ -26,6 +26,11 @@
             <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
           </div>
 
+          <div class="form-group">
+  <%= f.label :role, 'Função' %>
+  <%= f.select :role, ['admin', 'manager', 'viewer'], {}, class: 'form-control' %>
+</div>
+
           <!-- Campo para a senha -->
           <div class="field">
             <%= f.label :password, "Password" %>
