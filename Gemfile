@@ -28,7 +28,7 @@ gem "bcrypt", "~> 3.1.7"
 gem "image_processing", "~> 1.2"
 gem 'bootstrap', '~> 5.3.0'
 gem 'webpacker', '~> 5.4.0'
-gem 'jquery-rails', '~> 4.5.0'
+gem 'jquery-rails', '~> 4.6.0'
 
 gem "pundit"
 
