@@ -23,7 +23,7 @@ gem 'sass-rails', '>= 6'
 # Gemfile
 gem 'chartkick'
 gem 'groupdate'
-gem "redis", "~> 5.0"
+gem "redis", "~> 5.4"
 gem "bcrypt", "~> 3.1.7"
 gem "image_processing", "~> 1.2"
 gem 'bootstrap', '~> 5.3.0'
