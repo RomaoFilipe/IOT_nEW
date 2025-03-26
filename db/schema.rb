@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_17_181251) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_25_171044) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "crop_yields", force: :cascade do |t|
+    t.string "month"
+    t.integer "corn_yield"
+    t.integer "wheat_yield"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "crops", force: :cascade do |t|
     t.string "name"
@@ -26,13 +34,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_181251) do
   create_table "fields", force: :cascade do |t|
     t.string "name"
     t.string "field_type"
-    t.float "position_x"
-    t.float "position_y"
-    t.float "position_z"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id"
     t.string "model_path"
+    t.integer "humidity"
+    t.integer "temperature"
+    t.integer "sensors_count"
+    t.string "status"
+    t.float "area"
+    t.decimal "latitude"
+    t.decimal "longitude"
   end
 
   create_table "users", force: :cascade do |t|

@@ -12,15 +12,17 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit(:account_update, keys: [:name, :photo, :role])
   end
 
+  # Após o login, envia para a Home
   def after_sign_in_path_for(resource)
     home_path
   end
 
-  def user_not_authorized
-    redirect_to root_path, alert: 'Você não tem permissão para realizar esta ação.'
+  # Após logout, envia para a Home
+  def after_sign_out_path_for(resource_or_scope)
+    root_path
   end
 
-  def after_sign_out_path_for(resource_or_scope)
-    new_user_session_path
+  def user_not_authorized
+    redirect_to root_path, alert: 'Você não tem permissão para realizar esta ação.'
   end
 end

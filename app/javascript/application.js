@@ -1,5 +1,7 @@
 //= require rails-ujs
 //= require_tree .
+//= require jquery
+//= require jquery_ujs
 
 import "bootstrap";
 import "@popperjs/core";
@@ -8,17 +10,19 @@ import "./three_scene";
 import "./field_management";
 import "@hotwired/turbo-rails";
 import "controllers";
+import { createIcons, icons } from "lucide";
 import Rails from "@rails/ujs";
 Rails.start();
 
-document.addEventListener("DOMContentLoaded", function() {
+
+document.addEventListener("DOMContentLoaded", function () {
     // Lógica para logout
     const logoutLink = document.getElementById("logout-link");
     const signOutPath = document.body.getAttribute('data-sign-out-path');
     const signInPath = document.body.getAttribute('data-sign-in-path');
 
     if (logoutLink) {
-        logoutLink.addEventListener("click", function(event) {
+        logoutLink.addEventListener("click", function (event) {
             event.preventDefault();
             fetch(signOutPath, {
                 method: 'DELETE',
@@ -40,13 +44,13 @@ document.addEventListener("DOMContentLoaded", function() {
         flashNotice.classList.add("show");
 
         // Aguarda 5 segundos para o flash desaparecer
-        setTimeout(function() {
+        setTimeout(function () {
             flashNotice.classList.remove("show");
             flashNotice.classList.add("hide");
         }, 5000);
 
         // Remove o flash da DOM após 5.5 segundos
-        setTimeout(function() {
+        setTimeout(function () {
             flashNotice.remove();
         }, 5500);
     }
@@ -56,12 +60,12 @@ document.addEventListener("DOMContentLoaded", function() {
         loginPopup.classList.add("show");
 
         // Aguarda 5 segundos para o popup desaparecer
-        setTimeout(function() {
+        setTimeout(function () {
             loginPopup.classList.add("hide");
         }, 5000);
 
         // Remove o popup da DOM após 5.5 segundos
-        setTimeout(function() {
+        setTimeout(function () {
             loginPopup.remove();
         }, 5500);
     }
@@ -95,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function() {
             editable: true, // Permite a edição de eventos
             selectable: true, // Permite seleção de datas
             events: '/crop_events.json', // Carrega os eventos via JSON
-            dateClick: function(info) {
+            dateClick: function (info) {
                 // Redireciona para a criação de eventos ao clicar em uma data
                 window.location.href = `/crop_events/new?start_time=${info.dateStr}`;
             }
@@ -103,4 +107,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
         calendar.render();
     }
+
+
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        createIcons({ icons });
+    });
+
 });
+import "controllers"

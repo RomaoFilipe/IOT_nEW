@@ -1,0 +1,37 @@
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="font-semibold mb-2">Crop Yield Comparison</h2>
+  <div class="relative h-64">
+    <canvas id="<%= chart_id %>" data-chart="true" class="h-64"></canvas>
+  </div>
+</div>
+
+<script>
+  function <%= "renderChart_#{chart_id}" %>() {
+    new Chart(document.getElementById('<%= chart_id %>'), {
+      type: 'bar',
+      data: {
+        labels: <%= raw @crop_yields.map(&:month).to_json %>,
+        datasets: [
+          {
+            label: 'Corn (tons)',
+            data: <%= raw @crop_yields.map(&:corn_yield).to_json %>,
+            backgroundColor: '#22c55e'
+          },
+          {
+            label: 'Wheat (tons)',
+            data: <%= raw @crop_yields.map(&:wheat_yield).to_json %>,
+            backgroundColor: '#bbf7d0'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  if (document.getElementById('<%= chart_id %>')?.closest('[data-tabs-content]:not(.hidden)')) {
+    <%= "renderChart_#{chart_id}" %>();
+  }
+</script>

@@ -1,206 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agriculture IoT Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farm Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-light">
-    <div class="container py-4">
-        <h1 class="text-center text-success mb-4">Agriculture IoT Dashboard</h1>
+<body class="bg-gray-100 min-h-screen">
 
-        <!-- Seção: Índice de Vegetação (NDVI) -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Índice de Vegetação Normalizado (NDVI)</h5>
-                        <canvas id="ndviChart"></canvas>
-                    </div>
-                </div>
-            </div>
+  <div class="max-w-7xl mx-auto px-4 py-6" data-controller="tabs">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Farm Analytics</h1>
 
-            <!-- Gráfico de Previsão de Colheita -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Previsão de Colheita</h5>
-                        <canvas id="harvestForecastChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Filtros -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <!-- Campo -->
+      <div>
+        <label class="text-sm text-gray-600 mr-2">Campo:</label>
+        <select id="fieldFilter" class="border rounded-md px-2 py-1 text-sm">
+          <option value="all">Todos</option>
+          <option value="north">Campo Norte</option>
+          <option value="south">Campo Sul</option>
+          <option value="east">Campo Este</option>
+          <option value="west">Campo Oeste</option>
+        </select>
+      </div>
 
-        <!-- Seção: Recursos e Sustentabilidade -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Uso de Água por Dia</h5>
-                        <canvas id="waterUsageChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Eficiência de Energia</h5>
-                        <canvas id="energyEfficiencyChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráficos Avançados de Clima e Ambiente -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Impacto Climático no Rendimento</h5>
-                        <canvas id="climateImpactChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Mapa de Calor do Campo</h5>
-                        <canvas id="heatmapChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Análise Econômica e Sustentabilidade -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">ROI por Cultura</h5>
-                        <canvas id="roiChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Carbono Sequestrado</h5>
-                        <canvas id="carbonSequestrationChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <!-- Data -->
+      <div>
+        <label class="text-sm text-gray-600 mr-2">Data:</label>
+        <input type="month" id="dateFilter" class="border rounded-md px-2 py-1 text-sm" />
+      </div>
     </div>
 
-    <script>
-        // Gráfico NDVI
-        new Chart(document.getElementById('ndviChart'), {
-            type: 'line',
-            data: {
-                labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-                datasets: [{
-                    label: 'NDVI',
-                    data: [0.6, 0.7, 0.8, 0.85],
-                    borderColor: '#4CAF50',
-                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                    fill: true
-                }]
-            },
-            options: { responsive: true }
-        });
+    <!-- Navegação por tabs -->
+    <div class="flex space-x-2 mb-6 overflow-x-auto whitespace-nowrap">
+      <button data-tabs-target="overview" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md bg-green-600 text-white shadow text-sm font-medium border">Overview</button>
+      <button data-tabs-target="yield" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md text-sm font-medium border">Crop Yield</button>
+      <button data-tabs-target="resources" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md text-sm font-medium border">Resource Allocation</button>
+      <button data-tabs-target="soil" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md text-sm font-medium border">Soil Conditions</button>
+      <button data-tabs-target="profit" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md text-sm font-medium border">Profitability</button>
+    </div>
 
-        // Gráfico de Previsão de Colheita
-        new Chart(document.getElementById('harvestForecastChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Milho', 'Soja', 'Trigo', 'Arroz'],
-                datasets: [{
-                    label: 'Previsão (toneladas)',
-                    data: [120, 95, 130, 110],
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50']
-                }]
-            },
-            options: { responsive: true }
-        });
+    <!-- Conteúdo das tabs -->
+    <div>
+      <!-- OVERVIEW -->
+    <div data-tabs-content="overview">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <%= render partial: 'analytics/overview/crop_yield', locals: { chart_id: 'yieldChart_overview' } %>
+        <%= render partial: 'analytics/overview/resource_allocation', locals: { chart_id: 'resourceChart_overview' } %>
+        <%= render partial: 'analytics/overview/soil_conditions', locals: { chart_id: 'soilChart_overview' } %>
+        <%= render partial: 'analytics/overview/profitability', locals: { chart_id: 'financialChart_overview' } %>
+      </div>
+    </div>
 
-        // Gráfico de Uso de Água
-        new Chart(document.getElementById('waterUsageChart'), {
-            type: 'line',
-            data: {
-                labels: ['01', '02', '03', '04', '05', '06', '07'],
-                datasets: [{
-                    label: 'Consumo (litros)',
-                    data: [400, 450, 420, 500, 480, 470, 490],
-                    borderColor: '#36A2EB',
-                    fill: false
-                }]
-            },
-            options: { responsive: true }
-        });
+      <!-- Cada gráfico isolado -->
+    <div data-tabs-content="yield" class="hidden">
+      <%= render partial: 'analytics/overview/crop_yield', locals: { chart_id: 'yieldChart' } %>
+    </div>
+    <div data-tabs-content="resources" class="hidden">
+      <%= render partial: 'analytics/overview/resource_allocation', locals: { chart_id: 'resourceChart' } %>
+    </div>
+    <div data-tabs-content="soil" class="hidden">
+      <%= render partial: 'analytics/overview/soil_conditions', locals: { chart_id: 'soilChart' } %>
+    </div>
+    <div data-tabs-content="profit" class="hidden">
+      <%= render partial: 'analytics/overview/profitability', locals: { chart_id: 'financialChart' } %>
+    </div>
 
-        // Gráfico de Eficiência de Energia
-        new Chart(document.getElementById('energyEfficiencyChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Painéis Solares', 'Energia Eólica', 'Rede Elétrica'],
-                datasets: [{
-                    data: [60, 25, 15],
-                    backgroundColor: ['#FFCE56', '#4CAF50', '#36A2EB']
-                }]
-            },
-            options: { responsive: true }
-        });
+  </div>
 
-        // Gráfico de Impacto Climático
-        new Chart(document.getElementById('climateImpactChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-                datasets: [{
-                    label: 'Impacto no Rendimento (%)',
-                    data: [10, -5, 15, 20],
-                    backgroundColor: '#FF5722'
-                }]
-            },
-            options: { responsive: true }
-        });
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabButtons = document.querySelectorAll("[data-tabs-target]")
+    const tabContents = document.querySelectorAll("[data-tabs-content]")
 
-        // Gráfico de ROI por Cultura
-        new Chart(document.getElementById('roiChart'), {
-            type: 'line',
-            data: {
-                labels: ['Milho', 'Soja', 'Trigo', 'Arroz'],
-                datasets: [{
-                    label: 'ROI (%)',
-                    data: [15, 20, 18, 22],
-                    borderColor: '#4CAF50',
-                    fill: false
-                }]
-            },
-            options: { responsive: true }
-        });
+    function switchTab(target) {
+      tabContents.forEach(content => {
+        content.classList.toggle("hidden", content.dataset.tabsContent !== target)
+      })
 
-        // Gráfico de Carbono Sequestrado
-        new Chart(document.getElementById('carbonSequestrationChart'), {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-                datasets: [{
-                    label: 'Carbono Sequestrado (kg)',
-                    data: [100, 120, 140, 160],
-                    borderColor: '#36A2EB',
-                    fill: false
-                }]
-            },
-            options: { responsive: true }
-        });
-    </script>
+      tabButtons.forEach(button => {
+        const isActive = button.dataset.tabsTarget === target
+        button.classList.toggle("bg-green-600", isActive)
+        button.classList.toggle("text-white", isActive)
+        button.classList.toggle("shadow", isActive)
+        button.classList.toggle("bg-white", !isActive)
+        button.classList.toggle("text-gray-700", !isActive)
+      })
+
+      // Redesenha os gráficos da tab atual após 100ms
+      setTimeout(() => {
+        document.querySelectorAll(`[data-tabs-content="${target}"] canvas`).forEach(canvas => {
+          if (canvas.dataset.chart === "true") {
+            const chartId = canvas.id
+            const chartFn = window[`renderChart_${chartId}`]
+            if (typeof chartFn === "function") chartFn()
+          }
+        })
+      }, 100)
+    }
+
+    tabButtons.forEach(button => {
+      button.addEventListener("click", () => switchTab(button.dataset.tabsTarget))
+    })
+
+    // Ativar tab inicial (ex: "overview")
+    switchTab("overview")
+  })
+
+  function downloadChart(canvasId) {
+    const canvas = document.getElementById(canvasId)
+    const link = document.createElement("a")
+    link.href = canvas.toDataURL("image/png")
+    link.download = `${canvasId}.png`
+    link.click()
+  }
+</script>
+
 </body>
 </html>

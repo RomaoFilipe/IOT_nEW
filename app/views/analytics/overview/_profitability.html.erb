@@ -1,0 +1,42 @@
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="font-semibold mb-2">Profitability by Field</h2>
+  <div class="relative h-64">
+    <canvas id="<%= chart_id %>" data-chart="true" class="h-64"></canvas>
+  </div>
+</div>
+
+<script>
+  function <%= "renderChart_#{chart_id}" %>() {
+    new Chart(document.getElementById('<%= chart_id %>'), {
+      type: 'bar',
+      data: {
+        labels: ['North Field', 'South Field', 'East Field', 'West Field'],
+        datasets: [
+          {
+            label: 'Revenue ($)',
+            data: [8000, 12000, 9500, 10000],
+            backgroundColor: '#15803d'
+          },
+          {
+            label: 'Expenses ($)',
+            data: [5200, 6700, 4800, 6200],
+            backgroundColor: '#fb923c'
+          },
+          {
+            label: 'Profit ($)',
+            data: [2800, 5300, 4700, 3800],
+            backgroundColor: '#3b82f6'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  if (document.getElementById('<%= chart_id %>')?.closest('[data-tabs-content]:not(.hidden)')) {
+    <%= "renderChart_#{chart_id}" %>();
+  }
+</script>

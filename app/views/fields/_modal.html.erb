@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Operations Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<!-- Modal Background -->
+<div id="addFieldModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden transition-opacity duration-300">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md transform transition-all duration-300 scale-95">
+    
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center border-b pb-2">
+      <h2 class="text-xl font-bold text-gray-800">Add New Field</h2>
+      <button onclick="toggleModal()" class="text-gray-500 hover:text-red-600 transition">
+        ✖
+      </button>
+    </div>
+
+    <p class="text-gray-500 text-sm mt-2">Enter the details for your new agricultural field.</p>
+
+    <!-- Formulário -->
+    <%= form_with model: @field, local: true, class: "space-y-4 mt-4" do |f| %>
+      <!-- Nome do Campo -->
+      <div>
+        <%= f.label :name, "Field Name", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :name, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+      </div>
+
+      <!-- Tipo de Cultivo -->
+      <div>
+        <%= f.label :field_type, "Crop Type", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :field_type, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+      </div>
+
+      <!-- Latitude -->
+      <div>
+        <%= f.label :latitude, "Latitude", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :latitude, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+      </div>
+
+      <!-- Longitude -->
+      <div>
+        <%= f.label :longitude, "Longitude", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :longitude, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+      </div>
+
+      <!-- Área -->
+      <div>
+        <%= f.label :area, "Area (ha)", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :area, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+      </div>
+
+      <!-- Botões -->
+      <div class="flex justify-end space-x-2 mt-4">
+        <button type="button" onclick="toggleModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition">
+          Cancel
+        </button>
+        <%= f.submit "Create Field", class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition" %>
+      </div>
+    <% end %>
+
+  </div>
+</div>
+
+<!-- Script do Modal -->
+<script>
+  function toggleModal() {
+    const modal = document.getElementById("addFieldModal");
+    modal.classList.toggle("hidden");
+    modal.classList.toggle("opacity-0");
+    modal.classList.toggle("scale-95");
+  }
+</script>
+
+

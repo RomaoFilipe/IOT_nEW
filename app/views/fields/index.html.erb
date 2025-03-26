@@ -1,215 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cenário 3D - Agricultura Inteligente</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-  <style>
-    #three-js-container {
-      width: 100%;
-      height: 600px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Operations Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Adicionando Mapbox -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet" />
 </head>
 <body>
-<div class="container mt-5">
-  <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#fieldFormModal">
-    Adicionar Terreno
-  </button>
+<div class="container mx-auto p-6">
+  <!-- Título e Opções -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Fields Overview</h1>
 
-  <div class="modal fade" id="fieldFormModal" tabindex="-1" aria-labelledby="fieldFormModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="fieldFormModalLabel">Adicionar Terreno</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="field-form">
-            <div class="mb-3">
-              <label for="field-name" class="form-label">Nome do Terreno:</label>
-              <input type="text" id="field-name" name="field[name]" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label for="field-type" class="form-label">Tipo de Plantação:</label>
-              <input type="text" id="field-type" name="field[field_type]" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label for="model-path" class="form-label">Modelo 3D:</label>
-              <select id="model-path" name="field[model_path]" class="form-select">
-                <option value="wheat">Trigo</option>
-                <option value="corn">Milho</option>
-                <option value="soy">Soja</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Salvar</button>
-          </form>
-        </div>
+    <div class="flex space-x-4">
+      <div class="inline-flex h-10 items-center justify-center rounded-md bg-gray-200 p-1 text-gray-700">
+        <button id="listViewBtn" type="button" class="tab-btn px-4 py-2 text-sm font-medium rounded-md focus:outline-none transition-all">
+          List View
+        </button>
+        <button id="mapViewBtn" type="button" class="tab-btn px-4 py-2 text-sm font-medium rounded-md focus:outline-none transition-all">
+          Map View
+        </button>
       </div>
+      <button class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">Filter</button>
+      <button onclick="toggleModal()" class="px-4 py-2 bg-green-600 text-white rounded-md">+ Add Field</button>
     </div>
   </div>
 
-  <div id="three-js-container"></div>
+<!-- LIST VIEW (INICIALMENTE VISÍVEL) -->
+<div id="listViewContainer">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
+    <% @fields.each do |field| %>
+      <div class="field-card">
+        <div class="relative flex items-center justify-center bg-gray-100 h-36">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+            <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
+            <path d="M15 5.764v15"/>
+            <path d="M9 3.236v15"/>
+          </svg>
+        </div>
 
-<% @fields.each do |field| %>
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fieldDetailsModal-<%= field.id %>">
-    Detalhes de <%= field.name %>
-  </button>
-  <%= render partial: "field_modal", locals: { field: field } %>
-<% end %>
+        <div class="field-content">
+          <h2 class="field-title"><%= field.name %></h2>
+          <p><strong>Crop:</strong> <%= field.field_type %></p>
+          <p><strong>Location:</strong> <%= field.formatted_location %></p>
+          <p><strong>Area:</strong> <%= field.area %> ha</p>
+
+          <!-- Indicadores de sensores -->
+          <div class="sensor-info flex justify-between items-center mt-4">
+            <p class="field-info flex items-center">
+              <i class="bi bi-droplet-fill text-blue-500 mr-2"></i> <%= rand(40..80) %>%
+            </p>
+            <p class="field-info flex items-center">
+              <i class="bi bi-thermometer-half text-red-500 mr-2"></i> <%= rand(20..30) %>°C
+            </p>
+          </div>
+
+          <!-- Última atualização -->
+          <p class="last-updated text-sm text-gray-600 mt-2">
+            Last updated: <%= time_ago_in_words(field.updated_at) %> ago
+          </p>
+
+          <!-- Botão "View Details" -->
+          <div class="mt-4">
+            <button 
+              class="px-4 py-2 bg-green-700 text-white rounded-md w-full" 
+              onclick="toggleViewDetails(<%= field.id %>)">
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- MAP VIEW (INICIALMENTE ESCONDIDO) -->
+<div id="mapViewContainer" class="hidden">
+  <div id="map" class="w-full h-96 rounded-lg shadow-lg"></div>
+  <div id="fieldDetailsContainer" class="mt-4 p-4 border rounded-md bg-white shadow-md hidden">
+    <h3 id="fieldName" class="text-xl font-bold"></h3>
+    <p><strong>Crop:</strong> <span id="fieldCrop"></span></p>
+    <p><strong>Area:</strong> <span id="fieldArea"></span> ha</p>
+    <p><strong>Last Updated:</strong> <span id="fieldUpdated"></span></p>
+  </div>
+</div>
+
+<%= render 'fields/modal' %>
+<%= render 'fields/view_details' %>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('three-js-container');
-    const fieldForm = document.getElementById('field-form');
+document.addEventListener("DOMContentLoaded", function () {
+  const listViewBtn = document.getElementById("listViewBtn");
+  const mapViewBtn = document.getElementById("mapViewBtn");
+  const listViewContainer = document.getElementById("listViewContainer");
+  const mapViewContainer = document.getElementById("mapViewContainer");
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setClearColor(0x87CEEB);
-    container.appendChild(renderer.domElement);
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(10, 10, 10);
-    directionalLight.castShadow = true;
-    scene.add(directionalLight);
-
-    const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(200, 200),
-      new THREE.MeshStandardMaterial({ color: 0x228B22 })
-    );
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    scene.add(ground);
-
-    const gridSize = 4; // Número de terrenos por linha
-    const offset = 30; // Distância entre os terrenos
-
-    const findNextPosition = (index) => {
-      const row = Math.floor(index / gridSize);
-      const col = index % gridSize;
-      const x = (col - gridSize / 2 + 0.5) * offset;
-      const z = (row - gridSize / 2 + 0.5) * offset;
-      return [x, 0.1, z];
-    };
-
-    fetch('/fields.json')
-      .then(response => response.json())
-      .then(fields => {
-        fields.forEach((field, index) => {
-          const position = findNextPosition(index);
-          createField(field.name, field.field_type, field.model_path, position);
-        });
-      })
-      .catch(error => console.error('Erro ao carregar campos:', error));
-
-    const createField = (name, type, model, position) => {
-      const fieldGroup = new THREE.Group();
-
-      const base = new THREE.Mesh(
-        new THREE.BoxGeometry(25, 0.1, 20),
-        new THREE.MeshStandardMaterial({ color: "#3d2817" })
-      );
-      fieldGroup.add(base);
-
-      const crops = createCrops(model);
-      fieldGroup.add(crops);
-
-      fieldGroup.position.set(...position);
-      fieldGroup.userData = { name, type };
-      scene.add(fieldGroup);
-    };
-
-    const createCrops = (model) => {
-      const cropsGroup = new THREE.Group();
-      const colors = {
-        wheat: "#f4d03f",
-        corn: "#27ae60",
-        soy: "#82e0aa",
-      };
-
-      for (let x = -8; x < 8; x += 1.5) {
-        for (let z = -6; z < 6; z += 1.5) {
-          const height = model === "wheat" ? 1 + Math.random() * 0.5 : model === "corn" ? 2 + Math.random() * 0.7 : 1.2 + Math.random() * 0.4;
-          const crop = createCropInstance(height, colors[model]);
-          crop.position.set(x + Math.random() * 0.3, height / 2, z + Math.random() * 0.3);
-          cropsGroup.add(crop);
-        }
-      }
-      return cropsGroup;
-    };
-
-    const createCropInstance = (height, color) => {
-      const crop = new THREE.Group();
-
-      const stem = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.05, 0.05, height),
-        new THREE.MeshStandardMaterial({ color: "#2ecc71" })
-      );
-      crop.add(stem);
-
-      const top = new THREE.Mesh(
-        new THREE.SphereGeometry(0.2),
-        new THREE.MeshStandardMaterial({ color })
-      );
-      top.position.y = height / 2;
-      crop.add(top);
-
-      return crop;
-    };
-
-    fieldForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = new FormData(fieldForm);
-
-      fetch('/fields', {
-        method: 'POST',
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: formData
-      })
-        .then(response => {
-          if (response.ok) {
-            response.json().then((field) => {
-              const fieldsCount = document.querySelectorAll('.btn-primary').length;
-              const position = findNextPosition(fieldsCount);
-              createField(field.name, field.field_type, field.model_path, position);
-              alert('Terreno criado com sucesso!');
-            });
-          } else {
-            alert('Erro ao criar terreno.');
-          }
-        })
-        .catch(error => console.error('Erro ao salvar terreno:', error));
+  function setActive(button) {
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.classList.remove("bg-white", "shadow-md");
     });
+    button.classList.add("bg-white", "shadow-md");
+  }
 
-    camera.position.set(90, 90, 90);
-    camera.lookAt(0, 0, 0);
-
-    const animate = () => {
-      controls.update();
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    };
-    animate();
+  listViewBtn.addEventListener("click", () => {
+    setActive(listViewBtn);
+    listViewContainer.classList.remove("hidden");
+    mapViewContainer.classList.add("hidden");
   });
+
+  mapViewBtn.addEventListener("click", () => {
+    setActive(mapViewBtn);
+    listViewContainer.classList.add("hidden");
+    mapViewContainer.classList.remove("hidden");
+
+    if (!window.mapInitialized) {
+      initializeMapbox();
+      window.mapInitialized = true;
+    }
+  });
+
+  setActive(listViewBtn);
+  listViewContainer.classList.remove("hidden");
+  mapViewContainer.classList.add("hidden");
+});
+
+function initializeMapbox() {
+  mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204Mzd0dDV4MGw2NjJqc2FnemFvNjdhNiJ9.eij5JSF01xc0MChaIjhLTA';
+
+  const map = new mapboxgl.Map({
+    container: "map",
+    style: "mapbox://styles/romaofilipe/cm8ft8p27008g01qw5i4ngmki",
+    center: [-98.4936, 29.4241],
+    zoom: 12,
+  });
+
+  const fields = <%= raw @fields.to_json %>;
+
+  fields.forEach((field) => {
+    const marker = new mapboxgl.Marker({ color: "blue" })
+      .setLngLat([field.longitude, field.latitude])
+      .setPopup(new mapboxgl.Popup().setText(field.name))
+      .addTo(map);
+
+    marker.getElement().addEventListener("click", () => {
+      document.getElementById("fieldName").innerText = field.name;
+      document.getElementById("fieldCrop").innerText = field.field_type;
+      document.getElementById("fieldArea").innerText = field.area;
+      document.getElementById("fieldUpdated").innerText = field.updated_at;
+      fieldDetailsContainer.classList.remove("hidden");
+    });
+  });
+}
+
+// ✅ Mover esta função para fora
+function toggleViewDetails(fieldId = null) {
+  const modal = document.getElementById("viewDetailsModal");
+  modal.classList.toggle("hidden");
+
+  if (fieldId) {
+    console.log("Abrir detalhes do campo com ID:", fieldId);
+    // (Opcional: fetch dinâmico aqui)
+  }
+}
 </script>
+
 
 </body>
 </html>

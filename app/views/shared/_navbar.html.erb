@@ -1,58 +1,103 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
-  <div class="container-fluid">
-    <!-- Botão para abrir/fechar a sidebar -->
-    <button id="toggleSidebar" class="btn btn-outline-success me-3" aria-label="Toggle Sidebar">
-      <i class="bi bi-list"></i>
-    </button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar - AgriloT Synergy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
 
-    <!-- Nome do Dashboard -->
-    <a class="navbar-brand ms-3 fw-bold text-success" href="#">Agriculture Dashboard</a>
+<!-- Navbar -->
+<nav class="custom-navbar flex items-center justify-between px-6 py-4 bg-white shadow">
+  <div class="flex items-center">
+    <!-- Logo -->
+    <a href="<%= home_path %>" class="text-blue-900 font-bold flex items-center space-x-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-cog">
+        <circle cx="12" cy="17" r="3"/>
+        <path d="M4.2 15.1A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.2"/>
+      </svg>
+      <span>AgriloT Synergy</span>
+    </a>
+  </div>
 
-    <!-- Conteúdo alinhado à direita -->
-    <div class="ms-auto d-flex align-items-center">
-      <!-- Notificações -->
-      <button class="btn btn-link position-relative text-dark me-3" aria-label="Notifications">
-        <i class="bi bi-bell fs-5"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">7</span>
-      </button>
+  <!-- Menu de Navegação -->
+  <div class="hidden md:flex items-center space-x-6 text-gray-700">
+    <%= link_to home_path, class: "flex items-center space-x-2 hover:text-green-600 transition" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house">
+        <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+        <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      </svg>
+      <span>Home</span>
+    <% end %>
 
-      <!-- Dropdown do Perfil -->
-      <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-          <% if user_signed_in? %>
-            <%= image_tag(current_user.photo.url, alt: "Profile Picture", width: 32, height: 32, class: "rounded-circle me-2") if current_user.photo.present? %>
-            <strong><%= current_user.name %></strong>
-          <% else %>
-            <strong>Guest</strong>
-          <% end %>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end text-small shadow" aria-labelledby="dropdownUser">
-          <% if user_signed_in? %>
-            <!-- Alerta de "Entrar como outro usuário" -->
-            <% if session[:admin_user_id] %>
-              <li>
-                <div class="alert alert-warning m-2 p-2">
-                  Você está visualizando a conta de <%= current_user.name %>.
-                  <%= link_to 'Voltar para minha conta', retornar_como_admin_path, method: :delete, class: 'text-primary' %>
-                </div>
-              </li>
-            <% end %>
-            <!-- Link para o perfil -->
-            <li>
-              <%= link_to 'Profile', user_profile_path(current_user), class: "dropdown-item" %>
-            </li>
-            <!-- Logout -->
-            <li>
-              <%= form_with(url: destroy_user_session_path, method: :delete, local: true) do %>
-                <%= submit_tag "Sign out", class: "dropdown-item text-danger" %>
-              <% end %>
-            </li>
-          <% else %>
-            <!-- Login -->
-            <li><a class="dropdown-item" href="<%= new_user_session_path %>">Sign in</a></li>
-          <% end %>
-        </ul>
+    <% if user_signed_in? %>
+      <%= link_to dashboard_path, class: "flex items-center space-x-2 hover:text-green-600 transition" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard">
+          <rect width="7" height="9" x="3" y="3" rx="1"/>
+          <rect width="7" height="5" x="14" y="3" rx="1"/>
+          <rect width="7" height="9" x="14" y="12" rx="1"/>
+          <rect width="7" height="5" x="3" y="16" rx="1"/>
+        </svg>
+        <span>Dashboard</span>
+      <% end %>
+
+      <%= link_to fields_path, class: "flex items-center space-x-2 hover:text-green-600 transition" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+              <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
+              <path d="M15 5.764v15"/>
+              <path d="M9 3.236v15"/>
+            </svg>
+        <span>Fields</span>
+      <% end %>
+
+      <%= link_to analytics_path, class: "flex items-center space-x-2 hover:text-green-600 transition" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-column">
+          <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
+          <path d="M18 17V9"/>
+          <path d="M13 17V5"/>
+          <path d="M8 17v-3"/>
+        </svg>
+        <span>Analytics</span>
+      <% end %>
+
+      <%= link_to settings_path, class: "flex items-center space-x-2 hover:text-green-600 transition" do %>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span>Settings</span>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Área de Login/Logout -->
+  <div class="flex items-center space-x-4">
+    <% if user_signed_in? %>
+      <div class="flex items-center space-x-2 text-gray-700">
+        <span class="font-medium"><%= current_user.name %></span>
       </div>
-    </div>
+
+      <!-- Logout usando form_with para evitar problemas com Devise -->
+      <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
+        <button type="submit" class="px-4 py-2 border border-red-500 text-red-500 rounded-md font-medium flex items-center space-x-2 hover:bg-red-100 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+            <path d="M12 3H3v18h9"></path>
+          </svg>
+          <span>Logout</span>
+        </button>
+      <% end %>
+
+    <% else %>
+      <%= link_to new_user_session_path, class: "px-4 py-2 border border-gray-400 text-gray-700 rounded-md font-medium hover:bg-gray-100 transition" do %>
+        Login
+      <% end %>
+
+      <%= link_to new_user_registration_path, class: "px-4 py-2 bg-green-700 text-white rounded-md font-medium hover:bg-green-800 transition" do %>
+        Sign Up
+      <% end %>
+    <% end %>
   </div>
 </nav>
+
+</body>
+</html>

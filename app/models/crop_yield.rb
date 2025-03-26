@@ -1,0 +1,2 @@
+class CropYield < ApplicationRecord
+end

@@ -1,0 +1,128 @@
+/* Estilização do card */
+.field-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    padding: 0;
+    width: 400px;
+    height: auto;
+    text-align: left;
+    transition: transform 0.2s ease-in-out;
+    overflow: hidden;
+}
+
+/* Efeito hover */
+.field-card:hover {
+    transform: translateY(-4px);
+}
+
+/* Área do Mapa (com Ícone Centralizado) */
+.field-card .relative {
+    height: 200px;
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ícone do mapa no centro */
+.lucide-map2 {
+    width: 48px;
+    height: 48px;
+    color: #9ca3af;
+}
+
+/* Container de conteúdo dentro do card */
+.field-content {
+    padding: 16px;
+}
+
+/* Status */
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 10px;
+}
+
+.status-good {
+    background-color: #d1fae5;
+    color: #047857;
+}
+
+.status-warning {
+    background-color: #fef3c7;
+    color: #b45309;
+}
+
+/* Indicadores de sensores */
+.sensor-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+}
+
+.sensor-icon {
+    font-size: 1rem;
+}
+
+.humidity {
+    color: #3b82f6;
+}
+
+.temperature {
+    color: #f97316;
+}
+
+/* Última atualização */
+.last-updated {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 6px;
+}
+
+/* Link de detalhes */
+.view-details {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.view-details:hover {
+    color: #1d4ed8;
+}
+
+/* Card de Adicionar Novo Field */
+.add-field-card {
+    background-color: #f9fafb;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+/* Efeito hover para o botão */
+.add-field-card:hover {
+    background-color: #eef2ff;
+    border-color: #6366f1;
+}
+
+/* Ícone e Texto dentro do Card */
+.add-field-content {
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.add-field-icon {
+    font-size: 2rem;
+    color: #6366f1;
+    margin-bottom: 8px;
+}

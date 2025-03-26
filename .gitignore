@@ -48,3 +48,6 @@ yarn-debug.log*
 public/cenario/scene.bin
 public/PlaneQuadrado/scene.bin
 public/cenouras2/scene.bin
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

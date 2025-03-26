@@ -1,0 +1,48 @@
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="font-semibold mb-2">Soil Conditions Trend</h2>
+  <div class="relative h-64">
+    <canvas id="<%= chart_id %>" data-chart="true" class="h-64"></canvas>
+  </div>
+</div>
+
+<script>
+  function <%= "renderChart_#{chart_id}" %>() {
+    new Chart(document.getElementById('<%= chart_id %>'), {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        datasets: [
+          {
+            label: 'Moisture %',
+            data: [40, 42, 38, 47, 58, 65, 70],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            fill: true
+          },
+          {
+            label: 'pH Level',
+            data: [6.5, 6.4, 6.6, 6.7, 6.8, 6.6, 6.9],
+            borderColor: '#a855f7',
+            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+            fill: true
+          },
+          {
+            label: 'Nitrogen (ppm)',
+            data: [30, 32, 34, 50, 60, 65, 72],
+            borderColor: '#22c55e',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  if (document.getElementById('<%= chart_id %>')?.closest('[data-tabs-content]:not(.hidden)')) {
+    <%= "renderChart_#{chart_id}" %>();
+  }
+</script>
