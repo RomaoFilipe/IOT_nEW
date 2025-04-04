@@ -1,0 +1,34 @@
+<div id="listViewContainer">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
+    <% @fields.each do |field| %>
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="flex items-center justify-center bg-gray-100 h-36 relative">
+          <% if field.latitude.present? && field.longitude.present? %>
+            <div class="mini-map-container">
+              <div id="mini-map-<%= field.id %>" class="w-full h-full rounded-md"></div>
+              <button class="mini-map-button" onclick="flyToField(<%= field.longitude %>, <%= field.latitude %>, <%= field.id %>)">Ver no mapa completo</button>
+            </div>
+          <% else %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="text-gray-400" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
+              <path d="M15 5.764v15" />
+              <path d="M9 3.236v15" />
+            </svg>
+          <% end %>
+        </div>
+        <div class="p-4">
+          <h2 class="font-bold text-lg text-gray-800"><%= field.name %></h2>
+          <p><strong>Crop:</strong> <%= field.field_type %></p>
+          <p><strong>Location:</strong> <%= field.formatted_location %></p>
+          <p><strong>Area:</strong> <%= field.area %> ha</p>
+          <div class="flex justify-between mt-2 text-sm text-gray-600">
+            <span>💧 <%= rand(40..80) %>%</span>
+            <span>🌡 <%= rand(20..30) %>°C</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">Last updated: <%= time_ago_in_words(field.updated_at) %> ago</p>
+          <button onclick="toggleViewDetails(<%= field.id %>)" class="w-full mt-4 bg-green-700 text-white py-2 rounded-md">View Details</button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<div id="boundaryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+  <div class="bg-white w-full max-w-4xl p-6 rounded-lg shadow-lg relative">
+
+    <!-- Cabeçalho -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">Define Field Boundary</h2>
+      <button onclick="closeBoundaryModal()" class="text-gray-500 text-xl hover:text-red-600">&times;</button>
+    </div>
+
+    <p class="text-gray-500 text-sm mb-4">Click on the map to define up to 8 vertices of your field boundary. Click "Save Boundary" when finished.</p>
+
+    <!-- Mapa -->
+    <div id="boundaryMap" class="w-full h-[400px] rounded-md border border-gray-200 mb-4"></div>
+
+    <!-- Controlo de Pontos -->
+    <div class="flex justify-between items-center">
+      <div class="text-sm text-gray-600">Points: <span id="pointCount">0</span>/8</div>
+      <div class="space-x-2">
+        <button onclick="resetBoundary()" class="px-3 py-2 border text-sm rounded-md text-gray-600 hover:bg-gray-100">🗑 Reset</button>
+        <button onclick="closeBoundaryModal()" class="px-3 py-2 border text-sm rounded-md text-gray-600 hover:bg-gray-100">✖ Cancel</button>
+        <button onclick="saveBoundary()" class="px-4 py-2 bg-green-500 text-white text-sm rounded-md hover:bg-green-600">✔ Save Boundary</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let boundaryMap, boundaryMarkers = [], boundaryCoords = [], boundaryPolygon;
+
+function openBoundaryModal() {
+  const modal = document.getElementById("boundaryModal");
+  modal.classList.remove("hidden");
+
+  const lat = parseFloat(document.getElementById("field_latitude").value) || 41.145;
+  const lng = parseFloat(document.getElementById("field_longitude").value) || -8.611;
+
+  mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+
+  if (!boundaryMap) {
+    boundaryMap = new mapboxgl.Map({
+      container: "boundaryMap",
+      style: "mapbox://styles/mapbox/satellite-streets-v11",
+      center: [lng, lat],
+      zoom: 15,
+      pitch: 45,
+      bearing: -10,
+      antialias: true
+    });
+
+    boundaryMap.on("style.load", () => {
+      if (!boundaryMap.getSource("mapbox-dem")) {
+        boundaryMap.addSource("mapbox-dem", {
+          type: "raster-dem",
+          url: "mapbox://mapbox.terrain-rgb",
+          tileSize: 512,
+          maxzoom: 14
+        });
+        boundaryMap.setTerrain({ source: "mapbox-dem", exaggeration: 1.2 });
+      }
+
+      // 🔥 resize só aqui — garante que está visível
+      boundaryMap.resize();
+    });
+
+    boundaryMap.on("click", (e) => {
+      if (boundaryCoords.length >= 8) return;
+
+      const { lng, lat } = e.lngLat;
+      boundaryCoords.push([lng, lat]);
+      document.getElementById("pointCount").innerText = boundaryCoords.length;
+
+      const marker = new mapboxgl.Marker({ color: "#22c55e" })
+        .setLngLat([lng, lat])
+        .addTo(boundaryMap);
+      boundaryMarkers.push(marker);
+
+      drawPolygon();
+    });
+  } else {
+    boundaryMap.setCenter([lng, lat]);
+    
+    // Aqui também podes garantir que redesenha
+    setTimeout(() => boundaryMap.resize(), 200);
+  }
+}
+
+function drawPolygon() {
+  if (boundaryPolygon) {
+    boundaryMap.removeLayer("boundaryLine");
+    boundaryMap.removeSource("boundaryLine");
+  }
+
+  if (boundaryCoords.length < 2) return;
+
+  boundaryMap.addSource("boundaryLine", {
+    type: "geojson",
+    data: {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [[...boundaryCoords, boundaryCoords[0]]] // fecha o polígono
+      }
+    }
+  });
+
+  boundaryMap.addLayer({
+    id: "boundaryLine",
+    type: "line",
+    source: "boundaryLine",
+    paint: {
+      "line-color": "#10b981",
+      "line-width": 3
+    }
+  });
+
+  boundaryPolygon = true;
+}
+
+function resetBoundary() {
+  boundaryCoords = [];
+  document.getElementById("pointCount").innerText = "0";
+
+  boundaryMarkers.forEach(marker => marker.remove());
+  boundaryMarkers = [];
+
+  if (boundaryMap.getLayer("boundaryLine")) boundaryMap.removeLayer("boundaryLine");
+  if (boundaryMap.getSource("boundaryLine")) boundaryMap.removeSource("boundaryLine");
+
+  boundaryPolygon = null;
+}
+
+function saveBoundary() {
+  if (boundaryCoords.length < 3) {
+    alert("O polígono precisa de pelo menos 3 pontos.");
+    return;
+  }
+  document.getElementById("polygonCoordinates").value = JSON.stringify(boundaryCoords);
+  closeBoundaryModal();
+}
+
+function closeBoundaryModal() {
+  document.getElementById("boundaryModal").classList.add("hidden");
+}
+</script>

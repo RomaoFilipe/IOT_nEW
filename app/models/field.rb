@@ -6,9 +6,10 @@ class Field < ApplicationRecord
   validates :field_type, presence: true, length: { maximum: 50 }
   validates :latitude, :longitude, presence: true, numericality: true
   validates :area, presence: true, numericality: { greater_than: 0 }
+  store_accessor :polygon_coordinates
 
   # Método para retornar localização formatada
   def formatted_location
-    "#{latitude}, #{longitude}"
+    "#{latitude}, #{longitude}" if latitude && longitude
   end
 end
