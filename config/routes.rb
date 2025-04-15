@@ -13,6 +13,10 @@ Rails.application.routes.draw do
     get '/settings', to: 'settings#index', as: 'settings'
     resources :tasks, only: [:index, :create, :update, :destroy]
     resources :fields, only: [:index, :show, :new, :create, :destroy]
+    resources :crop_yields, only: [:create]
+    resources :soil_readings, only: [:create]
+    resources :financials, only: [:create]
+
   end
 
   # 🔹 Perfil do utilizador

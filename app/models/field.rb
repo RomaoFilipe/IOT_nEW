@@ -1,5 +1,8 @@
 class Field < ApplicationRecord
   belongs_to :user
+  has_many :crop_yields
+  has_many :soil_readings
+  has_many :financials
 
   # Validações essenciais
   validates :name, presence: true, length: { maximum: 100 }, uniqueness: { scope: :user_id, message: "Você já tem um campo com esse nome." }

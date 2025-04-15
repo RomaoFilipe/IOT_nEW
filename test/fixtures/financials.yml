@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  field: one
+  revenue: 9.99
+  expenses: 9.99
+  profit: 9.99
+  recorded_at: 2025-04-14 08:17:55
+
+two:
+  field: two
+  revenue: 9.99
+  expenses: 9.99
+  profit: 9.99
+  recorded_at: 2025-04-14 08:17:55

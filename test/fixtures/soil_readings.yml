@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  field: one
+  moisture: 1.5
+  ph: 1.5
+  nitrogen: 1
+  measured_at: 2025-04-14 08:16:31
+
+two:
+  field: two
+  moisture: 1.5
+  ph: 1.5
+  nitrogen: 1
+  measured_at: 2025-04-14 08:16:31

@@ -9,42 +9,86 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-  <div class="max-w-7xl mx-auto px-4 py-6" data-controller="tabs">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Farm Analytics</h1>
 
-    <!-- Filtros -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-      <!-- Campo -->
-      <div>
-        <label class="text-sm text-gray-600 mr-2">Campo:</label>
-        <select id="fieldFilter" class="border rounded-md px-2 py-1 text-sm">
-          <option value="all">Todos</option>
-          <option value="north">Campo Norte</option>
-          <option value="south">Campo Sul</option>
-          <option value="east">Campo Este</option>
-          <option value="west">Campo Oeste</option>
-        </select>
-      </div>
+  <div class="max-w-7xl mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">Farm Analytics</h1>
 
-      <!-- Data -->
-      <div>
-        <label class="text-sm text-gray-600 mr-2">Data:</label>
-        <input type="month" id="dateFilter" class="border rounded-md px-2 py-1 text-sm" />
-      </div>
-    </div>
-
-    <!-- Navegação por tabs -->
-    <div class="flex space-x-2 mb-6 overflow-x-auto whitespace-nowrap">
-      <button data-tabs-target="overview" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md bg-green-600 text-white shadow text-sm font-medium border">Overview</button>
-      <button data-tabs-target="yield" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md text-sm font-medium border">Crop Yield</button>
-      <button data-tabs-target="resources" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md text-sm font-medium border">Resource Allocation</button>
-      <button data-tabs-target="soil" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md text-sm font-medium border">Soil Conditions</button>
-      <button data-tabs-target="profit" data-action="click->tabs#switch" class="tab-btn px-4 py-2 rounded-md text-sm font-medium border">Profitability</button>
-    </div>
-
-    <!-- Conteúdo das tabs -->
+<!-- Filtros -->
+  <div class="flex flex-wrap items-center gap-4 mb-6">
     <div>
-      <!-- OVERVIEW -->
+      <label for="fieldFilter" class="text-sm font-medium text-gray-700">Campo:</label>
+      <select id="fieldFilter" name="field_id" onchange="applyFieldFilter()" class="ml-2 border-gray-300 rounded-md px-2 py-1 text-sm">
+        <% @fields.each do |field| %>
+          <option value="<%= field.id %>" <%= 'selected' if params[:field_id].to_s == field.id.to_s %>>
+            <%= field.name %>
+          </option>
+        <% end %>
+      </select>
+    </div>
+
+    <div>
+      <label for="dateFilter" class="text-sm font-medium text-gray-700">Data:</label>
+      <input type="month" id="dateFilter" class="ml-2 border-gray-300 rounded-md px-2 py-1 text-sm" />
+    </div>
+  </div>
+
+      <!-- Tabs -->
+  <div class="flex space-x-2 mb-6 overflow-x-auto">
+    <% tabs = { "overview" => "Overview", "yield" => "Crop Yield", "resources" => "Resource Allocation", "soil" => "Soil Conditions", "profit" => "Profitability" } %>
+    <% tabs.each do |id, label| %>
+      <button data-tabs-target="<%= id %>" data-action="click->tabs#switch"
+              class="tab-btn px-4 py-2 rounded-md text-sm font-medium border border-gray-300 bg-white hover:bg-gray-100 transition">
+        <%= label %>
+      </button>
+    <% end %>
+  </div>
+<div class="flex justify-end mb-6">
+  <button onclick="toggleYieldForm()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+    + Adicionar Produção
+  </button>
+</div>
+<div id="yieldFormModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white p-6 rounded-lg w-full max-w-xl shadow-xl relative">
+    <button onclick="toggleYieldForm()" class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+    <h3 class="text-xl font-semibold mb-4 text-gray-800">Registar Produção Agrícola</h3>
+
+    <%= form_with url: crop_yields_path, method: :post, local: true do |f| %>
+      <div class="mb-4">
+        <label class="text-sm font-medium text-gray-700">Campo</label>
+        <%= select_tag "crop_yield[field_id]", options_from_collection_for_select(@fields, :id, :name), class: "w-full mt-1 border-gray-300 rounded-md shadow-sm" %>
+      </div>
+
+      <div id="cropInputs" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="text-sm font-medium text-gray-700">Cultura</label>
+            <input type="text" name="crop_yield[crop_type][]" placeholder="Ex: Milho, Trigo" class="w-full rounded-md border-gray-300 shadow-sm mt-1"/>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Produção (ton)</label>
+            <input type="number" name="crop_yield[amount][]" step="0.1" class="w-full rounded-md border-gray-300 shadow-sm mt-1"/>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Mês</label>
+            <select name="crop_yield[month][]" class="w-full rounded-md border-gray-300 shadow-sm mt-1">
+              <option value="">Selecionar</option>
+              <% %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez].each do |mes| %>
+                <option value="<%= mes %>"><%= mes %></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mt-6">
+        <button type="button" onclick="addCropInput()" class="text-sm text-blue-600 hover:underline">+ Adicionar Cultura</button>
+        <%= f.submit "Guardar", class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<!-- Conteúdo das tabs -->
+  <div>
     <div data-tabs-content="overview">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <%= render partial: 'analytics/overview/crop_yield', locals: { chart_id: 'yieldChart_overview' } %>
@@ -54,7 +98,6 @@
       </div>
     </div>
 
-      <!-- Cada gráfico isolado -->
     <div data-tabs-content="yield" class="hidden">
       <%= render partial: 'analytics/overview/crop_yield', locals: { chart_id: 'yieldChart' } %>
     </div>
@@ -67,8 +110,8 @@
     <div data-tabs-content="profit" class="hidden">
       <%= render partial: 'analytics/overview/profitability', locals: { chart_id: 'financialChart' } %>
     </div>
-
   </div>
+</div>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -115,6 +158,39 @@
     link.href = canvas.toDataURL("image/png")
     link.download = `${canvasId}.png`
     link.click()
+  }
+
+  function applyFieldFilter() {
+    const fieldId = document.getElementById("fieldFilter").value;
+    const baseUrl = window.location.pathname;
+    const url = new URL(baseUrl, window.location.origin);
+    if (fieldId) url.searchParams.append("field_id", fieldId);
+    window.location.href = url.toString();
+  }
+  function toggleYieldForm() {
+    document.getElementById('yieldFormModal').classList.toggle('hidden');
+  }
+
+  function addCropInput() {
+    const container = document.getElementById("cropInputs");
+    const html = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <input type="text" name="crop_yield[crop_type][]" placeholder="Cultura" class="w-full rounded-md border-gray-300 shadow-sm mt-1" />
+        </div>
+        <div>
+          <input type="number" name="crop_yield[amount][]" step="0.1" class="w-full rounded-md border-gray-300 shadow-sm mt-1" />
+        </div>
+        <div>
+          <select name="crop_yield[month][]" class="w-full rounded-md border-gray-300 shadow-sm mt-1">
+            <option value="">Selecionar</option>
+            ${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+              .map(m => `<option value="${m}">${m}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+    `;
+    container.insertAdjacentHTML("beforeend", html);
   }
 </script>
 

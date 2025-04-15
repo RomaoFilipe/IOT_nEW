@@ -1,0 +1,12 @@
+<turbo-stream action="replace" target="yieldChartContainer">
+  <template>
+    <%= render partial: "analytics/overview/crop_yield", locals: { chart_id: "yieldChart" } %>
+  </template>
+</turbo-stream>
+<script>
+  document.addEventListener("turbo:load", function () {
+    if (typeof renderChart_yieldChart === "function") {
+      renderChart_yieldChart();
+    }
+  });
+</script>

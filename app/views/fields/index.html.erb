@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Farm Operations Dashboard</title>
+  <title>Fields Overview</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet" />
@@ -11,14 +11,15 @@
     .mini-map-container {
       position: relative;
       width: 100%;
-      height: 144px !important; /* Importante para Tailwind não substituir */
+      height: 144px !important;
     }
 
-    .mini-map-container div {
+    .mini-map-container > div {
       width: 100%;
       height: 100%;
-      border-radius: 0.5rem; /* arredondado (rounded-md) */
+      border-radius: 0.5rem;
     }
+
     .mini-map-button {
       position: absolute;
       bottom: 0.5rem;
@@ -33,7 +34,8 @@
     }
   </style>
 </head>
-<body>
+<body class="bg-gray-100">
+
   <div class="container mx-auto p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-gray-900">Fields Overview</h1>
@@ -47,302 +49,54 @@
       </div>
     </div>
 
-<%= render 'fields/list_view' %>
-<%= render 'fields/map_view' %>
+    <%= render 'fields/list_view' %>
+    <%= render 'fields/map_view' %>
 
-
-
-  <%= render 'fields/modal' %>
-  <%= render 'fields/view_details' %>
+    <%= render 'fields/modal' %>
+    <%= render 'fields/view_details' %>
+  </div>
 
   <script>
-// Executa apenas um único DOMContentLoaded para tudo:
-document.addEventListener("DOMContentLoaded", function () {
-  const listViewBtn = document.getElementById("listViewBtn");
-  const mapViewBtn = document.getElementById("mapViewBtn");
-  const listViewContainer = document.getElementById("listViewContainer");
-  const mapViewContainer = document.getElementById("mapViewContainer");
+    document.addEventListener("DOMContentLoaded", function () {
+      const listViewBtn = document.getElementById("listViewBtn");
+      const mapViewBtn = document.getElementById("mapViewBtn");
+      const listViewContainer = document.getElementById("listViewContainer");
+      const mapViewContainer = document.getElementById("mapViewContainer");
 
-  listViewBtn.addEventListener("click", () => {
-    listViewContainer.classList.remove("hidden");
-    mapViewContainer.classList.add("hidden");
-    listViewBtn.classList.add("bg-white", "shadow-md");
-    mapViewBtn.classList.remove("bg-white", "shadow-md");
-  });
-
-  mapViewBtn.addEventListener("click", () => {
-    listViewContainer.classList.add("hidden");
-    mapViewContainer.classList.remove("hidden");
-    mapViewBtn.classList.add("bg-white", "shadow-md");
-    listViewBtn.classList.remove("bg-white", "shadow-md");
-    if (!window.mapInitialized) {
-      initializeMapbox();
-      window.mapInitialized = true;
-    }
-  });
-
-  listViewBtn.click();
-
-  initializeMiniMaps(); // Inicializa corretamente uma vez!
-});
-
-// Inicialização dos mini-mapas (versão otimizada)
-function initializeMiniMaps() {
-  const fields = <%= raw @fields.to_json %>;
-
-  fields.forEach(field => {
-    const miniMapDiv = document.getElementById(`mini-map-${field.id}`);
-
-    if (miniMapDiv && field.latitude && field.longitude) {
-      const style = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "mapbox://styles/mapbox/dark-v10"
-        : "mapbox://styles/mapbox/streets-v11";
-
-      const miniMap = new mapboxgl.Map({
-        container: miniMapDiv,
-        style: style,
-        center: [field.longitude, field.latitude],
-        zoom: 12,
-        interactive: false
+      listViewBtn.addEventListener("click", () => {
+        listViewContainer.classList.remove("hidden");
+        mapViewContainer.classList.add("hidden");
+        listViewBtn.classList.add("bg-white", "shadow-md");
+        mapViewBtn.classList.remove("bg-white", "shadow-md");
       });
 
-      miniMap.on('load', () => {
-        new mapboxgl.Marker({ color: "blue" })
-          .setLngLat([field.longitude, field.latitude])
-          .addTo(miniMap);
+      mapViewBtn.addEventListener("click", () => {
+        listViewContainer.classList.add("hidden");
+        mapViewContainer.classList.remove("hidden");
+        mapViewBtn.classList.add("bg-white", "shadow-md");
+        listViewBtn.classList.remove("bg-white", "shadow-md");
 
-        // Força o resize após 200ms para garantir visibilidade
-        setTimeout(() => miniMap.resize(), 200);
-      });
-    }
-  });
-}
-
-
-// Modal para adicionar campo
-function toggleModal() {
-  const modal = document.getElementById("addFieldModal");
-  modal.classList.toggle("hidden");
-}
-
-// Modal para detalhes
-function toggleViewDetails(fieldId = null) {
-  const modal = document.getElementById("viewDetailsModal");
-  modal.classList.toggle("hidden");
-}
-
-// Voar até campo específico
-function flyToField(lng, lat) {
-  document.getElementById("mapViewBtn").click();
-  setTimeout(() => {
-    if (window.mainMap) {
-      window.mainMap.flyTo({ center: [lng, lat], zoom: 30, essential: true });
-    }
-  }, 500);
-}
-
-// Inicialização do mapa principal
-function initializeMapbox() {
-  mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
-
-  const map = new mapboxgl.Map({
-    container: "map",
-    style: "mapbox://styles/mapbox/satellite-streets-v11",
-    center: [-8.611, 41.145],
-    zoom: 15,
-    pitch: 60,
-    bearing: -20,
-    antialias: true
-  });
-
-  map.on("style.load", () => {
-    map.addSource("mapbox-dem", {
-      type: "raster-dem",
-      url: "mapbox://mapbox.terrain-rgb",
-      tileSize: 512,
-      maxzoom: 14
-    });
-
-    map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
-
-    map.addLayer({
-      id: "hillshading",
-      source: "mapbox-dem",
-      type: "hillshade"
-    });
-
-    initializeMapFeatures();
-  });
-
-  window.mainMap = map;
-
-  const fields = <%= raw @fields.to_json %>;
-
-fields.forEach(field => {
-    // Mostrar marcador se tiver coordenadas
-    if (field.latitude && field.longitude) {
-      const marker = new mapboxgl.Marker({ color: "blue" })
-        .setLngLat([field.longitude, field.latitude])
-        .setPopup(new mapboxgl.Popup().setText(field.name))
-        .addTo(map);
-
-      marker.getElement().addEventListener("click", () => {
-        document.getElementById("fieldName").innerText = field.name;
-        document.getElementById("fieldCrop").innerText = field.field_type;
-        document.getElementById("fieldArea").innerText = field.area;
-        document.getElementById("fieldLat").innerText = field.latitude;
-        document.getElementById("fieldLng").innerText = field.longitude;
-        document.getElementById("fieldUpdated").innerText = new Date(field.updated_at).toLocaleString();
-      });
-    }
-
-    // Mostrar polígono se existir
-    if (field.polygon_coordinates && field.polygon_coordinates.length >= 3) {
-      const polygonId = `polygon-${field.id}`;
-      const polygonData = {
-        type: "Feature",
-        geometry: {
-          type: "Polygon",
-          coordinates: [[...field.polygon_coordinates, field.polygon_coordinates[0]]]
+        if (!window.mapInitialized) {
+          initializeMapbox();
+          window.mapInitialized = true;
         }
-      };
+      });
 
-      if (!map.getSource(polygonId)) {
-        map.addSource(polygonId, {
-          type: "geojson",
-          data: polygonData
-        });
+      // Ativa o modo lista por padrão
+      listViewBtn.click();
 
-        map.addLayer({
-          id: `${polygonId}-fill`,
-          type: "fill",
-          source: polygonId,
-          layout: {},
-          paint: {
-            "fill-color": "#f97316",
-            "fill-opacity": 0.3
-          }
-        });
-
-        // Marcadores nos vértices
-        field.polygon_coordinates.forEach(coord => {
-          new mapboxgl.Marker({ color: "#f97316" })
-            .setLngLat(coord)
-            .addTo(map);
-        });
-
-        // Centro do polígono azul (extra)
-        const center = getPolygonCenter(field.polygon_coordinates);
-        new mapboxgl.Marker({ color: "blue" })
-          .setLngLat(center)
-          .addTo(map);
-      }
-    }
-  });
-}
-
-// Função de utilidade: centro de polígono
-function getPolygonCenter(coords) {
-  let lngSum = 0;
-  let latSum = 0;
-  coords.forEach(coord => {
-    lngSum += coord[0];
-    latSum += coord[1];
-  });
-  return [lngSum / coords.length, latSum / coords.length];
-}
-
-// Alternar estilo do mapa e recarregar recursos
-function setMapStyle(style) {
-  window.mainMap.setStyle(`mapbox://styles/mapbox/${style}`);
-  window.mainMap.once('style.load', () => {
-    initializeMapFeatures();
-
-    const fields = <%= raw @fields.to_json %>;
-    fields.forEach(field => {
-      if (field.latitude && field.longitude) {
-        const marker = new mapboxgl.Marker({ color: "blue" })
-          .setLngLat([field.longitude, field.latitude])
-          .setPopup(new mapboxgl.Popup().setText(field.name))
-          .addTo(window.mainMap);
-
-        marker.getElement().addEventListener("click", () => {
-          document.getElementById("fieldName").innerText = field.name;
-          document.getElementById("fieldCrop").innerText = field.field_type;
-          document.getElementById("fieldArea").innerText = field.area;
-          document.getElementById("fieldLat").innerText = field.latitude;
-          document.getElementById("fieldLng").innerText = field.longitude;
-          document.getElementById("fieldUpdated").innerText = new Date(field.updated_at).toLocaleString();
-        });
-      }
+      initializeMiniMaps();
     });
-  });
-}
 
-// Sensores
-let sensorsVisible = false;
-let sensorMarkers = [];
-
-function toggleSensors() {
-  sensorsVisible = !sensorsVisible;
-  sensorMarkers.forEach(marker => sensorsVisible ? marker.addTo(window.mainMap) : marker.remove());
-}
-
-function initializeSensors() {
-  const sensors = [
-    { lng: -8.611, lat: 41.145, status: 'good' },
-    { lng: -8.612, lat: 41.146, status: 'attention' },
-    { lng: -8.613, lat: 41.147, status: 'moisture' }
-  ];
-
-  sensors.forEach(sensor => {
-    const el = document.createElement('div');
-    el.className = 'sensor-marker w-4 h-4 rounded-full';
-    el.style.backgroundColor = sensor.status === 'good' ? '#22c55e' : sensor.status === 'attention' ? '#facc15' : '#3b82f6';
-    const marker = new mapboxgl.Marker(el).setLngLat([sensor.lng, sensor.lat]);
-    sensorMarkers.push(marker);
-  });
-}
-
-// Delimitação do terreno
-function initializeFieldBoundary() {
-  if (window.mainMap.getSource('field-boundary')) return;
-
-  window.mainMap.addSource('field-boundary', {
-    type: 'geojson',
-    data: {
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [-8.615, 41.148],
-          [-8.615, 41.142],
-          [-8.607, 41.142],
-          [-8.607, 41.148],
-          [-8.615, 41.148]
-        ]]
-      }
+    function toggleModal() {
+      const modal = document.getElementById("addFieldModal");
+      modal.classList.toggle("hidden");
     }
-  });
 
-  window.mainMap.addLayer({
-    id: 'field-boundary-layer',
-    type: 'line',
-    source: 'field-boundary',
-    paint: {
-      'line-color': '#f97316',
-      'line-width': 3
+    function toggleViewDetails(id = null) {
+      const modal = document.getElementById("viewDetailsModal");
+      modal.classList.toggle("hidden");
     }
-  });
-}
-
-
-// Inicializa sensores e limite do terreno após carregar o mapa
-function initializeMapFeatures() {
-  initializeSensors();
-  initializeFieldBoundary();
-}
-
-</script>
+  </script>
 </body>
 </html>

@@ -185,6 +185,126 @@
   </div>
 </div>
 
+<div id="analytics" class="tab-content hidden mt-6 space-y-10">
+
+<div class="bg-white p-6 rounded-lg shadow space-y-6">
+  <h3 class="text-lg font-semibold text-gray-800">📊 Registar Produção Agrícola</h3>
+
+<%= form_with url: crop_yields_path, method: :post, data: { turbo_stream: true } do |f| %>
+  <%= f.hidden_field :field_id, value: @field.id %>
+
+    <div id="cropInputs" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="text-sm font-medium text-gray-700">Cultura</label>
+          <input type="text" name="crop_yield[crop_type][]" placeholder="Ex: Milho, Trigo, Girassol" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700">Produção (ton)</label>
+          <input type="number" name="crop_yield[amount][]" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700">Mês</label>
+          <select name="crop_yield[month][]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            <option value="">Selecionar mês</option>
+            <% %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez].each do |mes| %>
+              <option value="<%= mes %>"><%= mes %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end mt-4">
+      <button type="button" onclick="addCropInput()" class="text-sm text-blue-600 hover:underline">+ Adicionar Cultura</button>
+    </div>
+
+    <div class="text-right mt-4">
+      <%= f.submit "Guardar Registos", class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
+    </div>
+  <% end %>
+</div>
+
+  <!-- 🧪 Leitura do Solo -->
+  <div class="bg-white border border-blue-100 p-6 rounded-lg shadow-sm">
+    <div class="flex items-center mb-4 space-x-2 text-blue-700">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M4 4v16a1 1 0 001 1h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+      <h3 class="text-lg font-semibold">Leitura do Solo</h3>
+    </div>
+
+    <%= form_with url: soil_readings_path, method: :post, local: true do |f| %>
+      <%= f.hidden_field :field_id, value: @field.id %>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div>
+          <%= f.label :measured_at, "Data da Medição", class: "text-sm font-medium text-gray-700" %>
+          <%= f.datetime_local_field :measured_at, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :moisture, "Humidade (%)", class: "text-sm font-medium text-gray-700" %>
+          <%= f.number_field :moisture, step: 0.1, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :ph, "pH", class: "text-sm font-medium text-gray-700" %>
+          <%= f.number_field :ph, step: 0.1, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :nitrogen, "Nitrogénio (ppm)", class: "text-sm font-medium text-gray-700" %>
+          <%= f.number_field :nitrogen, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+        </div>
+      </div>
+
+      <div class="flex justify-end mt-4">
+        <%= f.submit "Guardar Leitura", class: "bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-md shadow-sm" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- 💰 Registo Financeiro -->
+  <div class="bg-white border border-yellow-100 p-6 rounded-lg shadow-sm">
+    <div class="flex items-center mb-4 space-x-2 text-yellow-700">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.333-2.667-4-4-8-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M12 16c-1.333 2.667-4 4-8 4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M12 8v8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+      <h3 class="text-lg font-semibold">Registo Financeiro</h3>
+    </div>
+
+    <%= form_with url: financials_path, method: :post, local: true do |f| %>
+      <%= f.hidden_field :field_id, value: @field.id %>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div>
+          <%= f.label :recorded_at, "Data do Registo", class: "text-sm font-medium text-gray-700" %>
+          <%= f.datetime_local_field :recorded_at, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :revenue, "Receita (€)", class: "text-sm font-medium text-gray-700" %>
+          <%= f.number_field :revenue, step: 0.01, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :expenses, "Despesas (€)", class: "text-sm font-medium text-gray-700" %>
+          <%= f.number_field :expenses, step: 0.01, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :profit, "Lucro (€)", class: "text-sm font-medium text-gray-700" %>
+          <%= f.number_field :profit, step: 0.01, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+        </div>
+      </div>
+
+      <div class="flex justify-end mt-4">
+        <%= f.submit "Guardar Registo", class: "bg-yellow-600 hover:bg-yellow-700 text-white font-medium px-5 py-2 rounded-md shadow-sm" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+
+
+
 
     <!-- Botões -->
     <div class="flex justify-end space-x-2 mt-4">
@@ -219,6 +339,47 @@
       this.querySelector(".switch-thumb").classList.toggle("translate-x-5");
     });
   });
+
+  function renderYieldChartModal(data, labels) {
+  const ctx = document.getElementById("yieldChartModal").getContext("2d");
+
+  if (window.yieldChartModal) window.yieldChartModal.destroy();
+
+  window.yieldChartModal = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Produção (toneladas)",
+        data: data,
+        backgroundColor: "rgba(34,197,94,0.7)",
+        borderRadius: 4
+      }]
+    },
+    options: { responsive: true }
+  });
+}
+
+  function addCropInput() {
+    const container = document.getElementById("cropInputs");
+    const html = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div>
+          <input type="text" name="crop_yield[crop_type][]" placeholder="Cultura" class="block w-full rounded-md border-gray-300 shadow-sm" />
+        </div>
+        <div>
+          <input type="number" name="crop_yield[amount][]" step="0.1" class="block w-full rounded-md border-gray-300 shadow-sm" />
+        </div>
+        <div>
+          <select name="crop_yield[month][]" class="block w-full rounded-md border-gray-300 shadow-sm">
+            <option value="">Selecionar mês</option>
+            ${["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"].map(m => `<option value="${m}">${m}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+    `;
+    container.insertAdjacentHTML("beforeend", html);
+  }
 </script>
 
 <style>
@@ -238,4 +399,24 @@
     font-weight: 600;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
+
+  /* Corrigir sobreposição do Mapbox dentro do modal */
+#viewDetailsModal .mapboxgl-control-container {
+  z-index: 0 !important;
+}
+
+#viewDetailsModal .mapboxgl-canvas-container {
+  z-index: 0 !important;
+}
+
+#viewDetailsModal .mapboxgl-marker,
+#viewDetailsModal .mapboxgl-popup {
+  z-index: 0 !important;
+}
+
+.modal .mapboxgl-control-container,
+.modal .mapboxgl-popup,
+.modal .mapboxgl-marker {
+  z-index: 1 !important;
+}
 </style>

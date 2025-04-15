@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_31_124709) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_14_092025) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,6 +20,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_31_124709) do
     t.integer "wheat_yield"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "field_id"
+    t.string "crop_type"
+    t.float "amount"
+    t.index ["field_id"], name: "index_crop_yields_on_field_id"
   end
 
   create_table "crops", force: :cascade do |t|
@@ -54,6 +58,28 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_31_124709) do
     t.jsonb "polygon_coordinates"
   end
 
+  create_table "financials", force: :cascade do |t|
+    t.bigint "field_id", null: false
+    t.decimal "revenue"
+    t.decimal "expenses"
+    t.decimal "profit"
+    t.datetime "recorded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field_id"], name: "index_financials_on_field_id"
+  end
+
+  create_table "soil_readings", force: :cascade do |t|
+    t.bigint "field_id", null: false
+    t.float "moisture"
+    t.float "ph"
+    t.integer "nitrogen"
+    t.datetime "measured_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field_id"], name: "index_soil_readings_on_field_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -70,4 +96,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_31_124709) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  add_foreign_key "crop_yields", "fields"
+  add_foreign_key "financials", "fields"
+  add_foreign_key "soil_readings", "fields"
 end
