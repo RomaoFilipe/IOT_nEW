@@ -1,0 +1,43 @@
+<div class="bg-white p-6 rounded-lg shadow-md col-span-full relative">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+      🌦️ Previsão Meteorológica
+    </h3>
+
+    <!-- Select bonito e à direita -->
+    <div class="flex items-center gap-2">
+      <label for="fieldSelect" class="text-sm font-medium text-gray-700">Campo:</label>
+      <select id="fieldSelect" name="field_id" class="text-sm rounded-md border-gray-300 shadow-sm px-3 py-1 focus:ring-green-600 focus:border-green-600">
+        <% @fields.each do |field| %>
+          <option 
+            value="<%= field.id %>" 
+            data-lat="<%= field.latitude %>" 
+            data-lon="<%= field.longitude %>"
+            <%= 'selected' if params[:field_id].to_s == field.id.to_s %>>
+            <%= field.name %>
+          </option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+
+  <!-- Condições Atuais -->
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <p class="text-3xl font-bold text-green-700" id="current-temp">--°C</p>
+      <p class="text-gray-500 text-sm" id="current-description">A carregar...</p>
+    </div>
+    <div class="text-sm text-gray-600 space-y-1">
+      <p><strong>Vento:</strong> <span id="wind-info">--</span></p>
+      <p><strong>Precipitação:</strong> <span id="precip-info">-- mm</span></p>
+    </div>
+  </div>
+
+  <!-- Previsão Horária -->
+  <h4 class="mt-6 text-md font-semibold text-gray-700">Próximas 24 Horas</h4>
+  <div id="hourly-forecast" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-4 mt-2 text-center text-sm text-gray-700"></div>
+
+  <!-- Previsão Diária -->
+  <h4 class="mt-6 text-md font-semibold text-gray-700">Próximos Dias</h4>
+  <div id="daily-forecast" class="flex gap-4 overflow-x-auto mt-2 text-sm text-gray-700"></div>
+</div>
