@@ -1,0 +1,26 @@
+<tr id="sensor_<%= sensor.id %>" class="border-b text-sm">
+  <td class="px-4 py-3 flex items-center space-x-2">
+    <span><%= Sensor::ICONS[sensor.sensor_type] %></span>
+    <span><%= sensor.name %></span>
+  </td>
+  <td class="px-4 py-3"><%= sensor.sensor_type %></td>
+  <td class="px-4 py-3 flex items-center space-x-1 text-green-600">
+    <span class="h-2 w-2 bg-green-600 rounded-full"></span>
+    <span>Active</span>
+  </td>
+  <td class="px-4 py-3"><span>🔋</span> <%= sensor.battery || "-" %>%</td>
+  <td class="px-4 py-3"><span>📶</span> <%= sensor.signal || "-" %>%</td>
+  <td class="px-4 py-3"><%= sensor.last_reading&.strftime("%d/%m, %H:%M") || "-" %></td>
+<td class="px-4 py-3 flex justify-end items-center space-x-2">
+  <!-- Botão Simular -->
+  <%= button_to simulate_field_sensor_path(sensor.field, sensor), method: :post, form: { data: { turbo_stream: true } }, class: "text-blue-600 hover:text-blue-800 text-sm" do %>
+    🔄 Simular
+  <% end %>
+
+  <!-- Botão Apagar -->
+  <%= button_to field_sensor_path(sensor.field, sensor), method: :delete, form: { data: { turbo_stream: true } }, data: { confirm: "Tens a certeza?" }, class: "text-red-600 hover:text-red-800 text-sm" do %>
+    🗑️ Apagar
+  <% end %>
+</td>
+
+</tr>

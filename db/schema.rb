@@ -10,19 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_15_201212) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_26_045217) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "crop_yields", force: :cascade do |t|
-    t.string "month"
-    t.integer "corn_yield"
-    t.integer "wheat_yield"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "field_id"
+    t.bigint "field_id", null: false
     t.string "crop_type"
     t.float "amount"
+    t.string "month"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["field_id"], name: "index_crop_yields_on_field_id"
   end
 
@@ -70,6 +68,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_15_201212) do
     t.index ["field_id"], name: "index_financials_on_field_id"
   end
 
+  create_table "sensors", force: :cascade do |t|
+    t.string "name"
+    t.string "sensor_type"
+    t.string "status"
+    t.integer "battery"
+    t.integer "signal"
+    t.string "last_value"
+    t.datetime "last_reading"
+    t.boolean "active"
+    t.string "icon"
+    t.bigint "field_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field_id"], name: "index_sensors_on_field_id"
+  end
+
   create_table "soil_readings", force: :cascade do |t|
     t.bigint "field_id", null: false
     t.float "moisture"
@@ -100,5 +114,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_15_201212) do
 
   add_foreign_key "crop_yields", "fields"
   add_foreign_key "financials", "fields"
+  add_foreign_key "sensors", "fields"
   add_foreign_key "soil_readings", "fields"
 end
