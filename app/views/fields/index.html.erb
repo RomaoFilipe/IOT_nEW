@@ -53,7 +53,12 @@
     <%= render 'fields/map_view' %>
 
     <%= render 'fields/modal' %>
-    <%= render 'fields/view_details' %>
+<% @fields.each do |field| %>
+  <%= render partial: 'fields/view_details', locals: { field: field } %>
+<% end %>
+
+
+
   </div>
 
   <script>
@@ -93,10 +98,11 @@
       modal.classList.toggle("hidden");
     }
 
-    function toggleViewDetails(id = null) {
-      const modal = document.getElementById("viewDetailsModal");
-      modal.classList.toggle("hidden");
-    }
+function toggleViewDetails(id) {
+  document.querySelectorAll('[id^="viewDetailsModal-"]').forEach(modal => modal.classList.add("hidden"));
+  const target = document.getElementById(`viewDetailsModal-${id}`);
+  if (target) target.classList.toggle("hidden");
+}
   </script>
 </body>
 </html>

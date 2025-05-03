@@ -1,32 +1,41 @@
-version: '3.8'
+version: "3.9"
 
 services:
   db:
     image: postgres:14
-    container_name: iot_postgres
-    restart: always
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
     environment:
-      POSTGRES_USER: romao
-      POSTGRES_PASSWORD: 123456
+      POSTGRES_USER: admin123
+      POSTGRES_PASSWORD: admin123
       POSTGRES_DB: IOT_development
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
 
   redis:
-    image: redis:alpine
-    container_name: iot_redis
-    restart: always
+    image: redis:7
+    restart: unless-stopped
     ports:
       - "6379:6379"
 
   adminer:
     image: adminer
-    container_name: iot_adminer
-    restart: always
+    restart: unless-stopped
     ports:
       - "8080:8080"
 
+  sensor_simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.sensor
+    environment:
+      API_TOKEN: abc123supersecreto
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+
+# ❗️ESTA LINHA TEM DE ESTAR FORA DE `services:`
 volumes:
   postgres_data:

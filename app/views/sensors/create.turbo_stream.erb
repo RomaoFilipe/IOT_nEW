@@ -1,8 +1,8 @@
-<turbo-stream action="append" target="sensorsList">
-  <template>
-    <%= render partial: "sensors/sensor", locals: { sensor: @sensor } %>
-  </template>
-</turbo-stream>
+<%= turbo_stream.append "sensorsList" do %>
+  <%= render partial: "sensors/sensor", locals: { sensor: @sensor } %>
+<% end %>
+
+
 
 <turbo-stream action="replace" target="addSensorForm">
   <template>

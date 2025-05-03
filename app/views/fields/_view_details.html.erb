@@ -1,419 +1,118 @@
-<div id="viewDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl relative">
+<% if defined?(field) && field.present? %>
+  <% field_id = field.id %>
+<% else %>
+  <% field_id = "dynamic" %>
+<% end %>
+
+<div id="viewDetailsModal-<%= field_id %>" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl relative">
 
     <!-- Modal Header -->
     <div class="flex justify-between items-center border-b pb-4">
       <h2 class="text-2xl font-semibold flex items-center space-x-2">
-        <!-- Ícone do Field -->
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map">
           <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
           <path d="M15 5.764v15"/>
           <path d="M9 3.236v15"/>
         </svg>
-        <span>North Field</span>
+        <span id="modalFieldName"><%= field.name %></span>
       </h2>
-      <button onclick="toggleViewDetails()" class="text-gray-500 hover:text-gray-700">&times;</button>
+<button onclick="document.getElementById('viewDetailsModal-<%= field.id %>').classList.add('hidden')" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
     </div>
 
-    <!-- Status Badge -->
+    <!-- Status -->
     <div class="flex items-center mt-2 mb-4 text-sm text-green-700 bg-green-100 px-3 py-1 rounded-lg w-max">
       ✅ Good - Detailed information and analytics for this field
     </div>
 
-    <!-- Aba de Navegação -->
-    <div class="flex space-x-4 border-b pb-2">
-      <button class="tab-button active" onclick="showTab('overview')">Overview</button>
-      <button class="tab-button" onclick="showTab('iot-equipment')">IoT Equipment</button>
-      <button class="tab-button" onclick="showTab('analytics')">Analytics</button>
+    <!-- Tabs -->
+    <div class="flex space-x-2 border-b pb-2 text-sm">
+      <button class="tab-button active" onclick="showTab('overview', <%= field_id %>)" id="tab-overview-<%= field_id %>">Overview</button>
+      <button class="tab-button" onclick="showTab('iot-equipment', <%= field_id %>)" id="tab-iot-equipment-<%= field_id %>">IoT Equipment</button>
+      <button class="tab-button" onclick="showTab('analytics', <%= field_id %>)" id="tab-analytics-<%= field_id %>">Analytics</button>
     </div>
 
-    <!-- 📌 Overview Tab -->
-    <div id="overview" class="tab-content mt-4">
-      <div class="grid grid-cols-2 gap-6">
-        <!-- Mapa -->
-        <div class="bg-gray-100 rounded-lg h-40 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
-            <path d="M15 5.764v15"/>
-            <path d="M9 3.236v15"/>
-          </svg>
-        </div>
-
-        <!-- Planting Information -->
-        <div>
-          <h3 class="font-semibold mb-2">Planting Information</h3>
-          <p><strong>Planting Date:</strong> 2023-03-15</p>
-          <p><strong>Harvest Date:</strong> 2023-09-25</p>
-          <p><strong>Expected Yield:</strong> <span class="font-bold">8.2 tons/ha</span></p>
-
-          <h3 class="font-semibold mt-4">Maintenance</h3>
-          <p><strong>Pest Control:</strong> Minimal intervention needed</p>
-          <p><strong>Irrigation:</strong> Every 3 days, 2 hours</p>
-          <p><strong>Fertilization:</strong> Applied on 2023-05-10</p>
-
-          <h3 class="font-semibold mt-4">Notes</h3>
-          <p class="text-sm text-gray-600">Plants are developing well, ahead of schedule. Last inspection showed no signs of pests or diseases.</p>
-        </div>
-      </div>
-
-      <!-- Basic Information -->
-      <div class="mt-6">
-        <h3 class="font-semibold mb-2">Basic Information</h3>
-        <p><strong>Crop:</strong> Corn</p>
-        <p><strong>Area:</strong> 12.5 ha</p>
-        <p><strong>Soil Quality:</strong> <span class="text-green-600 font-semibold">Excellent</span></p>
-        <p><strong>Active Sensors:</strong> 8</p>
-        <p><strong>Last Updated:</strong> 10 minutes ago</p>
-      </div>
-
-      <!-- Current Conditions -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-        <div class="bg-gray-100 p-4 rounded-lg text-center">
-          <span class="block text-blue-500">💧</span>
-          <p>Moisture</p>
-          <p class="font-bold">72%</p>
-        </div>
-        <div class="bg-gray-100 p-4 rounded-lg text-center">
-          <span class="block text-orange-500">🌡</span>
-          <p>Temperature</p>
-          <p class="font-bold">24°C</p>
-        </div>
-        <div class="bg-gray-100 p-4 rounded-lg text-center">
-          <span class="block text-green-500">🌱</span>
-          <p>Crop Health</p>
-          <p class="font-bold">Good</p>
-        </div>
-        <div class="bg-gray-100 p-4 rounded-lg text-center">
-          <span class="block text-blue-500">💦</span>
-          <p>Irrigation</p>
-          <p class="font-bold">Active</p>
-        </div>
-      </div>
+    <!-- Conteúdo das Tabs -->
+    <div id="overview-<%= field_id %>" class="tab-content mt-4">
+      <%= render partial: "fields/tabs/overview", locals: { field: field } %>
     </div>
 
-    <div id="iot-equipment" class="tab-content hidden mt-4">
-  <h3 class="font-semibold mb-3">IoT Equipment</h3>
-
-  <!-- Botão de Adicionar Equipamento -->
-  <div class="flex justify-end mb-4">
-    <button class="bg-green-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-plus"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
-      <span>Add Equipment</span>
-    </button>
-  </div>
-
-  <!-- Tabela de Equipamentos -->
-  <div class="overflow-x-auto">
-    <table class="w-full border rounded-lg overflow-hidden shadow-lg">
-      <thead class="bg-gray-100">
-        <tr class="text-left text-gray-700 font-semibold">
-          <th class="px-4 py-2">Name</th>
-          <th class="px-4 py-2">Type</th>
-          <th class="px-4 py-2">Status</th>
-          <th class="px-4 py-2">Battery</th>
-          <th class="px-4 py-2">Signal</th>
-          <th class="px-4 py-2">Last Reading</th>
-          <th class="px-4 py-2">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Linha da tabela de um equipamento -->
-<tr class="border-b">
-  <td class="px-4 py-3 flex items-center space-x-2">
-    <span class="text-blue-500">💧</span>
-    <span>Field Center Soil Monitor</span>
-  </td>
-  <td class="px-4 py-3">Soil Sensor</td>
-  <td class="px-4 py-3 flex items-center space-x-1 text-green-600">
-    <span class="h-2 w-2 bg-green-600 rounded-full"></span>
-    <span>Active</span>
-  </td>
-  <td class="px-4 py-3 text-gray-700">
-    <span class="text-green-600">🔋</span> 87%
-  </td>
-  <td class="px-4 py-3 text-gray-700">
-    <span class="text-green-600">📶</span> 92%
-  </td>
-  <td class="px-4 py-3">15/07, 11:30</td>
-
-  <!-- ✅ Botão de ativar/desativar -->
-  <td class="px-4 py-3 flex items-center space-x-3">
-    <button type="button" role="switch" aria-checked="false" class="switch-btn peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 bg-gray-300">
-      <span class="switch-thumb pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform translate-x-0"></span>
-    </button>
-
-    <!-- 🗑 Botão de deletar (ícone do lixo) -->
-    <button class="text-red-500 hover:text-red-700 delete-btn">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-    </button>
-  </td>
-</tr>
-
-
-        <!-- Equipamento 2 -->
-        <tr>
-          <td class="px-4 py-3 flex items-center space-x-2">
-            <span class="text-purple-500">🌤</span>
-            <span>East Weather Station</span>
-          </td>
-          <td class="px-4 py-3">Weather Station</td>
-          <td class="px-4 py-3 flex items-center space-x-1 text-green-600">
-            <span class="h-2 w-2 bg-green-600 rounded-full"></span>
-            <span>Active</span>
-          </td>
-          <td class="px-4 py-3 text-gray-700">
-            <span class="text-orange-500">🔋</span> 65%
-          </td>
-          <td class="px-4 py-3 text-gray-700">
-            <span class="text-green-600">📶</span> 78%
-          </td>
-          <td class="px-4 py-3">15/07, 11:45</td>
-                    <!-- ✅ Botão de ativar/desativar -->
-          <td class="px-4 py-3 flex items-center space-x-3">
-            <button type="button" role="switch" aria-checked="false" class="switch-btn peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 bg-gray-300">
-              <span class="switch-thumb pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform translate-x-0"></span>
-            </button>
-
-            <!-- 🗑 Botão de deletar (ícone do lixo) -->
-            <button class="text-red-500 hover:text-red-700 delete-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<div id="analytics" class="tab-content hidden mt-6 space-y-10">
-
-<div class="bg-white p-6 rounded-lg shadow space-y-6">
-  <h3 class="text-lg font-semibold text-gray-800">📊 Registar Produção Agrícola</h3>
-
-<%= form_with url: crop_yields_path, method: :post, data: { turbo_stream: true } do |f| %>
-  <%= f.hidden_field :field_id, value: @field.id %>
-
-    <div id="cropInputs" class="space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="text-sm font-medium text-gray-700">Cultura</label>
-          <input type="text" name="crop_yield[crop_type][]" placeholder="Ex: Milho, Trigo, Girassol" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-        </div>
-        <div>
-          <label class="text-sm font-medium text-gray-700">Produção (ton)</label>
-          <input type="number" name="crop_yield[amount][]" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-        </div>
-        <div>
-          <label class="text-sm font-medium text-gray-700">Mês</label>
-          <select name="crop_yield[month][]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-            <option value="">Selecionar mês</option>
-            <% %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez].each do |mes| %>
-              <option value="<%= mes %>"><%= mes %></option>
-            <% end %>
-          </select>
-        </div>
-      </div>
+    <div id="iot-equipment-<%= field_id %>" class="tab-content hidden mt-4">
+      <%= render partial: "fields/tabs/iot_equipment", locals: { field: field } %>
     </div>
 
-    <div class="flex justify-end mt-4">
-      <button type="button" onclick="addCropInput()" class="text-sm text-blue-600 hover:underline">+ Adicionar Cultura</button>
+    <div id="analytics-<%= field_id %>" class="tab-content hidden mt-4">
+      <%= render partial: "fields/tabs/analytics", locals: { field: field } %>
     </div>
 
-    <div class="text-right mt-4">
-      <%= f.submit "Guardar Registos", class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
-    </div>
-  <% end %>
-</div>
-
-  <!-- 🧪 Leitura do Solo -->
-  <div class="bg-white border border-blue-100 p-6 rounded-lg shadow-sm">
-    <div class="flex items-center mb-4 space-x-2 text-blue-700">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M4 4v16a1 1 0 001 1h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-      <h3 class="text-lg font-semibold">Leitura do Solo</h3>
-    </div>
-
-    <%= form_with url: soil_readings_path, method: :post, local: true do |f| %>
-      <%= f.hidden_field :field_id, value: @field.id %>
-
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div>
-          <%= f.label :measured_at, "Data da Medição", class: "text-sm font-medium text-gray-700" %>
-          <%= f.datetime_local_field :measured_at, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-        </div>
-
-        <div>
-          <%= f.label :moisture, "Humidade (%)", class: "text-sm font-medium text-gray-700" %>
-          <%= f.number_field :moisture, step: 0.1, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-        </div>
-
-        <div>
-          <%= f.label :ph, "pH", class: "text-sm font-medium text-gray-700" %>
-          <%= f.number_field :ph, step: 0.1, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-        </div>
-
-        <div>
-          <%= f.label :nitrogen, "Nitrogénio (ppm)", class: "text-sm font-medium text-gray-700" %>
-          <%= f.number_field :nitrogen, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-        </div>
-      </div>
-
-      <div class="flex justify-end mt-4">
-        <%= f.submit "Guardar Leitura", class: "bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-md shadow-sm" %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- 💰 Registo Financeiro -->
-  <div class="bg-white border border-yellow-100 p-6 rounded-lg shadow-sm">
-    <div class="flex items-center mb-4 space-x-2 text-yellow-700">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.333-2.667-4-4-8-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M12 16c-1.333 2.667-4 4-8 4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M12 8v8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-      <h3 class="text-lg font-semibold">Registo Financeiro</h3>
-    </div>
-
-    <%= form_with url: financials_path, method: :post, local: true do |f| %>
-      <%= f.hidden_field :field_id, value: @field.id %>
-
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div>
-          <%= f.label :recorded_at, "Data do Registo", class: "text-sm font-medium text-gray-700" %>
-          <%= f.datetime_local_field :recorded_at, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-        </div>
-
-        <div>
-          <%= f.label :revenue, "Receita (€)", class: "text-sm font-medium text-gray-700" %>
-          <%= f.number_field :revenue, step: 0.01, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-        </div>
-
-        <div>
-          <%= f.label :expenses, "Despesas (€)", class: "text-sm font-medium text-gray-700" %>
-          <%= f.number_field :expenses, step: 0.01, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-        </div>
-
-        <div>
-          <%= f.label :profit, "Lucro (€)", class: "text-sm font-medium text-gray-700" %>
-          <%= f.number_field :profit, step: 0.01, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-        </div>
-      </div>
-
-      <div class="flex justify-end mt-4">
-        <%= f.submit "Guardar Registo", class: "bg-yellow-600 hover:bg-yellow-700 text-white font-medium px-5 py-2 rounded-md shadow-sm" %>
-      </div>
-    <% end %>
-  </div>
-</div>
-
-
-
-
-
-    <!-- Botões -->
-    <div class="flex justify-end space-x-2 mt-4">
+    <!-- Ações Gerais -->
+    <div class="flex justify-end space-x-2 mt-6">
       <button class="bg-gray-600 text-white px-4 py-2 rounded-md">Schedule Task</button>
       <button class="bg-gray-600 text-white px-4 py-2 rounded-md">View History</button>
       <button class="bg-green-600 text-white px-4 py-2 rounded-md">Generate Report</button>
     </div>
 
+    <!-- Eliminar Campo -->
+    <div class="mt-6">
+      <%= button_to field_path(field), method: :delete, data: { turbo_confirm: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada." }, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md" do %>
+        Eliminar Campo
+      <% end %>
+    </div>
+
   </div>
 </div>
+
 <script>
-  function showTab(tabId) {
-    document.querySelectorAll(".tab-content").forEach(tab => {
-      tab.classList.add("hidden");
-    });
-    document.getElementById(tabId).classList.remove("hidden");
-
-    document.querySelectorAll(".tab-button").forEach(button => {
-      button.classList.remove("active");
-    });
-    document.getElementById(`tab-${tabId}`).classList.add("active");
-  }
-
-    document.querySelectorAll(".switch-btn").forEach(button => {
-    button.addEventListener("click", function() {
-      let isChecked = this.getAttribute("aria-checked") === "true";
-      this.setAttribute("aria-checked", !isChecked);
-
-      // Alterar cor e animação
-      this.classList.toggle("bg-green-500");
-      this.classList.toggle("bg-gray-300");
-      this.querySelector(".switch-thumb").classList.toggle("translate-x-5");
-    });
-  });
-
-  function renderYieldChartModal(data, labels) {
-  const ctx = document.getElementById("yieldChartModal").getContext("2d");
-
-  if (window.yieldChartModal) window.yieldChartModal.destroy();
-
-  window.yieldChartModal = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [{
-        label: "Produção (toneladas)",
-        data: data,
-        backgroundColor: "rgba(34,197,94,0.7)",
-        borderRadius: 4
-      }]
-    },
-    options: { responsive: true }
-  });
+function showTab(tab, id) {
+  document.querySelectorAll(`#viewDetailsModal-${id} .tab-content`).forEach(tabEl => tabEl.classList.add("hidden"));
+  document.getElementById(`${tab}-${id}`).classList.remove("hidden");
+  document.querySelectorAll(`#viewDetailsModal-${id} .tab-button`).forEach(btn => btn.classList.remove("active"));
+  document.getElementById(`tab-${tab}-${id}`).classList.add("active");
 }
 
-  function addCropInput() {
-    const container = document.getElementById("cropInputs");
-    const html = `
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-        <div>
-          <input type="text" name="crop_yield[crop_type][]" placeholder="Cultura" class="block w-full rounded-md border-gray-300 shadow-sm" />
-        </div>
-        <div>
-          <input type="number" name="crop_yield[amount][]" step="0.1" class="block w-full rounded-md border-gray-300 shadow-sm" />
-        </div>
-        <div>
-          <select name="crop_yield[month][]" class="block w-full rounded-md border-gray-300 shadow-sm">
-            <option value="">Selecionar mês</option>
-            ${["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"].map(m => `<option value="${m}">${m}</option>`).join("")}
-          </select>
-        </div>
+function toggleAddSensorForm() {
+  const form = document.getElementById("addSensorForm");
+  if (form) form.classList.toggle("hidden");
+}
+
+function addCropInput() {
+  const container = document.getElementById("cropInputs");
+  const html = `
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+      <div><input type="text" name="crop_yield[crop_type][]" placeholder="Cultura" class="block w-full rounded-md border-gray-300 shadow-sm" /></div>
+      <div><input type="number" name="crop_yield[amount][]" step="0.1" class="block w-full rounded-md border-gray-300 shadow-sm" /></div>
+      <div>
+        <select name="crop_yield[month][]" class="block w-full rounded-md border-gray-300 shadow-sm">
+          <option value="">Selecionar mês</option>
+          ${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"].map(m => `<option value="${m}">${m}</option>`).join("")}
+        </select>
       </div>
-    `;
-    container.insertAdjacentHTML("beforeend", html);
-  }
+    </div>
+  `;
+  container.insertAdjacentHTML("beforeend", html);
+}
 </script>
 
 <style>
-  .tab-button {
-    flex: 1;
-    padding: 0.5rem 1rem;
-    text-align: center;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-  }
-
-  .tab-button.active {
-    background-color: white;
-    color: black;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Corrigir sobreposição do Mapbox dentro do modal */
-#viewDetailsModal .mapboxgl-control-container {
-  z-index: 0 !important;
+.tab-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  background-color: #f3f4f6;
+  color: #1f2937;
+  font-weight: 500;
+  transition: all 0.2s;
 }
-
-#viewDetailsModal .mapboxgl-canvas-container {
-  z-index: 0 !important;
+.tab-button.active {
+  background-color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
+#viewDetailsModal .mapboxgl-control-container,
+#viewDetailsModal .mapboxgl-canvas-container,
 #viewDetailsModal .mapboxgl-marker,
 #viewDetailsModal .mapboxgl-popup {
   z-index: 0 !important;
 }
-
 .modal .mapboxgl-control-container,
 .modal .mapboxgl-popup,
 .modal .mapboxgl-marker {

@@ -1,26 +1,32 @@
-<tr id="sensor_<%= sensor.id %>" class="border-b text-sm">
-  <td class="px-4 py-3 flex items-center space-x-2">
-    <span><%= Sensor::ICONS[sensor.sensor_type] %></span>
-    <span><%= sensor.name %></span>
-  </td>
-  <td class="px-4 py-3"><%= sensor.sensor_type %></td>
-  <td class="px-4 py-3 flex items-center space-x-1 text-green-600">
-    <span class="h-2 w-2 bg-green-600 rounded-full"></span>
-    <span>Active</span>
-  </td>
-  <td class="px-4 py-3"><span>🔋</span> <%= sensor.battery || "-" %>%</td>
-  <td class="px-4 py-3"><span>📶</span> <%= sensor.signal || "-" %>%</td>
-  <td class="px-4 py-3"><%= sensor.last_reading&.strftime("%d/%m, %H:%M") || "-" %></td>
-<td class="px-4 py-3 flex justify-end items-center space-x-2">
-  <!-- Botão Simular -->
-  <%= button_to simulate_field_sensor_path(sensor.field, sensor), method: :post, form: { data: { turbo_stream: true } }, class: "text-blue-600 hover:text-blue-800 text-sm" do %>
-    🔄 Simular
-  <% end %>
+<%= turbo_frame_tag dom_id(sensor) do %>
+  <tr id="<%= dom_id(sensor) %>" class="text-sm text-gray-800">
+    <td class="px-4 py-2"><%= sensor.name %></td>
+    <td class="px-4 py-2"><%= sensor.sensor_type %></td>
+    <td class="px-4 py-2">
+      <% if sensor.status == "Active" %>
+        <span class="text-green-600 font-semibold">● Active</span>
+      <% else %>
+        <span class="text-red-600 font-semibold">● Inactive</span>
+      <% end %>
+    </td>
+    <td class="px-4 py-2"><%= sensor.battery %>%</td>
+    <td class="px-4 py-2"><%= sensor.signal %>%</td>
+    <td class="px-4 py-2"><%= sensor.last_reading&.strftime("%d/%m, %H:%M") %></td>
+    <td class="px-4 py-2">
 
-  <!-- Botão Apagar -->
-  <%= button_to field_sensor_path(sensor.field, sensor), method: :delete, form: { data: { turbo_stream: true } }, data: { confirm: "Tens a certeza?" }, class: "text-red-600 hover:text-red-800 text-sm" do %>
-    🗑️ Apagar
-  <% end %>
-</td>
+      <!-- Switch com Turbo Stream -->
+      <%= form_with url: toggle_status_sensor_path(sensor), method: :patch, data: { turbo_stream: true }, class: "inline-block" do %>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" name="active" onchange="this.form.requestSubmit()" class="sr-only peer" <%= 'checked' if sensor.status == "Active" %>>
+          <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
+          <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-full transition-transform"></div>
+        </label>
+      <% end %>
 
-</tr>
+      <!-- Botão de apagar -->
+      <%= button_to field_sensor_path(sensor.field, sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" }, class: "ml-2 text-red-500 hover:text-red-700" do %>
+        🗑
+      <% end %>
+    </td>
+  </tr>
+<% end %>

@@ -37,10 +37,7 @@
             Last updated: <%= time_ago_in_words(field.updated_at) %> ago
           </p>
 
-          <button onclick="toggleViewDetails(<%= field.id %>)"
-                  class="w-full mt-4 bg-green-700 text-white py-2 rounded-md">
-            View Details
-          </button>
+<button onclick="toggleViewDetails(<%= field.id %>)">View Details</button>
         </div>
       </div>
     <% end %>

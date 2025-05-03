@@ -1,10 +1,10 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  username: romao
-  password: 123456
-  host: localhost
-  port: 5432
+  host: localhost # ← Rails está fora do Docker
+  port: 5433 # ← Porta do serviço DB no Docker
+  username: admin123
+  password: admin123
   pool: 5
 
 development:

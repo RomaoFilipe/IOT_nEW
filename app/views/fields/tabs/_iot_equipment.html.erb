@@ -1,0 +1,44 @@
+<h3 class="text-lg font-semibold mb-4">Equipamentos IoT Associados</h3>
+
+<!-- Botão de adicionar sensor -->
+<div class="flex justify-end mb-4">
+  <button onclick="toggleAddSensorForm()" class="bg-green-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+    <span>Adicionar Equipamento</span>
+  </button>
+</div>
+
+<!-- Formulário de sensor (inicialmente oculto) -->
+<div id="addSensorForm" class="hidden mb-6">
+  <%= render partial: 'sensors/form', locals: { field: field } %>
+</div>
+
+<!-- Tabela de sensores -->
+<div class="overflow-x-auto">
+  <table class="min-w-full border rounded-lg shadow-sm">
+    <thead class="bg-gray-100">
+      <tr class="text-sm font-medium text-gray-700 text-left">
+        <th class="px-4 py-2">Nome</th>
+        <th class="px-4 py-2">Tipo</th>
+        <th class="px-4 py-2">Estado</th>
+        <th class="px-4 py-2">Bateria</th>
+        <th class="px-4 py-2">Sinal</th>
+        <th class="px-4 py-2">Última Leitura</th>
+        <th class="px-4 py-2">Ações</th>
+      </tr>
+    </thead>
+<tbody id="sensorsList">
+  <%= render partial: "sensors/row", collection: field.sensors, as: :sensor %>
+</tbody>
+
+  </table>
+</div>
+
+
+<script>
+  function toggleAddSensorForm() {
+  const form = document.getElementById("addSensorForm");
+  if (form) form.classList.toggle("hidden");
+}
+
+</script>

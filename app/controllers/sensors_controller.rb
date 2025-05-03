@@ -3,7 +3,12 @@ class SensorsController < ApplicationController
   before_action :set_sensor, only: [:simulate, :destroy]
 
   def create
-    @sensor = @field.sensors.build(sensor_params)
+    @sensor = @field.sensors.build(sensor_params.merge(
+      status: "Active",
+      battery: rand(60..100),
+      signal: rand(60..100),
+      last_reading: Time.current
+    ))
 
     if @sensor.save
       respond_to do |format|
@@ -39,6 +44,24 @@ class SensorsController < ApplicationController
       format.html { redirect_to fields_path, notice: "Sensor apagado." }
     end
   end
+
+  def toggle_status
+    @sensor = Sensor.find(params[:id])
+    @sensor.update(status: @sensor.status == "Active" ? "Inactive" : "Active")
+  
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@sensor), # equivale a "sensor_#{@sensor.id}"
+          partial: "sensors/sensor",
+          locals: { sensor: @sensor }
+        )
+      end
+      format.html { redirect_back fallback_location: fields_path, notice: "Sensor atualizado." }
+    end
+  end
+  
+
 
   private
 

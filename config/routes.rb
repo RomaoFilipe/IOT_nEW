@@ -2,26 +2,45 @@ Rails.application.routes.draw do
   # Configuração do Devise
   devise_for :users
 
-  # 🔹 Garante que a Home está acessível sem login
+  # 🔹 Home acessível sem login
   root to: 'home#index'
   get '/home', to: 'home#index', as: 'home'
 
-  # 🔹 Rotas protegidas (apenas para utilizadores autenticados)
+  # 🔹 Áreas protegidas (login necessário)
   authenticate :user do
     get 'dashboard', to: 'dashboard#index'
     get '/analytics', to: 'analytics#index', as: 'analytics'
     get '/settings', to: 'settings#index', as: 'settings'
+
     resources :tasks, only: [:index, :create, :update, :destroy]
-    resources :fields, only: [:index, :show, :new, :create, :destroy]
     resources :crop_yields, only: [:create]
     resources :soil_readings, only: [:create]
     resources :financials, only: [:create]
 
+    # ✅ Sensores globais
+    resources :sensors, only: [:create, :destroy] do
+      post :simulate, on: :member
+      patch :toggle_status, on: :member
+    end
+
+    # ✅ Campos e sensores aninhados
+    resources :fields, only: [:index, :show, :new, :create, :destroy] do
+      resources :sensors, only: [:create, :destroy] do
+        post :simulate, on: :member
+        patch :toggle_status, on: :member
+      end
+    end
+
+    # ✅ API externa (para simuladores e sensores reais)
+    namespace :api do
+      resources :sensors, only: [] do
+        post :simulate, on: :member
+        post "readings", to: "sensor_readings#create", on: :member
+      end
+    end
   end
 
-  # 🔹 Perfil do utilizador
+  # 🔹 Perfil e Administração
   get 'profile/:id', to: 'profiles#show', as: 'user_profile'
-
-  # 🔹 Administração (somente admins)
   get 'admin_dashboard', to: 'users#admin_dashboard', as: 'admin_dashboard'
 end

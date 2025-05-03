@@ -3,6 +3,8 @@ class Field < ApplicationRecord
   has_many :crop_yields
   has_many :soil_readings
   has_many :financials
+  has_many :sensors, dependent: :destroy
+
 
   # Validações essenciais
   validates :name, presence: true, length: { maximum: 100 }, uniqueness: { scope: :user_id, message: "Você já tem um campo com esse nome." }

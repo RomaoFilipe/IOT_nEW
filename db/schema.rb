@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_26_045217) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_03_153002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -68,6 +68,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_26_045217) do
     t.index ["field_id"], name: "index_financials_on_field_id"
   end
 
+  create_table "sensor_readings", force: :cascade do |t|
+    t.bigint "sensor_id", null: false
+    t.float "temperature"
+    t.float "moisture"
+    t.integer "battery"
+    t.integer "signal"
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sensor_id"], name: "index_sensor_readings_on_sensor_id"
+  end
+
   create_table "sensors", force: :cascade do |t|
     t.string "name"
     t.string "sensor_type"
@@ -81,6 +93,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_26_045217) do
     t.bigint "field_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "temperature"
+    t.float "moisture"
     t.index ["field_id"], name: "index_sensors_on_field_id"
   end
 
@@ -114,6 +128,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_26_045217) do
 
   add_foreign_key "crop_yields", "fields"
   add_foreign_key "financials", "fields"
+  add_foreign_key "sensor_readings", "sensors"
   add_foreign_key "sensors", "fields"
   add_foreign_key "soil_readings", "fields"
 end

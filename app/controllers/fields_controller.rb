@@ -23,6 +23,12 @@ class FieldsController < ApplicationController
     end
   end
 
+  def destroy
+    @field = Field.find(params[:id])
+    @field.destroy
+    redirect_to fields_path, notice: "Campo eliminado com sucesso."
+  end
+
   private
 
   def field_params

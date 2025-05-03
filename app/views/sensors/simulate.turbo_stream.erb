@@ -1,0 +1,3 @@
+<%= turbo_stream.replace "sensor_#{@sensor.id}" do %>
+  <%= render partial: "sensors/sensor", locals: { sensor: @sensor } %>
+<% end %>

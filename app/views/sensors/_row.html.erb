@@ -1,0 +1,25 @@
+<%= turbo_frame_tag "sensor_row_#{sensor.id}" do %>
+  <tr class="border-t text-sm">
+    <td class="px-3 py-2"><%= sensor.name %></td>
+    <td class="px-3 py-2"><%= sensor.sensor_type %></td>
+    <td class="px-3 py-2">
+      <% if sensor.status == "Active" %>
+        <span class="text-green-600 font-semibold">● Active</span>
+      <% else %>
+        <span class="text-red-600 font-semibold">● Inactive</span>
+      <% end %>
+    </td>
+    <td class="px-3 py-2"><%= sensor.battery || 0 %>%</td>
+    <td class="px-3 py-2"><%= sensor.signal || 0 %>%</td>
+    <td class="px-3 py-2"><%= sensor.last_reading&.strftime("%d/%m, %H:%M") || "—" %></td>
+<td class="px-4 py-2 text-center">
+  <%= form_with url: toggle_status_sensor_path(sensor), method: :patch, data: { turbo_stream: true }, class: "inline-block" do %>
+    <label class="inline-flex relative items-center cursor-pointer">
+      <input type="checkbox" name="active" onchange="this.form.submit()" class="sr-only peer" <%= 'checked' if sensor.status == "Active" %>>
+      <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
+      <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-full transition-transform"></div>
+    </label>
+  <% end %>
+</td>
+  </tr>
+<% end %>
