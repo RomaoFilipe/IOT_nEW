@@ -24,6 +24,8 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+    depends_on:
+      - db
 
   sensor_simulator:
     build:
@@ -34,8 +36,31 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-      - redis
 
-# ❗️ESTA LINHA TEM DE ESTAR FORA DE `services:`
+  sensor_gateway:
+    build:
+      context: ./sensor_gateway
+      dockerfile: Dockerfile.gateway
+    env_file: .env
+    environment:
+      API_TOKEN: abc123supersecreto
+      API_URL: http://host.docker.internal:3000/api/sensors
+      MQTT_BROKER: mqtt
+      MQTT_PORT: 1883
+    depends_on:
+      - mqtt
+    restart: unless-stopped
+
+  mqtt:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
 volumes:
   postgres_data:

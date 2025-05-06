@@ -2,7 +2,7 @@
 
 # 1. MODEL: app/models/sensor.rb
 class Sensor < ApplicationRecord
-  belongs_to :field
+  belongs_to :field, optional: true
   has_many :sensor_readings, dependent: :destroy
 
   SENSOR_TYPES = [

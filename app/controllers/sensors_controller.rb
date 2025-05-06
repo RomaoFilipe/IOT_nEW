@@ -1,6 +1,7 @@
 class SensorsController < ApplicationController
   before_action :set_field, only: [:create]
-  before_action :set_sensor, only: [:simulate, :destroy]
+  before_action :set_sensor, only: [:simulate, :destroy, :toggle_status, :assign_field]
+  
 
   def create
     @sensor = @field.sensors.build(sensor_params.merge(
@@ -22,6 +23,27 @@ class SensorsController < ApplicationController
     end
   end
 
+  def lookup
+    device_id = params[:device_id]
+
+    if device_id.blank?
+      render json: { error: "Device ID em branco." }, status: :unprocessable_entity
+      return
+    end
+
+    sensor = Sensor.find_or_create_by(device_id: device_id) do |s|
+      s.name = "Sensor #{device_id[-4..] || 'Novo'}"
+      s.sensor_type = "temperature"
+      s.status = "Active"
+    end
+    
+    render json: {
+      id: sensor.id,
+      name: sensor.name,
+      sensor_type: sensor.sensor_type
+    }
+  end
+
   def simulate
     @sensor.update(
       last_value: "#{rand(10..90)}%",
@@ -36,6 +58,17 @@ class SensorsController < ApplicationController
     end
   end
 
+  def readings
+    @sensor = Sensor.find_by(id: params[:id])
+
+    if @sensor.nil?
+      redirect_to sensors_path, alert: "Sensor não encontrado."
+      return
+    end
+
+    @readings = @sensor.sensor_readings.order(read_at: :desc).limit(100)
+  end
+
   def destroy
     @sensor.destroy
 
@@ -46,13 +79,12 @@ class SensorsController < ApplicationController
   end
 
   def toggle_status
-    @sensor = Sensor.find(params[:id])
     @sensor.update(status: @sensor.status == "Active" ? "Inactive" : "Active")
-  
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
-          dom_id(@sensor), # equivale a "sensor_#{@sensor.id}"
+          dom_id(@sensor),
           partial: "sensors/sensor",
           locals: { sensor: @sensor }
         )
@@ -60,8 +92,11 @@ class SensorsController < ApplicationController
       format.html { redirect_back fallback_location: fields_path, notice: "Sensor atualizado." }
     end
   end
-  
 
+  def assign_field
+    @sensor.update(field_id: params[:field_id])
+    redirect_back fallback_location: fields_path, notice: "Sensor atribuído com sucesso."
+  end
 
   private
 

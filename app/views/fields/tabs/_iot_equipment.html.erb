@@ -1,9 +1,13 @@
-<h3 class="text-lg font-semibold mb-4">Equipamentos IoT Associados</h3>
+<h3 class="text-lg font-semibold mb-4">📡 Equipamentos IoT Associados</h3>
 
 <!-- Botão de adicionar sensor -->
 <div class="flex justify-end mb-4">
-  <button onclick="toggleAddSensorForm()" class="bg-green-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+  <button onclick="toggleAddSensorForm()" class="bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-800 transition">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M8 12h8" />
+      <path d="M12 8v8" />
+    </svg>
     <span>Adicionar Equipamento</span>
   </button>
 </div>
@@ -13,32 +17,67 @@
   <%= render partial: 'sensors/form', locals: { field: field } %>
 </div>
 
-<!-- Tabela de sensores -->
-<div class="overflow-x-auto">
-  <table class="min-w-full border rounded-lg shadow-sm">
-    <thead class="bg-gray-100">
-      <tr class="text-sm font-medium text-gray-700 text-left">
-        <th class="px-4 py-2">Nome</th>
-        <th class="px-4 py-2">Tipo</th>
-        <th class="px-4 py-2">Estado</th>
-        <th class="px-4 py-2">Bateria</th>
-        <th class="px-4 py-2">Sinal</th>
-        <th class="px-4 py-2">Última Leitura</th>
-        <th class="px-4 py-2">Ações</th>
-      </tr>
-    </thead>
-<tbody id="sensorsList">
-  <%= render partial: "sensors/row", collection: field.sensors, as: :sensor %>
-</tbody>
+<!-- Tabela de sensores atribuídos -->
+<% if field.sensors.any? %>
+  <div class="overflow-x-auto rounded-lg shadow border">
+    <table class="min-w-full divide-y divide-gray-200 bg-white">
+      <thead class="bg-gray-100 text-gray-700 text-sm font-medium">
+        <tr>
+          <th class="px-4 py-2">Nome</th>
+          <th class="px-4 py-2">Tipo</th>
+          <th class="px-4 py-2">Estado</th>
+          <th class="px-4 py-2">Bateria</th>
+          <th class="px-4 py-2">Sinal</th>
+          <th class="px-4 py-2">Última Leitura</th>
+          <th class="px-4 py-2 text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="sensorsList" class="text-sm divide-y divide-gray-100">
+        <%= render partial: "sensors/row", collection: field.sensors, as: :sensor %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="text-gray-500 italic">Nenhum sensor atribuído a este campo ainda.</p>
+<% end %>
 
-  </table>
-</div>
+<!-- Sensores não atribuídos -->
+<%= render partial: "sensors/unassigned_sensors", locals: { field: field } %>
 
-
+<!-- Scripts -->
 <script>
   function toggleAddSensorForm() {
-  const form = document.getElementById("addSensorForm");
-  if (form) form.classList.toggle("hidden");
-}
+    const form = document.getElementById("addSensorForm");
+    form?.classList.toggle("hidden");
+  }
 
+  function checkDeviceId() {
+    const deviceId = document.getElementById("deviceIdInput").value;
+    const result = document.getElementById("deviceCheckResult");
+
+    if (!deviceId) {
+      result.innerText = "⚠️ Introduz um device_id.";
+      result.className = "text-red-600 text-sm mt-2";
+      return;
+    }
+
+    result.innerText = "🔍 A verificar...";
+    result.className = "text-gray-600 text-sm mt-2";
+
+    fetch(`/api/sensors/identify?device_id=${encodeURIComponent(deviceId)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.id) {
+          result.innerText = `✅ Sensor encontrado ou criado: ${data.name} (ID: ${data.id})`;
+          result.className = "text-green-600 text-sm mt-2";
+        } else {
+          result.innerText = "❌ Sensor não encontrado.";
+          result.className = "text-red-600 text-sm mt-2";
+        }
+      })
+      .catch(err => {
+        result.innerText = "❌ Erro ao contactar o servidor.";
+        result.className = "text-red-600 text-sm mt-2";
+      });
+  }
 </script>

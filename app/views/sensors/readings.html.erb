@@ -1,0 +1,77 @@
+<%# app/views/sensors/readings.html.erb %>
+
+<div class="max-w-4xl mx-auto mt-10 px-4">
+  <% if @sensor.present? %>
+  <h2 class="text-2xl font-semibold mb-4">📊 Histórico do Sensor: <%= @sensor.name %></h2>
+<% else %>
+  <p class="text-red-600">Sensor não encontrado.</p>
+<% end %>
+
+  <canvas id="sensorChart" class="mb-6"></canvas>
+
+  <table class="min-w-full bg-white border rounded-lg shadow">
+    <thead class="bg-gray-100 text-left text-sm font-medium text-gray-700">
+      <tr>
+        <th class="px-4 py-2">Data</th>
+        <th class="px-4 py-2">Temperatura (°C)</th>
+        <th class="px-4 py-2">Humidade (%)</th>
+        <th class="px-4 py-2">Bateria (%)</th>
+        <th class="px-4 py-2">Sinal (%)</th>
+      </tr>
+    </thead>
+    <tbody class="text-sm divide-y divide-gray-100">
+      <% @readings.each do |r| %>
+        <tr>
+          <td class="px-4 py-2"><%= r.read_at.strftime("%d/%m/%Y %H:%M") %></td>
+          <td class="px-4 py-2"><%= r.temperature || "—" %></td>
+          <td class="px-4 py-2"><%= r.moisture || "—" %></td>
+          <td class="px-4 py-2"><%= r.battery || "—" %></td>
+          <td class="px-4 py-2"><%= r.signal || "—" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="mt-6">
+    <%= link_to "← Voltar", fields_path, class: "text-blue-600 hover:underline" %>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById("sensorChart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: <%= raw @readings.map { |r| r.read_at.strftime("%d/%m %H:%M") }.reverse.to_json %>,
+        datasets: [
+          {
+            label: "Temperatura (°C)",
+            data: <%= raw @readings.map(&:temperature).reverse.to_json %>,
+            borderColor: "rgba(255, 99, 132, 1)",
+            fill: false,
+            tension: 0.2
+          },
+          {
+            label: "Humidade (%)",
+            data: <%= raw @readings.map(&:moisture).reverse.to_json %>,
+            borderColor: "rgba(54, 162, 235, 1)",
+            fill: false,
+            tension: 0.2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          title: { display: true, text: 'Leituras do Sensor' }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  });
+</script>

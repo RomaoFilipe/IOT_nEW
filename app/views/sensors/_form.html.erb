@@ -1,18 +1,77 @@
-<!-- app/views/sensors/_form.html.erb -->
-<%= form_with model: Sensor.new, url: field_sensors_path(field), method: :post, data: { turbo_stream: true }, html: { id: "addSensorForm", class: "..." } do |f| %>
-  <%= f.hidden_field :field_id, value: field.id %>
-
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div>
-      <%= f.label :name, "Nome do Sensor", class: "text-sm font-medium text-gray-700" %>
-      <%= f.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-    </div>
-    <div>
-      <%= f.label :sensor_type, "Tipo de Sensor", class: "text-sm font-medium text-gray-700" %>
-      <%= f.select :sensor_type, ["Solo", "Temperatura", "Humidade", "Irrigação"], {}, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
-    </div>
-    <div class="flex items-end">
-      <%= f.submit "Criar Sensor", class: "bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 w-full" %>
-    </div>
+<%= form_with(model: [field, Sensor.new], local: true) do |form| %>
+  <div class="mb-4">
+    <%= form.label :name, "Nome do Sensor", class: "block font-semibold" %>
+    <%= form.text_field :name, class: "mt-1 block w-full rounded border-gray-300" %>
   </div>
+
+  <div class="mb-4">
+    <%= form.label :sensor_type, "Tipo", class: "block font-semibold" %>
+    <%= form.select :sensor_type, ["Temperatura", "Humidade", "Outro"], {}, class: "mt-1 block w-full rounded border-gray-300" %>
+  </div>
+
+  <div class="mb-4">
+    <%= form.label :device_id, "Device ID", class: "block font-semibold" %>
+    <%= form.text_field :device_id, id: "device_id_input", class: "mt-1 block w-full rounded border px-3 py-2", oninput: "resetVerification()", required: true %>
+  </div>
+
+  <div class="mt-2 flex items-center gap-3">
+    <button type="button" onclick="verifyDevice()"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      Verificar dispositivo
+    </button>
+  </div>
+
+  <p id="deviceCheckResult" class="text-sm mt-2 text-gray-700"></p>
+
+  <button type="submit" id="saveButton" disabled
+          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-4">
+    Guardar Sensor
+  </button>
 <% end %>
+
+<script>
+  let isVerified = false;
+
+  function verifyDevice() {
+    const input = document.getElementById('device_id_input');
+    const saveBtn = document.getElementById('saveButton');
+    const result = document.getElementById('deviceCheckResult');
+    const deviceId = input.value.trim();
+
+    if (!deviceId) {
+      result.textContent = "⚠️ Introduz um Device ID.";
+      result.className = "text-sm mt-2 text-yellow-600";
+      saveBtn.disabled = true;
+      return;
+    }
+
+    fetch(`/api/sensors/identify?device_id=${deviceId}`)
+      .then(response => {
+        if (response.status === 200 || response.status === 201) {
+          return response.json();
+        } else {
+          throw new Error("Não encontrado");
+        }
+      })
+      .then(data => {
+        isVerified = true;
+        saveBtn.disabled = false;
+        result.textContent = `✅ Dispositivo verificado: ${data.name}`;
+        result.className = "text-sm mt-2 text-green-600";
+      })
+      .catch(() => {
+        isVerified = false;
+        saveBtn.disabled = true;
+        result.textContent = "❌ Erro: Dispositivo não encontrado.";
+        result.className = "text-sm mt-2 text-red-600";
+      });
+  }
+
+  function resetVerification() {
+    isVerified = false;
+    const saveBtn = document.getElementById('saveButton');
+    const result = document.getElementById('deviceCheckResult');
+    saveBtn.disabled = true;
+    result.textContent = "";
+  }
+</script>

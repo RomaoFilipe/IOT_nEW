@@ -1,0 +1,13 @@
+<%= turbo_stream.replace "sensor-#{@sensor.id}-status" do %>
+  <div id="sensor-<%= @sensor.id %>-status" class="p-4 border rounded-xl shadow bg-white">
+    <h3 class="text-lg font-semibold mb-2">📟 Sensor <%= @sensor.name %></h3>
+    <ul class="text-sm space-y-1">
+      <li>🌡️ Temperatura: <strong><%= @sensor.temperature %>°C</strong></li>
+      <li>💧 Humidade: <strong><%= @sensor.moisture %>%</strong></li>
+      <li>🔋 Bateria: <strong><%= @sensor.battery %>%</strong></li>
+      <li>📶 Sinal: <strong><%= @sensor.signal %>%</strong></li>
+      <li>🕓 Última leitura: <%= time_ago_in_words(@sensor.last_reading) %> atrás</li>
+      <li>📦 Valor: <%= @sensor.value %></li>
+    </ul>
+  </div>
+<% end %>
