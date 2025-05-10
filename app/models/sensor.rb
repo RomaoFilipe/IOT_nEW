@@ -4,6 +4,7 @@
 class Sensor < ApplicationRecord
   belongs_to :field, optional: true
   has_many :sensor_readings, dependent: :destroy
+  has_many :irrigation_schedules, dependent: :destroy
 
   SENSOR_TYPES = [
     "Soil Sensor",
@@ -20,4 +21,8 @@ class Sensor < ApplicationRecord
     "Soil PH" => "🧪",
     "Light Sensor" => "☀️"
   }
+
+  def irrigation_sensor?
+    sensor_type == "irrigation"
+  end
 end

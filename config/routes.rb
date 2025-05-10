@@ -37,6 +37,10 @@ Rails.application.routes.draw do
         patch :toggle_status, on: :member
       end
     end
+
+    resources :fields do
+      resources :irrigation_schedules, only: [:create, :destroy]
+    end
   end
 
   # 🌐 API pública e protegida (FORA do `authenticate`)

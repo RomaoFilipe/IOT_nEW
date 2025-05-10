@@ -2,7 +2,8 @@
 //= require_tree .
 //= require jquery
 //= require jquery_ujs
-
+import "flatpickr"
+import "flatpickr/dist/themes/material_green.css"
 import "bootstrap";
 import "@popperjs/core";
 import "jquery";
@@ -114,6 +115,18 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("DOMContentLoaded", () => {
         createIcons({ icons });
     });
+
+
+
+    document.addEventListener("turbo:load", () => {
+        flatpickr("input[id^='timepicker-']", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: "H:i",
+          time_24hr: true,
+          minuteIncrement: 5,
+        });
+      });
 
 });
 import "controllers"

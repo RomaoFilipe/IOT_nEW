@@ -4,6 +4,7 @@ class Field < ApplicationRecord
   has_many :soil_readings
   has_many :financials
   has_many :sensors, dependent: :destroy
+  has_many :irrigation_schedules, dependent: :destroy
 
 
   # Validações essenciais

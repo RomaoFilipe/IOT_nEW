@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_06_144807) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -68,6 +68,19 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_06_144807) do
     t.index ["field_id"], name: "index_financials_on_field_id"
   end
 
+  create_table "irrigation_schedules", force: :cascade do |t|
+    t.bigint "field_id", null: false
+    t.bigint "sensor_id", null: false
+    t.integer "day_of_week", null: false
+    t.integer "hour", null: false
+    t.integer "minute", null: false
+    t.integer "duration", default: 60, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field_id"], name: "index_irrigation_schedules_on_field_id"
+    t.index ["sensor_id"], name: "index_irrigation_schedules_on_sensor_id"
+  end
+
   create_table "sensor_readings", force: :cascade do |t|
     t.bigint "sensor_id", null: false
     t.float "temperature"
@@ -96,6 +109,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_06_144807) do
     t.float "temperature"
     t.float "moisture"
     t.string "device_id"
+    t.boolean "manually_disabled"
     t.index ["field_id"], name: "index_sensors_on_field_id"
   end
 
@@ -129,6 +143,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_06_144807) do
 
   add_foreign_key "crop_yields", "fields"
   add_foreign_key "financials", "fields"
+  add_foreign_key "irrigation_schedules", "fields"
+  add_foreign_key "irrigation_schedules", "sensors"
   add_foreign_key "sensor_readings", "sensors"
   add_foreign_key "sensors", "fields"
   add_foreign_key "soil_readings", "fields"

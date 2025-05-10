@@ -1,7 +1,6 @@
 class SensorsController < ApplicationController
   before_action :set_field, only: [:create]
-  before_action :set_sensor, only: [:simulate, :destroy, :toggle_status, :assign_field]
-  
+  before_action :set_sensor
 
   def create
     @sensor = @field.sensors.build(sensor_params.merge(
@@ -31,11 +30,13 @@ class SensorsController < ApplicationController
       return
     end
 
-    sensor = Sensor.find_or_create_by(device_id: device_id) do |s|
-      s.name = "Sensor #{device_id[-4..] || 'Novo'}"
-      s.sensor_type = "temperature"
-      s.status = "Active"
-    end
+    sensor = Sensor.find_or_initialize_by(device_id: device_id)
+
+    # Atualiza tipo e nome se estiverem incluídos no payload
+    sensor.sensor_type = params[:sensor_type] if params[:sensor_type].present?
+    sensor.name = "Sensor #{device_id[-4..]}" if sensor.name.blank?
+    sensor.status ||= "Active"
+    sensor.save!
     
     render json: {
       id: sensor.id,
@@ -84,8 +85,8 @@ class SensorsController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
-          dom_id(@sensor),
-          partial: "sensors/sensor",
+          dom_id(@sensor, :row), # 👈 IMPORTANTE: usa `:row` para bater com `dom_id(sensor, :row)` no HTML
+          partial: "sensors/row",
           locals: { sensor: @sensor }
         )
       end
@@ -105,7 +106,7 @@ class SensorsController < ApplicationController
   end
 
   def set_sensor
-    @sensor = Sensor.find(params[:id])
+    @sensor = Sensor.find(params[:sensor_id] || params[:id])
   end
 
   def sensor_params

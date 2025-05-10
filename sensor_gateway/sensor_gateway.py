@@ -5,7 +5,7 @@ import paho.mqtt.client as mqtt
 import requests
 
 # 🌐 Configurações
-MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")  # default para o nome do serviço no docker-compose
+MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
 MQTT_TOPIC = "sensors/data"
 
@@ -36,8 +36,12 @@ def on_message(client, userdata, msg):
             print("⚠️ Payload sem device_id")
             return
 
-        # 🔍 Identificar sensor e obter o ID (sem headers!)
-        identify = requests.get(f"{API_URL}/identify", params={"device_id": device_id})
+        # 🔍 Identificar sensor (enviando sensor_type!)
+        identify = requests.get(f"{API_URL}/identify", params={
+            "device_id": device_id,
+            "sensor_type": payload.get("sensor_type")  # 👈 Atualiza tipo no backend
+        })
+
         if identify.status_code != 200:
             print("❌ Erro ao identificar sensor:", identify.status_code)
             return
@@ -49,7 +53,12 @@ def on_message(client, userdata, msg):
             print("❌ Sensor não pôde ser identificado")
             return
 
-        # ✅ Enviar leitura para o sensor identificado (com headers)
+        # ⚙️ Se for sensor de irrigação, só identifica
+        if payload.get("sensor_type") == "irrigation":
+            print(f"💧 Sensor de irrigação identificado: {sensor_id} (sem envio de leitura)")
+            return
+
+        # ✅ Enviar leitura para sensores normais
         readings_url = f"{API_URL}/{sensor_id}/readings"
         response = requests.post(readings_url, json=payload, headers=HEADERS, timeout=5)
 
