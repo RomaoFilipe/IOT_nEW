@@ -21,75 +21,85 @@
     <!-- Última leitura -->
     <td class="px-4 py-2"><%= sensor.last_reading&.strftime("%d/%m, %H:%M") || "—" %></td>
 
-<% if sensor.sensor_type == "irrigation" %>
-  <td class="px-4 py-2 text-sm space-y-2">
-    <!-- Botão para abrir o modal -->
-    <button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal()"
-      class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition w-full">
-      🕓 Agendar
-    </button>
-
-    <!-- Agendamentos existentes -->
-    <% sensor.irrigation_schedules.each do |s| %>
-      <div class="flex justify-between items-center text-xs text-gray-700 bg-gray-50 p-2 rounded border">
-        <span>
-          <%= Date::DAYNAMES[s.day_of_week] %> às <%= "%02d:%02d" % [s.hour, s.minute] %> — <%= s.duration %>s
-        </span>
-        <%= button_to field_irrigation_schedule_path(sensor.field, s), method: :delete,
-              data: { turbo_confirm: "Remover este agendamento?" },
-              class: "text-red-500 text-xs" do %>🗑️<% end %>
+<!-- Coluna de Agendamento -->
+<td class="px-4 py-2 text-sm align-top">
+  <% if sensor.sensor_type == "irrigation" %>
+    <div x-data="{ open: false }" class="space-y-1">
+      <!-- Botão e toggle -->
+      <div class="flex items-center justify-between">
+        <button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal()"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs font-medium">
+          🕓 Agendar
+        </button>
+        <button @click="open = !open" class="text-xs text-gray-600 hover:text-gray-800">
+          <span x-show="!open">▼</span>
+          <span x-show="open">▲</span>
+        </button>
       </div>
-    <% end %>
 
-    <!-- Modal de agendamento -->
-    <dialog id="scheduleModal-<%= sensor.id %>" class="rounded-xl p-0 w-96 shadow-xl">
-      <div class="p-4 bg-white rounded-xl">
-        <h3 class="text-lg font-semibold mb-2">🕒 Agendar Irrigação</h3>
-
-        <%= form_with model: IrrigationSchedule.new, url: field_irrigation_schedules_path(sensor.field), method: :post, local: true do |f| %>
-          <%= hidden_field_tag :sensor_id, sensor.id %>
-
-          <div class="mb-3">
-            <label class="block text-sm font-medium mb-1">Dias da Semana</label>
-            <div class="grid grid-cols-2 gap-2">
-              <% Date::DAYNAMES.each_with_index do |day, i| %>
-                <label class="inline-flex items-center gap-2">
-                  <%= check_box_tag "days[]", i, false, class: "rounded border-gray-300 text-green-600 focus:ring-green-500" %>
-                  <span><%= day %></span>
-                </label>
-              <% end %>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4 mb-3">
-            <div>
-              <%= f.label :hour, "Hora", class: "block text-sm font-medium mb-1" %>
-              <%= f.number_field :hour, in: 0..23, class: "w-full px-3 py-2 border rounded focus:ring-green-500", placeholder: "HH" %>
-            </div>
-            <div>
-              <%= f.label :minute, "Minuto", class: "block text-sm font-medium mb-1" %>
-              <%= f.number_field :minute, in: 0..59, class: "w-full px-3 py-2 border rounded focus:ring-green-500", placeholder: "MM" %>
-            </div>
-          </div>
-
-          <div class="mb-4">
-            <%= f.label :duration, "Duração (segundos)", class: "block text-sm font-medium mb-1" %>
-            <%= f.number_field :duration, in: 10..3600, step: 10, class: "w-full px-3 py-2 border rounded focus:ring-green-500", placeholder: "Ex: 60" %>
-          </div>
-
-          <div class="flex justify-end gap-2">
-            <button type="button" onclick="document.getElementById('scheduleModal-<%= sensor.id %>').close()" class="px-4 py-2 rounded border text-gray-600 hover:bg-gray-100">
-              Cancelar
-            </button>
-            <%= f.submit "Confirmar", class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" %>
+      <!-- Lista expandida -->
+      <div x-show="open" class="space-y-1 pt-1">
+        <% sensor.irrigation_schedules.each do |s| %>
+          <div class="flex justify-between items-center bg-gray-100 text-xs px-2 py-1 rounded border border-gray-200">
+            <span class="truncate">
+              <%= Date::DAYNAMES[s.day_of_week] %> às <%= "%02d:%02d" % [s.hour, s.minute] %> — <%= s.duration %>s
+            </span>
+            <%= button_to field_irrigation_schedule_path(sensor.field, s), method: :delete,
+              data: { turbo_confirm: "Remover este agendamento?" },
+              class: "text-red-500 hover:text-red-700 text-xs ml-2" do %>🗑️<% end %>
           </div>
         <% end %>
+        <% if sensor.irrigation_schedules.empty? %>
+          <div class="text-xs text-gray-400 italic">Sem agendamentos.</div>
+        <% end %>
       </div>
-    </dialog>
-  </td>
-<% else %>
-  <td class="px-4 py-2 text-center">—</td>
-<% end %>
+
+      <!-- Modal de agendamento -->
+      <dialog id="scheduleModal-<%= sensor.id %>" class="rounded-xl p-0 w-96 shadow-xl">
+        <div class="p-4 bg-white rounded-xl">
+          <h3 class="text-lg font-semibold mb-2">🕒 Agendar Irrigação</h3>
+          <%= form_with model: IrrigationSchedule.new, url: field_irrigation_schedules_path(sensor.field), method: :post, local: true do |f| %>
+            <%= hidden_field_tag :sensor_id, sensor.id %>
+            <div class="mb-3">
+              <label class="block text-sm font-medium mb-1">Dias da Semana</label>
+              <div class="grid grid-cols-2 gap-2">
+                <% Date::DAYNAMES.each_with_index do |day, i| %>
+                  <label class="inline-flex items-center gap-2">
+                    <%= check_box_tag "days[]", i, false, class: "rounded border-gray-300 text-green-600 focus:ring-green-500" %>
+                    <span><%= day %></span>
+                  </label>
+                <% end %>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-3">
+              <div>
+                <%= f.label :hour, "Hora", class: "block text-sm font-medium mb-1" %>
+                <%= f.number_field :hour, in: 0..23, class: "w-full px-3 py-2 border rounded focus:ring-green-500", placeholder: "HH" %>
+              </div>
+              <div>
+                <%= f.label :minute, "Minuto", class: "block text-sm font-medium mb-1" %>
+                <%= f.number_field :minute, in: 0..59, class: "w-full px-3 py-2 border rounded focus:ring-green-500", placeholder: "MM" %>
+              </div>
+            </div>
+            <div class="mb-4">
+              <%= f.label :duration, "Duração (segundos)", class: "block text-sm font-medium mb-1" %>
+              <%= f.number_field :duration, in: 10..3600, step: 10, class: "w-full px-3 py-2 border rounded focus:ring-green-500", placeholder: "Ex: 60" %>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button type="button" onclick="document.getElementById('scheduleModal-<%= sensor.id %>').close()" class="px-4 py-2 rounded border text-gray-600 hover:bg-gray-100">
+                Cancelar
+              </button>
+              <%= f.submit "Confirmar", class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" %>
+            </div>
+          <% end %>
+        </div>
+      </dialog>
+    </div>
+  <% else %>
+    <span class="text-gray-400">—</span>
+  <% end %>
+</td>
+
 
 
 
@@ -124,3 +134,5 @@
     </td>
   </tr>
 <% end %>
+
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

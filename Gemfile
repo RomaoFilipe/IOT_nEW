@@ -32,6 +32,9 @@ gem 'jquery-rails', '~> 4.5.0'
 
 gem "pundit"
 gem "groupdate"
+gem "tailwindcss-rails", "~> 4.2"
+gem 'whenever', require: false
+
 
 
 

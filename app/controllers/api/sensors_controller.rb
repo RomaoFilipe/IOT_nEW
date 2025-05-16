@@ -56,10 +56,18 @@ module Api
         battery: rand(30..100),
         signal: rand(20..100),
         last_reading: Time.current,
-        status: "Active" # 👈 ativa o sensor
+        status: "Active"
       )
     
+      # Geração automática de sugestões com base no campo
+      RecommendationEngine.generate_for(@sensor.field)
+    
       render json: { status: "simulated", updated_at: @sensor.last_reading }
+    end
+
+    def set_sensor
+      @sensor = Sensor.find_by(id: params[:id])
+      render json: { error: "Sensor não encontrado" }, status: :not_found unless @sensor
     end
 
     def toggle_status

@@ -1,11 +1,24 @@
-<div class="bg-white p-6 rounded-lg shadow-md col-span-2">
-  <h3 class="text-lg font-semibold text-gray-800 mb-2">Tarefas Próximas</h3>
+<h3 class="text-lg font-semibold text-gray-800 mb-2">📋 Tarefas Próximas</h3>
+
+<% upcoming = FarmTask.where(completed: false).where("scheduled_for >= ?", Time.current).order(:scheduled_for).limit(5) %>
+
+<% if upcoming.any? %>
   <ul class="space-y-3">
-    <li class="bg-gray-50 p-3 rounded-md shadow flex justify-between">
-      <div>
-        <p class="font-medium">Irrigar Campo Sul</p>
-        <p class="text-sm text-red-600 font-semibold">15/07 - Prioridade Alta</p>
-      </div>
-    </li>
+    <% upcoming.each do |task| %>
+      <li class="bg-white p-4 rounded-md shadow flex flex-col">
+        <div class="flex justify-between items-center">
+          <h4 class="font-semibold text-gray-800"><%= task.title %></h4>
+          <span class="text-sm text-gray-500"><%= l(task.scheduled_for, format: :short) %></span>
+        </div>
+        <p class="text-sm text-gray-600 mt-1"><%= task.description %></p>
+        <p class="text-xs text-gray-400 mt-2">Campo: <%= task.field.name %></p>
+      </li>
+    <% end %>
   </ul>
-</div>
+<% else %>
+  <p class="text-gray-500 text-sm italic">Nenhuma tarefa agendada.</p>
+<% end %>
+
+<style>
+  [x-cloak] { display: none !important; }
+</style>

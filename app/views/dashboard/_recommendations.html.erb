@@ -1,0 +1,14 @@
+<h3 class="text-lg font-semibold text-gray-800 mb-2">🔔 Sugestões Inteligentes</h3>
+<% recommendations = Recommendation.where(dismissed: false).order(suggested_for: :asc).limit(5) %>
+<% if recommendations.any? %>
+  <ul class="space-y-3">
+    <% recommendations.each do |rec| %>
+      <li class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow">
+        <p class="text-sm text-gray-700 font-medium"><%= rec.message %></p>
+        <p class="text-xs text-gray-500">Campo: <%= rec.field.name %> — <%= rec.reason %></p>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-gray-500 italic text-sm">Sem sugestões no momento.</p>
+<% end %>

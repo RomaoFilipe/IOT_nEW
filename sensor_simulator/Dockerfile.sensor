@@ -1,8 +1,6 @@
-# Dockerfile.sensor
 FROM ruby:3.2.2
 
 WORKDIR /app
-
 COPY sensor_client.rb .
 
 CMD ["ruby", "sensor_client.rb"]

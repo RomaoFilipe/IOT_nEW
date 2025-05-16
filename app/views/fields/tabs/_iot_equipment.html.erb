@@ -1,8 +1,8 @@
 <h3 class="text-lg font-semibold mb-4">📡 Equipamentos IoT Associados</h3>
 
-<!-- Botão de adicionar sensor -->
+<!-- Botão Adicionar Equipamento -->
 <div class="flex justify-end mb-4">
-  <button onclick="toggleAddSensorForm()" class="bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-800 transition">
+  <button onclick="openAddSensorModal()" class="bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-800 transition">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <circle cx="12" cy="12" r="10" />
       <path d="M8 12h8" />
@@ -12,43 +12,53 @@
   </button>
 </div>
 
-<!-- Formulário de sensor (inicialmente oculto) -->
-<div id="addSensorForm" class="hidden mb-6">
-  <%= render partial: 'sensors/form', locals: { field: field } %>
-</div>
-
-<!-- Tabela de sensores atribuídos -->
+<!-- Tabela de sensores -->
 <% if field.sensors.any? %>
-  <div class="overflow-x-auto rounded-lg shadow border">
-    <table class="min-w-full divide-y divide-gray-200 bg-white">
-      <thead class="bg-gray-100 text-gray-700 text-sm font-medium">
+  <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm bg-white">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gray-50 text-xs uppercase font-semibold text-gray-600">
         <tr>
-          <th class="px-4 py-2">Nome</th>
-          <th class="px-4 py-2">Tipo</th>
-          <th class="px-4 py-2">Estado</th>
-          <th class="px-4 py-2">Bateria</th>
-          <th class="px-4 py-2">Sinal</th>
-          <th class="px-4 py-2">Última Leitura</th>
-          <th class="px-4 py-2 text-center">Ações</th>
+          <th class="px-4 py-3 text-left">Nome</th>
+          <th class="px-4 py-3 text-left">Tipo</th>
+          <th class="px-4 py-3 text-left">Estado</th>
+          <th class="px-4 py-3 text-left">Bateria</th>
+          <th class="px-4 py-3 text-left">Sinal</th>
+          <th class="px-4 py-3 text-left">Última Leitura</th>
+          <th class="px-4 py-3 text-center">Agendamento</th>
+          <th class="px-4 py-3 text-center">Toggle</th>
+          <th class="px-4 py-3 text-center">Ações</th>
         </tr>
       </thead>
-      <tbody id="sensorsList" class="text-sm divide-y divide-gray-100">
+      <tbody class="divide-y divide-gray-100">
         <%= render partial: "sensors/row", collection: field.sensors, as: :sensor %>
       </tbody>
     </table>
   </div>
 <% else %>
-  <p class="text-gray-500 italic">Nenhum sensor atribuído a este campo ainda.</p>
+  <div class="text-center text-gray-500 italic mt-4">Nenhum sensor atribuído a este campo ainda.</div>
 <% end %>
 
-
-
-<!-- Sensores não atribuídos -->
 <%= render partial: "sensors/unassigned_sensors", locals: { field: field } %>
 
-<!-- Scripts -->
+<!-- Modal de Adicionar Equipamento -->
+<div id="addSensorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white p-6 rounded-lg w-full max-w-lg shadow-lg relative">
+    <button onclick="closeAddSensorModal()" class="absolute top-2 right-2 text-gray-500 hover:text-black">X</button>
+    <h3 class="text-xl font-semibold mb-4">Adicionar Novo Sensor</h3>
+    <%= render partial: 'sensors/form', locals: { field: field } %>
+  </div>
+</div>
+
 <script>
-  function toggleAddSensorForm() {
+  function openAddSensorModal() {
+    document.getElementById("addSensorModal").classList.remove("hidden");
+  }
+
+  function closeAddSensorModal() {
+    document.getElementById("addSensorModal").classList.add("hidden");
+  }
+
+   function toggleAddSensorForm() {
     const form = document.getElementById("addSensorForm");
     form?.classList.toggle("hidden");
   }

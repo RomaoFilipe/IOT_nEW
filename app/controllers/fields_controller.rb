@@ -9,6 +9,12 @@ class FieldsController < ApplicationController
     )
   end
 
+  def show
+    @field = Field.find(params[:id])
+    render partial: 'fields/view_details_content', locals: { field: @field }
+  end
+  
+
   def new
     @field = Field.new
   end
@@ -25,9 +31,20 @@ class FieldsController < ApplicationController
 
   def destroy
     @field = Field.find(params[:id])
-    @field.destroy
-    redirect_to fields_path, notice: "Campo eliminado com sucesso."
+  
+    if @field.destroy
+      respond_to do |format|
+        format.html { redirect_to fields_path, notice: "Campo eliminado com sucesso." }
+        format.json { render json: { status: 'ok', message: "Campo eliminado com sucesso." } }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to fields_path, alert: @field.errors.full_messages.to_sentence }
+        format.json { render json: { status: 'error', message: @field.errors.full_messages.to_sentence }, status: :unprocessable_entity }
+      end
+    end
   end
+  
 
   private
 

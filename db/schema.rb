@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_14_021625) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -31,6 +31,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "farm_tasks", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.datetime "scheduled_for"
+    t.boolean "completed"
+    t.bigint "field_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field_id"], name: "index_farm_tasks_on_field_id"
   end
 
   create_table "fields", force: :cascade do |t|
@@ -54,6 +65,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
     t.string "irrigation_type"
     t.jsonb "field_boundary"
     t.jsonb "polygon_coordinates"
+    t.string "soil_quality"
+    t.float "ph_level"
+    t.datetime "last_irrigation_at"
   end
 
   create_table "financials", force: :cascade do |t|
@@ -77,8 +91,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
     t.integer "duration", default: 60, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "measured_at"
     t.index ["field_id"], name: "index_irrigation_schedules_on_field_id"
     t.index ["sensor_id"], name: "index_irrigation_schedules_on_sensor_id"
+  end
+
+  create_table "recommendations", force: :cascade do |t|
+    t.bigint "field_id", null: false
+    t.string "message"
+    t.string "reason"
+    t.datetime "suggested_for"
+    t.boolean "dismissed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field_id"], name: "index_recommendations_on_field_id"
   end
 
   create_table "sensor_readings", force: :cascade do |t|
@@ -142,9 +168,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
   end
 
   add_foreign_key "crop_yields", "fields"
+  add_foreign_key "farm_tasks", "fields"
   add_foreign_key "financials", "fields"
   add_foreign_key "irrigation_schedules", "fields"
   add_foreign_key "irrigation_schedules", "sensors"
+  add_foreign_key "recommendations", "fields"
   add_foreign_key "sensor_readings", "sensors"
   add_foreign_key "sensors", "fields"
   add_foreign_key "soil_readings", "fields"

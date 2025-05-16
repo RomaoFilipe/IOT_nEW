@@ -53,9 +53,17 @@
     <%= render 'fields/map_view' %>
 
     <%= render 'fields/modal' %>
-<% @fields.each do |field| %>
-  <%= render partial: 'fields/view_details', locals: { field: field } %>
-<% end %>
+<div id="viewDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="flex justify-between items-center border-b pb-4">
+      <h2 class="text-2xl font-semibold flex items-center gap-2" id="modalFieldName">Detalhes do Campo</h2>
+      <button onclick="closeViewDetails()" class="text-gray-600 hover:text-black">X</button>
+    </div>
+    <div id="viewDetailsContent" class="overflow-y-auto flex-1 pr-1 mt-4">
+      A carregar...
+    </div>
+  </div>
+</div>
 
 
 
@@ -98,11 +106,72 @@
       modal.classList.toggle("hidden");
     }
 
-function toggleViewDetails(id) {
-  document.querySelectorAll('[id^="viewDetailsModal-"]').forEach(modal => modal.classList.add("hidden"));
-  const target = document.getElementById(`viewDetailsModal-${id}`);
-  if (target) target.classList.toggle("hidden");
+// ⚡ Correto: JS sempre no index, sem depender do conteúdo carregado
+function setupViewDetailsTabs() {
+  const buttons = document.querySelectorAll('#viewDetailsContent .tab-button');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const tab = e.target.getAttribute('data-tab');
+      document.querySelectorAll('#viewDetailsContent .tab-content').forEach(tabEl => tabEl.classList.add("hidden"));
+      document.querySelector(`#viewDetailsContent #${tab}`).classList.remove("hidden");
+      document.querySelectorAll('#viewDetailsContent .tab-button').forEach(btn => btn.classList.remove("active"));
+      e.target.classList.add("active");
+    });
+  });
 }
+
+// A tua função toggleViewDetails já deve chamar isto após carregar o HTML via fetch:
+function toggleViewDetails(fieldId) {
+  const modal = document.getElementById("viewDetailsModal");
+  const content = document.getElementById("viewDetailsContent");
+
+  content.innerHTML = "Loading...";
+
+  fetch(`/fields/${fieldId}`)
+    .then(response => response.text())
+    .then(html => {
+      content.innerHTML = html;
+      setupViewDetailsTabs(); // ⚡ Liga as tabs sempre após o conteúdo ser carregado
+    })
+    .catch(() => {
+      content.innerHTML = "<p>Erro ao carregar detalhes.</p>";
+    });
+
+  modal.classList.remove("hidden");
+}
+
+function closeViewDetails() {
+  const modal = document.getElementById("viewDetailsModal");
+  modal.classList.add("hidden");
+}
+
+function deleteField(fieldId) {
+  if (!confirm("Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada.")) return;
+
+  fetch(`/fields/${fieldId}`, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+      'Accept': 'application/json'
+    }
+  }).then(response => {
+    if (response.ok) {
+      alert("Campo eliminado com sucesso!");
+      document.getElementById("viewDetailsModal").classList.add("hidden");
+      location.reload();
+    } else {
+      response.json().then(data => {
+        const content = document.getElementById("viewDetailsContent");
+        content.innerHTML = `<div class="bg-red-100 text-red-800 p-4 rounded-md mb-4">❌ ${data.message || "Erro ao eliminar campo."}</div>` + content.innerHTML;
+      });
+    }
+  }).catch(() => {
+    const content = document.getElementById("viewDetailsContent");
+    content.innerHTML = `<div class="bg-red-100 text-red-800 p-4 rounded-md mb-4">❌ Erro ao contactar o servidor.</div>` + content.innerHTML;
+  });
+}
+
+
   </script>
 </body>
 </html>

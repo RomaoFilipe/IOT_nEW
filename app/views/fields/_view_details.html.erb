@@ -1,24 +1,21 @@
-<% if defined?(field) && field.present? %>
-  <% field_id = field.id %>
-<% else %>
-  <% field_id = "dynamic" %>
-<% end %>
+<% field_id = defined?(field) && field.present? ? field.id : "dynamic" %>
 
 <div id="viewDetailsModal-<%= field_id %>" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl relative">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
 
     <!-- Modal Header -->
     <div class="flex justify-between items-center border-b pb-4">
-      <h2 class="text-2xl font-semibold flex items-center space-x-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map">
+      <h2 class="text-2xl font-semibold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map">
           <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
           <path d="M15 5.764v15"/>
           <path d="M9 3.236v15"/>
         </svg>
         <span id="modalFieldName"><%= field.name %></span>
       </h2>
-<button onclick="document.getElementById('viewDetailsModal-<%= field.id %>').classList.add('hidden')" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
-    </div>
+
+</div>
 
     <!-- Status -->
     <div class="flex items-center mt-2 mb-4 text-sm text-green-700 bg-green-100 px-3 py-1 rounded-lg w-max">
@@ -27,40 +24,37 @@
 
     <!-- Tabs -->
     <div class="flex space-x-2 border-b pb-2 text-sm">
-      <button class="tab-button active" onclick="showTab('overview', <%= field_id %>)" id="tab-overview-<%= field_id %>">Overview</button>
-      <button class="tab-button" onclick="showTab('iot-equipment', <%= field_id %>)" id="tab-iot-equipment-<%= field_id %>">IoT Equipment</button>
-      <button class="tab-button" onclick="showTab('analytics', <%= field_id %>)" id="tab-analytics-<%= field_id %>">Analytics</button>
+      <button class="tab-button active" onclick="showTab('overview', '<%= field_id %>')" id="tab-overview-<%= field_id %>">Overview</button>
+      <button class="tab-button" onclick="showTab('iot-equipment', '<%= field_id %>')" id="tab-iot-equipment-<%= field_id %>">IoT Equipment</button>
+      <button class="tab-button" onclick="showTab('analytics', '<%= field_id %>')" id="tab-analytics-<%= field_id %>">Analytics</button>
     </div>
 
-    <!-- Conteúdo das Tabs -->
-    <div id="overview-<%= field_id %>" class="tab-content mt-4">
-      <%= render partial: "fields/tabs/overview", locals: { field: field } %>
-    </div>
+<!-- Scrollable content -->
+<div class="overflow-y-auto flex-1 pr-1">
+  <!-- Tabs Content -->
+  <div id="overview-<%= field_id %>" class="tab-content mt-4">
+    <%= render partial: "fields/tabs/overview", locals: { field: field } %>
+  </div>
 
-    <div id="iot-equipment-<%= field_id %>" class="tab-content hidden mt-4">
-      <%= render partial: "fields/tabs/iot_equipment", locals: { field: field } %>
-    </div>
+  <div id="iot-equipment-<%= field_id %>" class="tab-content hidden mt-4">
+    <%= render partial: "fields/tabs/iot_equipment", locals: { field: field } %>
+  </div>
 
-    <div id="analytics-<%= field_id %>" class="tab-content hidden mt-4">
-      <%= render partial: "fields/tabs/analytics", locals: { field: field } %>
-    </div>
-
-    <!-- Ações Gerais -->
-    <div class="flex justify-end space-x-2 mt-6">
-      <button class="bg-gray-600 text-white px-4 py-2 rounded-md">Schedule Task</button>
-      <button class="bg-gray-600 text-white px-4 py-2 rounded-md">View History</button>
-      <button class="bg-green-600 text-white px-4 py-2 rounded-md">Generate Report</button>
-    </div>
+  <div id="analytics-<%= field_id %>" class="tab-content hidden mt-4">
+    <%= render partial: "fields/tabs/analytics", locals: { field: field } %>
+  </div>
 
     <!-- Eliminar Campo -->
-    <div class="mt-6">
-      <%= button_to field_path(field), method: :delete, data: { turbo_confirm: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada." }, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md" do %>
-        Eliminar Campo
-      <% end %>
-    </div>
-
+  <div class="mt-4">
+    <%= button_to field_path(field), method: :delete,
+        data: { turbo_confirm: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada." },
+        class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md" do %>
+      Eliminar Campo
+    <% end %>
   </div>
 </div>
+</div> <!-- FECHA SCROLLABLE CONTENT CORRETAMENTE -->
+
 
 <script>
 function showTab(tab, id) {
@@ -91,6 +85,32 @@ function addCropInput() {
   `;
   container.insertAdjacentHTML("beforeend", html);
 }
+
+function toggleViewDetails(fieldId) {
+  const modal = document.getElementById("viewDetailsModal");
+  const content = document.getElementById("viewDetailsContent");
+
+  // Atualiza o conteúdo (simples)
+  content.innerHTML = "Loading...";
+
+  // Podes fazer um fetch ou ajax para obter detalhes
+  fetch(`/fields/${fieldId}`)
+    .then(response => response.text())
+    .then(html => {
+      content.innerHTML = html;
+    })
+    .catch(() => {
+      content.innerHTML = "<p>Erro ao carregar detalhes.</p>";
+    });
+
+  modal.classList.remove("hidden");
+}
+
+function closeViewDetails() {
+  const modal = document.getElementById("viewDetailsModal");
+  modal.classList.add("hidden");
+}
+
 </script>
 
 <style>

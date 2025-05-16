@@ -45,7 +45,7 @@
       return;
     }
 
-    fetch(`/api/sensors/identify?device_id=${deviceId}`)
+    fetch(`/api/sensors/identify?device_id=${encodeURIComponent(deviceId)}`)
       .then(response => {
         if (response.status === 200 || response.status === 201) {
           return response.json();

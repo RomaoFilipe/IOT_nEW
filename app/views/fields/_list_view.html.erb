@@ -38,6 +38,7 @@
           </p>
 
 <button onclick="toggleViewDetails(<%= field.id %>)">View Details</button>
+
         </div>
       </div>
     <% end %>
@@ -115,6 +116,32 @@
       }
     });
   }
+
+function toggleViewDetails(fieldId) {
+  const modal = document.getElementById("viewDetailsModal");
+  const content = document.getElementById("viewDetailsContent");
+
+  // Atualiza o conteúdo (simples)
+  content.innerHTML = "Loading...";
+
+  // Podes fazer um fetch ou ajax para obter detalhes
+  fetch(`/fields/${fieldId}`)
+    .then(response => response.text())
+    .then(html => {
+      content.innerHTML = html;
+    })
+    .catch(() => {
+      content.innerHTML = "<p>Erro ao carregar detalhes.</p>";
+    });
+
+  modal.classList.remove("hidden");
+}
+
+function closeViewDetails() {
+  const modal = document.getElementById("viewDetailsModal");
+  modal.classList.add("hidden");
+}
+
 
   // Executa ao carregar DOM
   document.addEventListener("DOMContentLoaded", () => {

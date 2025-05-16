@@ -29,7 +29,7 @@ services:
 
   sensor_simulator:
     build:
-      context: .
+      context: ./sensor_simulator
       dockerfile: Dockerfile.sensor
     environment:
       API_TOKEN: abc123supersecreto
@@ -52,7 +52,8 @@ services:
     restart: unless-stopped
 
   mqtt:
-    image: eclipse-mosquitto
+    image: eclipse-mosquitto:latest
+    container_name: iot_new-mqtt-1
     ports:
       - "1883:1883"
       - "9001:9001"

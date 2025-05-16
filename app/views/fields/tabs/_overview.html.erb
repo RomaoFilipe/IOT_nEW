@@ -1,34 +1,34 @@
-<!-- fields/tabs/_overview.html.erb -->
 <%= turbo_frame_tag "overview-#{field.id}" do %>
 <div class="grid grid-cols-2 gap-6">
-  <!-- Mapa -->
-  <div class="bg-gray-100 rounded-lg h-40 flex items-center justify-center">
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
-      <path d="M15 5.764v15"/>
-      <path d="M9 3.236v15"/>
-    </svg>
+  <!-- Mapa com Mapbox -->
+  <div class="bg-gray-100 rounded-lg h-64 relative shadow-md overflow-hidden">
+    <div id="fieldMap-<%= field.id %>" class="w-full h-full rounded-lg"></div>
   </div>
 
   <!-- Planting Information -->
   <div>
-    <h3 class="font-semibold mb-2">Planting Information</h3>
-    <p><strong>Planting Date:</strong> 2023-03-15</p>
-    <p><strong>Harvest Date:</strong> 2023-09-25</p>
-    <p><strong>Expected Yield:</strong> <span class="font-bold">8.2 tons/ha</span></p>
+    <h2 class="text-2xl font-bold mb-4 text-gray-800"><%= field.name %></h2>
+    <p><strong>Tipo:</strong> <%= field.field_type %></p>
+    <p><strong>Localização:</strong> <%= field.formatted_location %></p>
+    <p><strong>Área:</strong> <%= field.area %> ha</p>
 
-    <h3 class="font-semibold mt-4">Maintenance</h3>
-    <p><strong>Pest Control:</strong> Minimal intervention needed</p>
-    <p><strong>Irrigation:</strong> Every 3 days, 2 hours</p>
-    <p><strong>Fertilization:</strong> Applied on 2023-05-10</p>
+    <h3 class="font-semibold mt-4">Planting Information</h3>
+    <ul class="text-gray-600 space-y-1 mt-2">
+      <li><strong>Planting Date:</strong> 2023-03-15</li>
+      <li><strong>Harvest Date:</strong> 2023-09-25</li>
+      <li><strong>Expected Yield:</strong> <span class="font-bold text-green-600">8.2 tons/ha</span></li>
+      <li><strong>Pest Control:</strong> Minimal intervention</li>
+      <li><strong>Irrigation:</strong> Every 3 days, 2 hours</li>
+      <li><strong>Fertilization:</strong> 2023-05-10</li>
+    </ul>
 
     <h3 class="font-semibold mt-4">Notes</h3>
-    <p class="text-sm text-gray-600">Plants are developing well, ahead of schedule. Last inspection showed no signs of pests or diseases.</p>
+    <p class="text-sm text-gray-500">Plants are developing well, ahead of schedule. Last inspection showed no signs of pests or diseases.</p>
   </div>
 </div>
 
 <!-- Basic Information -->
-<div class="mt-6">
+<div class="mt-6 p-4 bg-gray-50 rounded-lg shadow-sm">
   <h3 class="font-semibold mb-2">Basic Information</h3>
   <p><strong>Crop:</strong> <%= field.field_type %></p>
   <p><strong>Area:</strong> <%= field.area %> ha</p>
@@ -37,11 +37,9 @@
   <p><strong>Last Updated:</strong> 10 minutes ago</p>
 </div>
 
-
 <!-- Current Conditions -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-  <!-- Moisture -->
-  <div class="bg-gray-100 p-4 rounded-lg text-center">
+  <div class="bg-white p-4 rounded-lg shadow text-center">
     <span class="block text-blue-500 text-2xl">💧</span>
     <p class="text-gray-600">Moisture</p>
     <p class="font-bold text-lg">
@@ -49,8 +47,7 @@
     </p>
   </div>
 
-  <!-- Temperature -->
-  <div class="bg-gray-100 p-4 rounded-lg text-center">
+  <div class="bg-white p-4 rounded-lg shadow text-center">
     <span class="block text-orange-500 text-2xl">🌡</span>
     <p class="text-gray-600">Temperature</p>
     <p class="font-bold text-lg">
@@ -58,18 +55,59 @@
     </p>
   </div>
 
-  <!-- Crop Health (estático por agora) -->
-  <div class="bg-gray-100 p-4 rounded-lg text-center">
+  <div class="bg-white p-4 rounded-lg shadow text-center">
     <span class="block text-green-500 text-2xl">🌱</span>
     <p class="text-gray-600">Crop Health</p>
     <p class="font-bold text-lg">Good</p>
   </div>
 
-  <!-- Irrigation (estático por agora) -->
-  <div class="bg-gray-100 p-4 rounded-lg text-center">
+  <div class="bg-white p-4 rounded-lg shadow text-center">
     <span class="block text-blue-500 text-2xl">💦</span>
     <p class="text-gray-600">Irrigation</p>
     <p class="font-bold text-lg">Active</p>
   </div>
 </div>
+
+<!-- ✅ JS correto sem misturar mini-mapas -->
+<script>
+let mapInstance<%= field.id %>;
+
+function initFieldMap<%= field.id %>() {
+  if (typeof mapboxgl === 'undefined') return;
+  if (mapInstance<%= field.id %>) return;
+
+  mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+
+  mapInstance<%= field.id %> = new mapboxgl.Map({
+    container: 'fieldMap-<%= field.id %>',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [<%= field.longitude %>, <%= field.latitude %>],
+    zoom: 13
+  });
+
+  mapInstance<%= field.id %>.on('load', () => {
+    new mapboxgl.Marker({ color: "blue" })
+      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+      .addTo(mapInstance<%= field.id %>);
+  });
+}
+
+// Inicializa ao mudar para tab Overview
+document.addEventListener('click', function(e) {
+  if (e.target.matches('.tab-button[data-tab="overview"]')) {
+    setTimeout(() => {
+      if (mapInstance<%= field.id %>) {
+        mapInstance<%= field.id %>.resize();
+      } else {
+        initFieldMap<%= field.id %>();
+      }
+    }, 300);
+  }
+});
+
+// Inicializa logo ao carregar caso overview esteja visível
+setTimeout(() => {
+  initFieldMap<%= field.id %>();
+}, 300);
+</script>
 <% end %>
