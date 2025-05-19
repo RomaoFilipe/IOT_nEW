@@ -8,7 +8,7 @@ class IrrigationSchedulesController < ApplicationController
 
     days.each do |day|
       schedule = @field.irrigation_schedules.new(
-        sensor_id: params[:sensor_id],
+        sensor_id: params[:sensor_id],  # Verifique se está passando o sensor_id correto
         day_of_week: day,
         hour: schedule_params[:hour],
         minute: schedule_params[:minute],
