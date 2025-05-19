@@ -3,6 +3,6 @@ FROM ruby:3.2.2
 
 WORKDIR /app
 
-COPY sensor_client.rb .
+COPY sensor_simulator/sensor_client.rb .
 
 CMD ["ruby", "sensor_client.rb"]

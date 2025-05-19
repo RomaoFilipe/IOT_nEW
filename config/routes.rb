@@ -25,9 +25,16 @@ Rails.application.routes.draw do
       patch :toggle_status, on: :member
       patch :assign_field, on: :member
       get :readings, on: :member
+      get :irrigation_history, on: :member
       collection do
         post :lookup
       end
+    end
+
+    resource :settings, only: [:index] do
+      patch :update_profile
+      patch :update_notifications
+      patch :update_password
     end
 
     # 🗺️ Campos com sensores aninhados
@@ -38,19 +45,26 @@ Rails.application.routes.draw do
       end
     end
 
+    
+
     resources :fields do
       resources :irrigation_schedules, only: [:create, :destroy]
     end
   end
 
+
   # 🌐 API pública e protegida (FORA do `authenticate`)
   namespace :api do
     get "sensors/identify", to: "sensors#identify" # 👈 agora está acessível sem login
     get "sensors/find_by_device_id", to: "sensors#find_by_device_id"
+    
     resources :sensors, only: [] do
       post :simulate, on: :member
       post "readings", to: "sensor_readings#create", on: :member
     end
+  
+    # ✅ Endpoint para receber logs de execução da irrigação
+    resources :irrigation_logs, only: [:create]
   end
 
 

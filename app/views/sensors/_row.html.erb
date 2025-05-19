@@ -24,22 +24,19 @@
 <% if sensor.sensor_type == "irrigation" %>
   <td class="px-4 py-2 text-sm space-y-2">
     <!-- Botão para abrir o modal -->
-    <button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal()"
-      class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition w-full">
-      🕓 Agendar
-    </button>
+<button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal()"
+  class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md text-sm transition w-full">
+  ➕ Agendar
+</button>
 
-    <!-- Agendamentos existentes -->
-    <% sensor.irrigation_schedules.each do |s| %>
-      <div class="flex justify-between items-center text-xs text-gray-700 bg-gray-50 p-2 rounded border">
-        <span>
-          <%= Date::DAYNAMES[s.day_of_week] %> às <%= "%02d:%02d" % [s.hour, s.minute] %> — <%= s.duration %>s
-        </span>
-        <%= button_to field_irrigation_schedule_path(sensor.field, s), method: :delete,
-              data: { turbo_confirm: "Remover este agendamento?" },
-              class: "text-red-500 text-xs" do %>🗑️<% end %>
-      </div>
-    <% end %>
+<!-- Grade semanal com horários -->
+<button onclick="document.getElementById('viewSchedulesModal-<%= sensor.id %>').showModal()"
+  class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md text-sm w-full">
+  📅 Ver Horários
+</button>
+
+<%= render partial: "sensors/modal_schedule_view", locals: { sensor: sensor } %>
+
 
     <!-- Modal de agendamento -->
     <dialog id="scheduleModal-<%= sensor.id %>" class="rounded-xl p-0 w-96 shadow-xl">
@@ -114,8 +111,13 @@
       <!-- Simular -->
       <%= link_to "🛠️", simulate_sensor_path(sensor), method: :post, class: "text-green-600 hover:text-green-800", title: "Simular dados" %>
 
-      <!-- Histórico -->
-      <%= link_to "📊", readings_sensor_path(sensor), class: "text-blue-600 hover:text-blue-800", title: "Ver histórico" %>
+      <!-- Histórico de Leitura ou Irrigação -->
+      <% if sensor.sensor_type == "irrigation" %>
+        <%= link_to "💧", irrigation_history_sensor_path(sensor) %>
+      <% else %>
+        <%= link_to "📊", readings_sensor_path(sensor), class: "text-blue-600 hover:text-blue-800", title: "Histórico de Leituras" %>
+      <% end %>
+
 
       <!-- Apagar -->
       <%= button_to sensor_path(sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" }, class: "text-red-600 hover:text-red-800", title: "Remover sensor" do %>

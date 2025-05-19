@@ -17,26 +17,47 @@ module Api
       sensor = Sensor.find_or_initialize_by(device_id: device_id)
     
       if sensor.new_record?
-        sensor.name = device_id               # 👈 Aqui usamos o DEVICE_ID como nome
+        sensor.name = device_id
         sensor.sensor_type = sensor_type
+    
+        # Define o campo 'type' para STI consoante o sensor_type
+        sensor.type = case sensor_type.downcase
+                      when 'temperature', 'moisture'
+                        'TemperatureSensor'
+                      when 'irrigation'
+                        'IrrigationSensor'
+                      else
+                        'Sensor'
+                      end
+    
         sensor.status = "Active"
         sensor.battery = rand(60..100)
         sensor.signal = rand(60..100)
         sensor.last_reading = Time.current
         sensor.save!
       else
-        # Atualiza o tipo se for enviado e diferente
-        if sensor.sensor_type != sensor_type
-          sensor.update(sensor_type: sensor_type)
+        # Atualiza o tipo STI caso tenha mudado
+        expected_type = case sensor_type.downcase
+                        when 'temperature', 'moisture'
+                          'TemperatureSensor'
+                        when 'irrigation'
+                          'IrrigationSensor'
+                        else
+                          'Sensor'
+                        end
+        if sensor.type != expected_type
+          sensor.update(type: expected_type, sensor_type: sensor_type)
         end
       end
     
       render json: {
         id: sensor.id,
         name: sensor.name,
-        sensor_type: sensor.sensor_type
+        sensor_type: sensor.sensor_type,
+        type: sensor.type
       }
     end
+    
     
 
     def readings

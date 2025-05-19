@@ -79,6 +79,16 @@ class SensorsController < ApplicationController
     end
   end
 
+  def irrigation_history
+    @sensor = Sensor.find(params[:id])
+    @irrigation_logs = @sensor.irrigation_logs.order(executed_at: :desc)
+  
+    Rails.logger.debug "Irrigation logs count: #{@irrigation_logs.count}"
+    Rails.logger.debug @irrigation_logs.inspect
+  end
+  
+  
+
   def toggle_status
     @sensor.update(status: @sensor.status == "Active" ? "Inactive" : "Active")
 

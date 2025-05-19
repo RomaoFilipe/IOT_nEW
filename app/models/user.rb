@@ -1,18 +1,18 @@
 class User < ApplicationRecord
   # Devise modules
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :validatable, :trackable
 
-         STATUSES = %w[active inactive].freeze
+  STATUSES = %w[active inactive].freeze
 
-  # Montar o uploader para o campo photo usando CarrierWave
+  # Montar o uploader para foto
   mount_uploader :photo, PhotoUploader
 
   # Relacionamentos
   has_many :tasks, dependent: :destroy
   has_many :fields, dependent: :destroy
 
-  # Definir roles com enum
+  # Roles
   enum role: { admin: 'admin', manager: 'manager', viewer: 'viewer' }
 
   # Validações
@@ -22,8 +22,11 @@ class User < ApplicationRecord
   validates :password, presence: true, length: { minimum: 6 }, if: :password_required?
   validates :status, inclusion: { in: STATUSES }
 
-  mount_uploader :photo, PhotoUploader
-  # Métodos auxiliares
+  # Notificações (novos atributos booleanos)
+  attribute :notif_email, :boolean, default: true
+  attribute :notif_sms, :boolean, default: false
+
+  # Helpers
   def admin?
     role == 'admin'
   end
@@ -34,5 +37,11 @@ class User < ApplicationRecord
 
   def viewer?
     role == 'viewer'
+  end
+
+  private
+
+  def password_required?
+    new_record? || password.present?
   end
 end

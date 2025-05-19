@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  sensor: one
+  executed_at: 2025-05-19 04:19:40
+  duration: 1
+  status: MyString
+
+two:
+  sensor: two
+  executed_at: 2025-05-19 04:19:40
+  duration: 1
+  status: MyString

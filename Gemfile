@@ -32,8 +32,9 @@ gem 'jquery-rails', '~> 4.5.0'
 
 gem "pundit"
 gem "groupdate"
-
-
+gem 'mqtt'
+gem 'clockwork'
+gem 'sidekiq'
 
 
 gem 'dotenv-rails', groups: [:development, :test]

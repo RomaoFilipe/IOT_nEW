@@ -18,12 +18,12 @@ HEADERS = {
 }
 
 # 🔌 Quando conecta ao broker
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print("✅ Ligado ao broker MQTT")
+def on_connect(client, userdata, flags, reason_code, properties):
+    if reason_code == 0:
+        print("✅ Ligado ao broker MQTT (v5)")
         client.subscribe(MQTT_TOPIC)
     else:
-        print("❌ Erro ao ligar ao MQTT:", rc)
+        print(f"❌ Erro ao ligar ao MQTT (v5): {reason_code}")
 
 # 📦 Quando recebe mensagem
 def on_message(client, userdata, msg):
@@ -39,7 +39,7 @@ def on_message(client, userdata, msg):
         # 🔍 Identificar sensor (enviando sensor_type!)
         identify = requests.get(f"{API_URL}/identify", params={
             "device_id": device_id,
-            "sensor_type": payload.get("sensor_type")  # 👈 Atualiza tipo no backend
+            "sensor_type": payload.get("sensor_type")
         })
 
         if identify.status_code != 200:
@@ -53,9 +53,23 @@ def on_message(client, userdata, msg):
             print("❌ Sensor não pôde ser identificado")
             return
 
-        # ⚙️ Se for sensor de irrigação, só identifica
+        # 💧 Se for sensor de irrigação, envia log para outro endpoint
         if payload.get("sensor_type") == "irrigation":
-            print(f"💧 Sensor de irrigação identificado: {sensor_id} (sem envio de leitura)")
+            if "duration" in payload and "status" in payload:
+                log_url = "http://host.docker.internal:3000/api/irrigation_logs"
+                irrigation_payload = {
+                    "device_id": device_id,
+                    "duration": payload["duration"],
+                    "status": payload["status"],
+                    "timestamp": payload.get("timestamp", time.time())
+                }
+                response = requests.post(log_url, json=irrigation_payload, headers=HEADERS, timeout=5)
+                if response.status_code == 201:
+                    print(f"💧 Log de irrigação registado com sucesso para Sensor #{sensor_id}")
+                else:
+                    print(f"⚠️ Erro ao enviar log de irrigação: {response.status_code} - {response.text}")
+            else:
+                print(f"💧 Sensor de irrigação identificado: {sensor_id} (sem log de execução)")
             return
 
         # ✅ Enviar leitura para sensores normais
@@ -73,10 +87,9 @@ def on_message(client, userdata, msg):
 # 🚀 Inicialização
 def main():
     print("🚀 Sensor Gateway a iniciar...")
-    client = mqtt.Client()
+    client = mqtt.Client(protocol=mqtt.MQTTv5)
     client.on_connect = on_connect
     client.on_message = on_message
-
     client.connect(MQTT_BROKER, MQTT_PORT, 60)
     client.loop_forever()
 

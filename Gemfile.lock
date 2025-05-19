@@ -108,6 +108,9 @@ GEM
       mini_mime (>= 0.1.3)
       ssrf_filter (~> 1.0)
     chartkick (5.1.2)
+    clockwork (3.0.2)
+      activesupport
+      tzinfo
     concurrent-ruby (1.3.4)
     connection_pool (2.4.1)
     crass (1.0.6)
@@ -169,6 +172,7 @@ GEM
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     minitest (5.25.4)
+    mqtt (0.6.0)
     msgpack (1.7.5)
     net-imap (0.5.4)
       date
@@ -302,6 +306,12 @@ GEM
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
     semantic_range (3.1.0)
+    sidekiq (7.3.9)
+      base64
+      connection_pool (>= 2.3.0)
+      logger
+      rack (>= 2.2.4)
+      redis-client (>= 0.22.2)
     sprockets (4.2.1)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -360,6 +370,7 @@ DEPENDENCIES
   capybara
   carrierwave (~> 2.0)
   chartkick
+  clockwork
   debug
   devise
   dotenv-rails
@@ -368,6 +379,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   jquery-rails (~> 4.5.0)
+  mqtt
   pg
   puma (>= 5.0)
   pundit
@@ -376,6 +388,7 @@ DEPENDENCIES
   rubocop-rails-omakase
   sass-rails (>= 6)
   selenium-webdriver
+  sidekiq
   sprockets-rails
   stimulus-rails
   tailwindcss-rails (~> 4.2)

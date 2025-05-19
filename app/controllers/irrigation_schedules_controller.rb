@@ -5,7 +5,7 @@ class IrrigationSchedulesController < ApplicationController
   def create
     days = params[:days] || []
     created = 0
-  
+
     days.each do |day|
       schedule = @field.irrigation_schedules.new(
         sensor_id: params[:sensor_id],
@@ -14,9 +14,23 @@ class IrrigationSchedulesController < ApplicationController
         minute: schedule_params[:minute],
         duration: schedule_params[:duration]
       )
-      created += 1 if schedule.save
+
+      if schedule.save
+        created += 1
+
+        # ✅ Enviar comando MQTT para o sensor
+        begin
+          sensor = Sensor.find(params[:sensor_id])
+          MqttService.publish_command(sensor.device_id, {
+            action: "start",
+            duration: schedule.duration
+          })
+        rescue => e
+          Rails.logger.error "❌ Erro ao enviar MQTT para sensor #{params[:sensor_id]}: #{e.message}"
+        end
+      end
     end
-  
+
     if created > 0
       redirect_back fallback_location: fields_path, notice: "Criado(s) #{created} agendamento(s)."
     else

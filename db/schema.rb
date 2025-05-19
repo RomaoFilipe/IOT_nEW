@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_19_063226) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -68,6 +68,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
     t.index ["field_id"], name: "index_financials_on_field_id"
   end
 
+  create_table "irrigation_logs", force: :cascade do |t|
+    t.bigint "sensor_id", null: false
+    t.datetime "executed_at"
+    t.integer "duration"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sensor_id"], name: "index_irrigation_logs_on_sensor_id"
+  end
+
   create_table "irrigation_schedules", force: :cascade do |t|
     t.bigint "field_id", null: false
     t.bigint "sensor_id", null: false
@@ -110,7 +120,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
     t.float "moisture"
     t.string "device_id"
     t.boolean "manually_disabled"
+    t.string "type"
     t.index ["field_id"], name: "index_sensors_on_field_id"
+    t.index ["type"], name: "index_sensors_on_type"
   end
 
   create_table "soil_readings", force: :cascade do |t|
@@ -137,12 +149,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_124807) do
     t.boolean "admin", default: false
     t.string "role"
     t.string "status", default: "active"
+    t.boolean "notif_email"
+    t.boolean "notif_sms"
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   add_foreign_key "crop_yields", "fields"
   add_foreign_key "financials", "fields"
+  add_foreign_key "irrigation_logs", "sensors"
   add_foreign_key "irrigation_schedules", "fields"
   add_foreign_key "irrigation_schedules", "sensors"
   add_foreign_key "sensor_readings", "sensors"

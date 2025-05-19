@@ -1,0 +1,8 @@
+class IrrigationSensor < Sensor
+  has_many :irrigation_logs, dependent: :destroy
+  has_many :irrigation_schedules, dependent: :destroy
+
+  def irrigation_sensor?
+    true
+  end
+end
