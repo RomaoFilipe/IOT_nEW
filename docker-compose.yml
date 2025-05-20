@@ -27,6 +27,20 @@ services:
     depends_on:
       - db
 
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    environment:
+      RAILS_ENV: development
+    depends_on:
+      - db
+      - redis
+      - mqtt
+
   sensor_simulator:
     build:
       context: .
@@ -50,6 +64,15 @@ services:
     depends_on:
       - mqtt
     restart: unless-stopped
+
+  cron:
+    build:
+      context: .
+    command: bash -c "while true; do bundle exec rake irrigation:run; sleep 60; done"
+    depends_on:
+      - web
+    environment:
+      RAILS_ENV: development
 
   mqtt:
     image: eclipse-mosquitto

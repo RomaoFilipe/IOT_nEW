@@ -1,6 +1,7 @@
 # == app/controllers/irrigation_schedules_controller.rb ==
 class IrrigationSchedulesController < ApplicationController
   before_action :set_field
+  belongs_to :sensor
 
   def create
     days = params[:days] || []
@@ -19,15 +20,15 @@ class IrrigationSchedulesController < ApplicationController
         created += 1
 
         # ✅ Enviar comando MQTT para o sensor
-        begin
-          sensor = Sensor.find(params[:sensor_id])
-          MqttService.publish_command(sensor.device_id, {
-            action: "start",
-            duration: schedule.duration
-          })
-        rescue => e
-          Rails.logger.error "❌ Erro ao enviar MQTT para sensor #{params[:sensor_id]}: #{e.message}"
-        end
+        # begin
+        #   sensor = Sensor.find(params[:sensor_id])
+        #   MqttService.publish_command(sensor.device_id, {
+        #     action: "start",
+        #     duration: schedule.duration
+        #   })
+        # rescue => e
+        #   Rails.logger.error "❌ Erro ao enviar MQTT para sensor #{params[:sensor_id]}: #{e.message}"
+        # end
       end
     end
 

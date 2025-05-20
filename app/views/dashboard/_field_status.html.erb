@@ -1,4 +1,4 @@
-<h3 class="text-lg font-semibold text-gray-800 mb-4">🧭 Estado dos Campos</h3>
+<h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">🧭 Estado dos Campos</h3>
 
 <% if @fields.any? %>
   <div 
@@ -15,43 +15,43 @@
       }
     }"
     x-init="startRotation()"
-    class="space-y-4"
+    class="space-y-6"
   >
-    <!-- Tabs dinâmicas -->
-    <div class="flex flex-wrap gap-2 overflow-x-auto">
+    <!-- Tabs dos campos -->
+    <div class="flex flex-wrap gap-2">
       <% @fields.each do |field| %>
         <button
-          :class="active === <%= field.id %> ? 'bg-white shadow text-blue-600' : 'bg-gray-100 text-gray-700'"
+          :class="active === <%= field.id %> ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
           @click="active = <%= field.id %>; index = fields.indexOf(<%= field.id %>)"
-          class="tab-button px-4 py-2 rounded-md text-sm font-medium transition border">
+          class="px-4 py-1 rounded-lg text-sm font-medium transition"
+        >
           <%= field.name %>
         </button>
       <% end %>
     </div>
 
     <!-- Conteúdo por campo -->
-    <div class="relative h-[200px] overflow-hidden bg-gray-50 rounded-md p-4 shadow-inner">
+    <div class="relative min-h-[220px] bg-white rounded-xl shadow p-5 border">
       <% @fields.each do |field| %>
         <div 
           x-show="active === <%= field.id %>" 
           x-cloak
-          x-transition.opacity.duration.500ms
-          class="absolute inset-0 space-y-2"
+          x-transition.opacity.duration.400ms
+          class="space-y-2"
         >
-          <p><strong>🌿 Cultura:</strong> <%= field.field_type %></p>
-          <p><strong>📐 Área:</strong> <%= field.area %> ha</p>
-          <p><strong>💧 Última Irrigação:</strong>
-            <%= field.irrigation_schedules.order(created_at: :desc).first&.created_at&.strftime('%d/%m/%Y') || 'Sem registo' %>
-          </p>
-          <p><strong>🧪 Qualidade do Solo:</strong> <%= field.soil_quality.presence || 'N/A' %></p>
-          <p><strong>📡 Sensores Ativos:</strong> <%= field.sensors.where(status: 'Active').count %></p>
-          <p><strong>🗺️ Coordenadas:</strong> <%= field.latitude %>, <%= field.longitude %></p>
-          <p>
-            <strong>🔘 Estado:</strong>
-            <span class="<%= field.status == 'Ativo' ? 'text-green-600' : 'text-red-600' %>">
-              <%= field.status.presence || 'Desconhecido' %>
-            </span>
-          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-gray-700">
+            <div><strong>🌿 Cultura:</strong> <%= field.field_type %></div>
+            <div><strong>📐 Área:</strong> <%= field.area %> ha</div>
+            <div><strong>💧 Última Irrigação:</strong> <%= field.irrigation_schedules.order(created_at: :desc).first&.created_at&.strftime('%d/%m/%Y') || 'Sem registo' %></div>
+            <div><strong>🧪 Solo:</strong> <%= field.soil_type.presence || 'N/A' %></div>
+            <div><strong>📡 Sensores Ativos:</strong> <%= field.sensors.where(status: 'Active').count %></div>
+            <div><strong>🗺️ Coordenadas:</strong> <%= field.latitude %>, <%= field.longitude %></div>
+            <div class="col-span-2"><strong>🔘 Estado:</strong>
+              <span class="<%= field.status == 'Ativo' ? 'text-green-600' : 'text-red-600' %>">
+                <%= field.status.presence || 'Desconhecido' %>
+              </span>
+            </div>
+          </div>
         </div>
       <% end %>
     </div>
