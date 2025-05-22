@@ -54,3 +54,5 @@ public/cenouras2/scene.bin
 mosquitto/data/
 
 mosquitto/log/
+
+/vendor/bundle

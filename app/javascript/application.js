@@ -13,8 +13,13 @@ import "@hotwired/turbo-rails";
 import "controllers";
 import { createIcons, icons } from "lucide";
 import Rails from "@rails/ujs";
+import { Application } from "@hotwired/stimulus"
+import IrrigationStatusController from "./controllers/irrigation_status_controller"
+
 Rails.start();
 
+window.Stimulus = Application.start()
+Stimulus.register("irrigation-status", IrrigationStatusController)
 
 document.addEventListener("DOMContentLoaded", function () {
     // Lógica para logout

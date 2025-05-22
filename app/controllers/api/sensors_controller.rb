@@ -83,6 +83,15 @@ module Api
       render json: { status: "simulated", updated_at: @sensor.last_reading }
     end
 
+    def update
+      @sensor = Sensor.find(params[:id])
+      if @sensor.update(sensor_params)
+        head :ok
+      else
+        render json: @sensor.errors, status: :unprocessable_entity
+      end
+    end
+
     def toggle_status
       if @sensor.status == "Active"
         @sensor.update(status: "Inactive")
@@ -101,6 +110,15 @@ module Api
         format.json { render json: { status: @sensor.status } }
       end
     end
+    
+    def status_info
+      sensor = Sensor.find(params[:id])
+      render json: {
+        status: sensor.status,
+        remaining_time: sensor.try(:remaining_time) || 0
+      }
+    end
+    
     
 
     private
@@ -122,4 +140,11 @@ module Api
       @sensor = Sensor.find(params[:sensor_id] || params[:id])
     end
   end
+
+  private
+
+def sensor_params
+  params.permit(:status)
+end
+
 end

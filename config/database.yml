@@ -1,20 +1,16 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: localhost # ← Rails está fora do Docker
-  port: 5433 # ← Porta do serviço DB no Docker
-  username: admin123
-  password: admin123
   pool: 5
+  url: <%= ENV['DATABASE_URL'] || "postgresql://admin123:admin123@localhost:5433/IOT_development" %>
 
 development:
   <<: *default
-  database: IOT_development
 
 test:
   <<: *default
-  database: IOT_test
+  url: <%= ENV['DATABASE_URL'] || "postgresql://admin123:admin123@localhost:5433/IOT_test" %>
 
 production:
   <<: *default
-  database: IOT_production
+  url: <%= ENV['DATABASE_URL'] || "postgresql://admin123:admin123@localhost:5433/IOT_production" %>

@@ -17,15 +17,17 @@ Rails.application.routes.draw do
     resources :crop_yields, only: [:create]
     resources :soil_readings, only: [:create]
     resources :financials, only: [:create]
+    resources :sensors, only: [:create, :destroy, :update]
 
     # 📡 Sensores (globais)
-    resources :sensors, only: [:create, :destroy] do
+    resources :sensors do
       post :simulate, on: :member
       post "readings", to: "sensor_readings#create", on: :member
       patch :toggle_status, on: :member
       patch :assign_field, on: :member
       get :readings, on: :member
       get :irrigation_history, on: :member
+      get :status_info, on: :member
       collection do
         post :lookup
       end
@@ -47,8 +49,14 @@ Rails.application.routes.draw do
 
     
 
+    
+
     resources :fields do
-      resources :irrigation_schedules, only: [:create, :destroy]
+      resources :irrigation_schedules, only: [:create, :destroy] do
+        collection do
+          get :today # ✅ NOVO: Ver agendamentos de hoje
+        end
+      end
     end
   end
 

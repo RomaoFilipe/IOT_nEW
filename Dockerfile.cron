@@ -1,0 +1,12 @@
+# Dockerfile.cron
+FROM ruby:3.2
+
+WORKDIR /app
+
+COPY . .
+
+RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs
+RUN gem install bundler
+RUN bundle install
+
+CMD ["bash", "-c", "while true; do echo '⏰ ['$(date '+%H:%M')'] Verificando agendamentos...'; bundle exec rake irrigation:run; sleep 60; done"]

@@ -79,6 +79,15 @@ class SensorsController < ApplicationController
     end
   end
 
+  def status_info
+    sensor = Sensor.find(params[:id])
+    render json: {
+      status: sensor.status,
+      remaining_time: sensor.try(:remaining_time) || 0
+    }
+  end
+  
+
   def irrigation_history
     @sensor = Sensor.find(params[:id])
     @irrigation_logs = @sensor.irrigation_logs.order(executed_at: :desc)

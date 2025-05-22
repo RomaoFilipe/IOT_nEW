@@ -3,6 +3,7 @@ import json
 import time
 import paho.mqtt.client as mqtt
 import requests
+from datetime import datetime
 
 # 🌐 Configurações
 MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
@@ -36,7 +37,7 @@ def on_message(client, userdata, msg):
             print("⚠️ Payload sem device_id")
             return
 
-        # 🔍 Identificar sensor (enviando sensor_type!)
+        # 🔍 Identificar sensor
         identify = requests.get(f"{API_URL}/identify", params={
             "device_id": device_id,
             "sensor_type": payload.get("sensor_type")
@@ -53,15 +54,27 @@ def on_message(client, userdata, msg):
             print("❌ Sensor não pôde ser identificado")
             return
 
-        # 💧 Se for sensor de irrigação, envia log para outro endpoint
+        # 💧 Sensor de irrigação
         if payload.get("sensor_type") == "irrigation":
+            # ✅ Atualizar status do sensor (irrigando/parado)
+            update_url = f"{API_URL}/{sensor_id}"
+            update_payload = { "status": payload.get("status") }
+
+            status_update = requests.patch(update_url, json=update_payload, headers=HEADERS, timeout=5)
+            if status_update.status_code == 200:
+                print(f"✅ Status do sensor atualizado para '{payload.get('status')}'")
+            else:
+                print(f"⚠️ Erro ao atualizar status: {status_update.status_code}")
+
+            # ✅ Enviar log de execução
             if "duration" in payload and "status" in payload:
                 log_url = "http://host.docker.internal:3000/api/irrigation_logs"
+                executed_time = datetime.utcfromtimestamp(payload.get("timestamp", time.time()))
                 irrigation_payload = {
                     "device_id": device_id,
                     "duration": payload["duration"],
                     "status": payload["status"],
-                    "timestamp": payload.get("timestamp", time.time())
+                    "executed_at": executed_time.isoformat()
                 }
                 response = requests.post(log_url, json=irrigation_payload, headers=HEADERS, timeout=5)
                 if response.status_code == 201:
@@ -72,7 +85,7 @@ def on_message(client, userdata, msg):
                 print(f"💧 Sensor de irrigação identificado: {sensor_id} (sem log de execução)")
             return
 
-        # ✅ Enviar leitura para sensores normais
+        # ✅ Sensor normal - leitura
         readings_url = f"{API_URL}/{sensor_id}/readings"
         response = requests.post(readings_url, json=payload, headers=HEADERS, timeout=5)
 

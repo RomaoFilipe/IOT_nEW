@@ -1,68 +1,121 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up | Agriculture Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>Create Account | AgriloT Synergy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="login-page">
-    <div class="login-box">
-        <h2>Sign up</h2>
+<body class="bg-gray-50">
 
-        <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { multipart: true }) do |f| %>
-          <%= render "devise/shared/error_messages", resource: resource %>
-
-          <!-- Campo para o nome -->
-          <div class="field">
-            <%= f.label :name, "Nome" %><br />
-            <%= f.text_field :name, placeholder: "Nome", class: "form-control" %>
-          </div>
-
-          <!-- Campo para o email -->
-          <div class="field">
-            <%= f.label :email, "Email" %><br />
-            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
-          </div>
-
-          <div class="form-group">
-  <%= f.label :role, 'Função' %>
-  <%= f.select :role, ['admin', 'manager', 'viewer'], {}, class: 'form-control' %>
-</div>
-
-          <!-- Campo para a senha -->
-          <div class="field">
-            <%= f.label :password, "Password" %>
-            <% if @minimum_password_length %>
-            <em>(<%= @minimum_password_length %> characters minimum)</em>
-            <% end %><br />
-            <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
-          </div>
-
-          <!-- Campo para confirmação da senha -->
-          <div class="field">
-            <%= f.label :password_confirmation, "Confirm Password" %><br />
-            <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
-          </div>
-
-          <!-- Campo para upload de foto -->
-          <div class="field">
-            <%= f.label :photo, "Upload Profile Picture" %><br />
-            <%= f.file_field :photo, class: "form-control" %>
-          </div>
-
-          <!-- Botão de submissão -->
-          <div class="actions">
-            <%= f.submit "Sign up", class: "btn btn-primary" %>
-          </div>
-        <% end %>
-
-        <div class="footer-links">
-            <p>Already have an account? <%= link_to "Log in", new_session_path(resource_name) %></p>
-        </div>
+  <div class="min-h-screen flex flex-col justify-center items-center px-4">
+    <!-- LOGO -->
+    <div class="text-center mb-6">
+      <%= image_tag "logo_agrilot.png", class: "h-20 mx-auto mb-2", alt: "AgriloT Synergy" %>
+      <h1 class="text-2xl font-bold text-gray-800">AgriloT Synergy</h1>
+      <p class="text-sm text-gray-500">Smart solutions for modern agriculture</p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FORM -->
+    <div class="bg-white w-full max-w-md p-8 rounded-lg shadow-md">
+      <h2 class="text-xl font-bold text-gray-800 text-center mb-1">Create an account</h2>
+      <p class="text-sm text-gray-500 text-center mb-6">Enter your information to create your account</p>
+
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { multipart: true }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+
+        <!-- Nome -->
+        <div class="mb-4 relative">
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"/></svg>
+          </div>
+          <%= f.text_field :name, placeholder: "Full Name", class: "pl-10 w-full border border-gray-300 rounded-md py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-4 relative">
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2.25 2.25 0 002.22 0L21 8M5.25 6h13.5A2.25 2.25 0 0121 8.25v7.5A2.25 2.25 0 0118.75 18H5.25A2.25 2.25 0 013 15.75v-7.5A2.25 2.25 0 015.25 6z"/></svg>
+          </div>
+          <%= f.email_field :email, placeholder: "name@example.com", class: "pl-10 w-full border border-gray-300 rounded-md py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4 relative">
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5v-3a4.5 4.5 0 10-9 0v3M4.5 10.5h15v9a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5v-9z"/></svg>
+          </div>
+          <%= f.password_field :password, id: "password", placeholder: "Password", class: "pl-10 pr-10 w-full border border-gray-300 rounded-md py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
+          <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <svg id="eye-password" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" /></svg>
+          </button>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-4 relative">
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5v-3a4.5 4.5 0 10-9 0v3M4.5 10.5h15v9a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5v-9z"/></svg>
+          </div>
+          <%= f.password_field :password_confirmation, id: "password_confirmation", placeholder: "Confirm Password", class: "pl-10 pr-10 w-full border border-gray-300 rounded-md py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
+          <button type="button" onclick="togglePassword('password_confirmation')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <svg id="eye-password_confirmation" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" /></svg>
+          </button>
+        </div>
+
+                <!-- Role -->
+        <div class="mb-4">
+          <%= f.label :role, 'Função', class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :role, ['admin', 'manager', 'viewer'], {}, class: "w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
+        </div>
+
+        <!-- Termos -->
+        <div class="flex items-start mb-6">
+          <input id="terms" name="terms" type="checkbox" class="h-4 w-4 text-green-600 border-gray-300 rounded">
+          <label for="terms" class="ml-2 text-sm text-gray-600">
+            I agree to the <a href="#" class="text-green-600 hover:underline">Terms of Service</a> and <a href="#" class="text-green-600 hover:underline">Privacy Policy</a>
+          </label>
+        </div>
+
+        <%= f.submit "Create account", class: "w-full py-2.5 px-4 text-white bg-green-600 hover:bg-green-700 rounded-md text-sm font-semibold transition" %>
+
+        <!-- Divider -->
+        <div class="flex items-center my-6">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-4 text-sm text-gray-500">OR CONTINUE WITH</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <!-- OAuth Buttons -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <button class="w-full py-2 px-4 border border-gray-300 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition">Google</button>
+          <button class="w-full py-2 px-4 border border-gray-300 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition">Microsoft</button>
+        </div>
+
+        <!-- Sign In Link -->
+        <p class="text-center text-sm text-gray-600">
+          Already have an account?
+          <%= link_to "Sign in", new_session_path(resource_name), class: "text-green-600 hover:underline font-medium" %>
+        </p>
+      <% end %>
+    </div>
+
+    <p class="mt-10 text-sm text-gray-400 text-center">
+      © <%= Time.current.year %> AgriloT Synergy. All rights reserved.
+    </p>
+  </div>
+
+  <script>
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      const icon = document.getElementById('eye-' + id);
+      const isHidden = input.type === 'password';
+
+      input.type = isHidden ? 'text' : 'password';
+      icon.innerHTML = isHidden
+        ? '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 01-6 0"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" />'
+        : '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" />';
+    }
+  </script>
+
 </body>
 </html>

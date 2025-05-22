@@ -1,5 +1,6 @@
 # app/models/sensor.rb
 class Sensor < ApplicationRecord
+
   self.inheritance_column = :type  # Para garantir que 'type' é usado para STI
 
   belongs_to :field, optional: true
@@ -8,9 +9,10 @@ class Sensor < ApplicationRecord
   has_many :irrigation_logs, dependent: :destroy
 
   validates :name, presence: true
-  validates :device_id, presence: true, uniqueness: true
+  validates :device_id, presence: true
+  validates :device_id, uniqueness: true, if: -> { new_record? || will_save_change_to_device_id? }
   validates :sensor_type, presence: true
-  validates :status, inclusion: { in: %w[Active Inactive] }, allow_nil: true
+  validates :status, inclusion: { in: %w[Active Inactive parado irrigando] }, allow_nil: true
 
   def active?
     status == "Active"

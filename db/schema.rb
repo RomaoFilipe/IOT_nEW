@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_20_053044) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_21_083148) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -76,6 +76,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_20_053044) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "device_id"
     t.index ["sensor_id"], name: "index_irrigation_logs_on_sensor_id"
   end
 
@@ -88,6 +89,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_20_053044) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "sensor_id", null: false
+    t.datetime "executed_at"
     t.index ["field_id"], name: "index_irrigation_schedules_on_field_id"
     t.index ["sensor_id"], name: "index_irrigation_schedules_on_sensor_id"
   end

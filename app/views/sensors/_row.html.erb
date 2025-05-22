@@ -44,7 +44,8 @@
         <h3 class="text-lg font-semibold mb-2">🕒 Agendar Irrigação</h3>
 
         <%= form_with model: IrrigationSchedule.new, url: field_irrigation_schedules_path(sensor.field), method: :post, local: true do |f| %>
-          <%= hidden_field_tag :sensor_id, sensor.id %>
+          <%= f.hidden_field :sensor_id, value: sensor.id %>
+
 
           <div class="mb-3">
             <label class="block text-sm font-medium mb-1">Dias da Semana</label>
@@ -110,6 +111,8 @@
 
       <!-- Simular -->
       <%= link_to "🛠️", simulate_sensor_path(sensor), method: :post, class: "text-green-600 hover:text-green-800", title: "Simular dados" %>
+
+<%= link_to "📋 Ver Agendamentos de Hoje", today_field_irrigation_schedules_path(sensor.field), class: "text-sm text-blue-700 underline hover:text-blue-900" %>
 
       <!-- Histórico de Leitura ou Irrigação -->
       <% if sensor.sensor_type == "irrigation" %>
