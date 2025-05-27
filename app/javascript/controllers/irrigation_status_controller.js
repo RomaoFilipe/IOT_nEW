@@ -1,45 +1,51 @@
+// app/javascript/controllers/irrigation_status_controller.js
 import { Controller } from "@hotwired/stimulus"
+import consumer from "../channels/consumer"
 
 export default class extends Controller {
   static values = {
-    sensorId: Number,
-    duration: Number // duração total prevista
+    sensorId: Number
   }
 
   static targets = ["label", "bar"]
 
   connect() {
-    this.refresh()
-    this.interval = setInterval(() => this.refresh(), 10000) // 10s
+    if (!this.sensorIdValue) return;
+
+    this.subscription = consumer.subscriptions.create(
+      { channel: "IrrigationStatusChannel", sensor_id: this.sensorIdValue },
+      {
+        received: (data) => this.updateStatus(data)
+      }
+    )
   }
 
   disconnect() {
-    clearInterval(this.interval)
+    if (this.subscription) {
+      consumer.subscriptions.remove(this.subscription)
+    }
   }
 
-  refresh() {
-    fetch(`/sensors/${this.sensorIdValue}/status_info`)
-      .then(response => response.json())
-      .then(data => {
-        const status = data.status
-        const remaining = data.remaining_time
-        const duration = this.durationValue
+  updateStatus(data) {
+    const { status, remaining_time, duration } = data
 
-        const percentage = status === "irrigando"
-          ? Math.round((remaining / duration) * 100)
-          : 0
+    if (!this.hasLabelTarget || !this.hasBarTarget) return
 
-        // Atualizar texto
-        this.labelTarget.textContent = status === "irrigando"
-          ? `Irrigando (${remaining}s restantes)`
-          : "Parado"
+    if (status === "irrigando") {
+      this.labelTarget.textContent = `Irrigando (${remaining_time}s restantes)`
+      this.labelTarget.classList.remove("text-gray-600")
+      this.labelTarget.classList.add("text-green-600")
+      this.barTarget.classList.remove("bg-gray-400")
+      this.barTarget.classList.add("bg-green-500")
+    } else {
+      this.labelTarget.textContent = "Parado"
+      this.labelTarget.classList.remove("text-green-600")
+      this.labelTarget.classList.add("text-gray-600")
+      this.barTarget.classList.remove("bg-green-500")
+      this.barTarget.classList.add("bg-gray-400")
+    }
 
-        // Atualizar barra
-        this.barTarget.style.width = `${percentage}%`
-        this.barTarget.className = `h-2 rounded-full transition-all duration-300 ${status === "irrigando" ? 'bg-green-500' : 'bg-gray-400'}`
-      })
-      .catch(error => {
-        console.error("Erro ao atualizar estado de irrigação:", error)
-      })
+    const percent = duration > 0 ? Math.max((remaining_time * 100) / duration, 0) : 0
+    this.barTarget.style.width = `${percent}%`
   }
 }

@@ -21,10 +21,18 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }, if: :password_required?
   validates :status, inclusion: { in: STATUSES }
+  validates :company_nif, presence: true, if: :requires_nif?
+  validates :company_nif, format: { with: /\A\d{9}\z/, message: "deve ter 9 dígitos numéricos" }, allow_blank: true
+
 
   # Notificações (novos atributos booleanos)
   attribute :notif_email, :boolean, default: true
   attribute :notif_sms, :boolean, default: false
+
+  def requires_nif?
+    role.in?(%w[admin manager])
+  end
+
 
   # Helpers
   def admin?

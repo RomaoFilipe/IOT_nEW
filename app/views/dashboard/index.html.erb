@@ -9,29 +9,37 @@
 </head>
 <body class="bg-gray-100">
 
-<div class="max-w-7xl mx-auto p-6 space-y-6">
-  <h1 class="text-2xl font-bold text-gray-900">Farm Operations Dashboard</h1>
-
+<div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-900">Farm Dashboard</h1>
+    <p class="text-sm text-green-600 font-semibold">✔ All systems operational</p>
+  </div>
   <!-- Secções em grid lado a lado -->
 
 
-
-  <!-- 🔄 Previsão Meteorológica -->
-  <%= render "dashboard/weather_forecast" %>
-
+<!-- 🔄 Previsão + Status dos Sensores LADO A LADO -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-  <div class="flex flex-col bg-white rounded-lg shadow-md p-6 min-h-[280px] h-full">
-    <%= render "dashboard/sensor_status" %>
+  <div class="bg-white p-6 rounded-xl shadow-md h-full">
+    <%= render "dashboard/weather_forecast" %>
   </div>
-  <div class="flex flex-col bg-white rounded-lg shadow-md p-6 min-h-[280px] h-full">
-    <%= render "dashboard/field_status" %>
+
+  <div class="bg-white p-6 rounded-xl shadow-md h-full">
+    <%= render "dashboard/sensor_status" %>
   </div>
 </div>
 
-  <!-- 📋 Tarefas Planeadas -->
-  <%= render "dashboard/recommendations" %>
+<!-- 🌾 Field Status + 📋 Upcoming Tasks lado a lado -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+  <div class="bg-white p-6 rounded-xl shadow-md h-full">
+    <%= render "dashboard/field_status" %>
+  </div>
 
-  <!-- ⚙️ Ações Rápidas -->
+  <div class="bg-white p-6 rounded-xl shadow-md h-full">
+    <%= render "dashboard/upcoming_tasks" %>
+  </div>
+</div>
+
+  <div><!-- ⚙️ Ações Rápidas -->
   <%= render "dashboard/quick_actions" %>
 </div>
 

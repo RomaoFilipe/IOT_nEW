@@ -18,12 +18,16 @@ Rails.application.routes.draw do
     resources :soil_readings, only: [:create]
     resources :financials, only: [:create]
     resources :sensors, only: [:create, :destroy, :update]
+    resources :planned_tasks, only: [:destroy]
+    resources :irrigation_schedules, only: [:destroy]
 
     # 📡 Sensores (globais)
     resources :sensors do
       post :simulate, on: :member
       post "readings", to: "sensor_readings#create", on: :member
+      post :stop_irrigation, on: :member
       patch :toggle_status, on: :member
+      post :start_irrigation, on: :member
       patch :assign_field, on: :member
       get :readings, on: :member
       get :irrigation_history, on: :member

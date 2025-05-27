@@ -1,13 +1,14 @@
-<div class="bg-white p-6 rounded-lg shadow-md col-span-full relative">
-  <div class="flex justify-between items-center mb-4">
-    <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
-      🌦️ Previsão Meteorológica
+<div class="bg-white p-6 rounded-xl shadow-md space-y-6 text-gray-800">
+  <!-- Cabeçalho -->
+  <div class="flex items-center justify-between">
+    <h3 class="text-lg font-semibold flex items-center gap-2">
+      🌤 Weather Conditions
     </h3>
-
-    <!-- Select bonito e à direita -->
-    <div class="flex items-center gap-2">
-      <label for="fieldSelect" class="text-sm font-medium text-gray-700">Campo:</label>
-      <select id="fieldSelect" name="field_id" class="text-sm rounded-md border-gray-300 shadow-sm px-3 py-1 focus:ring-green-600 focus:border-green-600">
+    <!-- Campo -->
+    <div class="flex items-center gap-2 text-sm">
+      <label for="fieldSelect" class="font-medium text-gray-600">Field:</label>
+      <select id="fieldSelect" name="field_id"
+              class="rounded-md border-gray-300 shadow-sm px-3 py-1 focus:ring-blue-500 focus:border-blue-500">
         <% @fields.each do |field| %>
           <option 
             value="<%= field.id %>" 
@@ -21,23 +22,54 @@
     </div>
   </div>
 
-  <!-- Condições Atuais -->
+  <!-- Temperatura Atual -->
   <div class="flex items-center justify-between flex-wrap gap-4">
     <div>
-      <p class="text-3xl font-bold text-green-700" id="current-temp">--°C</p>
-      <p class="text-gray-500 text-sm" id="current-description">A carregar...</p>
+      <p id="current-temp" class="text-4xl font-bold text-blue-700">--°C</p>
+      <p id="current-description" class="text-sm text-gray-500">Loading...</p>
     </div>
     <div class="text-sm text-gray-600 space-y-1">
-      <p><strong>Vento:</strong> <span id="wind-info">--</span></p>
-      <p><strong>Precipitação:</strong> <span id="precip-info">-- mm</span></p>
+      <p><span class="font-semibold">💨 Wind:</span> <span id="wind-info">--</span></p>
+      <p><span class="font-semibold">🌧️ Precipitation:</span> <span id="precip-info">-- mm</span></p>
     </div>
   </div>
 
-  <!-- Previsão Horária -->
-  <h4 class="mt-6 text-md font-semibold text-gray-700">Próximas 24 Horas</h4>
-  <div id="hourly-forecast" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-4 mt-2 text-center text-sm text-gray-700"></div>
-
   <!-- Previsão Diária -->
-  <h4 class="mt-6 text-md font-semibold text-gray-700">Próximos Dias</h4>
-  <div id="daily-forecast" class="flex gap-4 overflow-x-auto mt-2 text-sm text-gray-700"></div>
+  <div>
+    <h4 class="text-sm font-semibold text-gray-700 mb-2">Next Days</h4>
+    <div id="daily-forecast" class="flex gap-2 overflow-x-auto pb-2 scroll-smooth">
+      <!-- JS insere aqui -->
+      <!-- Ex: cada dia com bg-white rounded-md text-center w-24 -->
+    </div>
+  </div>
+
+  <hr class="border-gray-200">
+
+  <!-- Previsão Horária -->
+  <div>
+    <h4 class="text-sm font-semibold text-gray-700 mb-2">Next 24 Hours</h4>
+<div id="hourly-forecast"
+     class="flex gap-2 overflow-x-auto pb-1 text-center text-sm scroll-smooth">
 </div>
+  </div>
+</div>
+
+<script>
+const container = document.getElementById("hourly-forecast");
+container.innerHTML = "";
+for (let i = 0; i < 24; i++) {
+  const hourLabel = new Date(data.hourly.time[i]).toLocaleTimeString("pt-PT", { hour: '2-digit', minute: '2-digit' });
+  const icon = weatherIcon(data.hourly.weathercode[i]);
+  const temp = Math.round(data.hourly.temperature_2m[i]);
+
+  container.innerHTML += `
+    <div class="min-w-[60px] bg-blue-50 rounded-md p-2 shadow-sm flex flex-col items-center space-y-1">
+      <p class="font-semibold text-xs">${hourLabel}</p>
+      <p class="text-xl">${icon}</p>
+      <p class="text-sm text-gray-800">${temp}°C</p>
+    </div>
+  `;
+}
+
+
+</script>

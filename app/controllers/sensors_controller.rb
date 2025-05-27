@@ -1,6 +1,9 @@
 class SensorsController < ApplicationController
+  require 'mqtt'
   before_action :set_field, only: [:create]
-  before_action :set_sensor
+  before_action :set_sensor, except: [:lookup, :create]
+  before_action :set_sensor, only: [:start_irrigation]
+
 
   def create
     @sensor = @field.sensors.build(sensor_params.merge(
@@ -32,12 +35,11 @@ class SensorsController < ApplicationController
 
     sensor = Sensor.find_or_initialize_by(device_id: device_id)
 
-    # Atualiza tipo e nome se estiverem incluídos no payload
     sensor.sensor_type = params[:sensor_type] if params[:sensor_type].present?
     sensor.name = "Sensor #{device_id[-4..]}" if sensor.name.blank?
     sensor.status ||= "Active"
     sensor.save!
-    
+
     render json: {
       id: sensor.id,
       name: sensor.name,
@@ -60,13 +62,6 @@ class SensorsController < ApplicationController
   end
 
   def readings
-    @sensor = Sensor.find_by(id: params[:id])
-
-    if @sensor.nil?
-      redirect_to sensors_path, alert: "Sensor não encontrado."
-      return
-    end
-
     @readings = @sensor.sensor_readings.order(read_at: :desc).limit(100)
   end
 
@@ -80,21 +75,85 @@ class SensorsController < ApplicationController
   end
 
   def status_info
-    sensor = Sensor.find(params[:id])
     render json: {
-      status: sensor.status,
-      remaining_time: sensor.try(:remaining_time) || 0
+      status: @sensor.status,
+      remaining_time: @sensor.try(:remaining_time) || 0
     }
   end
-  
 
   def irrigation_history
-    @sensor = Sensor.find(params[:id])
     @irrigation_logs = @sensor.irrigation_logs.order(executed_at: :desc)
-  
     Rails.logger.debug "Irrigation logs count: #{@irrigation_logs.count}"
     Rails.logger.debug @irrigation_logs.inspect
   end
+
+  def stop_irrigation
+    ActiveRecord::Base.transaction do
+      @sensor.update!(status: "parado", last_reading: Time.current)
+  
+      @sensor.sensor_readings.create!(
+        status: "parado",
+        read_at: Time.current,
+        remaining_time: 0,
+        last_duration: @sensor.last_duration
+      )
+  
+      # 👇 Envia estado atualizado por WebSocket
+      ActionCable.server.broadcast("irrigation_status_#{@sensor.id}", {
+        status: "parado",
+        remaining_time: 0,
+        duration: @sensor.last_duration
+      })
+    end
+  
+    head :ok
+  end
+
+  def start_irrigation
+    duration = params[:duration].to_i
+    duration = 120 if duration <= 0
+  
+    # Verifica se @sensor está corretamente definido
+    unless @sensor
+      redirect_back fallback_location: dashboard_path, alert: "Sensor não encontrado."
+      return
+    end
+  
+    ActiveRecord::Base.transaction do
+      @sensor.update!(status: "irrigando", last_reading: Time.current)
+  
+      @sensor.irrigation_logs.create!(
+        sensor_id: @sensor.id,
+        executed_at: Time.current,
+        duration: duration,
+        device_id: @sensor.device_id,
+        status: "executado"
+      )
+  
+      mqtt_payload = {
+        action: "start",
+        duration: duration,
+        origin: "manual"
+      }
+  
+      mqtt_topic = "sensors/irrigation/\#{@sensor.device_id}/command"
+      MqttService.publish_command(@sensor.device_id, mqtt_payload)
+  
+      ActionCable.server.broadcast("irrigation_status_\#{@sensor.id}", {
+        status: @sensor.status,
+        remaining_time: @sensor.remaining_time,
+        duration: @sensor.last_duration
+      })
+    end
+  
+    redirect_to dashboard_path, notice: "Irrigação iniciada manualmente."
+  end
+  
+  
+  
+  
+  
+  
   
   
 
@@ -104,7 +163,7 @@ class SensorsController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
-          dom_id(@sensor, :row), # 👈 IMPORTANTE: usa `:row` para bater com `dom_id(sensor, :row)` no HTML
+          dom_id(@sensor, :row),
           partial: "sensors/row",
           locals: { sensor: @sensor }
         )
@@ -117,6 +176,15 @@ class SensorsController < ApplicationController
     @sensor.update(field_id: params[:field_id])
     redirect_back fallback_location: fields_path, notice: "Sensor atribuído com sucesso."
   end
+
+  def broadcast_irrigation_status(sensor)
+    ActionCable.server.broadcast("irrigation_status_#{sensor.id}", {
+      status: sensor.status,
+      remaining_time: sensor.remaining_time,
+      duration: sensor.last_duration
+    })
+  end
+  
 
   private
 

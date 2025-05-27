@@ -39,7 +39,7 @@ class IrrigationSchedulesController < ApplicationController
   def destroy
     @schedule = IrrigationSchedule.find(params[:id])
     @schedule.destroy
-    redirect_back fallback_location: fields_path, notice: "Agendamento removido."
+    redirect_to dashboard_path, notice: "Agendamento de irrigação removido com sucesso."
   end
 
   private

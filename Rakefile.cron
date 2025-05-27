@@ -1,0 +1,7 @@
+# Rakefile.cron
+require "dotenv/load"
+require_relative "config/environment"
+
+task :default do
+  Rake::Task["irrigation:run"].invoke
+end

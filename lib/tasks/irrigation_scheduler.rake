@@ -1,19 +1,33 @@
-# lib/tasks/irrigation_scheduler.rake
-require_relative '../mqtt_publisher'  # ← ajusta o caminho se estiver noutro local
+# Rakefile
+require_relative './app/lib/mqtt_publisher'  # 👈 fixado aqui
+require 'active_support/all'
+require 'dotenv/load'
+require 'pg'
+require 'active_record'
+
+ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+
+class IrrigationSchedule < ActiveRecord::Base
+  belongs_to :sensor
+end
+
+class Sensor < ActiveRecord::Base
+end
 
 namespace :irrigation do
   desc "Verifica agendamentos e envia comandos MQTT"
-  task run: :environment do
-    now = Time.zone.now
+  task run do
+    now = Time.now
+
     start_window = now.change(sec: 0)
     end_window = now + 2.minutes
 
-    puts "⏰ [#{now.strftime('%H:%M')}] A verificar agendamentos entre #{start_window.strftime('%H:%M')} e #{end_window.strftime('%H:%M')}..."
+    puts "⏰ [#{now.strftime('%H:%M')}] Verificando agendamentos entre #{start_window.strftime('%H:%M')} e #{end_window.strftime('%H:%M')}..."
 
     schedules = IrrigationSchedule
-                  .where(day_of_week: now.wday)
-                  .where(hour: start_window.hour, minute: start_window.min..end_window.min)
-                  .where("executed_at IS NULL OR DATE(executed_at) < ?", now.to_date)
+      .where(day_of_week: now.wday)
+      .where(hour: start_window.hour, minute: start_window.min..end_window.min)
+      .where("executed_at IS NULL OR DATE(executed_at) < ?", now.to_date)
 
     if schedules.empty?
       puts "✅ Nenhum agendamento neste intervalo."
@@ -27,12 +41,8 @@ namespace :irrigation do
 
         puts "📤 Enviando comando MQTT para #{sensor.device_id} (#{s.duration}s)"
         MqttPublisher.publish(topic, payload)
-
-        # 🕒 Marcar como executado
         s.update(executed_at: now)
       end
     end
   end
 end
-
-

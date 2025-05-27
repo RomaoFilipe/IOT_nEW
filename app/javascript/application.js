@@ -135,3 +135,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 import "controllers"
+import "./channels"

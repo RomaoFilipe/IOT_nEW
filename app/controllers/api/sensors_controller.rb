@@ -137,9 +137,50 @@ module Api
     end
 
     def set_sensor
-      @sensor = Sensor.find(params[:sensor_id] || params[:id])
+      @sensor = Sensor.find_by(id: params[:id])
+      unless @sensor
+        render json: { error: "Sensor não encontrado" }, status: :not_found
+      end
     end
   end
+
+  def start_irrigation
+    duration = params[:duration].to_i
+    duration = 120 if duration <= 0
+  
+    # ✅ Atualiza o estado local
+    @sensor.update!(status: "irrigando", last_reading: Time.current)
+  
+    # ✅ Cria log
+    @sensor.irrigation_logs.create!(
+      executed_at: Time.current,
+      duration: duration,
+      device_id: @sensor.device_id,
+      status: "executado"
+    )
+    
+  
+    # ✅ ENVIA COMANDO MQTT com `origin: "manual"`
+    mqtt_payload = {
+      action: "start",
+      duration: duration,
+      origin: "manual"
+    }
+  
+    mqtt_topic = "sensors/irrigation/#{@sensor.device_id}/command"
+  
+    MqttPublisher.publish(topic: mqtt_topic, payload: mqtt_payload)
+  
+    # WebSocket para atualização em tempo real
+    ActionCable.server.broadcast("irrigation_status_#{@sensor.id}", {
+      status: @sensor.status,
+      remaining_time: @sensor.remaining_time,
+      duration: @sensor.last_duration
+    })
+  
+    redirect_to dashboard_path, notice: "Irrigação iniciada manualmente."
+  end
+  
 
   private
 

@@ -7,6 +7,7 @@ class Sensor < ApplicationRecord
   has_many :sensor_readings, dependent: :destroy
   has_many :irrigation_schedules, dependent: :destroy
   has_many :irrigation_logs, dependent: :destroy
+  
 
   validates :name, presence: true
   validates :device_id, presence: true
@@ -23,42 +24,16 @@ class Sensor < ApplicationRecord
     self.last_reading = timestamp
     save!
   end
-end
 
-# app/models/temperature_sensor.rb
-class TemperatureSensor < Sensor
-  # Campos específicos para sensores de temperatura/humidade:
-  # - temperature (float)
-  # - moisture (float)
+  # ✅ Tempo restante de irrigação
+  def remaining_time
+    return 0 unless status == "irrigando" && last_reading && last_duration
 
-  validates :temperature, numericality: { greater_than_or_equal_to: -50, less_than_or_equal_to: 100 }, allow_nil: true
-  validates :moisture, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
-
-  def update_measurements(temperature:, moisture:, timestamp: Time.current)
-    self.temperature = temperature
-    self.moisture = moisture
-    self.last_reading = timestamp
-    save!
+    elapsed = Time.current - last_reading
+    [last_duration - elapsed.to_i, 0].max
   end
-
-  def status_summary
-    {
-      temperature: temperature,
-      moisture: moisture,
-      last_reading: last_reading,
-      battery: battery,
-      signal: signal,
-      active: active?
-    }
-  end
-end
-
-# app/models/irrigation_sensor.rb
-class IrrigationSensor < Sensor
-  has_many :irrigation_logs, dependent: :destroy
-  has_many :irrigation_schedules, dependent: :destroy
-
-  def irrigation_sensor?
-    true
-  end
+    # ✅ Duração total da última irrigação
+    def last_duration
+      self[:last_duration] || 60
+    end
 end

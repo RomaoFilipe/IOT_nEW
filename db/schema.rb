@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_21_083148) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_25_185137) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -90,8 +90,21 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_21_083148) do
     t.datetime "updated_at", null: false
     t.bigint "sensor_id", null: false
     t.datetime "executed_at"
+    t.integer "scheduled_day"
     t.index ["field_id"], name: "index_irrigation_schedules_on_field_id"
     t.index ["sensor_id"], name: "index_irrigation_schedules_on_sensor_id"
+  end
+
+  create_table "planned_tasks", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.datetime "scheduled_for"
+    t.boolean "completed"
+    t.bigint "field_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "priority"
+    t.index ["field_id"], name: "index_planned_tasks_on_field_id"
   end
 
   create_table "sensor_readings", force: :cascade do |t|
@@ -103,6 +116,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_21_083148) do
     t.datetime "read_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status"
+    t.integer "remaining_time"
+    t.integer "last_duration"
     t.index ["sensor_id"], name: "index_sensor_readings_on_sensor_id"
   end
 
@@ -159,6 +175,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_21_083148) do
     t.datetime "last_sign_in_at"
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
+    t.string "company_nif"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -168,6 +185,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_21_083148) do
   add_foreign_key "irrigation_logs", "sensors"
   add_foreign_key "irrigation_schedules", "fields"
   add_foreign_key "irrigation_schedules", "sensors"
+  add_foreign_key "planned_tasks", "fields"
   add_foreign_key "sensor_readings", "sensors"
   add_foreign_key "sensors", "fields"
   add_foreign_key "soil_readings", "fields"
