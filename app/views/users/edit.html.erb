@@ -1,39 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Usuário</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editar Utilizador</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-light">
-<div class="container my-5">
-    <h1 class="h4 mb-4">Editar Usuário</h1>
-    <%= form_with(model: @user, local: true) do |f| %>
-      <div class="form-group mb-3">
-        <%= f.label :name, 'Nome' %>
-        <%= f.text_field :name, class: 'form-control', required: true %>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-2xl bg-white shadow-lg rounded-xl p-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.304.534 6.121 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+      Editar Utilizador
+    </h1>
+
+    <%= form_with(model: @user, local: true, html: { multipart: true }) do |f| %>
+      <!-- Dados Pessoais -->
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <%= f.label :name, 'Nome', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.text_field :name, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200', required: true %>
+        </div>
+
+        <div>
+          <%= f.label :email, 'Email', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.email_field :email, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200', required: true %>
+        </div>
+
+        <div>
+          <%= f.label :role, 'Função', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.select :role, User.roles.keys.map { |role| [role.humanize, role] }, {}, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+        </div>
+
+        <div>
+          <%= f.label :status, 'Status', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.select :status, [['Ativo', 'active'], ['Inativo', 'inactive']], {}, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+        </div>
       </div>
 
-      <div class="form-group mb-3">
-        <%= f.label :email, 'Email' %>
-        <%= f.email_field :email, class: 'form-control', required: true %>
+      <!-- Password -->
+      <div class="mt-8">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Atualizar Palavra-passe</h2>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <%= f.label :password, 'Nova Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+            <%= f.password_field :password, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+            <p class="text-xs text-gray-500 italic">Deixa em branco para manter a atual.</p>
+          </div>
+          <div>
+            <%= f.label :password_confirmation, 'Confirmar Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+            <%= f.password_field :password_confirmation, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+          </div>
+        </div>
       </div>
 
-      <div class="form-group mb-3">
-        <%= f.label :role, 'Função' %>
-        <%= f.select :role, User.roles.keys.map { |role| [role.humanize, role] }, {}, class: 'form-control' %>
+      <!-- Foto de Perfil -->
+      <div class="mt-8">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Foto de Perfil</h2>
+        <div class="flex items-center space-x-4">
+          <% if @user.photo.present? %>
+            <%= image_tag @user.photo.url, class: 'w-16 h-16 rounded-full object-cover border' %>
+          <% end %>
+          <%= f.file_field :photo, class: 'w-full text-sm text-gray-600 border border-gray-300 rounded-md cursor-pointer bg-white p-2' %>
+        </div>
       </div>
 
-      <div class="form-group mb-3">
-        <%= f.label :status, 'Status' %>
-        <%= f.select :status, [['Ativo', 'active'], ['Inativo', 'inactive']], {}, class: 'form-control' %>
+      <!-- Ações -->
+      <div class="flex justify-between items-center mt-8">
+        <%= f.submit 'Salvar Alterações', class: 'bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition' %>
+        <%= link_to 'Voltar', users_path, class: 'text-gray-600 hover:underline' %>
       </div>
-
-      <%= f.submit 'Salvar Alterações', class: 'btn btn-primary' %>
-      <%= link_to 'Voltar', users_path, class: 'btn btn-secondary' %>
     <% end %>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </div>
 </body>
 </html>

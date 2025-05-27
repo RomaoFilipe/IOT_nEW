@@ -1,0 +1,33 @@
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="font-semibold mb-2">Distribuição de Culturas</h2>
+  <div class="relative h-64">
+    <canvas id="<%= chart_id %>" data-chart="true" class="h-64"></canvas>
+  </div>
+</div>
+
+<script>
+  function renderChart_<%= chart_id %>() {
+    const ctx = document.getElementById("<%= chart_id %>").getContext("2d");
+
+    if (window["chart_<%= chart_id %>"]) window["chart_<%= chart_id %>"].destroy();
+
+    const data = <%= raw @crop_distribution.to_json %>;
+    const labels = Object.keys(data);
+    const values = Object.values(data);
+
+    window["chart_<%= chart_id %>"] = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: labels.map(() => "#" + Math.floor(Math.random()*16777215).toString(16))
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  }
+</script>

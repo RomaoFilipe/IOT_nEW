@@ -1,0 +1,75 @@
+<!-- fields/tabs/_overview.html.erb -->
+<%= turbo_frame_tag "overview-#{field.id}" do %>
+<div class="grid grid-cols-2 gap-6">
+  <!-- Mapa -->
+  <div class="bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
+      <path d="M15 5.764v15"/>
+      <path d="M9 3.236v15"/>
+    </svg>
+  </div>
+
+  <!-- Planting Information -->
+  <div>
+    <h3 class="font-semibold mb-2">Planting Information</h3>
+    <p><strong>Planting Date:</strong> 2023-03-15</p>
+    <p><strong>Harvest Date:</strong> 2023-09-25</p>
+    <p><strong>Expected Yield:</strong> <span class="font-bold">8.2 tons/ha</span></p>
+
+    <h3 class="font-semibold mt-4">Maintenance</h3>
+    <p><strong>Pest Control:</strong> Minimal intervention needed</p>
+    <p><strong>Irrigation:</strong> Every 3 days, 2 hours</p>
+    <p><strong>Fertilization:</strong> Applied on 2023-05-10</p>
+
+    <h3 class="font-semibold mt-4">Notes</h3>
+    <p class="text-sm text-gray-600">Plants are developing well, ahead of schedule. Last inspection showed no signs of pests or diseases.</p>
+  </div>
+</div>
+
+<!-- Basic Information -->
+<div class="mt-6">
+  <h3 class="font-semibold mb-2">Basic Information</h3>
+  <p><strong>Crop:</strong> <%= field.field_type %></p>
+  <p><strong>Area:</strong> <%= field.area %> ha</p>
+  <p><strong>Soil Quality:</strong> <span class="text-green-600 font-semibold">Excellent</span></p>
+  <p><strong>Active Sensors:</strong> <%= field.sensors.count %></p>
+  <p><strong>Last Updated:</strong> 10 minutes ago</p>
+</div>
+
+
+<!-- Current Conditions -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+  <!-- Moisture -->
+  <div class="bg-gray-100 p-4 rounded-lg text-center">
+    <span class="block text-blue-500 text-2xl">💧</span>
+    <p class="text-gray-600">Moisture</p>
+    <p class="font-bold text-lg">
+      <%= field.sensors.average(:moisture)&.round(1) || "-" %>%
+    </p>
+  </div>
+
+  <!-- Temperature -->
+  <div class="bg-gray-100 p-4 rounded-lg text-center">
+    <span class="block text-orange-500 text-2xl">🌡</span>
+    <p class="text-gray-600">Temperature</p>
+    <p class="font-bold text-lg">
+      <%= field.sensors.average(:temperature)&.round(1) || "-" %>°C
+    </p>
+  </div>
+
+  <!-- Crop Health (estático por agora) -->
+  <div class="bg-gray-100 p-4 rounded-lg text-center">
+    <span class="block text-green-500 text-2xl">🌱</span>
+    <p class="text-gray-600">Crop Health</p>
+    <p class="font-bold text-lg">Good</p>
+  </div>
+
+  <!-- Irrigation (estático por agora) -->
+  <div class="bg-gray-100 p-4 rounded-lg text-center">
+    <span class="block text-blue-500 text-2xl">💦</span>
+    <p class="text-gray-600">Irrigation</p>
+    <p class="font-bold text-lg">Active</p>
+  </div>
+</div>
+<% end %>

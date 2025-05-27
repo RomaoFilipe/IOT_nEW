@@ -1,0 +1,17 @@
+=> 
+[32m#<Sensor:0x00007fbb56176d08[0m
+ id: [34m[1m4[0m,
+ name: [31m[1m"[0m[31mtest[0m[31m[1m"[0m,
+ sensor_type: [31m[1m"[0m[31mTemperatura[0m[31m[1m"[0m,
+ status: [31m[1m"[0m[31mActive[0m[31m[1m"[0m,
+ battery: [34m[1m65[0m,
+ signal: [34m[1m61[0m,
+ last_value: [36m[1mnil[0m,
+ last_reading: [31m[1m"[0m[31m2025-05-06 13:07:47.685168000 +0000[0m[31m[1m"[0m,
+ active: [36m[1mnil[0m,
+ icon: [36m[1mnil[0m,
+ field_id: [34m[1m1[0m,
+ created_at: [31m[1m"[0m[31m2025-05-06 13:07:47.711357000 +0000[0m[31m[1m"[0m,
+ updated_at: [31m[1m"[0m[31m2025-05-06 13:09:58.245432000 +0000[0m[31m[1m"[0m,
+ temperature: [36m[1mnil[0m,
+ moisture: [36m[1mnil[0m[32m>[0m

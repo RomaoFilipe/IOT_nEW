@@ -1,0 +1,56 @@
+<div class="bg-white p-4 rounded shadow">
+  <div class="flex justify-between items-center mb-2">
+    <h2 class="font-semibold">🌡️ Temperatura Média do Solo</h2>
+    <div class="text-sm space-x-2">
+      <button onclick="toggleTemperatureChart('daily')" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">Diária</button>
+      <button onclick="toggleTemperatureChart('monthly')" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">Mensal</button>
+    </div>
+  </div>
+  <canvas id="temperatureChart" class="h-64" data-chart="true"></canvas>
+</div>
+
+<script>
+  const temperatureData = {
+    daily: {
+      labels: <%= raw @daily_temperature.keys.map(&:to_s).to_json %>,
+      data: <%= raw @daily_temperature.values.map(&:round).to_json %>
+    },
+    monthly: {
+      labels: <%= raw @monthly_temperature.keys.to_json %>,
+      data: <%= raw @monthly_temperature.values.map(&:round).to_json %>
+    }
+  };
+
+  function renderTemperatureChart(type = 'daily') {
+    const ctx = document.getElementById('temperatureChart').getContext('2d');
+    if (window.temperatureChart) window.temperatureChart.destroy();
+
+    window.temperatureChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: temperatureData[type].labels,
+        datasets: [{
+          label: 'Temperatura (°C)',
+          data: temperatureData[type].data,
+          borderColor: 'rgb(234, 88, 12)',
+          backgroundColor: 'rgba(234, 88, 12, 0.2)',
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' }
+        }
+      }
+    });
+  }
+
+  function toggleTemperatureChart(type) {
+    renderTemperatureChart(type);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    renderTemperatureChart("daily");
+  });
+</script>

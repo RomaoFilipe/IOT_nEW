@@ -6,18 +6,19 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
-  <!-- Stylesheets and JavaScript imports -->
+
  
-<%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
-<%= javascript_include_tag 'application', type: 'module', "data-turbo-track": "reload" %>
+<%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+<%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
+
 <%= javascript_importmap_tags %>
+<%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css", media: "all" %>
 </head>
 
 <body>
   <% unless devise_controller? %>
     <!-- Navbar and Sidebar are displayed only if not a Devise controller -->
     <%= render 'shared/navbar' %>
-    <%= render 'shared/sidebar' %>
   <% end %>
 
   <!-- Main Content Area with Turbo Frame for dynamic content loading -->

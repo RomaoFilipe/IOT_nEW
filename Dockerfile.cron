@@ -1,0 +1,17 @@
+FROM ruby:3.2
+
+WORKDIR /app
+
+# Copiar apenas o cron_worker
+COPY cron_worker/Gemfile Gemfile
+COPY cron_worker/Gemfile.lock Gemfile.lock
+COPY cron_worker/Rakefile Rakefile
+COPY cron_worker/models.rb models.rb
+COPY cron_worker/.env .env
+COPY cron_worker/lib lib
+
+RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs
+RUN gem install bundler
+RUN bundle install
+
+CMD ["bash", "-c", "while true; do echo '⏰ ['$(date '+%H:%M')'] Verificando agendamentos...'; bundle exec rake irrigation:run; sleep 60; done"]

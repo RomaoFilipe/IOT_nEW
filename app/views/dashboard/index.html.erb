@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farm Operations Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-100">
+
+<div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-900">Farm Dashboard</h1>
+    <p class="text-sm text-green-600 font-semibold">✔ All systems operational</p>
+  </div>
+  <!-- Secções em grid lado a lado -->
+
+
+<!-- 🔄 Previsão + Status dos Sensores LADO A LADO -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="bg-white p-6 rounded-xl shadow-md h-full">
+    <%= render "dashboard/weather_forecast" %>
+  </div>
+
+  <div class="bg-white p-6 rounded-xl shadow-md h-full">
+    <%= render "dashboard/sensor_status" %>
+  </div>
+</div>
+
+<!-- 🌾 Field Status + 📋 Upcoming Tasks lado a lado -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+  <div class="bg-white p-6 rounded-xl shadow-md h-full">
+    <%= render "dashboard/field_status" %>
+  </div>
+
+  <div class="bg-white p-6 rounded-xl shadow-md h-full">
+    <%= render "dashboard/upcoming_tasks" %>
+  </div>
+</div>
+
+  <div><!-- ⚙️ Ações Rápidas -->
+  <%= render "dashboard/quick_actions" %>
+</div>
+
+<script>
+  async function fetchWeatherForField(lat, lon) {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,weathercode,precipitation,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const current = data.current_weather;
+      document.getElementById("current-temp").textContent = `${Math.round(current.temperature)}°C`;
+      document.getElementById("current-description").textContent = "Céu: " + weatherText(current.weathercode);
+      document.getElementById("wind-info").textContent = `${current.winddirection}° a ${current.windspeed} km/h`;
+
+      const today = new Date().toISOString().slice(0, 10);
+      const todayIndexes = data.hourly.time.map((t, i) => t.startsWith(today) ? i : -1).filter(i => i >= 0);
+      const todayPrecip = todayIndexes.map(i => data.hourly.precipitation[i] || 0).reduce((a, b) => a + b, 0);
+      document.getElementById("precip-info").textContent = `${todayPrecip.toFixed(1)} mm`;
+
+      const container = document.getElementById("hourly-forecast");
+      container.innerHTML = "";
+      for (let i = 0; i < 24; i++) {
+        const hourLabel = new Date(data.hourly.time[i]).toLocaleTimeString("pt-PT", { hour: '2-digit', minute: '2-digit' });
+        container.innerHTML += `
+          <div class="bg-blue-50 rounded p-2 shadow-sm">
+            <p class="font-semibold">${hourLabel}</p>
+            <p class="text-xl">${weatherIcon(data.hourly.weathercode[i])}</p>
+            <p class="text-gray-700">${Math.round(data.hourly.temperature_2m[i])}°C</p>
+          </div>
+        `;
+      }
+
+      const dailyContainer = document.getElementById("daily-forecast");
+      dailyContainer.innerHTML = "";
+      for (let i = 0; i < data.daily.time.length; i++) {
+        const dia = new Date(data.daily.time[i]).toLocaleDateString('pt-PT', { weekday: 'short' });
+        const max = Math.round(data.daily.temperature_2m_max[i]);
+        const min = Math.round(data.daily.temperature_2m_min[i]);
+        const icon = weatherIcon(data.daily.weathercode[i]);
+        dailyContainer.innerHTML += `
+          <div class="bg-white rounded p-2 shadow text-center w-24">
+            <p class="font-bold">${dia}</p>
+            <p class="text-2xl">${icon}</p>
+            <p class="text-sm text-gray-700">${max}° / ${min}°</p>
+          </div>
+        `;
+      }
+
+    } catch (err) {
+      console.error("Erro ao obter meteo:", err);
+    }
+  }
+
+  function weatherIcon(code) {
+    const map = {
+      0: "☀️", 1: "🌤", 2: "⛅", 3: "☁️", 45: "🌫", 48: "🌫",
+      51: "🌦", 53: "🌦", 55: "🌧", 61: "🌧", 63: "🌧", 65: "🌧",
+      66: "❄️", 67: "❄️", 71: "❄️", 73: "❄️", 75: "❄️",
+      95: "⛈", 96: "⛈", 99: "⛈"
+    };
+    return map[code] || "❓";
+  }
+
+  function weatherText(code) {
+    const map = {
+      0: "Céu limpo", 1: "Poucas nuvens", 2: "Nuvens dispersas", 3: "Céu nublado",
+      45: "Nevoeiro", 48: "Nevoeiro com geada", 51: "Chuviscos", 53: "Chuviscos",
+      55: "Chuviscos", 61: "Chuva fraca", 63: "Chuva", 65: "Chuva forte",
+      66: "Chuva gelada", 67: "Chuva gelada forte", 71: "Neve leve", 73: "Neve",
+      75: "Neve intensa", 95: "Trovoada", 96: "Trovoada com granizo", 99: "Tempestade severa"
+    };
+    return map[code] || "Desconhecido";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const select = document.getElementById("fieldSelect");
+    const option = select?.selectedOptions?.[0];
+    if (option) {
+      fetchWeatherForField(option.dataset.lat, option.dataset.lon);
+
+      select.addEventListener("change", () => {
+        const selected = select.selectedOptions[0];
+        fetchWeatherForField(selected.dataset.lat, selected.dataset.lon);
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

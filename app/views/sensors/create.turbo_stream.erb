@@ -1,0 +1,11 @@
+<%= turbo_stream.append "sensorsList" do %>
+  <%= render partial: "sensors/sensor", locals: { sensor: @sensor } %>
+<% end %>
+
+
+
+<turbo-stream action="replace" target="addSensorForm">
+  <template>
+    <div id="addSensorForm" class="hidden mt-6"></div>
+  </template>
+</turbo-stream>

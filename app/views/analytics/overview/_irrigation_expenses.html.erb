@@ -1,0 +1,35 @@
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="font-semibold mb-2">Gasto com Irrigação por Mês (€)</h2>
+  <div class="relative h-64">
+    <canvas id="<%= chart_id %>" data-chart="true" class="h-64"></canvas>
+  </div>
+</div>
+
+<script>
+  function renderChart_<%= chart_id %>() {
+    const ctx = document.getElementById("<%= chart_id %>").getContext("2d");
+
+    if (window["chart_<%= chart_id %>"]) window["chart_<%= chart_id %>"].destroy();
+
+    const data = {
+      labels: <%= raw @irrigation_expenses_by_month.keys.to_json %>,
+      datasets: [{
+        label: 'Despesas com Irrigação (€)',
+        data: <%= raw @irrigation_expenses_by_month.values.to_json %>,
+        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+        borderRadius: 4
+      }]
+    };
+
+    window["chart_<%= chart_id %>"] = new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+</script>

@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  sensor: one
+  temperature: 1.5
+  moisture: 1.5
+  battery: 1
+  signal: 1
+  read_at: 2025-05-03 16:30:02
+
+two:
+  sensor: two
+  temperature: 1.5
+  moisture: 1.5
+  battery: 1
+  signal: 1
+  read_at: 2025-05-03 16:30:02

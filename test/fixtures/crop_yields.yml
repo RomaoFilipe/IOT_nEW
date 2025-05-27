@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  month: MyString
+  corn_yield: 1
+  wheat_yield: 1
+
+two:
+  month: MyString
+  corn_yield: 1
+  wheat_yield: 1

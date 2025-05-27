@@ -1,0 +1,61 @@
+<h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+  🗓️ Eventos Planeados
+</h3>
+
+<% if @events.any? %>
+  <ul class="space-y-3">
+    <% @events.each do |event| %> <!-- INÍCIO do bloco -->
+
+      <li class="border rounded-lg px-4 py-3 flex items-start gap-3 hover:shadow-sm transition bg-white justify-between">
+        <!-- Ícone + Conteúdo -->
+        <div class="flex items-start gap-3">
+          <div class="mt-1">
+            <% if event[:type] == :task %>
+              <div class="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center text-xs text-gray-400">
+                ✓
+              </div>
+            <% else %>
+              <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600">
+                🚿
+              </div>
+            <% end %>
+          </div>
+
+          <div class="flex-1">
+            <p class="font-semibold text-sm text-gray-800">
+              <%= event[:title] %>
+            </p>
+            <div class="flex flex-wrap items-center gap-3 mt-1 text-xs text-gray-500">
+              <span class="flex items-center gap-1">
+                🕒 <%= l(event[:time], format: "%d/%m/%Y %H:%M") %>
+              </span>
+
+              <% if event[:type] == :task && event[:priority].present? %>
+                <% priority_color = case event[:priority].downcase
+                  when "high" then "text-red-600"
+                  when "medium" then "text-yellow-600"
+                  else "text-green-600"
+                end %>
+                <span class="<%= priority_color %> font-semibold capitalize"><%= event[:priority] %></span>
+              <% end %>
+
+              <span><%= event[:field] %></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botão de Cancelar -->
+        <div>
+          <% if event[:type] == :task %>
+            <%= link_to "✖", planned_task_path(event[:id]), method: :delete, data: { confirm: "Cancelar esta tarefa?" }, class: "text-red-500 text-sm hover:underline" %>
+          <% else %>
+<%= link_to "✖", irrigation_schedule_path(event[:id]), method: :delete, data: { confirm: "Cancelar esta irrigação?" }, class: "text-red-500 text-sm hover:underline" %>
+          <% end %>
+        </div>
+      </li>
+
+    <% end %> <!-- FIM do bloco -->
+  </ul>
+<% else %>
+  <p class="text-sm text-gray-500 italic">Nenhum evento planeado para hoje.</p>
+<% end %>

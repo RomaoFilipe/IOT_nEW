@@ -1,0 +1,170 @@
+<div id="addFieldModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md transform transition-all scale-95">
+
+    <!-- Cabeçalho -->
+    <div class="flex justify-between items-center border-b pb-3 mb-4">
+      <h2 class="text-xl font-semibold text-gray-800">Adicionar Novo Campo</h2>
+      <button onclick="toggleModal()" class="text-gray-500 hover:text-red-600 text-2xl leading-none">&times;</button>
+    </div>
+
+    <p class="text-gray-500 text-sm mb-4">Preenche os dados necessários para criar um novo campo agrícola.</p>
+
+    <%= form_with model: @field, url: fields_path, local: true do |f| %>
+
+
+
+      <!-- Nome -->
+      <div>
+        <%= f.label :name, "Nome do Campo", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :name, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+      </div>
+
+      <!-- Tipo de Cultura -->
+      <div>
+        <%= f.label :field_type, "Tipo de Cultura", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :field_type, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+      </div>
+
+      <!-- Área -->
+      <div>
+        <%= f.label :area, "Área (ha)", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.number_field :area, step: 0.1, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+      </div>
+
+      <!-- Localização: Latitude / Longitude -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :latitude, "Latitude", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :latitude, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+        </div>
+        <div>
+          <%= f.label :longitude, "Longitude", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :longitude, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+        </div>
+      </div>
+
+<!-- Definir Área no Mapa -->
+<div class="mt-4">
+  <label class="block text-sm font-medium text-gray-700 mb-1">Field Boundary</label>
+  <button type="button" onclick="openBoundaryModal()" class="w-full border border-gray-300 px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50">
+    <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M9.75 9.75L14.25 14.25"></path></svg>
+    <span>Define Field Boundary</span>
+  </button>
+</div>
+
+<%= f.hidden_field :polygon_coordinates, id: "polygonCoordinates" %>
+
+
+      <!-- Anotações -->
+      <div>
+        <%= f.label :notes, "Anotações", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_area :notes, rows: 3, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
+      </div>
+
+      <!-- Botões -->
+      <div class="flex justify-end space-x-2 pt-4">
+        <button type="button" onclick="toggleModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">Cancelar</button>
+        <%= f.submit "Criar Campo", class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700" %>
+      </div>
+
+    <% end %>
+  </div>
+  <%= render "fields/boundary_modal" %>
+
+</div>
+
+<script>
+  let polygonMap;
+  let polygonPoints = [];
+  let polygonLine;
+  let polygonMarkers = [];
+
+  function togglePolygonMap() {
+    const container = document.getElementById("polygonMapContainer");
+    container.classList.toggle("hidden");
+
+    if (!polygonMap) {
+      mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+      polygonMap = new mapboxgl.Map({
+        container: 'polygonMap',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-8.611, 41.145],
+        zoom: 13
+      });
+
+      polygonMap.on('click', function (e) {
+        if (polygonPoints.length >= 8) return;
+
+        const point = [e.lngLat.lng, e.lngLat.lat];
+        polygonPoints.push(point);
+
+        const marker = new mapboxgl.Marker({ color: "orange" }).setLngLat(point).addTo(polygonMap);
+        polygonMarkers.push(marker);
+
+        updatePolygon();
+      });
+    }
+  }
+
+  function updatePolygon() {
+    const status = document.getElementById("polygonStatus");
+    status.textContent = `${polygonPoints.length}/8 pontos`;
+
+    if (polygonLine) {
+      polygonMap.removeLayer('polygon-line');
+      polygonMap.removeSource('polygon-line');
+    }
+
+    if (polygonPoints.length > 1) {
+      polygonMap.addSource('polygon-line', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[...polygonPoints, polygonPoints[0]]]
+          }
+        }
+      });
+
+      polygonMap.addLayer({
+        id: 'polygon-line',
+        type: 'line',
+        source: 'polygon-line',
+        paint: {
+          'line-color': '#f97316',
+          'line-width': 3
+        }
+      });
+
+      polygonLine = true;
+    }
+  }
+
+  function resetPolygon() {
+    polygonPoints = [];
+    polygonMarkers.forEach(marker => marker.remove());
+    polygonMarkers = [];
+
+    if (polygonLine) {
+      polygonMap.removeLayer('polygon-line');
+      polygonMap.removeSource('polygon-line');
+      polygonLine = null;
+    }
+
+    document.getElementById("polygonStatus").textContent = "0/8 pontos";
+    document.getElementById("polygonCoordinatesInput").value = "";
+  }
+
+  function savePolygon() {
+    if (polygonPoints.length < 3) {
+      alert("O polígono precisa de pelo menos 3 pontos.");
+      return;
+    }
+
+    const closedPolygon = [...polygonPoints, polygonPoints[0]]; // fechar o polígono
+    document.getElementById("polygonCoordinatesInput").value = JSON.stringify(closedPolygon);
+    alert("Área guardada com sucesso!");
+  }
+</script>
+

@@ -1,52 +1,80 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editar Perfil</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-2xl bg-white shadow-lg rounded-xl p-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.304.534 6.121 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      Editar Perfil
+    </h1>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
-<div class="field">
-  <%= f.label :name %>
-  <%= f.text_field :name, autofocus: true, class: "form-control" %>
-</div>
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, multipart: true }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
 
-<div class="field">
-  <%= f.label :photo %>
-  <%= f.file_field :photo, class: "form-control" %>
-</div>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <%= f.label :name, 'Nome', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.text_field :name, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200' %>
+        </div>
+        <div>
+          <%= f.label :email, 'Email', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.email_field :email, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200', autocomplete: "email" %>
+        </div>
+      </div>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+      <div class="mt-6">
+        <%= f.label :photo, 'Foto de Perfil', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+        <%= f.file_field :photo, class: 'w-full text-sm text-gray-600 border border-gray-300 rounded-md cursor-pointer bg-white p-2' %>
+        <% if resource.photo.present? %>
+          <div class="mt-3">
+            <%= image_tag resource.photo.url, class: 'w-16 h-16 rounded-full object-cover border' %>
+          </div>
+        <% end %>
+      </div>
 
-  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-    <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
-  <% end %>
+      <div class="mt-8">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Atualizar Palavra-passe</h2>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <%= f.label :password, 'Nova Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+            <%= f.password_field :password, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+            <% if @minimum_password_length %>
+              <p class="text-xs text-gray-500 italic"><%= @minimum_password_length %> caracteres no mínimo</p>
+            <% end %>
+          </div>
+          <div>
+            <%= f.label :password_confirmation, 'Confirmar Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+            <%= f.password_field :password_confirmation, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+          </div>
+        </div>
 
-  <div class="field">
-    <%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-    <% if @minimum_password_length %>
-      <br />
-      <em><%= @minimum_password_length %> characters minimum</em>
+        <div class="mt-4">
+          <%= f.label :current_password, 'Password Atual', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.password_field :current_password, class: 'w-full px-4 py-2 border rounded-md shadow-sm', autocomplete: "current-password" %>
+          <p class="text-xs text-gray-500 italic">Necessária para confirmar alterações</p>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mt-8">
+        <%= f.submit 'Atualizar Perfil', class: 'bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition' %>
+        <div class="flex items-center gap-3">
+          <%= link_to 'Voltar para Home', root_path, class: 'text-gray-600 hover:underline' %>
+        </div>
+      </div>
     <% end %>
+
+    <div class="mt-10 border-t pt-6">
+      <h3 class="text-lg font-semibold text-red-600 mb-2">Cancelar Conta</h3>
+      <p class="text-sm text-gray-600 mb-4">Descontente? Podes eliminar a tua conta permanentemente.</p>
+      <%= button_to "Cancelar Conta", registration_path(resource_name), method: :delete, data: { turbo_confirm: "Tens a certeza?" }, class: "bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition" %>
+    </div>
   </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br />
-    <%= f.password_field :current_password, autocomplete: "current-password" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Update" %>
-  </div>
-<% end %>
-
-<h3>Cancel my account</h3>
-
-<div>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete %></div>
-
-<%= link_to "Back", :back %>
+</body>
+</html>

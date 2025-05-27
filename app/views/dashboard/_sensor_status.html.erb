@@ -1,0 +1,119 @@
+<div class="bg-white p-6 rounded-lg shadow-md">
+  <h3 class="text-lg font-semibold text-gray-800 mb-4">Status dos Sensores por Campo</h3>
+
+  <div id="sensorCarousel" class="relative overflow-hidden">
+    <div class="whitespace-nowrap transition-transform duration-500" id="slidesContainer">
+      <% @fields.each_with_index do |field, index| %>
+        <% irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation")&.reload %>
+        <% next unless irrigation_sensor %>
+
+        <% status = irrigation_sensor.status || "parado" %>
+        <% remaining = irrigation_sensor.remaining_time || 0 %>
+        <% total_duration = irrigation_sensor.last_duration || 60 %>
+        <% percentage = status == "irrigando" ? [(remaining * 100 / total_duration.to_f).round, 100].min : 0 %>
+
+        <div class="inline-block align-top w-full px-2" style="width: 100%;" data-slide="<%= index %>">
+          <div class="border p-4 rounded-xl shadow bg-gray-50">
+            <h4 class="text-md font-semibold text-gray-700 mb-3">📍 <%= field.name %></h4>
+
+<div
+  data-controller="irrigation-status"
+  data-irrigation-status-sensor-id-value="<%= irrigation_sensor.id %>"
+  data-irrigation-status-target="label bar">
+  
+  <div class="flex justify-between items-center">
+    <span class="text-sm font-medium text-gray-600">🚿 Estado da Irrigação</span>
+    <span data-irrigation-status-target="label" class="text-sm font-medium">
+      <%= irrigation_sensor.status == "irrigando" ? "Irrigando (#{irrigation_sensor.remaining_time}s restantes)" : "Parado" %>
+    </span>
+  </div>
+
+  <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+    <div
+      data-irrigation-status-target="bar"
+      class="h-2 rounded-full transition-all duration-300 <%= irrigation_sensor.status == 'irrigando' ? 'bg-green-500' : 'bg-gray-400' %>"
+      style="width: <%= irrigation_sensor.status == 'irrigando' ? "#{(irrigation_sensor.remaining_time * 100 / irrigation_sensor.last_duration.to_f).round}%" : "0%" %>;">
+    </div>
+  </div>
+</div>
+
+<%
+  temp_sensor = field.sensors.find { |s| s.sensor_type == "temperature" }
+%>
+<% sensores = [
+  { icone: "💧", nome: "Humidade do Solo", valor: temp_sensor&.moisture || "N/A", unidade: "%" },
+  { icone: "🌡️", nome: "Temperatura", valor: temp_sensor&.temperature || "N/A", unidade: "°C" },
+  { icone: "🔋", nome: "Bateria", valor: temp_sensor&.battery || 0, unidade: "%" }
+] %>
+            <% sensores.each do |sensor| %>
+              <div class="mt-2">
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center space-x-2">
+                    <span><%= sensor[:icone] %></span>
+                    <p class="text-sm font-medium text-gray-600"><%= sensor[:nome] %></p>
+                  </div>
+                  <span class="text-blue-600 text-sm font-medium">
+                    <%= sensor[:valor] %> <%= sensor[:unidade] %>
+                  </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                  <div class="bg-blue-600 h-2 rounded-full" style="width: <%= sensor[:valor].to_i %>%"></div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="flex justify-between items-center mt-4">
+      <button id="prevSlide" class="text-gray-600 hover:text-gray-900">&laquo; Anterior</button>
+      <button id="nextSlide" class="text-gray-600 hover:text-gray-900">Próximo &raquo;</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("slidesContainer");
+    const slides = container.children.length;
+    let index = 0;
+
+    document.getElementById("prevSlide").addEventListener("click", () => {
+      index = (index - 1 + slides) % slides;
+      container.style.transform = `translateX(-${index * 100}%)`;
+    });
+
+    document.getElementById("nextSlide").addEventListener("click", () => {
+      index = (index + 1) % slides;
+      container.style.transform = `translateX(-${index * 100}%)`;
+    });
+
+    document.querySelectorAll(".irrigation-box").forEach(box => {
+      let remaining = parseInt(box.dataset.remaining);
+      const duration = parseInt(box.dataset.duration);
+      const label = box.querySelector("[data-label]");
+      const bar = box.querySelector("[data-bar]");
+
+      if (remaining <= 0 || isNaN(remaining)) return;
+
+      const interval = setInterval(() => {
+        remaining--;
+
+        if (remaining > 0) {
+          label.textContent = `Irrigando (${remaining}s restantes)`;
+        } else {
+          label.textContent = "Parado";
+          bar.classList.remove("bg-green-500");
+          bar.classList.add("bg-gray-400");
+          clearInterval(interval);
+        }
+
+        const percent = Math.max((remaining * 100) / duration, 0);
+        bar.style.width = `${percent}%`;
+      }, 1000);
+    });
+  });
+</script>

@@ -2,18 +2,15 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: 5
-  username: <%= ENV['DB_USERNAME'] %>
-  password: <%= ENV['DB_PASSWORD'] %>
-  host: localhost
+  url: <%= ENV['DATABASE_URL'] || "postgresql://admin123:admin123@localhost:5433/IOT_development" %>
 
 development:
   <<: *default
-  database: IOT_development
 
 test:
   <<: *default
-  database: IOT_test
+  url: <%= ENV['DATABASE_URL'] || "postgresql://admin123:admin123@localhost:5433/IOT_test" %>
 
 production:
   <<: *default
-  database: IOT_production
+  url: <%= ENV['DATABASE_URL'] || "postgresql://admin123:admin123@localhost:5433/IOT_production" %>
