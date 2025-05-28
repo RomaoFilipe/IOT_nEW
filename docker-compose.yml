@@ -44,7 +44,7 @@ services:
     env_file: .env
     environment:
       API_TOKEN: abc123supersecreto
-      API_URL: http://host.docker.internal:3000/api/sensors
+      API_URL: http://172.31.24.78:3000/api/sensors
       MQTT_BROKER: mqtt
       MQTT_PORT: 1883
     depends_on:

@@ -10,7 +10,7 @@ MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
 MQTT_TOPIC = "sensors/data"
 
-API_URL = os.getenv("API_URL", "http://host.docker.internal:3000/api/sensors")
+API_URL = os.getenv("API_URL", "http://172.31.24.78:3000/api/sensors")
 API_TOKEN = os.getenv("API_TOKEN", "abc123supersecreto")
 
 HEADERS = {
@@ -68,7 +68,7 @@ def on_message(client, userdata, msg):
 
             # ✅ Enviar log de execução
             if "duration" in payload and "status" in payload:
-                log_url = "http://host.docker.internal:3000/api/irrigation_logs"
+                log_url = "http://172.31.24.78:3000/api/irrigation_logs"
                 executed_time = datetime.utcfromtimestamp(payload.get("timestamp", time.time()))
                 irrigation_payload = {
                     "device_id": device_id,

@@ -14,34 +14,37 @@
     <h1 class="text-3xl font-bold text-gray-900">Farm Dashboard</h1>
     <p class="text-sm text-green-600 font-semibold">✔ All systems operational</p>
   </div>
-  <!-- Secções em grid lado a lado -->
 
+  <!-- 🔄 Previsão + Status dos Sensores LADO A LADO -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded-xl shadow-md h-full">
+      <%= render "dashboard/weather_forecast" %>
+    </div>
 
-<!-- 🔄 Previsão + Status dos Sensores LADO A LADO -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-  <div class="bg-white p-6 rounded-xl shadow-md h-full">
-    <%= render "dashboard/weather_forecast" %>
+    <div class="bg-white p-6 rounded-xl shadow-md h-full">
+      <% @fields.each_with_index do |field, index| %>
+        <% irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation")&.reload %>
+        <% next unless irrigation_sensor %>
+
+        <%= render partial: 'dashboard/sensor_status', locals: { sensor: irrigation_sensor, field: field, index: index } %>
+      <% end %>
+    </div>
   </div>
 
-  <div class="bg-white p-6 rounded-xl shadow-md h-full">
-    <%= render "dashboard/sensor_status" %>
-  </div>
-</div>
+  <!-- 🌾 Field Status + 📋 Upcoming Tasks lado a lado -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    <div class="bg-white p-6 rounded-xl shadow-md h-full">
+      <%= render "dashboard/field_status" %>
+    </div>
 
-<!-- 🌾 Field Status + 📋 Upcoming Tasks lado a lado -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-  <div class="bg-white p-6 rounded-xl shadow-md h-full">
-    <%= render "dashboard/field_status" %>
+    <div class="bg-white p-6 rounded-xl shadow-md h-full">
+      <%= render "dashboard/upcoming_tasks" %>
+    </div>
   </div>
-
-  <div class="bg-white p-6 rounded-xl shadow-md h-full">
-    <%= render "dashboard/upcoming_tasks" %>
-  </div>
-</div>
 
   <div><!-- ⚙️ Ações Rápidas -->
-  <%= render "dashboard/quick_actions" %>
-</div>
+    <%= render "dashboard/quick_actions" %>
+  </div>
 
 <script>
   async function fetchWeatherForField(lat, lon) {
