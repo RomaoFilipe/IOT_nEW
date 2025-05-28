@@ -1,13 +1,11 @@
 # app/models/sensor.rb
 class Sensor < ApplicationRecord
-
   self.inheritance_column = :type  # Para garantir que 'type' é usado para STI
 
   belongs_to :field, optional: true
   has_many :sensor_readings, dependent: :destroy
   has_many :irrigation_schedules, dependent: :destroy
   has_many :irrigation_logs, dependent: :destroy
-  
 
   validates :name, presence: true
   validates :device_id, presence: true
@@ -25,15 +23,34 @@ class Sensor < ApplicationRecord
     save!
   end
 
-  # ✅ Tempo restante de irrigação
+  # Tempo restante de irrigação
   def remaining_time
     return 0 unless status == "irrigando" && last_reading && last_duration
 
     elapsed = Time.current - last_reading
     [last_duration - elapsed.to_i, 0].max
   end
-    # ✅ Duração total da última irrigação
-    def last_duration
-      self[:last_duration] || 60
-    end
+
+  # Duração total da última irrigação
+  def last_duration
+    self[:last_duration] || 60
+  end
+
+  # Callback para broadcast
+  after_update_commit :broadcast_irrigation_status, if: :irrigation_status_changed?
+
+  private
+
+  # Define quando disparar o broadcast - aqui pode ser personalizado
+  def irrigation_status_changed?
+    saved_change_to_status? || saved_change_to_last_reading? || saved_change_to_last_duration?
+  end
+
+  def broadcast_irrigation_status
+    ActionCable.server.broadcast("irrigation_status", {
+      sensor_id: id,
+      remaining_time: remaining_time,
+      total_time: last_duration
+    })
+  end
 end

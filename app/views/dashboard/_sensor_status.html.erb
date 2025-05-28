@@ -1,4 +1,5 @@
 <%= turbo_stream_from "irrigation_#{sensor.id}" %>
+
 <div class="bg-white p-6 rounded-lg shadow-md">
   <h3 class="text-lg font-semibold text-gray-800 mb-4">Status dos Sensores por Campo</h3>
 
@@ -19,7 +20,7 @@
 
           <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
             <div class="h-2 rounded-full transition-all duration-300 <%= sensor.status == 'irrigando' ? 'bg-green-500' : 'bg-gray-400' %>"
-              style="width: <%= sensor.status == 'irrigando' ? "#{(sensor.remaining_time * 100 / sensor.last_duration.to_f).round}%" : "0%" %>;">
+              style="width: <%= sensor.status == 'irrigando' ? "#{(sensor.remaining_time * 100 / sensor.last_duration.to_f).round}%" : '0%' %>;">
             </div>
           </div>
         </div>
@@ -52,87 +53,73 @@
   <% end %>
 </div>
 
-
-    <div class="flex justify-between items-center mt-4">
-      <button id="prevSlide" class="text-gray-600 hover:text-gray-900">&laquo; Anterior</button>
-      <button id="nextSlide" class="text-gray-600 hover:text-gray-900">Próximo &raquo;</button>
-    </div>
-  </div>
+<div class="flex justify-between items-center mt-4">
+  <button id="prevSlide" class="text-gray-600 hover:text-gray-900">&laquo; Anterior</button>
+  <button id="nextSlide" class="text-gray-600 hover:text-gray-900">Próximo &raquo;</button>
 </div>
 
-
-
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const container = document.getElementById("slidesContainer");
-    const slides = container.children.length;
-    let index = 0;
-
-    document.getElementById("prevSlide").addEventListener("click", () => {
-      index = (index - 1 + slides) % slides;
-      container.style.transform = `translateX(-${index * 100}%)`;
-    });
-
-    document.getElementById("nextSlide").addEventListener("click", () => {
-      index = (index + 1) % slides;
-      container.style.transform = `translateX(-${index * 100}%)`;
-    });
-
-    document.querySelectorAll(".irrigation-box").forEach(box => {
-      let remaining = parseInt(box.dataset.remaining);
-      const duration = parseInt(box.dataset.duration);
-      const label = box.querySelector("[data-label]");
-      const bar = box.querySelector("[data-bar]");
-
-      if (remaining <= 0 || isNaN(remaining)) return;
-
-      const interval = setInterval(() => {
-        remaining--;
-
-        if (remaining > 0) {
-          label.textContent = `Irrigando (${remaining}s restantes)`;
-        } else {
-          label.textContent = "Parado";
-          bar.classList.remove("bg-green-500");
-          bar.classList.add("bg-gray-400");
-          clearInterval(interval);
-        }
-
-        const percent = Math.max((remaining * 100) / duration, 0);
-        bar.style.width = `${percent}%`;
-      }, 1000);
-    });
-  });
-</script>
-<script>
-function updateIrrigationProgress(remainingTime, totalTime) {
+document.addEventListener("DOMContentLoaded", function () {
   const progressBar = document.querySelector('.irrigation-progress-bar');
   const progressText = document.querySelector('.irrigation-progress-text');
 
-  const percentage = (remainingTime / totalTime) * 100;
-  progressBar.style.width = `${percentage}%`;
-  progressText.textContent = `Faltam: ${formatTime(remainingTime)}`;
-}
+  let remainingTime = 0;
+  let totalTime = 60;
+  let timerInterval = null;
 
-// Função para formatar o tempo restante (em segundos)
-function formatTime(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  const remainingSeconds = seconds % 60;
-  return `${hours}h ${remainingMinutes}m ${remainingSeconds}s`;
-}
+  function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    const remainingSeconds = seconds % 60;
+    return `${hours}h ${remainingMinutes}m ${remainingSeconds}s`;
+  }
 
-function fetchIrrigationStatus() {
-  fetch('/api/irrigation_status')  // Certifique-se de que a URL correta da API está sendo usada
-    .then(response => response.json())
-    .then(data => {
-      updateIrrigationProgress(data.remaining_time, data.total_time);
-    })
-    .catch(error => console.error('Erro ao buscar status da irrigação:', error));
-}
+  function updateUI() {
+    if (!progressBar || !progressText) return;
+    const percentage = (remainingTime / totalTime) * 100;
+    progressBar.style.width = `${percentage}%`;
+    progressText.textContent = `Faltam: ${formatTime(remainingTime)}`;
 
-// Chamar essa função de tempos em tempos para atualizar
-setInterval(fetchIrrigationStatus, 5000); // Atualiza a cada 5 segundos
+    if (remainingTime > 0) {
+      progressBar.classList.add("bg-green-500");
+      progressBar.classList.remove("bg-gray-400");
+    } else {
+      progressBar.classList.remove("bg-green-500");
+      progressBar.classList.add("bg-gray-400");
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
 
+  App.cable.subscriptions.create("IrrigationChannel", {
+    connected() {
+      console.log("Conectado ao IrrigationChannel");
+    },
+    disconnected() {
+      console.log("Desconectado do IrrigationChannel");
+      if(timerInterval) clearInterval(timerInterval);
+    },
+    received(data) {
+      console.log("Recebido via WebSocket:", data);
+
+      remainingTime = data.remaining_time;
+      totalTime = data.total_time;
+
+      updateUI();
+
+      if (timerInterval) clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        if (remainingTime > 0) {
+          remainingTime--;
+          updateUI();
+        } else {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }, 1000);
+    }
+  });
+});
 </script>

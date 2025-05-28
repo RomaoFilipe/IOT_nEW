@@ -1,14 +1,37 @@
-<h2 class="text-lg font-bold mb-3">📅 Próximas Irrigações Hoje</h2>
+<h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10m-9 4h4m4 0h1a2 2 0 002-2V7a2 2 0 00-2-2h-1m-8 12h10a2 2 0 002-2v-5a2 2 0 00-2-2H6a2 2 0 00-2 2v5a2 2 0 002 2z" />
+  </svg>
+  Próximas Irrigações Hoje
+</h2>
 
 <% if @schedules.any? %>
-  <ul class="space-y-2">
+  <ul class="space-y-3">
     <% @schedules.each do |schedule| %>
-      <li class="bg-green-100 px-4 py-2 rounded shadow-sm">
-        <strong><%= format('%02d:%02d', schedule.hour, schedule.minute) %></strong>
-        — <%= schedule.duration %>s · Sensor: <%= schedule.sensor.name %>
+      <li class="flex items-start justify-between bg-white border-l-4 border-green-500 shadow-sm px-4 py-3 rounded-lg">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center h-10 w-10 rounded-full bg-green-100 text-green-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10m-9 4h4m4 0h1a2 2 0 002-2V7a2 2 0 00-2-2h-1m-8 12h10a2 2 0 002-2v-5a2 2 0 00-2-2H6a2 2 0 00-2 2v5a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-700">
+              <span class="font-semibold text-green-700"><%= format('%02d:%02d', schedule.hour, schedule.minute) %></span>
+              — <%= schedule.duration %>s
+            </p>
+            <p class="text-xs text-gray-500">Sensor: <span class="font-medium"><%= schedule.sensor.name %></span></p>
+          </div>
+        </div>
+        <%= link_to "💧 Histórico", irrigation_history_sensor_path(schedule.sensor), class: "text-sm text-blue-600 hover:underline self-center" %>
       </li>
     <% end %>
   </ul>
 <% else %>
-  <p class="text-gray-600">Nenhuma irrigação agendada para o restante do dia.</p>
+  <div class="bg-yellow-50 text-yellow-800 px-4 py-3 rounded-lg shadow-sm flex items-center gap-3 text-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20.5a8.5 8.5 0 100-17 8.5 8.5 0 000 17z" />
+    </svg>
+    Nenhuma irrigação agendada para o restante do dia.
+  </div>
 <% end %>

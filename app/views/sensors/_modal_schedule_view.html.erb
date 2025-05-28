@@ -1,26 +1,22 @@
 <dialog id="viewSchedulesModal-<%= sensor.id %>" class="rounded-xl max-w-4xl w-full p-0 shadow-xl z-50">
-  <div class="bg-white p-6 rounded-xl">
+  <div class="bg-white p-4 sm:p-6 rounded-xl max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold text-gray-800">📅 Horários de Irrigação</h2>
+      <h2 class="text-xl font-semibold text-gray-800">🗕️ Horários de Irrigação</h2>
       <button onclick="document.getElementById('viewSchedulesModal-<%= sensor.id %>').close()" class="text-gray-500 hover:text-gray-800 text-xl">&times;</button>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
       <% Date::DAYNAMES.each_with_index do |day, i| %>
-        <% schedules = IrrigationSchedule.where(sensor_id: sensor.id) %>
- <!-- Correção aqui para pegar os agendamentos pelo dia da semana -->
+        <% schedules = IrrigationSchedule.where(sensor_id: sensor.id, day_of_week: i) %>
         <div class="aspect-square bg-white border rounded-xl shadow-sm p-3 flex flex-col items-center justify-between">
           <div class="font-semibold text-gray-800 text-sm"><%= day %></div>
 
           <% if schedules.any? %>
             <div class="flex flex-col gap-1 w-full mt-2 text-xs text-center">
               <% schedules.each do |s| %>
-                <div class="bg-green-100 text-green-900 rounded px-2 py-1 flex items-center justify-between">
+                <div class="bg-green-100 text-green-900 rounded px-2 py-1 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                   <span><%= "%02d:%02d" % [s.hour, s.minute] %><br>— <%= s.duration %>s</span>
-                  <%= button_to field_irrigation_schedule_path(sensor.field, s),
-                        method: :delete,
-                        data: { turbo_confirm: "Remover este agendamento?" },
-                        class: "text-red-500 hover:text-red-700 text-xs ml-2" do %>🗑️<% end %>
+                  <%= button_to field_irrigation_schedule_path(sensor.field, s), method: :delete, data: { turbo_confirm: "Remover este agendamento?" }, class: "text-red-500 hover:text-red-700 text-xs mt-1 sm:mt-0 sm:ml-2" do %>🗑️<% end %>
                 </div>
               <% end %>
             </div>
@@ -32,8 +28,7 @@
     </div>
 
     <div class="mt-6 text-right">
-      <button onclick="document.getElementById('viewSchedulesModal-<%= sensor.id %>').close()"
-        class="px-4 py-2 rounded border text-gray-600 hover:bg-gray-100 text-sm">
+      <button onclick="document.getElementById('viewSchedulesModal-<%= sensor.id %>').close()" class="px-4 py-2 rounded border text-gray-600 hover:bg-gray-100 text-sm">
         Fechar
       </button>
     </div>

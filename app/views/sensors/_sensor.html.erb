@@ -1,6 +1,6 @@
 <%= turbo_frame_tag dom_id(sensor) do %>
   <div id="sensor-<%= sensor.id %>-status" class="p-4 border rounded-xl shadow bg-white space-y-2">
-    <h3 class="text-lg font-semibold">📟 Sensor <%= sensor.name %></h3>
+    <h3 class="text-lg font-semibold">📿 Sensor <%= sensor.name %></h3>
 
     <ul class="text-sm space-y-1">
       <li>🌡️ Temperatura: <strong><%= sensor.temperature || "—" %>°C</strong></li>
@@ -13,7 +13,7 @@
 
     <div class="flex items-center justify-between mt-4">
       <!-- Switch com Turbo Stream -->
-<%= form_with model: sensor, url: toggle_status_sensor_path(sensor), method: :patch, data: { turbo_stream: true }, class: "inline-block" do %>
+      <%= form_with model: sensor, url: toggle_status_sensor_path(sensor), method: :patch, data: { turbo_stream: true }, class: "inline-block" do %>
         <label class="relative inline-flex items-center cursor-pointer">
         <% disabled = sensor.status == "Inactive" && (sensor.last_reading.nil? || sensor.last_reading < 5.minutes.ago) %>
         <input type="checkbox" name="active" onchange="this.form.submit()" class="sr-only peer"
@@ -26,7 +26,7 @@
 
       <!-- Botão de apagar -->
       <%= button_to field_sensor_path(sensor.field, sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" }, class: "text-red-500 hover:text-red-700 text-xl" do %>
-        🗑
+        🖑
       <% end %>
     </div>
   </div>
