@@ -149,13 +149,6 @@ class SensorsController < ApplicationController
     redirect_to dashboard_path, notice: "Irrigação iniciada manualmente."
   end
   
-  
-  
-  
-  
-  
-  
-  
 
   def toggle_status
     @sensor.update(status: @sensor.status == "Active" ? "Inactive" : "Active")
