@@ -1,11 +1,13 @@
-# Rakefile
-require_relative './app/lib/mqtt_publisher'  # 👈 fixado aqui
+# lib/tasks/irrigation_scheduler.rake
+
+require_relative '../mqtt_publisher'
 require 'active_support/all'
 require 'dotenv/load'
 require 'pg'
 require 'active_record'
 
-ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
+# Ativa a ligação à base de dados Rails (caso estejas fora do contexto Rails)
+ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'] || Rails.configuration.database_configuration[Rails.env])
 
 class IrrigationSchedule < ActiveRecord::Base
   belongs_to :sensor
@@ -16,13 +18,13 @@ end
 
 namespace :irrigation do
   desc "Verifica agendamentos e envia comandos MQTT"
-  task run do
+  task :run do
     now = Time.now
 
     start_window = now.change(sec: 0)
     end_window = now + 2.minutes
 
-    puts "⏰ [#{now.strftime('%H:%M')}] Verificando agendamentos entre #{start_window.strftime('%H:%M')} e #{end_window.strftime('%H:%M')}..."
+    puts "⏰ [#{now.strftime('%H:%M')}] Verificando agendamentos entre #{start_window.strftime('%H:%M')} e #{end_window.strftime('%H:%M')}"
 
     schedules = IrrigationSchedule
       .where(day_of_week: now.wday)
