@@ -1,8 +1,9 @@
+# cron_worker/Gemfile
 source "https://rubygems.org"
 
 gem "pg"
 gem "mqtt"
 gem "dotenv"
-gem "activerecord", "~> 7.0"
-gem "activesupport", "~> 7.0"
-gem "rake"  # ✅ esta linha é a solução!
+gem "rake"
+gem "activerecord"
+gem "activesupport"
