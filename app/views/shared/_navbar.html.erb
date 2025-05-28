@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,73 +9,96 @@
 </head>
 <body class="bg-gray-100">
 
-<!-- Navbar -->
-<nav class="bg-white shadow-md px-6 py-4 flex items-center justify-between">
-  <!-- Esquerda: Logo -->
-  <div class="flex items-center gap-2">
-    <a href="<%= home_path %>" class="text-green-700 font-bold text-xl flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-cog">
-        <circle cx="12" cy="17" r="3"/>
-        <path d="M4.2 15.1A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.2"/>
-      </svg>
-      AgriloT Synergy
-    </a>
-  </div>
+<nav class="bg-white shadow-md px-6 py-4" x-data="{ mobileMenu: false }">
+  <div class="flex items-center justify-between">
+    <!-- Logo -->
+    <div class="flex items-center gap-2">
+      <a href="<%= home_path %>" class="text-green-700 font-bold text-xl flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-cog">
+          <circle cx="12" cy="17" r="3"/>
+          <path d="M4.2 15.1A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.2"/>
+        </svg>
+        AgriloT Synergy
+      </a>
+    </div>
 
-  <!-- Centro: Navegação -->
-  <div class="hidden md:flex items-center space-x-6 text-gray-700">
-    <%= link_to home_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-      <i class="lucide lucide-home w-4 h-4"></i>
-      <span>Home</span>
-    <% end %>
-
-    <% if user_signed_in? %>
-      <%= link_to dashboard_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-        <i class="lucide lucide-layout-dashboard w-4 h-4"></i>
-        <span>Dashboard</span>
+    <!-- Menu Links (Desktop) -->
+    <div class="hidden md:flex items-center space-x-6 text-gray-700">
+      <%= link_to home_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
+        <i class="lucide lucide-home w-4 h-4"></i>
+        <span>Home</span>
       <% end %>
-
-      <%= link_to fields_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-        <i class="lucide lucide-map w-4 h-4"></i>
-        <span>Fields</span>
+      <% if user_signed_in? %>
+        <%= link_to dashboard_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
+          <i class="lucide lucide-layout-dashboard w-4 h-4"></i>
+          <span>Dashboard</span>
+        <% end %>
+        <%= link_to fields_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
+          <i class="lucide lucide-map w-4 h-4"></i>
+          <span>Fields</span>
+        <% end %>
+        <%= link_to analytics_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
+          <i class="lucide lucide-chart-line w-4 h-4"></i>
+          <span>Analytics</span>
+        <% end %>
       <% end %>
+    </div>
 
-      <%= link_to analytics_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-        <i class="lucide lucide-chart-line w-4 h-4"></i>
-        <span>Analytics</span>
-      <% end %>
-    <% end %>
-  </div>
+    <!-- Botão Hamburger (Mobile) -->
+    <div class="md:hidden">
+      <button @click="mobileMenu = !mobileMenu" class="text-gray-700 focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
 
-  <!-- Direita: Perfil -->
-  <div class="flex items-center space-x-4">
-    <% if user_signed_in? %>
-      <div x-data="{ open: false }" class="relative">
-        <button @click="open = !open" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-full">
-          <img src="<%= current_user.photo.url || image_path('placeholder-user.png') %>" alt="Avatar" class="w-9 h-9 rounded-full object-cover border" />
-          <span class="text-gray-700 font-medium"><%= current_user.name %></span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        <!-- Dropdown -->
-        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-50 py-2">
-          <%= link_to "Perfil", edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-          <%= link_to "Configurações", settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-          <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
-            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">Logout</button>
-          <% end %>
+    <!-- Perfil (Desktop) -->
+    <div class="hidden md:flex items-center space-x-4">
+      <% if user_signed_in? %>
+        <div x-data="{ open: false }" class="relative">
+          <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
+            <img src="<%= current_user.photo.url || image_path('placeholder-user.png') %>" alt="Avatar" class="w-9 h-9 rounded-full object-cover border" />
+            <span class="text-gray-700 font-medium"><%= current_user.name %></span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-50 py-2">
+            <%= link_to "Perfil", edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <%= link_to "Configurações", settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
+              <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">Logout</button>
+            <% end %>
+          </div>
         </div>
-      </div>
+      <% else %>
+        <%= link_to 'Login', new_user_session_path, class: "px-4 py-2 border border-gray-400 text-gray-700 rounded-md font-medium hover:bg-gray-100 transition" %>
+        <%= link_to 'Sign Up', new_user_registration_path, class: "px-4 py-2 bg-green-700 text-white rounded-md font-medium hover:bg-green-800 transition" %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Dropdown -->
+  <div x-show="mobileMenu" class="md:hidden mt-4 space-y-2">
+    <%= link_to home_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Home<% end %>
+    <% if user_signed_in? %>
+      <%= link_to dashboard_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Dashboard<% end %>
+      <%= link_to fields_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Fields<% end %>
+      <%= link_to analytics_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Analytics<% end %>
+      <%= link_to "Perfil", edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+      <%= link_to "Configurações", settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+      <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
+        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">Logout</button>
+      <% end %>
     <% else %>
-      <%= link_to 'Login', new_user_session_path, class: "px-4 py-2 border border-gray-400 text-gray-700 rounded-md font-medium hover:bg-gray-100 transition" %>
-      <%= link_to 'Sign Up', new_user_registration_path, class: "px-4 py-2 bg-green-700 text-white rounded-md font-medium hover:bg-green-800 transition" %>
+      <%= link_to 'Login', new_user_session_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" %>
+      <%= link_to 'Sign Up', new_user_registration_path, class: "block px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800" %>
     <% end %>
   </div>
 </nav>
 
-<!-- Lucide Icons CDN (só precisa se não estiveres a importar via Node ou pack) -->
+<!-- Lucide Icons -->
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>lucide.createIcons();</script>
 

@@ -1,10 +1,7 @@
 class SensorsController < ApplicationController
   require 'mqtt'
   before_action :set_field, only: [:create]
-  before_action :set_sensor, except: [:lookup, :create]
-  before_action :set_sensor, only: [:start_irrigation]
-
-
+before_action :set_sensor, except: [:lookup, :create, :start_irrigation]
   def create
     @sensor = @field.sensors.build(sensor_params.merge(
       status: "Active",
@@ -165,10 +162,14 @@ class SensorsController < ApplicationController
     end
   end
 
-  def assign_field
+def assign_field
+  if @sensor
     @sensor.update(field_id: params[:field_id])
     redirect_back fallback_location: fields_path, notice: "Sensor atribuído com sucesso."
+  else
+    redirect_back fallback_location: fields_path, alert: "Sensor não encontrado."
   end
+end
 
   def broadcast_irrigation_status(sensor)
     ActionCable.server.broadcast("irrigation_status_#{sensor.id}", {

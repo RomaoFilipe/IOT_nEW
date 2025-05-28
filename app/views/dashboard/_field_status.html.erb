@@ -34,7 +34,7 @@
     </div>
 
     <!-- Cartão de estado do campo -->
-    <div class="bg-white rounded-xl border shadow p-4 max-w-md mx-auto">
+    <div class="bg-white rounded-xl border shadow p-4 max-w-xl mx-auto min-h-auto space-y-4">
       <% @fields.each do |field| %>
         <div 
           x-show="active === <%= field.id %>" 
@@ -45,21 +45,21 @@
           x-transition:leave="transition ease-in duration-200"
           x-transition:leave-start="opacity-100"
           x-transition:leave-end="opacity-0"
-          class="space-y-4 min-h-[260px]"
+          class="space-y-4"
         >
           <!-- Nome e cultura -->
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center flex-nowrap gap-2">
             <div>
               <p class="text-sm font-semibold text-blue-700"><%= field.name %></p>
               <p class="text-base text-gray-800 font-semibold"><%= field.field_type %></p>
               <p class="text-sm text-gray-500"><%= field.area %> ha</p>
             </div>
-            <span class="<%= field.status == 'Ativo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %> text-xs font-medium px-3 py-1 rounded-full">
+            <span class="<%= field.status == 'Ativo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %> text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
               <%= field.status.presence || 'Desconhecido' %>
             </span>
           </div>
 
-          <!-- Progresso de sensores (exemplo visual) -->
+          <!-- Progresso de sensores -->
           <div class="space-y-2 text-sm text-gray-700">
             <div>
               <div class="flex justify-between">
@@ -67,7 +67,7 @@
                 <span class="font-medium"><%= field.sensors.where(status: 'Active').count %></span>
               </div>
               <div class="w-full h-2 bg-gray-200 rounded-full">
-                <div class="h-2 bg-blue-600 rounded-full" style="width: <%= [field.sensors.where(status: 'Active').count * 20, 100].min %>%"></div>
+                <div class="h-2 bg-blue-600 rounded-full transition-all" style="width: <%= [field.sensors.where(status: 'Active').count * 20, 100].min %>%"></div>
               </div>
             </div>
           </div>
@@ -89,7 +89,7 @@
           <div class="flex justify-between items-center pt-2 border-t mt-2 text-sm">
             <div>
               <p class="text-gray-500">Previsão de Colheita</p>
-              <p class="font-semibold text-gray-800">30/08/2023</p> <!-- Podes substituir se tiveres dados reais -->
+              <p class="font-semibold text-gray-800">30/08/2023</p> <!-- Pode ser dinâmico -->
             </div>
             <a href="#" class="text-sm px-4 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100 transition">Detalhes</a>
           </div>
@@ -102,3 +102,31 @@
     🚨 Nenhum campo registado ainda. Por favor adicione um campo para visualizar o estado.
   </div>
 <% end %>
+
+<style>
+  /* Ajustes para compactar o cartão e evitar espaços grandes */
+  .max-w-xl.mx-auto {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .min-h-auto {
+    min-height: auto !important;
+  }
+
+  .space-y-4 {
+    gap: 1rem !important;
+  }
+
+  .flex.justify-between.items-center.flex-nowrap.gap-2 {
+    flex-wrap: nowrap !important;
+    gap: 0.5rem !important;
+  }
+
+  @media (min-width: 640px) {
+    .max-w-xl.mx-auto {
+      max-width: 700px;
+    }
+  }
+</style>

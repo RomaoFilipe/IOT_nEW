@@ -88,7 +88,7 @@
                 <%= f.hidden_field :sensor_id, value: sensor.id %>
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-1">Dias da Semana</label>
-                  <div class="flex gap-2">
+                  <div class="flex gap-2 flex-wrap">
                     <% Date::DAYNAMES.each_with_index do |day, i| %>
                       <label class="w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-600 cursor-pointer">
                         <%= check_box_tag "days[]", i, false, class: "hidden peer" %>
@@ -111,12 +111,12 @@
 
                 <div class="mt-4">
                   <%= f.label :duration, "Duração (minutos)", class: "block text-sm font-semibold text-gray-700 mb-1" %>
-                    <input type="range" min="5" max="120" value="30" 
-                          name="irrigation_schedule[duration]" 
-                          id="duration_<%= sensor.id %>" 
-                          class="w-full duration-slider" 
-                          oninput="document.querySelector('#display_<%= sensor.id %>').textContent = this.value + ' min'">
-                      <p class="text-right text-sm text-green-600 duration-display" id="display_<%= sensor.id %>">30 min</p>
+                  <input type="range" min="5" max="120" value="30" 
+                         name="irrigation_schedule[duration]" 
+                         id="duration_<%= sensor.id %>" 
+                         class="w-full duration-slider" 
+                         oninput="document.querySelector('#display_<%= sensor.id %>').textContent = this.value + ' min'">
+                  <p class="text-right text-sm text-green-600 duration-display" id="display_<%= sensor.id %>">30 min</p>
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6">

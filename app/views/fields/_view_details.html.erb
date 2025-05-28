@@ -4,12 +4,12 @@
   <% field_id = "dynamic" %>
 <% end %>
 
-<div id="viewDetailsModal-<%= field_id %>" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl relative">
+<div id="viewDetailsModal-<%= field_id %>" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 px-2">
+  <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-4xl relative max-h-[95vh] overflow-y-auto">
 
     <!-- Modal Header -->
-    <div class="flex justify-between items-center border-b pb-4">
-      <h2 class="text-2xl font-semibold flex items-center space-x-2">
+    <div class="flex justify-between items-center border-b pb-3 sticky top-0 bg-white z-10">
+      <h2 class="text-xl font-semibold flex items-center space-x-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map">
           <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
           <path d="M15 5.764v15"/>
@@ -17,7 +17,7 @@
         </svg>
         <span id="modalFieldName"><%= field.name %></span>
       </h2>
-<button onclick="document.getElementById('viewDetailsModal-<%= field.id %>').classList.add('hidden')" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+      <button onclick="document.getElementById('viewDetailsModal-<%= field.id %>').classList.add('hidden')" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
     </div>
 
     <!-- Status -->
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Tabs -->
-    <div class="flex space-x-2 border-b pb-2 text-sm">
+    <div class="flex flex-wrap gap-2 border-b pb-2 text-sm">
       <button class="tab-button active" onclick="showTab('overview', <%= field_id %>)" id="tab-overview-<%= field_id %>">Overview</button>
       <button class="tab-button" onclick="showTab('iot-equipment', <%= field_id %>)" id="tab-iot-equipment-<%= field_id %>">IoT Equipment</button>
       <button class="tab-button" onclick="showTab('analytics', <%= field_id %>)" id="tab-analytics-<%= field_id %>">Analytics</button>
@@ -46,7 +46,7 @@
     </div>
 
     <!-- Ações Gerais -->
-    <div class="flex justify-end space-x-2 mt-6">
+    <div class="flex flex-col sm:flex-row sm:justify-end gap-2 mt-6">
       <button class="bg-gray-600 text-white px-4 py-2 rounded-md">Schedule Task</button>
       <button class="bg-gray-600 text-white px-4 py-2 rounded-md">View History</button>
       <button class="bg-green-600 text-white px-4 py-2 rounded-md">Generate Report</button>
@@ -54,13 +54,30 @@
 
     <!-- Eliminar Campo -->
     <div class="mt-6">
-      <%= button_to field_path(field), method: :delete, data: { turbo_confirm: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada." }, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md" do %>
+      <%= button_to field_path(field), method: :delete, data: { turbo_confirm: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada." }, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md w-full sm:w-auto" do %>
         Eliminar Campo
       <% end %>
     </div>
 
   </div>
 </div>
+
+<style>
+.tab-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  background-color: #f3f4f6;
+  color: #1f2937;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.tab-button.active {
+  background-color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>
+
 
 <script>
 function showTab(tab, id) {
