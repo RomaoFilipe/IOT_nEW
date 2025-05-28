@@ -36,6 +36,7 @@ services:
     restart: unless-stopped
     depends_on:
       - db
+      - redis
 
   sensor_gateway:
     build:
@@ -49,6 +50,7 @@ services:
       MQTT_PORT: 1883
     depends_on:
       - mqtt
+      - redis
     restart: unless-stopped
 
   cron:
@@ -62,6 +64,7 @@ services:
     depends_on:
       - db
       - mqtt
+      - redis
     restart: unless-stopped
 
   mqtt:
