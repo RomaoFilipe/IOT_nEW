@@ -12,7 +12,7 @@ Rails.application.routes.draw do
     get "/analytics", to: "analytics#index", as: "analytics"
     get "/settings", to: "settings#index", as: "settings"
     get "admin_dashboard", to: "users#admin_dashboard", as: "admin_dashboard"
-
+    resources :users, only: [ :index, :edit, :update, :destroy ]
     # 🌾 Gestão de dados agrícolas
     resources :tasks, only: [ :index, :create, :update, :destroy ]
     resources :crop_yields, only: [ :create ]
@@ -21,6 +21,7 @@ Rails.application.routes.draw do
     resources :sensors, only: [ :create, :destroy, :update ]
     resources :planned_tasks, only: [ :destroy ]
     resources :irrigation_schedules, only: [ :destroy ]
+    resources :users, only: [ :index, :edit, :update, :destroy ]
 
     # 📡 Sensores (globais)
     resources :sensors do
