@@ -43,7 +43,7 @@
     <span class="block text-blue-500 text-2xl">💧</span>
     <p class="text-gray-600">Moisture</p>
     <p class="font-bold text-lg">
-      <%= "\#{field.sensors.average(:moisture)&.round(1) || '-'}%" %>
+      <%= field.sensors.average(:moisture)&.round(1) || '-' %>%
     </p>
   </div>
 

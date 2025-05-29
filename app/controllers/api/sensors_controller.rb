@@ -1,6 +1,6 @@
 module Api
   class SensorsController < Api::BaseController
-    before_action :set_sensor, except: [:create, :identify, :simulate, :start_irrigation]
+    before_action :set_sensor, except: [:identify, :simulate, :start_irrigation]
     before_action :authenticate_api_token!, except: [:identify, :simulate]
     before_action :authenticate_api!, except: [:identify, :simulate]
 
@@ -18,7 +18,6 @@ module Api
       if sensor.new_record?
         sensor.name = device_id
         sensor.sensor_type = sensor_type
-
         sensor.type = case sensor_type.downcase
                       when 'temperature', 'moisture'
                         'TemperatureSensor'
@@ -27,7 +26,6 @@ module Api
                       else
                         'Sensor'
                       end
-
         sensor.status = "Active"
         sensor.battery = rand(60..100)
         sensor.signal = rand(60..100)
@@ -61,7 +59,6 @@ module Api
         redirect_to sensors_path, alert: "Sensor não encontrado."
         return
       end
-
       @readings = @sensor.sensor_readings.order(created_at: :desc).limit(100)
     end
 
@@ -73,11 +70,11 @@ module Api
         last_reading: Time.current,
         status: "Active"
       )
+      broadcast_reading_data(@sensor)
       render json: { status: "simulated", updated_at: @sensor.last_reading }
     end
 
     def update
-      @sensor = Sensor.find(params[:id])
       if @sensor.update(sensor_params)
         head :ok
       else
@@ -105,10 +102,9 @@ module Api
     end
 
     def status_info
-      sensor = Sensor.find(params[:id])
       render json: {
-        status: sensor.status,
-        remaining_time: sensor.try(:remaining_time) || 0
+        status: @sensor.status,
+        remaining_time: @sensor.try(:remaining_time) || 0
       }
     end
 
@@ -157,7 +153,6 @@ module Api
 
     def authenticate_api_token!
       token = request.headers["Authorization"]&.split("Bearer ")&.last
-
       if token.blank? || ENV["SENSOR_API_TOKEN"].blank?
         render json: { error: "Token em falta" }, status: :unauthorized
         return
@@ -177,6 +172,17 @@ module Api
 
     def sensor_params
       params.permit(:status)
+    end
+
+    def broadcast_reading_data(sensor)
+      SensorReadingsChannel.broadcast_to(
+        sensor,
+        {
+          temperature: sensor.temperature,
+          moisture: sensor.moisture,
+          battery: sensor.battery
+        }
+      )
     end
   end
 end

@@ -1,4 +1,4 @@
-<%= tag.meta name: "sensor-id", content: sensor.id %>
+<<%= tag.meta name: "sensor-id", content: sensor.id %>
 
 <div class="border p-4 rounded-xl shadow bg-gray-50">
   <h4 class="text-md font-semibold text-gray-700 mb-3">📍 <%= field.name %></h4>
@@ -18,28 +18,55 @@
 
   <!-- Outros sensores -->
   <% temp_sensor = field.sensors.find { |s| s.sensor_type == "temperature" } %>
-  <% sensores = [
-    { icone: "💧", nome: "Humidade do Solo", valor: temp_sensor&.moisture || "N/A", unidade: "%" },
-    { icone: "🌡️", nome: "Temperatura", valor: temp_sensor&.temperature || "N/A", unidade: "°C" },
-    { icone: "🔋", nome: "Bateria", valor: temp_sensor&.battery || 0, unidade: "%" }
-  ] %>
+  <% sensor_id = sensor.id %>
 
-  <% sensores.each do |sensor| %>
-    <div class="mt-3">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <span><%= sensor[:icone] %></span>
-          <p class="text-sm font-medium text-gray-600"><%= sensor[:nome] %></p>
-        </div>
-        <span class="text-blue-600 text-sm font-medium">
-          <%= sensor[:valor] %> <%= sensor[:unidade] %>
-        </span>
+  <!-- Humidade -->
+  <div class="mt-3">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <span>💧</span>
+        <p class="text-sm font-medium text-gray-600">Humidade do Solo</p>
       </div>
-      <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-        <div class="bg-blue-600 h-2 rounded-full" style="width: <%= sensor[:valor].to_i %>%"></div>
-      </div>
+      <span class="text-blue-600 text-sm font-medium">
+        <span id="moisture-<%= sensor_id %>"><%= temp_sensor&.moisture || "N/A" %></span> %
+      </span>
     </div>
-  <% end %>
+    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= temp_sensor&.moisture.to_i %>%"></div>
+    </div>
+  </div>
+
+  <!-- Temperatura -->
+  <div class="mt-3">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <span>🌡️</span>
+        <p class="text-sm font-medium text-gray-600">Temperatura</p>
+      </div>
+      <span class="text-blue-600 text-sm font-medium">
+        <span id="temperature-<%= sensor_id %>"><%= temp_sensor&.temperature || "N/A" %></span> °C
+      </span>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= temp_sensor&.temperature.to_i %>%"></div>
+    </div>
+  </div>
+
+  <!-- Bateria -->
+  <div class="mt-3">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <span>🔋</span>
+        <p class="text-sm font-medium text-gray-600">Bateria</p>
+      </div>
+      <span class="text-blue-600 text-sm font-medium">
+        <span id="battery-<%= sensor_id %>"><%= temp_sensor&.battery || 0 %></span> %
+      </span>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= temp_sensor&.battery.to_i %>%"></div>
+    </div>
+  </div>
 </div>
 
 <!-- Botões de navegação entre sensores -->
@@ -47,6 +74,7 @@
   <button id="prevSlide" class="text-gray-600 hover:text-gray-900">&laquo; Anterior</button>
   <button id="nextSlide" class="text-gray-600 hover:text-gray-900">Próximo &raquo;</button>
 </div>
+
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {

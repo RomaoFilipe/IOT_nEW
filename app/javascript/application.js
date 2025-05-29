@@ -7,9 +7,8 @@ import "flatpickr/dist/themes/material_green.css";
 import "bootstrap";
 import "@popperjs/core";
 import "jquery";
-import "channels"
+import "channels";
 import { createIcons, icons } from "lucide";
-
 
 // Rails & Turbo setup
 Rails.start();
@@ -21,8 +20,8 @@ import IrrigationStatusController from "./controllers/irrigation_status_controll
 Stimulus.register("irrigation-status", IrrigationStatusController);
 
 // WebSocket canais
-import "channels"; // importa consumer + index.js (evita duplicar)
-import "./init/irrigation_setup"; // ✅ AQUI está bem
+import "./init/irrigation_setup"; // tua lógica de irrigação
+import { subscribeToSensorReadings } from "channels/sensor_readings_channel"; // <-- ADICIONADO
 
 // Lógica de funcionalidades extra
 import "./three_scene";
@@ -112,4 +111,10 @@ document.addEventListener("turbo:load", () => {
     time_24hr: true,
     minuteIncrement: 5,
   });
+
+  // ✅ WebSocket: subscrever canal do sensor atual
+  const sensorId = document.querySelector("meta[name='sensor-id']")?.content;
+  if (sensorId) {
+    subscribeToSensorReadings(sensorId);
+  }
 });
