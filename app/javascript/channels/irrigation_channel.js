@@ -1,10 +1,7 @@
 import consumer from "./consumer";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const sensorId = document.querySelector("meta[name='sensor-id']")?.content;
-  if (!sensorId) return;
-
-  consumer.subscriptions.create(
+export const subscribeToIrrigationChannel = (sensorId, onUpdate) => {
+  return consumer.subscriptions.create(
     { channel: "IrrigationChannel", sensor_id: sensorId },
     {
       connected() {
@@ -15,6 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       received(data) {
         console.log("📡 WebSocket recebido:", data);
+
+        if (!data || !data.remaining_time || !data.total_time) return;
 
         let remainingTime = data.remaining_time;
         const totalTime = data.total_time;
@@ -49,7 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
             progressBar.style.width = "0%";
           }
         }, 1000);
+
+        // Chama função externa se necessário
+        if (onUpdate) onUpdate(data);
       }
     }
   );
-});
+};

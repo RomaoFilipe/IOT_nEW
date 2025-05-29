@@ -1,139 +1,113 @@
-//= require rails-ujs
-//= require_tree .
-//= require jquery
-//= require jquery_ujs
-import "flatpickr"
-import "flatpickr/dist/themes/material_green.css"
+// Libs externas
+import "@hotwired/turbo-rails";
+import "@hotwired/stimulus";
+import Rails from "@rails/ujs";
+import "flatpickr";
+import "flatpickr/dist/themes/material_green.css";
 import "bootstrap";
 import "@popperjs/core";
 import "jquery";
-import "./three_scene";
-import "channels"
-import "./field_management";
-import "@hotwired/turbo-rails";
-import "controllers";
 import { createIcons, icons } from "lucide";
-import Rails from "@rails/ujs";
-import { Application } from "@hotwired/stimulus"
-import IrrigationStatusController from "./controllers/irrigation_status_controller"
 
+// Rails & Turbo setup
 Rails.start();
+window.Stimulus = Stimulus.Application.start();
 
-window.Stimulus = Application.start()
-Stimulus.register("irrigation-status", IrrigationStatusController)
+// Stimulus controllers
+import "controllers";
+import IrrigationStatusController from "./controllers/irrigation_status_controller";
+Stimulus.register("irrigation-status", IrrigationStatusController);
 
+// WebSocket canais
+import "channels"; // importa consumer + index.js (evita duplicar)
+import "./init/irrigation_setup"; // ✅ AQUI está bem
+
+// Lógica de funcionalidades extra
+import "./three_scene";
+import "./field_management";
+
+// DOMContentLoaded
 document.addEventListener("DOMContentLoaded", function () {
-    // Lógica para logout
-    const logoutLink = document.getElementById("logout-link");
-    const signOutPath = document.body.getAttribute('data-sign-out-path');
-    const signInPath = document.body.getAttribute('data-sign-in-path');
+  // Logout
+  const logoutLink = document.getElementById("logout-link");
+  const signOutPath = document.body.getAttribute("data-sign-out-path");
+  const signInPath = document.body.getAttribute("data-sign-in-path");
 
-    if (logoutLink) {
-        logoutLink.addEventListener("click", function (event) {
-            event.preventDefault();
-            fetch(signOutPath, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            }).then(() => {
-                window.location.href = signInPath;
-            });
-        });
-    }
+  if (logoutLink) {
+    logoutLink.addEventListener("click", function (event) {
+      event.preventDefault();
+      fetch(signOutPath, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document
+            .querySelector("meta[name='csrf-token']")
+            .getAttribute("content"),
+        },
+      }).then(() => {
+        window.location.href = signInPath;
+      });
+    });
+  }
 
-    // Flash messages e Popup lógica
-    const flashNotice = document.getElementById("flash-notice");
-    const loginPopup = document.getElementById("login-popup");
+  // Flash messages e login popup
+  const flashNotice = document.getElementById("flash-notice");
+  const loginPopup = document.getElementById("login-popup");
 
-    if (flashNotice) {
-        // Mostra o flash com animação
-        flashNotice.classList.add("show");
+  if (flashNotice) {
+    flashNotice.classList.add("show");
+    setTimeout(() => flashNotice.classList.remove("show"), 5000);
+    setTimeout(() => flashNotice.remove(), 5500);
+  }
 
-        // Aguarda 5 segundos para o flash desaparecer
-        setTimeout(function () {
-            flashNotice.classList.remove("show");
-            flashNotice.classList.add("hide");
-        }, 5000);
+  if (loginPopup) {
+    loginPopup.classList.add("show");
+    setTimeout(() => loginPopup.classList.add("hide"), 5000);
+    setTimeout(() => loginPopup.remove(), 5500);
+  }
 
-        // Remove o flash da DOM após 5.5 segundos
-        setTimeout(function () {
-            flashNotice.remove();
-        }, 5500);
-    }
+  // Campo horário do checkbox 'All Day'
+  const allDayCheckbox = document.getElementById("all_day_checkbox");
+  const timeFields = document.getElementById("time_fields");
 
-    if (loginPopup) {
-        // Exibe o popup
-        loginPopup.classList.add("show");
+  function toggleTimeFields() {
+    if (!allDayCheckbox || !timeFields) return;
+    timeFields.style.display = allDayCheckbox.checked ? "none" : "block";
+  }
 
-        // Aguarda 5 segundos para o popup desaparecer
-        setTimeout(function () {
-            loginPopup.classList.add("hide");
-        }, 5000);
+  if (allDayCheckbox) {
+    allDayCheckbox.addEventListener("change", toggleTimeFields);
+    toggleTimeFields();
+  }
 
-        // Remove o popup da DOM após 5.5 segundos
-        setTimeout(function () {
-            loginPopup.remove();
-        }, 5500);
-    }
-
-    // Manipulação da exibição do campo de horas com checkbox 'All Day'
-    const allDayCheckbox = document.getElementById('all_day_checkbox');
-    const timeFields = document.getElementById('time_fields');
-
-    function toggleTimeFields() {
-        if (allDayCheckbox && timeFields) {
-            if (allDayCheckbox.checked) {
-                timeFields.style.display = 'none';
-            } else {
-                timeFields.style.display = 'block';
-            }
-        }
-    }
-
-    if (allDayCheckbox) {
-        allDayCheckbox.addEventListener('change', toggleTimeFields);
-        toggleTimeFields(); // Executa a função ao carregar a página
-    }
-
-    // FullCalendar Initialization
-    const calendarEl = document.getElementById('calendar');
-    if (calendarEl) {
-        var calendar = new Calendar(calendarEl, {
-            plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin], // Adiciona plugins necessários
-            initialView: 'dayGridMonth', // Exibe a visualização de mês no início
-            locale: 'pt-br', // Coloca a linguagem do calendário em português
-            editable: true, // Permite a edição de eventos
-            selectable: true, // Permite seleção de datas
-            events: '/crop_events.json', // Carrega os eventos via JSON
-            dateClick: function (info) {
-                // Redireciona para a criação de eventos ao clicar em uma data
-                window.location.href = `/crop_events/new?start_time=${info.dateStr}`;
-            }
-        });
-
-        calendar.render();
-    }
-
-
-
-
-    document.addEventListener("DOMContentLoaded", () => {
-        createIcons({ icons });
+  // FullCalendar
+  const calendarEl = document.getElementById("calendar");
+  if (calendarEl) {
+    const calendar = new Calendar(calendarEl, {
+      plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+      initialView: "dayGridMonth",
+      locale: "pt-br",
+      editable: true,
+      selectable: true,
+      events: "/crop_events.json",
+      dateClick: function (info) {
+        window.location.href = `/crop_events/new?start_time=${info.dateStr}`;
+      },
     });
 
+    calendar.render();
+  }
 
-
-    document.addEventListener("turbo:load", () => {
-        flatpickr("input[id^='timepicker-']", {
-          enableTime: true,
-          noCalendar: true,
-          dateFormat: "H:i",
-          time_24hr: true,
-          minuteIncrement: 5,
-        });
-      });
-
+  // Lucide icons
+  createIcons({ icons });
 });
-import "controllers"
-import "./channels"
+
+// Turbo-specific load
+document.addEventListener("turbo:load", () => {
+  flatpickr("input[id^='timepicker-']", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    minuteIncrement: 5,
+  });
+});
