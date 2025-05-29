@@ -14,10 +14,11 @@ Rails.application.routes.draw do
     get "admin_dashboard", to: "users#admin_dashboard", as: "admin_dashboard"
 
     # ✅ Administração de utilizadores
-    resources :users, only: [ :index, :edit, :update, :destroy ] do
+    resources :users, only: [ :index, :new, :create, :edit, :update, :destroy ] do
       post :entrar_como, on: :member
       post :retornar_como_admin, on: :collection
     end
+
 
     # 🌾 Gestão de dados agrícolas
     resources :tasks, only: [ :index, :create, :update, :destroy ]
