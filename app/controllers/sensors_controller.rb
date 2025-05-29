@@ -184,6 +184,19 @@ def assign_field
   end
 end
 
+def update_status
+  @sensor = Sensor.find(params[:id])
+  @sensor.update(status: params[:status], last_reading: Time.current)
+
+  html = ApplicationController.renderer.render(
+    partial: "sensors/status",
+    locals: { sensor: @sensor }
+  )
+
+  ActionCable.server.broadcast("irrigation_channel", { html: html })
+  head :ok
+end
+
 
 
   private

@@ -15,10 +15,9 @@ Rails.application.routes.draw do
 
     # ✅ Administração de utilizadores
     resources :users, only: [ :index, :new, :create, :edit, :update, :destroy ] do
-      get :entrar_como, on: :member    # 👈 muda de post para get
+      get :entrar_como, on: :member
       post :retornar_como_admin, on: :collection
     end
-
 
     # 🌾 Gestão de dados agrícolas
     resources :tasks, only: [ :index, :create, :update, :destroy ]
@@ -36,6 +35,7 @@ Rails.application.routes.draw do
       post "readings", to: "sensor_readings#create", on: :member
       patch :toggle_status, on: :member
       patch :assign_field, on: :member
+      patch :update_status, on: :member
       get :readings, on: :member
       get :irrigation_history, on: :member
       get :status_info, on: :member
@@ -61,13 +61,13 @@ Rails.application.routes.draw do
     resources :fields do
       resources :irrigation_schedules, only: [ :create, :destroy ] do
         collection do
-          get :today # ✅ Ver agendamentos de hoje
+          get :today
         end
       end
     end
   end
 
-  # 🌐 API pública e protegida (fora do `authenticate`)
+  # 🌐 API pública e protegida
   namespace :api do
     get "sensors/identify", to: "sensors#identify"
     get "sensors/find_by_device_id", to: "sensors#find_by_device_id"
@@ -82,4 +82,7 @@ Rails.application.routes.draw do
 
   # 👤 Perfil
   get "profile/:id", to: "profiles#show", as: "user_profile"
+
+  # 📡 WebSocket (ActionCable)
+  mount ActionCable.server => "/cable"
 end

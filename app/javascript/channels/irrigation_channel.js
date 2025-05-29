@@ -22,6 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const progressBar = document.querySelector(".irrigation-progress-bar");
         const progressText = document.querySelector(".irrigation-progress-text");
 
+        if (!progressBar || !progressText) return;
+
         function formatTime(seconds) {
           const m = Math.floor(seconds / 60);
           const h = Math.floor(m / 60);
@@ -31,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         function updateUI() {
-          if (!progressBar || !progressText) return;
           const percent = (remainingTime / totalTime) * 100;
           progressBar.style.width = `${percent}%`;
           progressText.textContent = `Faltam: ${formatTime(remainingTime)}`;
@@ -40,12 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
         updateUI();
 
         const interval = setInterval(() => {
-          if (remainingTime <= 0) {
-            clearInterval(interval);
-            return;
-          }
           remainingTime--;
           updateUI();
+          if (remainingTime <= 0) {
+            clearInterval(interval);
+            progressText.textContent = "Irrigação concluída";
+            progressBar.style.width = "0%";
+          }
         }, 1000);
       }
     }
