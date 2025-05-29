@@ -1,26 +1,24 @@
 module Api
   class SensorsController < Api::BaseController
-    before_action :set_sensor, except: [ :lookup, :create, :start_irrigation ]
+    before_action :set_sensor, except: [:create, :identify, :simulate, :start_irrigation]
     before_action :authenticate_api_token!, except: [:identify, :simulate]
     before_action :authenticate_api!, except: [:identify, :simulate]
-    
 
     def identify
       device_id = params[:device_id]
       sensor_type = params[:sensor_type] || "temperature"
-    
+
       if device_id.blank?
         render json: { error: "Device ID em branco." }, status: :unprocessable_entity
         return
       end
-    
+
       sensor = Sensor.find_or_initialize_by(device_id: device_id)
-    
+
       if sensor.new_record?
         sensor.name = device_id
         sensor.sensor_type = sensor_type
-    
-        # Define o campo 'type' para STI consoante o sensor_type
+
         sensor.type = case sensor_type.downcase
                       when 'temperature', 'moisture'
                         'TemperatureSensor'
@@ -29,14 +27,13 @@ module Api
                       else
                         'Sensor'
                       end
-    
+
         sensor.status = "Active"
         sensor.battery = rand(60..100)
         sensor.signal = rand(60..100)
         sensor.last_reading = Time.current
         sensor.save!
       else
-        # Atualiza o tipo STI caso tenha mudado
         expected_type = case sensor_type.downcase
                         when 'temperature', 'moisture'
                           'TemperatureSensor'
@@ -49,7 +46,7 @@ module Api
           sensor.update(type: expected_type, sensor_type: sensor_type)
         end
       end
-    
+
       render json: {
         id: sensor.id,
         name: sensor.name,
@@ -57,12 +54,9 @@ module Api
         type: sensor.type
       }
     end
-    
-    
 
     def readings
       @sensor = Sensor.find_by(id: params[:id])
-
       if @sensor.nil?
         redirect_to sensors_path, alert: "Sensor não encontrado."
         return
@@ -77,9 +71,8 @@ module Api
         battery: rand(30..100),
         signal: rand(20..100),
         last_reading: Time.current,
-        status: "Active" # 👈 ativa o sensor
+        status: "Active"
       )
-    
       render json: { status: "simulated", updated_at: @sensor.last_reading }
     end
 
@@ -104,13 +97,13 @@ module Api
         end
         return
       end
-    
+
       respond_to do |format|
         format.turbo_stream
         format.json { render json: { status: @sensor.status } }
       end
     end
-    
+
     def status_info
       sensor = Sensor.find(params[:id])
       render json: {
@@ -118,8 +111,47 @@ module Api
         remaining_time: sensor.try(:remaining_time) || 0
       }
     end
-    
-    
+
+    def start_irrigation
+      duration = params[:duration].to_i
+      duration = 120 if duration <= 0
+
+      unless @sensor
+        redirect_back fallback_location: dashboard_path, alert: "Sensor não encontrado."
+        return
+      end
+
+      @sensor.update!(
+        status: "irrigando",
+        last_reading: Time.current,
+        last_duration: duration,
+        remaining_time: duration
+      )
+
+      @sensor.irrigation_logs.create!(
+        executed_at: Time.current,
+        duration: duration,
+        device_id: @sensor.device_id,
+        status: "executado"
+      )
+
+      mqtt_payload = {
+        action: "start",
+        duration: duration,
+        origin: "manual"
+      }
+
+      mqtt_topic = "sensors/irrigation/#{@sensor.device_id}/command"
+      MqttPublisher.publish(topic: mqtt_topic, payload: mqtt_payload)
+
+      ActionCable.server.broadcast("irrigation_status_#{@sensor.id}", {
+        status: @sensor.status,
+        remaining_time: @sensor.remaining_time,
+        duration: @sensor.last_duration
+      })
+
+      redirect_to dashboard_path, notice: "Irrigação iniciada manualmente."
+    end
 
     private
 
@@ -142,50 +174,9 @@ module Api
         render json: { error: "Sensor não encontrado" }, status: :not_found
       end
     end
+
+    def sensor_params
+      params.permit(:status)
+    end
   end
-
-  def start_irrigation
-    duration = params[:duration].to_i
-    duration = 120 if duration <= 0
-  
-    # ✅ Atualiza o estado local
-    @sensor.update!(status: "irrigando", last_reading: Time.current)
-  
-    # ✅ Cria log
-    @sensor.irrigation_logs.create!(
-      executed_at: Time.current,
-      duration: duration,
-      device_id: @sensor.device_id,
-      status: "executado"
-    )
-    
-  
-    # ✅ ENVIA COMANDO MQTT com `origin: "manual"`
-    mqtt_payload = {
-      action: "start",
-      duration: duration,
-      origin: "manual"
-    }
-  
-    mqtt_topic = "sensors/irrigation/#{@sensor.device_id}/command"
-  
-    MqttPublisher.publish(topic: mqtt_topic, payload: mqtt_payload)
-  
-    # WebSocket para atualização em tempo real
-    ActionCable.server.broadcast("irrigation_status_#{@sensor.id}", {
-      status: @sensor.status,
-      remaining_time: @sensor.remaining_time,
-      duration: @sensor.last_duration
-    })
-  
-    redirect_to dashboard_path, notice: "Irrigação iniciada manualmente."
-  end
-  
-
-  private
-
-def sensor_params
-  params.permit(:status)
-end
-
 end
