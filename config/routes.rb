@@ -44,6 +44,10 @@ Rails.application.routes.draw do
       end
     end
 
+      # ✅ ROTA DE POLLING
+  get 'sensors/:id/irrigation_status', to: 'sensors#irrigation_status'
+
+
     resource :settings, only: [ :index ] do
       patch :update_profile
       patch :update_notifications

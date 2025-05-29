@@ -1,6 +1,6 @@
 # app/models/sensor.rb
 class Sensor < ApplicationRecord
-  self.inheritance_column = :type  # Para garantir que 'type' é usado para STI
+  self.inheritance_column = :type
 
   belongs_to :field, optional: true
   has_many :sensor_readings, dependent: :destroy
@@ -23,12 +23,21 @@ class Sensor < ApplicationRecord
     save!
   end
 
+  # Alias para clareza
+  def irrigation_started_at
+    last_reading
+  end
+
+  def irrigation_duration
+    last_duration
+  end
+
   # Tempo restante de irrigação
   def remaining_time
-    return 0 unless status == "irrigando" && last_reading && last_duration
+    return 0 unless status == "irrigando" && irrigation_started_at && irrigation_duration
 
-    elapsed = Time.current - last_reading
-    [last_duration - elapsed.to_i, 0].max
+    elapsed = Time.current - irrigation_started_at
+    [irrigation_duration - elapsed.to_i, 0].max
   end
 
   # Duração total da última irrigação
@@ -36,12 +45,11 @@ class Sensor < ApplicationRecord
     self[:last_duration] || 60
   end
 
-  # Callback para broadcast
+  # WebSocket callback
   after_update_commit :broadcast_irrigation_status, if: :irrigation_status_changed?
 
   private
 
-  # Define quando disparar o broadcast - aqui pode ser personalizado
   def irrigation_status_changed?
     saved_change_to_status? || saved_change_to_last_reading? || saved_change_to_last_duration?
   end
@@ -50,7 +58,7 @@ class Sensor < ApplicationRecord
     ActionCable.server.broadcast("irrigation_status", {
       sensor_id: id,
       remaining_time: remaining_time,
-      total_time: last_duration
+      total_time: irrigation_duration
     })
   end
 end

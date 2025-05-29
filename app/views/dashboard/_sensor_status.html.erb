@@ -65,57 +65,56 @@
     const sensorId = document.querySelector("meta[name='sensor-id']")?.content;
     if (!sensorId) return;
 
-    const subscription = window.App.cable.subscriptions.create(
-      { channel: "IrrigationChannel", sensor_id: sensorId },
-      {
-        connected() {
-          console.log(`🟢 Conectado ao IrrigationChannel para sensor ${sensorId}`);
-        },
-        disconnected() {
-          console.log("🔴 Desconectado do IrrigationChannel");
-        },
-        received(data) {
-          console.log("📡 Dados recebidos do WebSocket:", data);
+    let remainingTime = 0;
+    let totalTime = 0;
 
-          if (!data.remaining_time || !data.total_time) return;
+    const progressBar = document.querySelector(".irrigation-progress-bar");
+    const progressText = document.querySelector(".irrigation-progress-text");
 
-          let remainingTime = data.remaining_time;
-          const totalTime = data.total_time;
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const h = Math.floor(m / 60);
+      const min = m % 60;
+      const s = seconds % 60;
+      return `${h}h ${min}m ${s}s`;
+    }
 
-          const progressBar = document.querySelector(".irrigation-progress-bar");
-          const progressText = document.querySelector(".irrigation-progress-text");
+    function updateUI() {
+      const percent = (remainingTime / totalTime) * 100;
+      progressBar.style.width = `${percent}%`;
+      progressText.textContent = `Faltam: ${formatTime(remainingTime)}`;
+    }
 
-          if (!progressBar || !progressText) return;
+    async function checkStatus() {
+      try {
+        const response = await fetch(`/sensors/${sensorId}/irrigation_status`);
+        const data = await response.json();
+        remainingTime = data.remaining_time;
+        totalTime = data.total_time;
 
-          function formatTime(seconds) {
-            const m = Math.floor(seconds / 60);
-            const h = Math.floor(m / 60);
-            const min = m % 60;
-            const s = seconds % 60;
-            return `${h}h ${min}m ${s}s`;
-          }
-
-          function updateUI() {
-            const percent = (remainingTime / totalTime) * 100;
-            progressBar.style.width = `${percent}%`;
-            progressText.textContent = `Faltam: ${formatTime(remainingTime)}`;
-          }
-
+        if (remainingTime > 0) {
           updateUI();
-
-          const interval = setInterval(() => {
-            remainingTime--;
-            updateUI();
-
-            if (remainingTime <= 0) {
-              clearInterval(interval);
-              progressText.textContent = "Irrigação concluída";
-              progressBar.style.width = "0%";
-            }
-          }, 1000);
+        } else {
+          progressBar.style.width = `0%`;
+          progressText.textContent = "Irrigação concluída";
         }
+      } catch (e) {
+        console.error("Erro ao buscar status:", e);
       }
-    );
+    }
+
+    // Atualiza a cada 5 segundos
+    setInterval(() => {
+      if (remainingTime > 0) remainingTime--;
+      updateUI();
+    }, 1000);
+
+    // Faz polling a cada 5 segundos
+    setInterval(() => {
+      checkStatus();
+    }, 5000);
+
+    // Primeiro carregamento
+    checkStatus();
   });
 </script>
-

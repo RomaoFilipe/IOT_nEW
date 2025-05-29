@@ -78,6 +78,26 @@ before_action :set_sensor, except: [ :lookup, :create, :start_irrigation ]
     }
   end
 
+  # app/controllers/sensors_controller.rb
+def irrigation_status
+  sensor = Sensor.find(params[:id])
+
+  # Exemplo: se tiveres start_time e duration (segundos)
+  if sensor.status == "irrigando" && sensor.irrigation_started_at
+    elapsed = Time.current - sensor.irrigation_started_at
+    total_time = sensor.irrigation_duration || 120
+    remaining_time = [total_time - elapsed, 0].max.to_i
+
+    render json: {
+      remaining_time: remaining_time,
+      total_time: total_time
+    }
+  else
+    render json: { remaining_time: 0, total_time: 0 }
+  end
+end
+
+
   def irrigation_history
     @irrigation_logs = @sensor.irrigation_logs.order(executed_at: :desc)
     Rails.logger.debug "Irrigation logs count: #{@irrigation_logs.count}"
