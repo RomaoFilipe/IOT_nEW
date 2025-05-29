@@ -9,6 +9,15 @@
 </head>
 <body class="bg-gray-100">
 
+<!-- Admin Shortcut (fora da navbar) -->
+<% if user_signed_in? && current_user.admin? %>
+  <div class="bg-white shadow mb-4 px-6 py-3 flex justify-end">
+    <%= link_to admin_dashboard_path, class: "inline-flex items-center text-sm px-4 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200 transition" do %>
+      <i class="lucide lucide-shield-check w-4 h-4 mr-2"></i> Painel de Administração
+    <% end %>
+  </div>
+<% end %>
+
 <nav class="bg-white shadow-md px-6 py-4" x-data="{ mobileMenu: false }">
   <div class="flex items-center justify-between">
     <!-- Logo -->
@@ -67,6 +76,9 @@
           <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-50 py-2">
             <%= link_to "Perfil", edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <%= link_to "Configurações", settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <% if user_signed_in? && current_user.admin? %>
+              <%= link_to "Administração", admin_dashboard_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <% end %>
             <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
               <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">Logout</button>
             <% end %>
