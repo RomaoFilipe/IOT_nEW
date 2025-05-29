@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel de Administração</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= content_for?(:title) ? yield(:title) : "Admin" %></title>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
+
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="container mx-auto">
-    <h1 class="text-3xl font-bold mb-4">Painel de Administração</h1>
+
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+  <div class="container mx-auto py-8 px-4">
     <%= yield %>
   </div>
 </body>
