@@ -10,6 +10,7 @@ import "jquery";
 import "channels"
 import { createIcons, icons } from "lucide";
 
+
 // Rails & Turbo setup
 Rails.start();
 window.Stimulus = Stimulus.Application.start();
