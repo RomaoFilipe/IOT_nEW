@@ -2,6 +2,9 @@
 @import "custom_fields";
 @import "home"
 
+/*
+ *= require application.tailwind
+*/
 
 /* Global Styles */
 * {
