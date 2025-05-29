@@ -109,15 +109,16 @@
                   </div>
                 </div>
 
-                <div class="mt-4">
-                  <%= f.label :duration, "Duração (minutos)", class: "block text-sm font-semibold text-gray-700 mb-1" %>
-                  <input type="range" min="5" max="120" value="30" 
-                         name="irrigation_schedule[duration]" 
-                         id="duration_<%= sensor.id %>" 
-                         class="w-full duration-slider" 
-                         oninput="document.querySelector('#display_<%= sensor.id %>').textContent = this.value + ' min'">
-                  <p class="text-right text-sm text-green-600 duration-display" id="display_<%= sensor.id %>">30 min</p>
-                </div>
+<div class="mt-4">
+  <%= f.label :duration_slider, "Duração", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+  <%= range_field_tag "irrigation_schedule[duration_slider]", 2, min: 1, max: 40, step: 1,
+      id: "duration_slider_#{sensor.id}",
+      class: "w-full duration-slider",
+      oninput: "updateDurationDisplay(this.value, '#{sensor.id}')" %>
+  <p class="text-right text-sm text-green-600 duration-display" id="display_<%= sensor.id %>">1h 0m</p>
+</div>
+
+
 
                 <div class="flex justify-end gap-3 mt-6">
                   <button type="button" onclick="document.getElementById('scheduleModal-<%= sensor.id %>').close()" class="px-4 py-2 text-sm border rounded-md hover:bg-gray-100">Cancelar</button>
@@ -138,11 +139,21 @@
 </tr>
 
 <script>
+  function updateDurationDisplay(value, sensorId) {
+    const steps = parseInt(value);
+    const totalMinutes = steps * 30;
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    const label = document.getElementById(`display_${sensorId}`);
+    label.textContent = `${h}h${m > 0 ? ' ' + m + 'm' : ''}`;
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".duration-slider").forEach(slider => {
-      const output = slider.nextElementSibling;
+      const sensorId = slider.id.split("_").pop();
+      updateDurationDisplay(slider.value, sensorId);
       slider.addEventListener("input", () => {
-        output.textContent = `${slider.value} min`;
+        updateDurationDisplay(slider.value, sensorId);
       });
     });
   });

@@ -5,16 +5,19 @@ class IrrigationSchedulesController < ApplicationController
 
   def create
     days = params[:days] || []
+    slider_steps = params[:irrigation_schedule][:duration_slider].to_i
+    duration = slider_steps * 30 * 60  # ← converte para segundos
     created = 0
   
     days.each do |day|
       schedule = @field.irrigation_schedules.new(
-        schedule_params.merge(day_of_week: day.to_i) # ← aqui
+        schedule_params.merge(
+          day_of_week: day.to_i,
+          duration: duration  # ← força override aqui
+        )
       )
   
-      if schedule.save
-        created += 1
-      end
+      created += 1 if schedule.save
     end
   
     if created > 0
@@ -23,6 +26,7 @@ class IrrigationSchedulesController < ApplicationController
       redirect_back fallback_location: fields_path, alert: "Erro ao criar agendamento."
     end
   end
+  
 
   def today
     @field = Field.find(params[:field_id])
@@ -49,7 +53,6 @@ class IrrigationSchedulesController < ApplicationController
   end
 
   def schedule_params
-    params.require(:irrigation_schedule).permit(:hour, :minute, :duration, :sensor_id)
+    params.require(:irrigation_schedule).permit(:hour, :minute, :sensor_id)
   end
-  
 end
