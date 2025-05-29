@@ -12,10 +12,14 @@ class UserPolicy < ApplicationPolicy
   end
 
   def update?
-    user.admin? || (user.manager? && record.role == 'viewer')
+    user.admin? || (user.manager? && record.role == "viewer")
   end
 
   def destroy?
+    user.admin?
+  end
+
+  def admin_dashboard?
     user.admin?
   end
 end

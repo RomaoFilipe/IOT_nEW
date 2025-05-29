@@ -8,6 +8,7 @@ import "bootstrap";
 import "@popperjs/core";
 import "jquery";
 import "./three_scene";
+import "channels"
 import "./field_management";
 import "@hotwired/turbo-rails";
 import "controllers";

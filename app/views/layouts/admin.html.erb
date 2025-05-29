@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de Administração</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="container mx-auto">
+    <h1 class="text-3xl font-bold mb-4">Painel de Administração</h1>
+    <%= yield %>
+  </div>
+</body>
+</html>

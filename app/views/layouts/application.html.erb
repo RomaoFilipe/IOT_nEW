@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title><%= content_for(:title) || "IoT Agricultural Platform" %></title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
+  <head>
+    <title><%= content_for(:title) || "IoT Agricultural Platform" %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <%= action_cable_meta_tag %> <!-- ✅ necessário para WebSocket -->
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= action_cable_meta_tag %> <!-- ✅ necessário para WebSocket -->
 
-  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
-  <%= javascript_importmap_tags %>
-  <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css", media: "all" %>
+    <%# Estilos principais %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css", media: "all" %>
 
-  <%# ✅ Meta para sensor, se existir na view atual %>
-  <% if defined?(sensor) && sensor.present? %>
-    <meta name="sensor-id" content="<%= sensor.id %>">
-  <% end %>
-</head>
+    <%# JavaScript moderno com Importmap + ActionCable %>
+    <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
 
-<body>
-  <% unless devise_controller? %>
-    <%= render 'shared/navbar' %>
-  <% end %>
+    <%# Passa o ID do sensor para o JS %>
+    <% if @sensor %>
+      <meta name="sensor-id" content="<%= @sensor.id %>">
+    <% end %>
+  </head>
 
-  <div class="main-content">
-    <turbo-frame id="main-content">
-      <%= yield %>
-    </turbo-frame>
-  </div>
-</body>
+  <body>
+    <% unless devise_controller? %>
+      <%= render 'shared/navbar' %>
+    <% end %>
+
+    <div class="main-content">
+      <turbo-frame id="main-content">
+        <%= yield %>
+      </turbo-frame>
+    </div>
+  </body>
 </html>

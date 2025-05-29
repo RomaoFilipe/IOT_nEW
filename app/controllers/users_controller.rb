@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   def new
     @user = User.new
   end
-  
+
   def index
     @users = User.all
     authorize User # Pundit verifica permissões
@@ -14,9 +14,9 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      redirect_to users_path, notice: 'Usuário criado com sucesso!'
+      redirect_to users_path, notice: "Usuário criado com sucesso!"
     else
-      render :new, alert: 'Erro ao criar o usuário.'
+      render :new, alert: "Erro ao criar o usuário."
     end
   end
 
@@ -29,7 +29,7 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
     authorize @user
     if @user.update(user_params)
-      redirect_to users_path, notice: 'Usuário atualizado com sucesso.'
+      redirect_to users_path, notice: "Usuário atualizado com sucesso."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -55,7 +55,13 @@ class UsersController < ApplicationController
     user = User.find(params[:id])
     authorize user
     user.destroy
-    redirect_to users_path, notice: 'Usuário excluído com sucesso.'
+    redirect_to users_path, notice: "Usuário excluído com sucesso."
+  end
+
+  def admin_dashboard
+    authorize User  # Garante que apenas admins podem aceder
+    @users = User.all
+    render layout: "admin"
   end
 
   private
