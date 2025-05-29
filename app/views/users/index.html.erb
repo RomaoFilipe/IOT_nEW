@@ -71,14 +71,21 @@
                                 <% end %>
                             </div>
                         </td>
-                        <td class="text-center action-icons">
-                            <%= link_to edit_user_path(user), class: "edit-icon" do %>
+                            <td class="text-center action-icons">
+                            <%= link_to edit_user_path(user), class: "edit-icon", title: "Editar" do %>
                                 <i class="fas fa-edit"></i>
                             <% end %>
-                            <%= link_to user_path(user), method: :delete, data: { confirm: 'Tem certeza?' }, class: "delete-icon" do %>
+
+                            <%= link_to user_path(user), method: :delete, data: { confirm: 'Tem certeza?' }, class: "delete-icon", title: "Eliminar" do %>
                                 <i class="fas fa-trash-alt"></i>
                             <% end %>
-                        </td>
+
+                            <% if policy(user).entrar_como? %>
+                                <%= link_to entrar_como_user_path(user), class: "text-success", title: "Entrar como este utilizador" do %>
+                                <i class="fas fa-sign-in-alt"></i>
+                                <% end %>
+                            <% end %>
+                            </td>
                     </tr>
                     <% end %>
                 </tbody>

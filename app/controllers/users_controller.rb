@@ -68,6 +68,12 @@ class UsersController < ApplicationController
 
   private
 
+  def verifica_admin!
+    unless current_user.admin?
+      redirect_to root_path, alert: "Acesso negado"
+    end
+  end
+
   def authorize_user
     authorize User
   end

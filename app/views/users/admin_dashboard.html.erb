@@ -10,6 +10,19 @@
 </style>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <% if session[:admin_user_id].present? %>
+    <div class="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 flex justify-between items-center shadow-sm">
+      <div class="flex items-center text-sm text-yellow-800">
+        <i class="bi bi-person-check-fill text-xl mr-2"></i>
+        Estás a navegar como <strong class="mx-1"><%= current_user.name %></strong>
+      </div>
+      <%= button_to "Retornar como Admin", retornar_como_admin_users_path, method: :post, class: "inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500 text-white text-sm font-semibold rounded hover:bg-yellow-600 transition" do %>
+        <i class="bi bi-arrow-return-left"></i> Voltar
+      <% end %>
+    </div>
+  <% end %>
+
   <!-- Cabeçalho -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
     <div class="w-full sm:w-auto">

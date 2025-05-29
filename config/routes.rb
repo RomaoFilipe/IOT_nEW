@@ -15,7 +15,7 @@ Rails.application.routes.draw do
 
     # ✅ Administração de utilizadores
     resources :users, only: [ :index, :new, :create, :edit, :update, :destroy ] do
-      post :entrar_como, on: :member
+      get :entrar_como, on: :member    # 👈 muda de post para get
       post :retornar_como_admin, on: :collection
     end
 
