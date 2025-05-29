@@ -7,6 +7,7 @@ import "flatpickr/dist/themes/material_green.css";
 import "bootstrap";
 import "@popperjs/core";
 import "jquery";
+import "channels"
 import { createIcons, icons } from "lucide";
 
 // Rails & Turbo setup
