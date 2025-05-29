@@ -1,35 +1,46 @@
 <% content_for :title, "Painel de Administração" %>
 
-<div class="max-w-7xl mx-auto px-6 py-8">
-  <h1 class="text-3xl font-bold text-gray-800 mb-2">👨‍💼 Painel de Administração</h1>
-  <p class="text-gray-600 mb-6">Gestão de contas de utilizadores registados no sistema.</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-4xl font-bold text-gray-900">👤 Utilizadores</h1>
+      <p class="text-sm text-gray-500 mt-1">Gerir contas de utilizadores registados na plataforma.</p>
+    </div>
+    <%= link_to new_user_path, class: "inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded hover:bg-indigo-700 shadow" do %>
+      <i class="bi bi-person-plus-fill mr-2"></i> Novo Utilizador
+    <% end %>
+  </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <% @users.each do |user| %>
-      <div class="bg-white rounded-xl shadow-md p-6 border hover:shadow-lg transition">
-        <h3 class="text-xl font-semibold text-gray-800 mb-1"><%= user.name %></h3>
-        <p class="text-sm text-gray-600"><i class="bi bi-envelope"></i> <%= user.email %></p>
-        <p class="text-xs text-gray-500 mt-1"><i class="bi bi-calendar"></i> Criado em <%= user.created_at.strftime("%d/%m/%Y") %></p>
+      <div class="relative bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xl font-semibold text-gray-800"><%= user.name %></h3>
+          <span class="text-sm text-gray-400"><%= user.role.capitalize %></span>
+        </div>
+
+        <p class="text-sm text-gray-600 truncate"><i class="bi bi-envelope-fill mr-1"></i> <%= user.email %></p>
+        <p class="text-xs text-gray-500 mt-1"><i class="bi bi-calendar3 mr-1"></i> Criado em <%= user.created_at.strftime("%d/%m/%Y") %></p>
 
         <% if user.admin? %>
-          <span class="mt-4 inline-block px-2 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">Administrador</span>
+          <span class="mt-4 inline-block text-xs font-semibold bg-red-100 text-red-700 px-3 py-1 rounded-full">Administrador</span>
         <% elsif user.manager? %>
-          <span class="mt-4 inline-block px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded-full">Gestor</span>
+          <span class="mt-4 inline-block text-xs font-semibold bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">Gestor</span>
         <% else %>
-          <span class="mt-4 inline-block px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-800 rounded-full">Utilizador</span>
+          <span class="mt-4 inline-block text-xs font-semibold bg-gray-100 text-gray-800 px-3 py-1 rounded-full">Utilizador</span>
         <% end %>
 
-        <div class="flex flex-wrap gap-2 mt-4">
-          <%= link_to edit_user_path(user), class: "text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 inline-flex items-center" do %>
+        <div class="flex flex-wrap mt-4 gap-2">
+          <%= link_to edit_user_path(user), class: "inline-flex items-center px-3 py-1.5 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200" do %>
             <i class="bi bi-pencil-fill mr-1"></i> Editar
           <% end %>
 
-          <%= link_to user_path(user), method: :delete, data: { confirm: "Tens a certeza que queres eliminar este utilizador?" }, class: "text-xs px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 inline-flex items-center" do %>
+          <%= link_to user_path(user), method: :delete, data: { confirm: "Tens a certeza que queres eliminar este utilizador?" }, class: "inline-flex items-center px-3 py-1.5 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200" do %>
             <i class="bi bi-trash-fill mr-1"></i> Eliminar
           <% end %>
 
           <% if policy(user).entrar_como? && user != current_user %>
-            <%= link_to entrar_como_user_path(user), method: :post, class: "text-xs px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 inline-flex items-center" do %>
+            <%= link_to entrar_como_user_path(user), method: :post, class: "inline-flex items-center px-3 py-1.5 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200" do %>
               <i class="bi bi-person-check-fill mr-1"></i> Entrar como
             <% end %>
           <% end %>
