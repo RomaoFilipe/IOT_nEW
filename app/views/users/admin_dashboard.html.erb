@@ -7,7 +7,13 @@
       <p class="mt-1 text-sm text-gray-500">Gestão completa de contas registadas na plataforma.</p>
     </div>
     <div class="w-full sm:w-auto flex flex-col sm:flex-row items-stretch gap-2">
-      <input type="text" placeholder="Pesquisar por nome ou email..." class="w-full sm:w-64 px-4 py-2 rounded-lg border border-gray-300 focus:ring focus:ring-indigo-200 focus:outline-none text-sm" />
+      <input
+        type="text"
+        placeholder="Pesquisar por nome ou email..."
+        class="w-full sm:w-64 px-4 py-2 rounded-lg border border-gray-300 focus:ring-indigo-300 focus:border-indigo-400 focus:outline-none text-sm"
+        oninput="filtrarUtilizadores(this.value)"
+        autocomplete="off"
+      />
       <%= link_to new_user_path, class: "inline-flex justify-center items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 shadow transition" do %>
         <i class="bi bi-person-plus-fill"></i>
         Novo Utilizador
@@ -17,7 +23,7 @@
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
     <% @users.each do |user| %>
-      <div class="bg-white rounded-2xl shadow border border-gray-200 p-6 hover:shadow-lg transition">
+      <div class="bg-white rounded-2xl shadow border border-gray-200 p-6 hover:shadow-lg transition" data-user-card data-user-name="<%= user.name %>" data-user-email="<%= user.email %>">
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-lg font-semibold text-gray-900 truncate"><%= user.name %></h2>
           <span class="text-xs font-medium text-gray-400 capitalize"><%= user.role %></span>
@@ -53,3 +59,21 @@
     <% end %>
   </div>
 </div>
+
+<script>
+  function filtrarUtilizadores(termo) {
+    const cards = document.querySelectorAll('[data-user-card]');
+    termo = termo.toLowerCase();
+
+    cards.forEach(card => {
+      const nome = card.getAttribute('data-user-name').toLowerCase();
+      const email = card.getAttribute('data-user-email').toLowerCase();
+
+      if (nome.includes(termo) || email.includes(termo)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+</script>
