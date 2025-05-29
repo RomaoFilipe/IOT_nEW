@@ -64,6 +64,8 @@ class UsersController < ApplicationController
     render layout: "admin"
   end
 
+
+
   private
 
   def authorize_user
