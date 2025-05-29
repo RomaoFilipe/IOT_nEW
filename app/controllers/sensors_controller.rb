@@ -111,14 +111,14 @@ end
         last_reading: Time.current,
         remaining_time: 0
       )
-
+  
       @sensor.sensor_readings.create!(
         status: "parado",
         read_at: Time.current,
         remaining_time: 0,
         last_duration: @sensor.last_duration
       )
-
+  
       @sensor.irrigation_logs.create!(
         sensor_id: @sensor.id,
         executed_at: Time.current,
@@ -126,13 +126,23 @@ end
         device_id: @sensor.device_id,
         status: "parado"
       )
-
-      # ✅ Usa o método reutilizável
+  
       broadcast_irrigation_status(@sensor)
     end
-
-    redirect_to dashboard_path, notice: "Irrigação parada manualmente."
+  
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@sensor, :irrigation_status_block),
+          partial: "sensors/irrigation_status_block",
+          locals: { sensor: @sensor }
+        )
+      end
+  
+      format.html { redirect_to dashboard_path, notice: "Irrigação parada manualmente." }
+    end
   end
+  
 
 
 

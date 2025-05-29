@@ -1,5 +1,4 @@
-<!-- fields/tabs/_overview.html.erb -->
-<%= turbo_frame_tag "overview-#{field.id}" do %>
+<%= turbo_frame_tag "overview-\#{field.id}" do %>
 <div class="grid grid-cols-2 gap-6">
   <!-- Mapa -->
   <div class="bg-gray-100 rounded-lg h-40 flex items-center justify-center">
@@ -37,7 +36,6 @@
   <p><strong>Last Updated:</strong> 10 minutes ago</p>
 </div>
 
-
 <!-- Current Conditions -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
   <!-- Moisture -->
@@ -45,7 +43,7 @@
     <span class="block text-blue-500 text-2xl">💧</span>
     <p class="text-gray-600">Moisture</p>
     <p class="font-bold text-lg">
-      <%= field.sensors.average(:moisture)&.round(1) || "-" %>%
+      <%= "\#{field.sensors.average(:moisture)&.round(1) || '-'}%" %>
     </p>
   </div>
 
@@ -65,11 +63,42 @@
     <p class="font-bold text-lg">Good</p>
   </div>
 
-  <!-- Irrigation (estático por agora) -->
-  <div class="bg-gray-100 p-4 rounded-lg text-center">
-    <span class="block text-blue-500 text-2xl">💦</span>
-    <p class="text-gray-600">Irrigation</p>
-    <p class="font-bold text-lg">Active</p>
-  </div>
+  <% if irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation") %>
+    <div class="bg-gray-100 p-4 rounded-lg text-center" id="<%= dom_id(irrigation_sensor, :irrigation_status_block) %>">
+      <span class="block text-blue-500 text-2xl">💦</span>
+      <p class="text-gray-600">Irrigation</p>
+
+      <%= render partial: "sensors/irrigation_status_block", locals: { sensor: irrigation_sensor } %>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const sensorId = "<%= irrigation_sensor.id %>";
+
+        if (!window.App || !window.App.cable) return;
+
+        window.App.cable.subscriptions.create(
+          { channel: "IrrigationChannel", sensor_id: sensorId },
+          {
+            connected() {
+              console.log(`🔌 Canal de irrigação conectado: sensor ${sensorId}`);
+            },
+            disconnected() {
+              console.log(`⛔ Canal de irrigação desconectado: sensor ${sensorId}`);
+            },
+            received(data) {
+              // ✅ Atualiza sempre que receber dados
+              fetch(`/sensors/${sensorId}/status_info`)
+                .then(res => res.text())
+                .then(html => {
+                  const container = document.getElementById(`sensor_${sensorId}_irrigation_status_block`);
+                  if (container) container.innerHTML = html;
+                });
+            }
+          }
+        );
+      });
+    </script>
+  <% end %>
 </div>
 <% end %>

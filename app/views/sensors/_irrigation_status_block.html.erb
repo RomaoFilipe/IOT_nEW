@@ -1,0 +1,96 @@
+<span class="irrigation-status block text-sm font-medium text-gray-600 mb-1">
+  Estado da Irrigação: <%= sensor.status.capitalize %>
+</span>
+
+<% if sensor.status == "irrigando" && sensor.remaining_time.present? && sensor.last_duration.present? %>
+  <% percent = ((sensor.remaining_time.to_f / sensor.last_duration.to_f) * 100).round %>
+
+  <!-- Barra de progresso -->
+  <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+    <div class="bg-green-500 h-full transition-all duration-500 ease-linear"
+         style="width: <%= percent %>%;">
+    </div>
+  </div>
+
+  <!-- Tempo restante -->
+  <span class="block text-sm text-gray-700 mt-1">
+    Faltam: <%= Time.at(sensor.remaining_time).utc.strftime("%Hh %Mm %Ss") %>
+  </span>
+
+  <!-- Botão parar irrigação -->
+  <div id="stop-irrigation-button-<%= sensor.id %>" class="mt-3">
+    <form action="<%= stop_irrigation_sensor_path(sensor) %>" method="post" data-turbo-frame="_top" onsubmit="return confirmStopIrrigation(<%= sensor.id %>)">
+      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+      <button
+        type="submit"
+        id="stop-btn-<%= sensor.id %>"
+        class="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm flex items-center justify-center gap-2 transition-all">
+        <svg id="spinner-<%= sensor.id %>" class="hidden animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span id="stop-text-<%= sensor.id %>">⛔ Parar Irrigação</span>
+      </button>
+    </form>
+  </div>
+
+<% else %>
+  <div id="irrigation-stopped-alert-<%= sensor.id %>" class="bg-blue-100 text-blue-800 px-3 py-2 rounded mt-3 text-sm animate-fade-in">
+    💧 Irrigação Parada com Sucesso
+  </div>
+<% end %>
+
+<script>
+  function confirmStopIrrigation(sensorId) {
+    const confirmed = confirm("Tem a certeza que deseja parar a irrigação?");
+    if (confirmed) {
+      const btn = document.getElementById(`stop-btn-${sensorId}`);
+      const spinner = document.getElementById(`spinner-${sensorId}`);
+      const text = document.getElementById(`stop-text-${sensorId}`);
+      if (spinner && text && btn) {
+        spinner.classList.remove("hidden");
+        text.classList.add("opacity-50");
+        btn.disabled = true;
+      }
+    }
+    return confirmed;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const sensorId = "<%= sensor.id %>";
+    if (!window.App || !window.App.cable) return;
+
+    window.App.cable.subscriptions.create(
+      { channel: "IrrigationChannel", sensor_id: sensorId },
+      {
+        received(data) {
+          if (data.status === "parado" || data.remaining_time === 0) {
+            fetch(`/sensors/${sensorId}/status_info`)
+              .then(res => res.text())
+              .then(html => {
+                const container = document.getElementById(`sensor_${sensorId}_irrigation_status_block`);
+                if (container) container.innerHTML = html;
+
+                // Remove alerta após 5 segundos
+                setTimeout(() => {
+                  const alert = document.getElementById(`irrigation-stopped-alert-${sensorId}`);
+                  if (alert) alert.remove();
+                }, 5000);
+              });
+          }
+        }
+      }
+    );
+  });
+</script>
+
+<style>
+  @keyframes fade-in {
+    0%   { opacity: 0; transform: translateY(5px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out;
+  }
+</style>

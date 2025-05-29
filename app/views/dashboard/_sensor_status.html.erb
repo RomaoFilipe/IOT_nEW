@@ -5,27 +5,15 @@
 
   <!-- Estado da Irrigação + Barra -->
   <div class="irrigation-status mb-2">
-    <span class="irrigation-status-text block text-sm font-medium text-gray-600 mb-1">
-      Estado da Irrigação: <%= sensor.status.capitalize %>
-    </span>
+    <div class="flex justify-between items-center text-sm font-medium text-gray-600 mb-1">
+      <span>💦  Estado da Irrigação: <%= sensor.status.capitalize %></span>
+      <span class="irrigation-progress-text text-gray-700">Faltam: 0h 0m 0s</span>
+    </div>
 
     <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
       <div class="irrigation-progress-bar bg-green-500 h-full transition-all duration-500 ease-linear"
-           style="width: 0%;">
-      </div>
+           style="width: 0%;"></div>
     </div>
-
-    <span class="irrigation-progress-text block text-sm text-gray-700 mt-1">
-      Faltam: 0h 0m 0s
-    </span>
-  </div>
-
-  <!-- Botão iniciar irrigação -->
-  <div class="mt-4">
-    <%= form_with url: start_irrigation_sensor_path(sensor), method: :post, local: true do |f| %>
-      <%= f.hidden_field :duration, value: 120 %>
-      <%= f.submit "💧 Iniciar Irrigação", class: "btn btn-success" %>
-    <% end %>
   </div>
 
   <!-- Outros sensores -->
@@ -80,7 +68,7 @@
     }
 
     function updateUI() {
-      const percent = (remainingTime / totalTime) * 100;
+      const percent = totalTime > 0 ? (remainingTime / totalTime) * 100 : 0;
       progressBar.style.width = `${percent}%`;
       progressText.textContent = `Faltam: ${formatTime(remainingTime)}`;
     }
@@ -103,18 +91,15 @@
       }
     }
 
-    // Atualiza a cada 5 segundos
     setInterval(() => {
       if (remainingTime > 0) remainingTime--;
       updateUI();
     }, 1000);
 
-    // Faz polling a cada 5 segundos
     setInterval(() => {
       checkStatus();
     }, 5000);
 
-    // Primeiro carregamento
     checkStatus();
   });
 </script>

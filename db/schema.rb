@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_29_154944) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_29_165642) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -142,6 +142,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154944) do
     t.string "type"
     t.datetime "irrigation_started_at"
     t.integer "irrigation_duration"
+    t.integer "remaining_time"
     t.index ["field_id"], name: "index_sensors_on_field_id"
     t.index ["type"], name: "index_sensors_on_type"
   end
