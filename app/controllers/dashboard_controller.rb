@@ -2,17 +2,18 @@ class DashboardController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @fields = Field.all
-    @field = params[:field_id] ? Field.find(params[:field_id]) : Field.first
+    @fields = current_user.fields
+    @field = params[:field_id] ? current_user.fields.find_by(id: params[:field_id]) : current_user.fields.first
 
     now = Time.current
     today_wday = now.wday
 
-    # Tarefas planeadas futuras
+    # Tarefas planeadas futuras associadas a campos do utilizador
     planned_tasks = PlannedTask
       .includes(:field)
       .where(completed: false)
       .where("scheduled_for >= ?", now)
+      .where(field: current_user.fields) # 🔐 segurança
       .map do |task|
         {
           id: task.id,
@@ -25,11 +26,11 @@ class DashboardController < ApplicationController
         }
       end
 
-    # Irrigações agendadas para hoje e ainda por iniciar
+    # Irrigações agendadas para hoje em sensores de campos do utilizador
     irrigation_schedules = IrrigationSchedule
       .includes(sensor: :field)
       .where(day_of_week: today_wday)
-      .select { |s| s.sensor.present? && s.sensor.field.present? }
+      .select { |s| s.sensor&.field && current_user.fields.include?(s.sensor.field) }
       .map do |schedule|
         scheduled_time = Time.zone.local(
           now.year, now.month, now.day, schedule.hour, schedule.minute
