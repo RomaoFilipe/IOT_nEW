@@ -1,7 +1,7 @@
 class SensorsController < ApplicationController
-  require 'mqtt'
-  before_action :set_field, only: [:create]
-before_action :set_sensor, except: [:lookup, :create, :start_irrigation]
+  require "mqtt"
+  before_action :set_field, only: [ :create ]
+before_action :set_sensor, except: [ :lookup, :create, :start_irrigation ]
   def create
     @sensor = @field.sensors.build(sensor_params.merge(
       status: "Active",
@@ -86,39 +86,53 @@ before_action :set_sensor, except: [:lookup, :create, :start_irrigation]
 
   def stop_irrigation
     ActiveRecord::Base.transaction do
-      @sensor.update!(status: "parado", last_reading: Time.current)
-  
+      @sensor.update!(
+        status: "parado",
+        last_reading: Time.current,
+        remaining_time: 0
+      )
+
       @sensor.sensor_readings.create!(
         status: "parado",
         read_at: Time.current,
         remaining_time: 0,
         last_duration: @sensor.last_duration
       )
-  
-      # 👇 Envia estado atualizado por WebSocket
-      ActionCable.server.broadcast("irrigation_status_#{@sensor.id}", {
-        status: "parado",
-        remaining_time: 0,
-        duration: @sensor.last_duration
-      })
+
+      @sensor.irrigation_logs.create!(
+        sensor_id: @sensor.id,
+        executed_at: Time.current,
+        duration: 0,
+        device_id: @sensor.device_id,
+        status: "parado"
+      )
+
+      # ✅ Usa o método reutilizável
+      broadcast_irrigation_status(@sensor)
     end
-  
-    head :ok
+
+    redirect_to dashboard_path, notice: "Irrigação parada manualmente."
   end
+
+
 
   def start_irrigation
     duration = params[:duration].to_i
     duration = 120 if duration <= 0
-  
-    # Verifica se @sensor está corretamente definido
+
     unless @sensor
       redirect_back fallback_location: dashboard_path, alert: "Sensor não encontrado."
       return
     end
-  
+
     ActiveRecord::Base.transaction do
-      @sensor.update!(status: "irrigando", last_reading: Time.current)
-  
+      @sensor.update!(
+        status: "irrigando",
+        last_reading: Time.current,
+        last_duration: duration,
+        remaining_time: duration
+      )
+
       @sensor.irrigation_logs.create!(
         sensor_id: @sensor.id,
         executed_at: Time.current,
@@ -126,26 +140,25 @@ before_action :set_sensor, except: [:lookup, :create, :start_irrigation]
         device_id: @sensor.device_id,
         status: "executado"
       )
-  
+
       mqtt_payload = {
         action: "start",
         duration: duration,
         origin: "manual"
       }
-  
-      mqtt_topic = "sensors/irrigation/\#{@sensor.device_id}/command"
+
       MqttService.publish_command(@sensor.device_id, mqtt_payload)
-  
-      ActionCable.server.broadcast("irrigation_status_\#{@sensor.id}", {
-        status: @sensor.status,
+
+      # ✅ Novo WebSocket broadcast compatível com o frontend
+      ActionCable.server.broadcast("irrigation_#{@sensor.id}", {
         remaining_time: @sensor.remaining_time,
-        duration: @sensor.last_duration
+        total_time: @sensor.last_duration
       })
     end
-  
+
     redirect_to dashboard_path, notice: "Irrigação iniciada manualmente."
   end
-  
+
 
   def toggle_status
     @sensor.update(status: @sensor.status == "Active" ? "Inactive" : "Active")
@@ -171,14 +184,7 @@ def assign_field
   end
 end
 
-  def broadcast_irrigation_status(sensor)
-    ActionCable.server.broadcast("irrigation_status_#{sensor.id}", {
-      status: sensor.status,
-      remaining_time: sensor.remaining_time,
-      duration: sensor.last_duration
-    })
-  end
-  
+
 
   private
 
@@ -192,5 +198,12 @@ end
 
   def sensor_params
     params.require(:sensor).permit(:name, :sensor_type)
+  end
+
+  def broadcast_irrigation_status(sensor)
+    ActionCable.server.broadcast("irrigation_#{sensor.id}", {
+      remaining_time: sensor.remaining_time,
+      total_time: sensor.last_duration
+    })
   end
 end

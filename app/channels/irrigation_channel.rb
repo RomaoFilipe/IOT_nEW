@@ -1,10 +1,6 @@
 class IrrigationChannel < ApplicationCable::Channel
   def subscribed
-    stream_from "irrigation_status"
-  end
-end
-
-  def unsubscribed
-    # Any cleanup needed when channel is unsubscribed
+    sensor_id = params[:sensor_id]
+    stream_from "irrigation_#{sensor_id}"
   end
 end

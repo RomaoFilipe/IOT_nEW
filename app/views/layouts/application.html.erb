@@ -6,27 +6,28 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
+  <%= action_cable_meta_tag %> <!-- ✅ necessário para WebSocket -->
 
- 
-<%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-<%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+  <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css", media: "all" %>
 
-<%= javascript_importmap_tags %>
-<%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css", media: "all" %>
+  <%# ✅ Meta para sensor, se existir na view atual %>
+  <% if defined?(sensor) && sensor.present? %>
+    <meta name="sensor-id" content="<%= sensor.id %>">
+  <% end %>
 </head>
 
 <body>
   <% unless devise_controller? %>
-    <!-- Navbar and Sidebar are displayed only if not a Devise controller -->
     <%= render 'shared/navbar' %>
   <% end %>
 
-  <!-- Main Content Area with Turbo Frame for dynamic content loading -->
   <div class="main-content">
     <turbo-frame id="main-content">
-      <%= yield %> <!-- Main content will be dynamically updated here -->
+      <%= yield %>
     </turbo-frame>
   </div>
-  
 </body>
 </html>
