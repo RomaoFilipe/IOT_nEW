@@ -22,4 +22,12 @@ class UserPolicy < ApplicationPolicy
   def admin_dashboard?
     user.admin?
   end
+
+  def entrar_como?
+    user.admin? && user != record
+  end
+
+  def retornar_como_admin?
+    user.admin?
+  end
 end
