@@ -1,6 +1,6 @@
 module Api
   class SensorsController < Api::BaseController
-    before_action :set_sensor, except: [:identify]
+    before_action :set_sensor, except: [ :lookup, :create, :start_irrigation ]
     before_action :authenticate_api_token!, except: [:identify, :simulate]
     before_action :authenticate_api!, except: [:identify, :simulate]
     

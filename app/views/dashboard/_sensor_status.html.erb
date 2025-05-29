@@ -22,10 +22,11 @@
 
   <!-- Botão iniciar irrigação -->
   <div class="mt-4">
-    <%= form_with url: start_irrigation_sensor_path(sensor), method: :post, local: true do |f| %>
-      <%= f.hidden_field :duration, value: 120 %>
-      <%= f.submit "💧 Iniciar Irrigação", class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition" %>
-    <% end %>
+<%= form_with url: start_irrigation_sensor_path(sensor), method: :post, local: true do |f| %>
+  <%= f.hidden_field :duration, value: 120 %>
+  <%= f.submit "💧 Iniciar Irrigação", class: "btn btn-success" %>
+<% end %>
+
   </div>
 
   <!-- Outros sensores -->
