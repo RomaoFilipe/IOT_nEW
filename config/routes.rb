@@ -47,7 +47,7 @@ Rails.application.routes.draw do
       # ✅ ROTA DE POLLING
   get 'sensors/:id/irrigation_status', to: 'sensors#irrigation_status'
   get 'fields/:id/show_details', to: 'fields#show_details', as: 'show_field_details'
-
+  get "/events/upcoming", to: "events#upcoming"
 
   get 'analytics/export_csv', to: 'analytics#export_csv', as: 'export_analytics_csv'
   get 'analytics/export_field_comparison_csv', to: 'analytics#export_field_comparison_csv', as: 'export_field_comparison_csv'

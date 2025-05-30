@@ -2,12 +2,127 @@
   🗓️ Eventos Planeados
 </h3>
 
-<turbo-frame id="planned-events-list">
+<%# Lista dos eventos, id para manipulação por JS %>
+<ul id="planned-events-list" class="space-y-3">
   <% if @events.any? %>
-    <ul class="space-y-3">
-      <%= render partial: "dashboard/event", collection: @events, as: :event %>
-    </ul>
+    <% @events.each do |event| %>
+      <li id="<%= dom_id(event[:type] == :task ? PlannedTask.new(id: event[:id]) : IrrigationSchedule.new(id: event[:id])) %>"
+          class="border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition">
+        <!-- Conteúdo do evento -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+          <div class="flex items-start gap-3">
+            <div class="mt-1 shrink-0">
+              <% if event[:type] == :task %>
+                <div class="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center text-xs text-gray-400">✓</div>
+              <% else %>
+                <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600">🚿</div>
+              <% end %>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-sm text-gray-800 break-words"><%= event[:title] %></p>
+              <div class="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500">
+                <span class="flex items-center gap-1">🕒 <%= l(event[:time], format: "%d/%m/%Y %H:%M") %></span>
+                <% if event[:type] == :task && event[:priority].present? %>
+                  <% priority_color = case event[:priority].downcase
+                    when "high" then "text-red-600"
+                    when "medium" then "text-yellow-600"
+                    else "text-green-600"
+                  end %>
+                  <span class="<%= priority_color %> font-semibold capitalize"><%= event[:priority] %></span>
+                <% end %>
+                <span><%= event[:field] %></span>
+              </div>
+            </div>
+          </div>
+          <div class="sm:mt-1 sm:ml-2">
+            <%# Botões para cancelar eventos, se necessário %>
+          </div>
+        </div>
+      </li>
+    <% end %>
   <% else %>
-    <p class="text-sm text-gray-500 italic">Nenhum evento planeado para hoje.</p>
+    <p id="no-events-msg" class="text-sm text-gray-500 italic">Nenhum evento planeado para hoje.</p>
   <% end %>
-</turbo-frame>
+</ul>
+
+<script>
+  document.addEventListener("turbo:load", () => {
+    // Função para renderizar um evento em HTML
+    function renderEvent(event) {
+      const li = document.createElement("li");
+      const domId = event.type === 'task'
+        ? `planned_task_${event.id}`
+        : `irrigation_schedule_${event.id}`;
+      li.id = domId;
+      li.className = "border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition";
+
+      li.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+          <div class="flex items-start gap-3">
+            <div class="mt-1 shrink-0">
+              ${event.type === 'task'
+                ? '<div class="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center text-xs text-gray-400">✓</div>'
+                : '<div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600">🚿</div>'
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-sm text-gray-800 break-words">${event.title}</p>
+              <div class="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500">
+                <span class="flex items-center gap-1">🕒 ${new Date(event.time).toLocaleString('pt-PT', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
+                ${event.priority ? `<span class="font-semibold capitalize">${event.priority}</span>` : ''}
+                <span>${event.field}</span>
+              </div>
+            </div>
+          </div>
+          <div class="sm:mt-1 sm:ml-2">
+            <!-- Aqui podes adicionar botões para cancelar via JS se quiser -->
+          </div>
+        </div>
+      `;
+      return li;
+    }
+
+    // Função para atualizar a lista de eventos com os dados recebidos
+    function updateEvents(events) {
+      const ul = document.getElementById("planned-events-list");
+      if (!ul) return;
+
+      // Remove a mensagem "Nenhum evento"
+      const noEventsMsg = document.getElementById("no-events-msg");
+      if (noEventsMsg) noEventsMsg.remove();
+
+      // Para evitar duplicação, cria um set dos ids já existentes
+      const existingIds = new Set();
+      ul.querySelectorAll("li").forEach(li => existingIds.add(li.id));
+
+      events.forEach(event => {
+        const domId = event.type === 'task'
+          ? `planned_task_${event.id}`
+          : `irrigation_schedule_${event.id}`;
+
+        if (!existingIds.has(domId)) {
+          const li = renderEvent(event);
+          ul.prepend(li); // adiciona no topo
+        }
+      });
+    }
+
+    // Função de polling AJAX para buscar eventos
+    function pollEvents() {
+      fetch('/events/upcoming.json', { credentials: "same-origin" })
+        .then(response => response.json())
+        .then(data => {
+          updateEvents(data.events);
+        })
+        .catch(error => {
+          console.error("Erro ao buscar eventos:", error);
+        });
+    }
+
+    // Faz polling a cada 20 segundos
+    setInterval(pollEvents, 20000);
+
+    // Faz a primeira busca ao carregar a página
+    pollEvents();
+  });
+</script>

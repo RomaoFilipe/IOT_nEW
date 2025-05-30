@@ -2,13 +2,21 @@ class PlannedTasksController < ApplicationController
   def create
     @task = current_user.planned_tasks.new(task_params)
     if @task.save
-      PlannedEventsChannel.broadcast_to(current_user, {
+      ActionCable.server.broadcast(
+        "planned_events_#{current_user.id}",
         action: 'create',
-        task: render_to_string(partial: "dashboard/event", locals: { event: @task.to_event_hash })
-      })
-      redirect_to dashboard_path, notice: "Tarefa criada com sucesso."
+        event: {
+          id: @task.id,
+          type: 'task',
+          title: @task.title,
+          time: @task.scheduled_for,
+          priority: @task.priority,
+          field: @task.field.name
+        }
+      )
+      # redireciona ou renderiza normalmente
     else
-      # tratamento de erro
+      # tratar erro
     end
   end
 
