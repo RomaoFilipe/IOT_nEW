@@ -1,28 +1,32 @@
-<!-- app/views/analytics/_yield_form_modal.html.erb -->
-
 <div id="yieldFormModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
   <div class="bg-white p-6 rounded-lg w-full max-w-xl shadow-xl relative">
+    <!-- Botão fechar -->
     <button onclick="toggleYieldForm()" class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
-    <h3 class="text-2xl font-bold mb-4 text-gray-800 text-center">➕ Registar Produção Agrícola</h3>
 
+    <!-- Título -->
+    <h3 class="text-xl font-semibold mb-4 text-gray-800">➕ Registar Produção Agrícola</h3>
+
+    <!-- Formulário -->
     <%= form_with url: crop_yields_path, method: :post, local: true do |f| %>
+      <!-- Campo -->
       <div class="mb-4">
         <label class="text-sm font-medium text-gray-700">🌾 Campo</label>
         <%= select_tag "crop_yield[field_id]", options_from_collection_for_select(@fields, :id, :name), class: "w-full mt-1 border-gray-300 rounded-md shadow-sm" %>
       </div>
 
+      <!-- Inputs Dinâmicos de Cultura -->
       <div id="cropInputs" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="text-sm font-medium text-gray-700">🌽 Cultura</label>
+            <label class="text-sm font-medium text-gray-700">🌱 Cultura</label>
             <input type="text" name="crop_yield[crop_type][]" placeholder="Ex: Milho, Trigo" class="w-full rounded-md border-gray-300 shadow-sm mt-1"/>
           </div>
           <div>
-            <label class="text-sm font-medium text-gray-700">📊 Produção (ton)</label>
+            <label class="text-sm font-medium text-gray-700">⚖️ Produção (ton)</label>
             <input type="number" name="crop_yield[amount][]" step="0.1" class="w-full rounded-md border-gray-300 shadow-sm mt-1"/>
           </div>
           <div>
-            <label class="text-sm font-medium text-gray-700">🗓️ Mês</label>
+            <label class="text-sm font-medium text-gray-700">📅 Mês</label>
             <select name="crop_yield[month][]" class="w-full rounded-md border-gray-300 shadow-sm mt-1">
               <option value="">Selecionar</option>
               <% %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez].each do |mes| %>
@@ -33,15 +37,19 @@
         </div>
       </div>
 
+      <!-- Botões -->
       <div class="flex justify-between items-center mt-6">
+        <!-- Botão Adicionar Cultura -->
         <button type="button" onclick="addCropInput()" class="text-sm text-blue-600 hover:underline">+ Adicionar Cultura</button>
-        <%= f.submit "Guardar", class: "bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700" %>
+
+        <!-- Botão Guardar -->
+        <%= f.submit "💾 Guardar", class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
       </div>
     <% end %>
   </div>
 </div>
 
-<!-- JS para adicionar novas culturas -->
+<!-- JS para adicionar mais inputs -->
 <script>
   function addCropInput() {
     const container = document.getElementById("cropInputs");
@@ -56,8 +64,7 @@
         <div>
           <select name="crop_yield[month][]" class="w-full rounded-md border-gray-300 shadow-sm mt-1">
             <option value="">Selecionar</option>
-            ${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
-              .map(m => `<option value="${m}">${m}</option>`).join("")}
+            ${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"].map(m => `<option value="${m}">${m}</option>`).join("")}
           </select>
         </div>
       </div>

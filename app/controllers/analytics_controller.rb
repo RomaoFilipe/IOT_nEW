@@ -161,5 +161,49 @@ class AnalyticsController < ApplicationController
       cost_per_ha = total_expenses / area_ha
       @cost_per_hectare_by_field[field.name] = cost_per_ha.round(2)
     end
+    # ✅ 🚀 CAMPOS NOVOS — para os gráficos novos (SensorReadings)
+    @daily_light_intensity = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:light_intensity).compact.sum / records.size.to_f
+    end
+
+    @daily_wind_speed = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:wind_speed).compact.sum / records.size.to_f
+    end
+
+    @daily_wind_direction = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:wind_direction).compact.sum / records.size.to_f
+    end
+
+    @daily_air_temperature = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:air_temperature).compact.sum / records.size.to_f
+    end
+
+    @daily_air_humidity = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:air_humidity).compact.sum / records.size.to_f
+    end
+
+    @daily_soil_ph = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:soil_ph).compact.sum / records.size.to_f
+    end
+
+    @daily_soil_ec = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:soil_ec).compact.sum / records.size.to_f
+    end
+
+    @daily_soil_nitrogen = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:soil_nitrogen).compact.sum / records.size.to_f
+    end
+
+    @daily_soil_potassium = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:soil_potassium).compact.sum / records.size.to_f
+    end
+
+    @daily_soil_phosphorus = @soil_data.group_by { |r| r.measured_at.to_date }.transform_values do |records|
+      records.map(&:soil_phosphorus).compact.sum / records.size.to_f
+    end
+
+    @latest_uptime = @soil_data.order(measured_at: :desc).limit(1).pluck(:uptime).first
+
+    @latest_error_count = @soil_data.order(measured_at: :desc).limit(1).pluck(:error_count).first
   end
 end

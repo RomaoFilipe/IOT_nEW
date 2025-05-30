@@ -55,11 +55,6 @@
         <button onclick="applyAdvancedFilter()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
           🔍 Aplicar Filtros
         </button>
-
-        <button onclick="window.location.href='<%= analytics_path %>'" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 flex items-center gap-2">
-  ♻️ Limpar Filtros
-</button>
-
       </div>
     </div>
 
@@ -71,8 +66,7 @@
     </div>
 
     <!-- 📝 Modal do Formulário de Produção -->
-    <%= render 'analytics/yield_form_modal' %>
-
+    <%= render partial: 'analytics/yield_form_modal' %>
 
     <!-- 📤 Botões de Exportação -->
     <div class="flex flex-wrap justify-end gap-2 mb-6">
@@ -102,10 +96,8 @@
       <% tabs = {
         "overview" => "📈 Overview",
         "yield" => "🌾 Produção",
-        "distribution" => "🌱 Distribuição",
-        "monthly" => "🌡️ Mensal",
-        "moisture" => "💧 Humidade",
-        "expenses" => "💰 Despesas"
+        "environment_soil" => "🌿 Ambiente & Solo",
+        "maintenance" => "🛠️ Manutenção"
       } %>
       <% tabs.each do |id, label| %>
         <button data-tabs-target="<%= id %>" data-action="click->tabs#switch"
@@ -120,17 +112,13 @@
       <div data-tabs-content="overview">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <%= render partial: 'analytics/overview/crop_yield', locals: { chart_id: 'yieldChart_overview' } %>
-          <%= render partial: 'analytics/overview/resource_allocation', locals: { chart_id: 'resourceChart_overview' } %>
-          <%= render partial: 'analytics/overview/moisture_chart', locals: { chart_id: 'moistureChart' } %>
-          <%= render partial: 'analytics/overview/irrigation_expenses', locals: { chart_id: 'irrigationExpensesChart' } %>
-          <%= render partial: 'analytics/overview/irrigation_efficiency', locals: { chart_id: 'irrigationEfficiencyChart' } %>
-          <%= render partial: 'analytics/overview/field_comparison', locals: { chart_id: 'fieldComparisonChart' } %>
           <%= render partial: 'analytics/overview/cumulative_production', locals: { chart_id: 'cumulativeProductionChart' } %>
+          <%= render partial: 'analytics/overview/field_comparison', locals: { chart_id: 'fieldComparisonChart' } %>
           <%= render partial: 'analytics/overview/profit_by_crop', locals: { chart_id: 'profitByCropChart' } %>
           <%= render partial: 'analytics/overview/cost_per_hectare', locals: { chart_id: 'costPerHectareChart' } %>
-          <%= render partial: 'analytics/overview/temperature_chart', locals: { chart_id: 'temperatureChart_overview' } %>
-          <%= render partial: 'analytics/overview/crop_distribution', locals: { chart_id: 'cropDistributionChart_overview' } %> 
-          <%= render partial: 'analytics/overview/resource_expenses', locals: { chart_id: 'resourceExpensesChart' } %>
+          <%= render partial: 'analytics/overview/expense_distribution', locals: { chart_id: 'expenseDistributionChart' } %>
+          <%= render partial: 'analytics/overview/irrigation_efficiency', locals: { chart_id: 'irrigationEfficiencyChart' } %>
+          <%= render partial: 'analytics/overview/crop_distribution', locals: { chart_id: 'cropDistributionChart_overview' } %>
         </div>
       </div>
 
@@ -139,28 +127,29 @@
         <%= render partial: 'analytics/overview/crop_yield', locals: { chart_id: 'yieldChart' } %>
       </div>
 
-      <!-- DISTRIBUIÇÃO -->
-      <div data-tabs-content="distribution" class="hidden">
-        <%= render partial: 'analytics/overview/crop_distribution', locals: { chart_id: 'cropDistributionChart' } %>
+      <!-- AMBIENTE & SOLO -->
+      <div data-tabs-content="environment_soil" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <%= render partial: 'analytics/overview/light_intensity_chart', locals: { chart_id: 'lightIntensityChart' } %>
+          <%= render partial: 'analytics/overview/wind_speed_chart', locals: { chart_id: 'windSpeedChart' } %>
+          <%= render partial: 'analytics/overview/air_temperature_chart', locals: { chart_id: 'airTemperatureChart' } %>
+          <%= render partial: 'analytics/overview/air_humidity_chart', locals: { chart_id: 'airHumidityChart' } %>
+          <%= render partial: 'analytics/overview/soil_quality_chart', locals: { chart_id: 'soilQualityChart' } %>
+          <%= render partial: 'analytics/overview/soil_nutrients_chart', locals: { chart_id: 'soilNutrientsChart' } %>
+          <%= render partial: 'analytics/overview/moisture_chart', locals: { chart_id: 'moistureChart' } %>
+        </div>
       </div>
 
-      <!-- MENSAL -->
-      <div data-tabs-content="monthly" class="hidden">
-        <%= render partial: 'analytics/overview/temperature_chart', locals: { chart_id: 'temperatureChart_monthly' } %>
+      <!-- MANUTENÇÃO -->
+      <div data-tabs-content="maintenance" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <%= render partial: 'analytics/overview/uptime_chart', locals: { chart_id: 'uptimeChart' } %>
+          <%= render partial: 'analytics/overview/error_count_chart', locals: { chart_id: 'errorCountChart' } %>
+        </div>
       </div>
+    </div> <!-- FIM das TABS -->
 
-      <!-- HUMIDADE -->
-      <div data-tabs-content="moisture" class="hidden">
-        <%= render partial: 'analytics/overview/moisture_chart', locals: { chart_id: 'moistureChart' } %>
-      </div>
-
-      <!-- DESPESAS -->
-      <div data-tabs-content="expenses" class="hidden">
-        <%= render partial: 'analytics/overview/expense_distribution', locals: { chart_id: 'expenseDistributionChart' } %>
-      </div>
-    </div>
-
-  </div> <!-- FECHA DIV max-w-7xl -->
+  </div> <!-- FIM do container -->
 
   <!-- JS para Tabs e Filtros -->
   <script>
@@ -180,7 +169,7 @@
           button.classList.toggle("bg-white", !isActive);
           button.classList.toggle("text-gray-700", !isActive);
         });
-        window.scrollTo(0, 0); // Para não ficar a meio da página no mobile
+        window.scrollTo(0, 0);
 
         // Re-renderiza os gráficos
         setTimeout(() => {

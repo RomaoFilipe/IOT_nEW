@@ -1,0 +1,60 @@
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="font-semibold mb-2">🧪 Qualidade do Solo (pH & EC)</h2>
+  <div class="relative h-64">
+    <canvas id="<%= chart_id %>" data-chart="true" class="h-64 w-full"></canvas>
+  </div>
+</div>
+
+<script>
+  function renderChart_<%= chart_id %>() {
+    const ctx = document.getElementById("<%= chart_id %>").getContext("2d");
+
+    if (window["chart_<%= chart_id %>"]) window["chart_<%= chart_id %>"].destroy();
+
+    const labels = <%= raw @daily_soil_ph.keys.map(&:to_s).to_json %>;
+    const phData = <%= raw @daily_soil_ph.values.map { |v| v.round(2) }.to_json %>;
+    const ecData = <%= raw @daily_soil_ec.values.map { |v| v.round(2) }.to_json %>;
+
+    window["chart_<%= chart_id %>"] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "pH do Solo",
+            data: phData,
+            borderColor: "rgba(34, 197, 94, 1)", // verde
+            backgroundColor: "rgba(34, 197, 94, 0.3)",
+            fill: true,
+            tension: 0.4,
+            yAxisID: 'y',
+          },
+          {
+            label: "Condutividade (EC)",
+            data: ecData,
+            borderColor: "rgba(59, 130, 246, 1)", // azul
+            backgroundColor: "rgba(59, 130, 246, 0.3)",
+            fill: true,
+            tension: 0.4,
+            yAxisID: 'y',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true, position: 'bottom' }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Valor'
+            }
+          }
+        }
+      }
+    });
+  }
+</script>

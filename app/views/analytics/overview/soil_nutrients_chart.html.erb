@@ -1,0 +1,67 @@
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="font-semibold mb-2">🌱 Nutrientes do Solo (NPK - ppm)</h2>
+  <div class="relative h-64">
+    <canvas id="<%= chart_id %>" data-chart="true" class="h-64 w-full"></canvas>
+  </div>
+</div>
+
+<script>
+  function renderChart_<%= chart_id %>() {
+    const ctx = document.getElementById("<%= chart_id %>").getContext("2d");
+
+    if (window["chart_<%= chart_id %>"]) window["chart_<%= chart_id %>"].destroy();
+
+    const labels = <%= raw @daily_soil_nitrogen.keys.map(&:to_s).to_json %>;
+    const nitrogenData = <%= raw @daily_soil_nitrogen.values.map { |v| v.round(2) }.to_json %>;
+    const potassiumData = <%= raw @daily_soil_potassium.values.map { |v| v.round(2) }.to_json %>;
+    const phosphorusData = <%= raw @daily_soil_phosphorus.values.map { |v| v.round(2) }.to_json %>;
+
+    window["chart_<%= chart_id %>"] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Nitrogênio (N)",
+            data: nitrogenData,
+            borderColor: "rgba(34, 197, 94, 1)", // verde
+            backgroundColor: "rgba(34, 197, 94, 0.3)",
+            fill: false,
+            tension: 0.4
+          },
+          {
+            label: "Potássio (K)",
+            data: potassiumData,
+            borderColor: "rgba(234, 179, 8, 1)", // amarelo
+            backgroundColor: "rgba(234, 179, 8, 0.3)",
+            fill: false,
+            tension: 0.4
+          },
+          {
+            label: "Fósforo (P)",
+            data: phosphorusData,
+            borderColor: "rgba(239, 68, 68, 1)", // vermelho
+            backgroundColor: "rgba(239, 68, 68, 0.3)",
+            fill: false,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true, position: 'bottom' }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'ppm'
+            }
+          }
+        }
+      }
+    });
+  }
+</script>

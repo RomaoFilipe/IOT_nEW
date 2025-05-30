@@ -1,0 +1,47 @@
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="font-semibold mb-2">🌬️ Velocidade do Vento (Km/h)</h2>
+  <div class="relative h-64">
+    <canvas id="<%= chart_id %>" data-chart="true" class="h-64 w-full"></canvas>
+  </div>
+</div>
+
+<script>
+  function renderChart_<%= chart_id %>() {
+    const ctx = document.getElementById("<%= chart_id %>").getContext("2d");
+
+    if (window["chart_<%= chart_id %>"]) window["chart_<%= chart_id %>"].destroy();
+
+    const labels = <%= raw @daily_wind_speed.keys.map(&:to_s).to_json %>;
+    const data = <%= raw @daily_wind_speed.values.map { |v| v.round(2) }.to_json %>;
+
+    window["chart_<%= chart_id %>"] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Velocidade do Vento (Km/h)",
+          data: data,
+          backgroundColor: "rgba(59, 130, 246, 0.6)", // azul claro
+          borderColor: "rgba(59, 130, 246, 1)",
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true, position: 'bottom' }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Km/h'
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
