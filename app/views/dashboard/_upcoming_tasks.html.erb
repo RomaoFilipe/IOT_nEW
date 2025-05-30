@@ -1,3 +1,16 @@
+<style>
+  /* Estilos para a animação de fade + riscar texto */
+  .transition-fade-out {
+    transition: opacity 0.5s ease, text-decoration 0.5s ease;
+    opacity: 1;
+  }
+
+  .transition-fade-out.line-through {
+    opacity: 0.5;
+    text-decoration: line-through;
+  }
+</style>
+
 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
   🗓️ Eventos Planeados
 </h3>
@@ -5,7 +18,10 @@
 <% if @events.any? %>
   <ul class="space-y-3">
     <% @events.each do |event| %>
-      <li class="border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition">
+      <%# Adiciona um id único para que o Turbo Stream possa remover o elemento %>
+      <li id="<%= dom_id(event[:type] == :task ? PlannedTask.new(id: event[:id]) : IrrigationSchedule.new(id: event[:id])) %>"
+          class="border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition">
+
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
 
           <!-- Ícone + Conteúdo -->
@@ -49,22 +65,26 @@
           <!-- Botão Cancelar -->
           <div class="sm:mt-1 sm:ml-2">
             <% if event[:type] == :task %>
-              <%= link_to "✖", planned_task_path(event[:id]),
+              <%= button_to "✖", planned_task_path(event[:id]),
                   method: :delete,
                   data: { confirm: "Cancelar esta tarefa?" },
+                  form_class: "inline",
                   class: "text-red-500 text-sm hover:underline",
                   role: "button",
-                  title: "Cancelar tarefa" %>
+                  title: "Cancelar tarefa",
+                  data: { turbo_confirm: "Cancelar esta tarefa?" } %>
             <% else %>
-<%= button_to "✖", field_irrigation_schedule_path(event[:field_id], event[:id]),
-              method: :delete,
-              data: { confirm: "Cancelar esta irrigação?" },
-              form_class: "inline" %>
-
-
-
+              <%= button_to "✖", field_irrigation_schedule_path(event[:field_id], event[:id]),
+                  method: :delete,
+                  data: { confirm: "Cancelar esta irrigação?" },
+                  form_class: "inline",
+                  class: "text-red-500 text-sm hover:underline",
+                  role: "button",
+                  title: "Cancelar irrigação",
+                  data: { turbo_confirm: "Cancelar esta irrigação?" } %>
             <% end %>
           </div>
+
         </div>
       </li>
     <% end %>
@@ -72,3 +92,32 @@
 <% else %>
   <p class="text-sm text-gray-500 italic">Nenhum evento planeado para hoje.</p>
 <% end %>
+
+<script>
+  document.addEventListener("turbo:load", () => {
+    // Seleciona todos os botões delete com confirmação (caso queira usar confirmação customizada)
+    document.querySelectorAll("form button[data-confirm]").forEach(button => {
+      button.addEventListener("click", (e) => {
+        e.preventDefault();
+        const form = button.closest("form");
+        if (!form) return;
+
+        if (!confirm(button.dataset.confirm)) return;
+
+        const listItem = form.closest("li");
+        if (!listItem) {
+          form.submit(); // fallback normal
+          return;
+        }
+
+        // Aplica animação de fade + riscar texto
+        listItem.classList.add("transition-fade-out", "line-through");
+
+        // Aguarda 5 segundos antes de submeter o form
+        setTimeout(() => {
+          form.submit();
+        }, 5000);
+      });
+    });
+  });
+</script>
