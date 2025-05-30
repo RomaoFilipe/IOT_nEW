@@ -29,6 +29,11 @@ class FieldsController < ApplicationController
     redirect_to fields_path, notice: "Campo eliminado com sucesso."
   end
 
+  def show_details
+    @field = Field.find(params[:id])
+    render partial: "fields/view_details", locals: { field: @field }
+  end
+
   private
 
   def field_params

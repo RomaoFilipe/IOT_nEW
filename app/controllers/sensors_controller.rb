@@ -1,7 +1,8 @@
 class SensorsController < ApplicationController
   require "mqtt"
-  before_action :set_field, only: [ :create ]
-before_action :set_sensor, except: [ :lookup, :create, :start_irrigation ]
+  before_action :set_field, only: [:create]
+  before_action :set_sensor, except: [:lookup, :create, :start_irrigation]
+
   def create
     @sensor = @field.sensors.build(sensor_params.merge(
       status: "Active",
@@ -24,14 +25,9 @@ before_action :set_sensor, except: [ :lookup, :create, :start_irrigation ]
 
   def lookup
     device_id = params[:device_id]
-
-    if device_id.blank?
-      render json: { error: "Device ID em branco." }, status: :unprocessable_entity
-      return
-    end
+    return render json: { error: "Device ID em branco." }, status: :unprocessable_entity if device_id.blank?
 
     sensor = Sensor.find_or_initialize_by(device_id: device_id)
-
     sensor.sensor_type = params[:sensor_type] if params[:sensor_type].present?
     sensor.name = "Sensor #{device_id[-4..]}" if sensor.name.blank?
     sensor.status ||= "Active"
@@ -64,7 +60,6 @@ before_action :set_sensor, except: [ :lookup, :create, :start_irrigation ]
 
   def destroy
     @sensor.destroy
-
     respond_to do |format|
       format.turbo_stream
       format.html { redirect_to fields_path, notice: "Sensor apagado." }
@@ -78,25 +73,19 @@ before_action :set_sensor, except: [ :lookup, :create, :start_irrigation ]
     }
   end
 
-  # app/controllers/sensors_controller.rb
-def irrigation_status
-  sensor = Sensor.find(params[:id])
+  def irrigation_status
+    sensor = Sensor.find(params[:id])
 
-  # Exemplo: se tiveres start_time e duration (segundos)
-  if sensor.status == "irrigando" && sensor.irrigation_started_at
-    elapsed = Time.current - sensor.irrigation_started_at
-    total_time = sensor.irrigation_duration || 120
-    remaining_time = [total_time - elapsed, 0].max.to_i
+    if sensor.status == "irrigando" && sensor.irrigation_started_at
+      elapsed = Time.current - sensor.irrigation_started_at
+      total_time = sensor.irrigation_duration || 120
+      remaining_time = [total_time - elapsed, 0].max.to_i
 
-    render json: {
-      remaining_time: remaining_time,
-      total_time: total_time
-    }
-  else
-    render json: { remaining_time: 0, total_time: 0 }
+      render json: { remaining_time: remaining_time, total_time: total_time }
+    else
+      render json: { remaining_time: 0, total_time: 0 }
+    end
   end
-end
-
 
   def irrigation_history
     @irrigation_logs = @sensor.irrigation_logs.order(executed_at: :desc)
@@ -111,14 +100,14 @@ end
         last_reading: Time.current,
         remaining_time: 0
       )
-  
+
       @sensor.sensor_readings.create!(
         status: "parado",
         read_at: Time.current,
         remaining_time: 0,
         last_duration: @sensor.last_duration
       )
-  
+
       @sensor.irrigation_logs.create!(
         sensor_id: @sensor.id,
         executed_at: Time.current,
@@ -126,10 +115,13 @@ end
         device_id: @sensor.device_id,
         status: "parado"
       )
-  
+
+      mqtt_payload = { action: "stop", origin: "manual" }
+      MqttService.publish_command(@sensor.device_id, mqtt_payload)
+
       broadcast_irrigation_status(@sensor)
     end
-  
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
@@ -138,13 +130,9 @@ end
           locals: { sensor: @sensor }
         )
       end
-  
       format.html { redirect_to dashboard_path, notice: "Irrigação parada manualmente." }
     end
   end
-  
-
-
 
   def start_irrigation
     duration = params[:duration].to_i
@@ -179,7 +167,6 @@ end
 
       MqttService.publish_command(@sensor.device_id, mqtt_payload)
 
-      # ✅ Novo WebSocket broadcast compatível com o frontend
       ActionCable.server.broadcast("irrigation_#{@sensor.id}", {
         remaining_time: @sensor.remaining_time,
         total_time: @sensor.last_duration
@@ -189,10 +176,8 @@ end
     redirect_to dashboard_path, notice: "Irrigação iniciada manualmente."
   end
 
-
   def toggle_status
     @sensor.update(status: @sensor.status == "Active" ? "Inactive" : "Active")
-
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
@@ -205,29 +190,27 @@ end
     end
   end
 
-def assign_field
-  if @sensor
-    @sensor.update(field_id: params[:field_id])
-    redirect_back fallback_location: fields_path, notice: "Sensor atribuído com sucesso."
-  else
-    redirect_back fallback_location: fields_path, alert: "Sensor não encontrado."
+  def assign_field
+    if @sensor
+      @sensor.update(field_id: params[:field_id])
+      redirect_back fallback_location: fields_path, notice: "Sensor atribuído com sucesso."
+    else
+      redirect_back fallback_location: fields_path, alert: "Sensor não encontrado."
+    end
   end
-end
 
-def update_status
-  @sensor = Sensor.find(params[:id])
-  @sensor.update(status: params[:status], last_reading: Time.current)
+  def update_status
+    @sensor = Sensor.find(params[:id])
+    @sensor.update(status: params[:status], last_reading: Time.current)
 
-  html = ApplicationController.renderer.render(
-    partial: "sensors/status",
-    locals: { sensor: @sensor }
-  )
+    html = ApplicationController.renderer.render(
+      partial: "sensors/status",
+      locals: { sensor: @sensor }
+    )
 
-  ActionCable.server.broadcast("irrigation_channel", { html: html })
-  head :ok
-end
-
-
+    ActionCable.server.broadcast("irrigation_channel", { html: html })
+    head :ok
+  end
 
   private
 

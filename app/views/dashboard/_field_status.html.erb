@@ -15,6 +15,12 @@
           this.index = (this.index + 1) % this.fields.length;
           this.active = this.fields[this.index];
         }, 6000);
+      },
+      openDetails(id) {
+        const modal = document.getElementById(`viewDetailsModal-${id}`);
+        if (modal) {
+          modal.classList.remove('hidden');
+        }
       }
     }"
     x-init="startRotation()"
@@ -37,6 +43,7 @@
     <div class="bg-white rounded-xl border shadow p-4 max-w-xl mx-auto min-h-auto space-y-4">
       <% @fields.each do |field| %>
         <div 
+          id="field-card-<%= field.id %>"
           x-show="active === <%= field.id %>" 
           x-cloak
           x-transition:enter="transition ease-out duration-300"
@@ -89,14 +96,21 @@
           <div class="flex justify-between items-center pt-2 border-t mt-2 text-sm">
             <div>
               <p class="text-gray-500">Previsão de Colheita</p>
-              <p class="font-semibold text-gray-800">30/08/2023</p> <!-- Pode ser dinâmico -->
+              <p class="font-semibold text-gray-800">30/08/2023</p>
             </div>
-            <a href="#" class="text-sm px-4 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100 transition">Detalhes</a>
+            <button @click="openDetails(<%= field.id %>)" class="text-sm px-4 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100 transition">
+              Detalhes
+            </button>
           </div>
         </div>
       <% end %>
     </div>
   </div>
+
+  <!-- ✅ Renderização inline dos modais para funcionamento do botão Detalhes -->
+  <% @fields.each do |field| %>
+    <%= render partial: "fields/view_details", locals: { field: field } %>
+  <% end %>
 <% else %>
   <div class="p-4 bg-yellow-100 text-yellow-800 rounded-md">
     🚨 Nenhum campo registado ainda. Por favor adicione um campo para visualizar o estado.
@@ -104,7 +118,6 @@
 <% end %>
 
 <style>
-  /* Ajustes para compactar o cartão e evitar espaços grandes */
   .max-w-xl.mx-auto {
     max-width: 600px;
     margin-left: auto;

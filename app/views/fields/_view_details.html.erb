@@ -110,6 +110,15 @@ function addCropInput() {
 }
 </script>
 
+<script>
+  document.addEventListener("turbo:frame-load", function(event) {
+    if (event.target.id === "field_details_modal") {
+      const modal = document.getElementById("viewDetailsModal")
+      if (modal) modal.classList.remove("hidden")
+    }
+  })
+</script>
+
 <style>
 .tab-button {
   padding: 0.5rem 1rem;

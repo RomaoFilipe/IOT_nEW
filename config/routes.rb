@@ -46,6 +46,7 @@ Rails.application.routes.draw do
 
       # ✅ ROTA DE POLLING
   get 'sensors/:id/irrigation_status', to: 'sensors#irrigation_status'
+  get 'fields/:id/show_details', to: 'fields#show_details', as: 'show_field_details'
 
 
     resource :settings, only: [ :index ] do
