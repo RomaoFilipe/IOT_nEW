@@ -56,12 +56,12 @@
                   role: "button",
                   title: "Cancelar tarefa" %>
             <% else %>
-<%= link_to "✖", field_irrigation_schedule_path(event[:field_id], event[:id]),
-            method: :delete,
-            data: { confirm: "Cancelar esta irrigação?" },
-            class: "text-red-500 text-sm hover:underline",
-            role: "button",
-            title: "Cancelar irrigação" %>
+<%= button_to "✖", field_irrigation_schedule_path(event[:field_id], event[:id]),
+              method: :delete,
+              data: { confirm: "Cancelar esta irrigação?" },
+              form_class: "inline" %>
+
+
 
             <% end %>
           </div>
