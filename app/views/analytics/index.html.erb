@@ -10,13 +10,17 @@
 <body class="bg-gray-100 min-h-screen">
 
   <div class="max-w-7xl mx-auto px-4 py-6">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Farm Analytics</h1>
 
-    <!-- 🔍 Filtros -->
-    <div class="flex flex-wrap items-center gap-4 mb-6">
-      <div>
-        <label for="fieldFilter" class="text-sm font-medium text-gray-700">Campo:</label>
-        <select id="fieldFilter" name="field_id" onchange="applyFieldFilter()" class="ml-2 border-gray-300 rounded-md px-2 py-1 text-sm">
+    <!-- 🌾 TÍTULO GERAL -->
+    <h1 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">📈 Análises Agrícolas Inteligentes</h1>
+
+    <!-- 🔍 Filtros Avançados -->
+    <div class="flex flex-wrap justify-center gap-4 mb-6">
+      <!-- Campo -->
+      <div class="flex items-center gap-2">
+        <label for="fieldFilter" class="text-sm font-medium text-gray-700">🌾 Campo:</label>
+        <select id="fieldFilter" name="field_id" class="border-gray-300 rounded-md px-3 py-2 text-sm shadow">
+          <option value="">Todos</option>
           <% @fields.each do |field| %>
             <option value="<%= field.id %>" <%= 'selected' if params[:field_id].to_s == field.id.to_s %>>
               <%= field.name %>
@@ -24,185 +28,198 @@
           <% end %>
         </select>
       </div>
+
+      <!-- Cultura -->
+      <div class="flex items-center gap-2">
+        <label for="cultureFilter" class="text-sm font-medium text-gray-700">🌱 Cultura:</label>
+        <select id="cultureFilter" name="culture" class="border-gray-300 rounded-md px-3 py-2 text-sm shadow">
+          <option value="">Todas</option>
+          <% @available_cultures.each do |culture| %>
+            <option value="<%= culture %>" <%= 'selected' if params[:culture].to_s == culture.to_s %>>
+              <%= culture %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+
+      <!-- Intervalo de Datas -->
+      <div class="flex items-center gap-2">
+        <label for="startDate" class="text-sm font-medium text-gray-700">📅 De:</label>
+        <input type="date" id="startDate" name="start_date" value="<%= params[:start_date] %>" class="border-gray-300 rounded-md px-3 py-2 text-sm shadow">
+        <label for="endDate" class="text-sm font-medium text-gray-700">até:</label>
+        <input type="date" id="endDate" name="end_date" value="<%= params[:end_date] %>" class="border-gray-300 rounded-md px-3 py-2 text-sm shadow">
+      </div>
+
+      <!-- Botão Aplicar -->
+      <div>
+        <button onclick="applyAdvancedFilter()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
+          🔍 Aplicar Filtros
+        </button>
+
+        <button onclick="window.location.href='<%= analytics_path %>'" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 flex items-center gap-2">
+  ♻️ Limpar Filtros
+</button>
+
+      </div>
     </div>
 
     <!-- 🟩 Botão para Adicionar Produção -->
     <div class="flex justify-end mb-6">
-      <button onclick="toggleYieldForm()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-        + Adicionar Produção
+      <button onclick="toggleYieldForm()" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
+        ➕ Adicionar Produção
       </button>
     </div>
 
     <!-- 📝 Modal do Formulário de Produção -->
-    <div id="yieldFormModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-white p-6 rounded-lg w-full max-w-xl shadow-xl relative">
-        <button onclick="toggleYieldForm()" class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
-        <h3 class="text-xl font-semibold mb-4 text-gray-800">Registar Produção Agrícola</h3>
+    <%= render partial: 'analytics/_yield_form_modal' %>
 
-        <%= form_with url: crop_yields_path, method: :post, local: true do |f| %>
-          <div class="mb-4">
-            <label class="text-sm font-medium text-gray-700">Campo</label>
-            <%= select_tag "crop_yield[field_id]", options_from_collection_for_select(@fields, :id, :name), class: "w-full mt-1 border-gray-300 rounded-md shadow-sm" %>
-          </div>
+    <!-- 📤 Botões de Exportação -->
+    <div class="flex flex-wrap justify-end gap-2 mb-6">
+      <!-- Exportar Produção -->
+      <%= link_to "📤 Exportar Produção (CSV)", export_analytics_csv_path(
+        field_id: params[:field_id],
+        culture: params[:culture],
+        start_date: params[:start_date],
+        end_date: params[:end_date]
+      ), class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2" %>
 
-          <div id="cropInputs" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label class="text-sm font-medium text-gray-700">Cultura</label>
-                <input type="text" name="crop_yield[crop_type][]" placeholder="Ex: Milho, Trigo" class="w-full rounded-md border-gray-300 shadow-sm mt-1"/>
-              </div>
-              <div>
-                <label class="text-sm font-medium text-gray-700">Produção (ton)</label>
-                <input type="number" name="crop_yield[amount][]" step="0.1" class="w-full rounded-md border-gray-300 shadow-sm mt-1"/>
-              </div>
-              <div>
-                <label class="text-sm font-medium text-gray-700">Mês</label>
-                <select name="crop_yield[month][]" class="w-full rounded-md border-gray-300 shadow-sm mt-1">
-                  <option value="">Selecionar</option>
-                  <% %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez].each do |mes| %>
-                    <option value="<%= mes %>"><%= mes %></option>
-                  <% end %>
-                </select>
-              </div>
-            </div>
-          </div>
+      <!-- Exportar Comparação Campos -->
+      <%= link_to "📤 Exportar Comparação Campos (CSV)", export_field_comparison_csv_path,
+        class: "bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2" %>
 
-          <div class="flex justify-between items-center mt-6">
-            <button type="button" onclick="addCropInput()" class="text-sm text-blue-600 hover:underline">+ Adicionar Cultura</button>
-            <%= f.submit "Guardar", class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
-          </div>
-        <% end %>
-      </div>
+      <!-- Exportar Eficiência da Irrigação -->
+      <%= link_to "📤 Exportar Eficiência Irrigação (CSV)", export_irrigation_efficiency_csv_path(
+        field_id: params[:field_id],
+        culture: params[:culture],
+        start_date: params[:start_date],
+        end_date: params[:end_date]
+      ), class: "bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 flex items-center gap-2" %>
     </div>
 
-    <!-- 🧭 Tabs -->
-    <div class="flex space-x-2 mb-6 overflow-x-auto whitespace-nowrap">
+    <!-- 🧭 Tabs com Ícones -->
+    <div class="flex justify-center space-x-2 mb-6 overflow-x-auto whitespace-nowrap">
       <% tabs = {
-        "overview" => "Overview",
-        "yield" => "Produção",
-        "distribution" => "Distribuição",
-        "monthly" => "Mensal",
-        "moisture" => "Humidade",
-        "expenses" => "Despesas"
+        "overview" => "📈 Overview",
+        "yield" => "🌾 Produção",
+        "distribution" => "🌱 Distribuição",
+        "monthly" => "🌡️ Mensal",
+        "moisture" => "💧 Humidade",
+        "expenses" => "💰 Despesas"
       } %>
       <% tabs.each do |id, label| %>
         <button data-tabs-target="<%= id %>" data-action="click->tabs#switch"
-                class="tab-btn px-4 py-2 rounded-md text-sm font-medium border border-gray-300 bg-white hover:bg-gray-100 transition">
+                class="tab-btn px-5 py-2 rounded-lg text-sm font-medium border border-gray-300 bg-white hover:bg-green-100 transition">
           <%= label %>
         </button>
       <% end %>
     </div>
-
     <!-- 📊 Conteúdo das Tabs -->
     <div>
+      <!-- OVERVIEW -->
       <div data-tabs-content="overview">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <%= render partial: 'analytics/overview/crop_yield', locals: { chart_id: 'yieldChart_overview' } %>
           <%= render partial: 'analytics/overview/resource_allocation', locals: { chart_id: 'resourceChart_overview' } %>
           <%= render partial: 'analytics/overview/moisture_chart', locals: { chart_id: 'moistureChart' } %>
           <%= render partial: 'analytics/overview/irrigation_expenses', locals: { chart_id: 'irrigationExpensesChart' } %>
+          <%= render partial: 'analytics/overview/irrigation_efficiency', locals: { chart_id: 'irrigationEfficiencyChart' } %>
+          <%= render partial: 'analytics/overview/field_comparison', locals: { chart_id: 'fieldComparisonChart' } %>
+          <%= render partial: 'analytics/overview/cumulative_production', locals: { chart_id: 'cumulativeProductionChart' } %>
+          <%= render partial: 'analytics/overview/profit_by_crop', locals: { chart_id: 'profitByCropChart' } %>
+          <%= render partial: 'analytics/overview/cost_per_hectare', locals: { chart_id: 'costPerHectareChart' } %>
           <%= render partial: 'analytics/overview/temperature_chart', locals: { chart_id: 'temperatureChart_overview' } %>
           <%= render partial: 'analytics/overview/crop_distribution', locals: { chart_id: 'cropDistributionChart_overview' } %> 
           <%= render partial: 'analytics/overview/resource_expenses', locals: { chart_id: 'resourceExpensesChart' } %>
-
         </div>
       </div>
 
+      <!-- PRODUÇÃO -->
       <div data-tabs-content="yield" class="hidden">
         <%= render partial: 'analytics/overview/crop_yield', locals: { chart_id: 'yieldChart' } %>
       </div>
 
+      <!-- DISTRIBUIÇÃO -->
       <div data-tabs-content="distribution" class="hidden">
         <%= render partial: 'analytics/overview/crop_distribution', locals: { chart_id: 'cropDistributionChart' } %>
       </div>
 
+      <!-- MENSAL -->
       <div data-tabs-content="monthly" class="hidden">
-        <%= render partial: 'analytics/overview/temperature_chart' %>
+        <%= render partial: 'analytics/overview/temperature_chart', locals: { chart_id: 'temperatureChart_monthly' } %>
       </div>
 
+      <!-- HUMIDADE -->
       <div data-tabs-content="moisture" class="hidden">
         <%= render partial: 'analytics/overview/moisture_chart', locals: { chart_id: 'moistureChart' } %>
       </div>
 
+      <!-- DESPESAS -->
       <div data-tabs-content="expenses" class="hidden">
         <%= render partial: 'analytics/overview/expense_distribution', locals: { chart_id: 'expenseDistributionChart' } %>
       </div>
-
-            <div data-tabs-content="resource" class="hidden">
-        <%= render partial: 'analytics/overview/resource_expenses', locals: { chart_id: 'resourceExpensesChart' } %>
-      </div>
-      
     </div>
-  </div>
 
-  <!-- JS para Tabs, Gráficos e Formulário -->
+  </div> <!-- FECHA DIV max-w-7xl -->
+
+  <!-- JS para Tabs e Filtros -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const tabButtons = document.querySelectorAll("[data-tabs-target]")
-      const tabContents = document.querySelectorAll("[data-tabs-content]")
+      const tabButtons = document.querySelectorAll("[data-tabs-target]");
+      const tabContents = document.querySelectorAll("[data-tabs-content]");
 
       function switchTab(target) {
         tabContents.forEach(content => {
-          content.classList.toggle("hidden", content.dataset.tabsContent !== target)
-        })
+          content.classList.toggle("hidden", content.dataset.tabsContent !== target);
+        });
         tabButtons.forEach(button => {
-          const isActive = button.dataset.tabsTarget === target
-          button.classList.toggle("bg-green-600", isActive)
-          button.classList.toggle("text-white", isActive)
-          button.classList.toggle("shadow", isActive)
-          button.classList.toggle("bg-white", !isActive)
-          button.classList.toggle("text-gray-700", !isActive)
-        })
+          const isActive = button.dataset.tabsTarget === target;
+          button.classList.toggle("bg-green-600", isActive);
+          button.classList.toggle("text-white", isActive);
+          button.classList.toggle("shadow", isActive);
+          button.classList.toggle("bg-white", !isActive);
+          button.classList.toggle("text-gray-700", !isActive);
+        });
+        window.scrollTo(0, 0); // Para não ficar a meio da página no mobile
+
+        // Re-renderiza os gráficos
         setTimeout(() => {
           document.querySelectorAll(`[data-tabs-content="${target}"] canvas`).forEach(canvas => {
             if (canvas.dataset.chart === "true") {
-              const chartId = canvas.id
-              const chartFn = window[`renderChart_${chartId}`]
-              if (typeof chartFn === "function") chartFn()
+              const chartId = canvas.id;
+              const chartFn = window[`renderChart_${chartId}`];
+              if (typeof chartFn === "function") chartFn();
             }
-          })
-        }, 100)
+          });
+        }, 100);
       }
 
       tabButtons.forEach(button => {
-        button.addEventListener("click", () => switchTab(button.dataset.tabsTarget))
-      })
+        button.addEventListener("click", () => switchTab(button.dataset.tabsTarget));
+      });
 
-      switchTab("overview")
-    })
-
-    function applyFieldFilter() {
-      const fieldId = document.getElementById("fieldFilter").value;
-      const baseUrl = window.location.pathname;
-      const url = new URL(baseUrl, window.location.origin);
-      if (fieldId) url.searchParams.append("field_id", fieldId);
-      window.location.href = url.toString();
-    }
+      // Inicializa na tab Overview
+      switchTab("overview");
+    });
 
     function toggleYieldForm() {
       document.getElementById('yieldFormModal').classList.toggle('hidden');
     }
 
-    function addCropInput() {
-      const container = document.getElementById("cropInputs");
-      const html = `
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <input type="text" name="crop_yield[crop_type][]" placeholder="Cultura" class="w-full rounded-md border-gray-300 shadow-sm mt-1" />
-          </div>
-          <div>
-            <input type="number" name="crop_yield[amount][]" step="0.1" class="w-full rounded-md border-gray-300 shadow-sm mt-1" />
-          </div>
-          <div>
-            <select name="crop_yield[month][]" class="w-full rounded-md border-gray-300 shadow-sm mt-1">
-              <option value="">Selecionar</option>
-              ${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
-                .map(m => `<option value="${m}">${m}</option>`).join("")}
-            </select>
-          </div>
-        </div>
-      `;
-      container.insertAdjacentHTML("beforeend", html);
+    function applyAdvancedFilter() {
+      const fieldId = document.getElementById("fieldFilter").value;
+      const culture = document.getElementById("cultureFilter").value;
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+
+      const baseUrl = window.location.pathname;
+      const url = new URL(baseUrl, window.location.origin);
+
+      if (fieldId) url.searchParams.append("field_id", fieldId);
+      if (culture) url.searchParams.append("culture", culture);
+      if (startDate) url.searchParams.append("start_date", startDate);
+      if (endDate) url.searchParams.append("end_date", endDate);
+
+      window.location.href = url.toString();
     }
   </script>
 </body>

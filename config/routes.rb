@@ -49,6 +49,14 @@ Rails.application.routes.draw do
   get 'fields/:id/show_details', to: 'fields#show_details', as: 'show_field_details'
 
 
+  get 'analytics/export_csv', to: 'analytics#export_csv', as: 'export_analytics_csv'
+  get 'analytics/export_field_comparison_csv', to: 'analytics#export_field_comparison_csv', as: 'export_field_comparison_csv'
+  get 'analytics/export_irrigation_efficiency_csv', to: 'analytics#export_irrigation_efficiency_csv', as: 'export_irrigation_efficiency_csv'
+
+
+
+
+
     resource :settings, only: [ :index ] do
       patch :update_profile
       patch :update_notifications

@@ -1,5 +1,5 @@
 <div class="bg-white p-6 rounded-lg shadow-md min-h-[320px] flex flex-col justify-between">
-  <h2 class="font-semibold mb-2">💧 Eficiência da Irrigação (€/tonelada)</h2>
+  <h2 class="font-semibold mb-2">📈 Produção Acumulada (ton)</h2>
   <div class="relative h-64 flex-grow">
     <canvas id="<%= chart_id %>" data-chart="true" class="h-64 w-full"></canvas>
   </div>
@@ -12,30 +12,28 @@
     if (window["chart_<%= chart_id %>"]) window["chart_<%= chart_id %>"].destroy();
 
     const data = {
-      labels: <%= raw @irrigation_efficiency_by_month.keys.to_json %>,
+      labels: <%= raw @cumulative_production_by_month.keys.to_json %>,
       datasets: [{
-        label: 'Eficiência (€/tonelada)',
-        data: <%= raw @irrigation_efficiency_by_month.values.to_json %>,
-        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-        borderRadius: 4
+        label: 'Produção Acumulada (ton)',
+        data: <%= raw @cumulative_production_by_month.values.to_json %>,
+        fill: true,
+        backgroundColor: 'rgba(34, 197, 94, 0.2)', // verde claro
+        borderColor: 'rgba(34, 197, 94, 1)', // verde escuro
+        tension: 0.3
       }]
     };
 
     window["chart_<%= chart_id %>"] = new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: data,
       options: {
         responsive: true,
         plugins: {
-          legend: { display: false }
+          legend: { position: 'bottom' }
         },
         scales: {
           y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: "€/tonelada"
-            }
+            beginAtZero: true
           }
         }
       }
