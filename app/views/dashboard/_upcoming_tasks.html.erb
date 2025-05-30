@@ -4,7 +4,6 @@
     transition: opacity 0.5s ease, text-decoration 0.5s ease;
     opacity: 1;
   }
-
   .transition-fade-out.line-through {
     opacity: 0.5;
     text-decoration: line-through;
@@ -16,12 +15,11 @@
 </h3>
 
 <% if @events.any? %>
-  <ul class="space-y-3">
+  <ul class="space-y-3" id="upcoming-tasks-list">
     <% @events.each do |event| %>
-      <%# Adiciona um id único para que o Turbo Stream possa remover o elemento %>
+      <%# Usa dom_id para id único do item para Turbo %>
       <li id="<%= dom_id(event[:type] == :task ? PlannedTask.new(id: event[:id]) : IrrigationSchedule.new(id: event[:id])) %>"
           class="border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition">
-
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
 
           <!-- Ícone + Conteúdo -->
@@ -67,21 +65,19 @@
             <% if event[:type] == :task %>
               <%= button_to "✖", planned_task_path(event[:id]),
                   method: :delete,
-                  data: { confirm: "Cancelar esta tarefa?" },
+                  data: { confirm: "Cancelar esta tarefa?", turbo_confirm: "Cancelar esta tarefa?" },
                   form_class: "inline",
                   class: "text-red-500 text-sm hover:underline",
                   role: "button",
-                  title: "Cancelar tarefa",
-                  data: { turbo_confirm: "Cancelar esta tarefa?" } %>
+                  title: "Cancelar tarefa" %>
             <% else %>
               <%= button_to "✖", field_irrigation_schedule_path(event[:field_id], event[:id]),
                   method: :delete,
-                  data: { confirm: "Cancelar esta irrigação?" },
+                  data: { confirm: "Cancelar esta irrigação?", turbo_confirm: "Cancelar esta irrigação?" },
                   form_class: "inline",
                   class: "text-red-500 text-sm hover:underline",
                   role: "button",
-                  title: "Cancelar irrigação",
-                  data: { turbo_confirm: "Cancelar esta irrigação?" } %>
+                  title: "Cancelar irrigação" %>
             <% end %>
           </div>
 
@@ -95,7 +91,6 @@
 
 <script>
   document.addEventListener("turbo:load", () => {
-    // Seleciona todos os botões delete com confirmação (caso queira usar confirmação customizada)
     document.querySelectorAll("form button[data-confirm]").forEach(button => {
       button.addEventListener("click", (e) => {
         e.preventDefault();
@@ -106,14 +101,12 @@
 
         const listItem = form.closest("li");
         if (!listItem) {
-          form.submit(); // fallback normal
+          form.submit();
           return;
         }
 
-        // Aplica animação de fade + riscar texto
         listItem.classList.add("transition-fade-out", "line-through");
 
-        // Aguarda 5 segundos antes de submeter o form
         setTimeout(() => {
           form.submit();
         }, 5000);
