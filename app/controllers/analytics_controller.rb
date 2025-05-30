@@ -1,7 +1,4 @@
 class AnalyticsController < ApplicationController
-
-  require 'csv'
-
   MESES_PT = %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez]
 
   def index
@@ -10,8 +7,28 @@ class AnalyticsController < ApplicationController
 
     # Filtros recebidos
     selected_culture = params[:culture]
-    start_date = params[:start_date].present? ? Date.parse(params[:start_date]) rescue nil : nil
-    end_date = params[:end_date].present? ? Date.parse(params[:end_date]) rescue nil : nil
+
+    # Filtro de data início
+    if params[:start_date].present?
+      begin
+        start_date = Date.parse(params[:start_date])
+      rescue ArgumentError
+        start_date = nil
+      end
+    else
+      start_date = nil
+    end
+
+    # Filtro de data fim
+    if params[:end_date].present?
+      begin
+        end_date = Date.parse(params[:end_date])
+      rescue ArgumentError
+        end_date = nil
+      end
+    else
+      end_date = nil
+    end
 
     # Dados Base
     if params[:field_id].present?
@@ -145,126 +162,4 @@ class AnalyticsController < ApplicationController
       @cost_per_hectare_by_field[field.name] = cost_per_ha.round(2)
     end
   end
-
-  def export_csv
-    # Gerar CSV da Produção por Cultura (exemplo inicial)
-    csv_data = CSV.generate(headers: true) do |csv|
-      csv << ["Cultura", "Mês", "Quantidade (ton)"]
-  
-      # Recalcular com os filtros atuais
-      yields = if params[:field_id].present?
-        Field.find(params[:field_id]).crop_yields
-      else
-        CropYield.all
-      end
-  
-      if params[:culture].present?
-        yields = yields.where(crop_type: params[:culture])
-      end
-  
-      start_date = params[:start_date].present? ? Date.parse(params[:start_date]) rescue nil : nil
-      end_date = params[:end_date].present? ? Date.parse(params[:end_date]) rescue nil : nil
-  
-      if start_date.present?
-        yields = yields.where("created_at >= ?", start_date)
-      end
-      if end_date.present?
-        yields = yields.where("created_at <= ?", end_date)
-      end
-  
-      # Gerar linhas do CSV
-      yields.group_by { |r| [r.crop_type, r.month] }.each do |(crop, month), records|
-        total_amount = records.sum(&:amount)
-        csv << [crop, month, total_amount.round(2)]
-      end
-    end
-  
-    # Enviar CSV para download
-    send_data csv_data, filename: "producao_culturas_#{Date.today}.csv"
-  end
-
-
-  def export_field_comparison_csv
-    csv_data = CSV.generate(headers: true) do |csv|
-      csv << ["Campo", "Produção (ton)", "Total de despesas (€)", "Gasto com irrigação (€)"]
-  
-      Field.all.each do |field|
-        field_yield = field.crop_yields.sum(:amount)
-        field_total_expenses = field.financials.sum(:expenses)
-        field_irrigation_expenses = field.financials.where(expense_category: 'irrigação').sum(:expenses)
-  
-        csv << [
-          field.name,
-          field_yield.round(2),
-          field_total_expenses.round(2),
-          field_irrigation_expenses.round(2)
-        ]
-      end
-    end
-  
-    send_data csv_data, filename: "comparacao_campos_#{Date.today}.csv"
-  end
-  
-
-  def export_irrigation_efficiency_csv
-    csv_data = CSV.generate(headers: true) do |csv|
-      csv << ["Mês", "Eficiência (€/tonelada)"]
-  
-      # Como a eficiência já é calculada no index, vamos recalcular aqui novamente com os filtros
-      yields = if params[:field_id].present?
-        Field.find(params[:field_id]).crop_yields
-      else
-        CropYield.all
-      end
-  
-      if params[:culture].present?
-        yields = yields.where(crop_type: params[:culture])
-      end
-  
-      start_date = params[:start_date].present? ? Date.parse(params[:start_date]) rescue nil : nil
-      end_date = params[:end_date].present? ? Date.parse(params[:end_date]) rescue nil : nil
-  
-      if start_date.present?
-        yields = yields.where("created_at >= ?", start_date)
-      end
-      if end_date.present?
-        yields = yields.where("created_at <= ?", end_date)
-      end
-  
-      # Recalcular despesas de irrigação
-      financial_data = if params[:field_id].present?
-        Field.find(params[:field_id]).financials
-      else
-        Financial.all
-      end
-  
-      if start_date.present?
-        financial_data = financial_data.where("recorded_at >= ?", start_date)
-      end
-      if end_date.present?
-        financial_data = financial_data.where("recorded_at <= ?", end_date)
-      end
-  
-      irrigation_expenses_by_month = financial_data
-        .where(expense_category: "irrigação")
-        .group_by { |f| f.recorded_at.strftime("%b") }
-        .transform_values { |records| records.sum(&:expenses) }
-  
-      crop_yield_by_month = yields.group_by { |r| r.month }.transform_values { |records| records.sum(&:amount) }
-  
-      # Calcular eficiência
-      MESES_PT.each do |mes|
-        total_yield = crop_yield_by_month[mes] || 0
-        irrigation_expense = irrigation_expenses_by_month[mes] || 0
-        efficiency = total_yield > 0 ? (irrigation_expense / total_yield.to_f).round(2) : 0
-  
-        csv << [mes, efficiency]
-      end
-    end
-  
-    send_data csv_data, filename: "eficiencia_irrigacao_#{Date.today}.csv"
-  end
-  
-
-
 end
