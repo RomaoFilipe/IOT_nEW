@@ -1,22 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
   <head>
+    <meta charset="utf-8" />
     <title><%= content_for(:title) || "IoT Agricultural Platform" %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <%= action_cable_meta_tag %> <!-- ✅ necessário para WebSocket -->
+    <%= action_cable_meta_tag %> <!-- necessário para WebSocket -->
 
-    <%# Estilos principais %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css", media: "all" %>
+    <%= stylesheet_link_tag "application", "https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css", media: "all", "data-turbo-track": "reload" %>
 
-    <%# JavaScript moderno com Importmap + ActionCable %>
     <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
-    <%# Passa o ID do sensor para o JS %>
     <% if @sensor %>
       <meta name="sensor-id" content="<%= @sensor.id %>">
     <% end %>

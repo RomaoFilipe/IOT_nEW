@@ -6,12 +6,10 @@
   <ul class="space-y-3">
     <% @events.each do |event| %>
       <li class="border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition">
-        <!-- Bloco externo responsivo -->
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
 
           <!-- Ícone + Conteúdo -->
           <div class="flex items-start gap-3">
-            <!-- Ícone -->
             <div class="mt-1 shrink-0">
               <% if event[:type] == :task %>
                 <div class="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center text-xs text-gray-400">
@@ -24,7 +22,6 @@
               <% end %>
             </div>
 
-            <!-- Conteúdo -->
             <div class="flex-1 min-w-0">
               <p class="font-semibold text-sm text-gray-800 break-words">
                 <%= event[:title] %>
@@ -59,7 +56,7 @@
                   role: "button",
                   title: "Cancelar tarefa" %>
             <% else %>
-              <%= link_to "✖", irrigation_schedule_path(event[:id]),
+              <%= link_to "✖", field_irrigation_schedule_path(event[:field_id], event[:id]),
                   method: :delete,
                   data: { confirm: "Cancelar esta irrigação?" },
                   class: "text-red-500 text-sm hover:underline",
