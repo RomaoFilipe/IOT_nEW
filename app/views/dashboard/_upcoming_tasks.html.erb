@@ -1,116 +1,13 @@
-<style>
-  /* Estilos para a animação de fade + riscar texto */
-  .transition-fade-out {
-    transition: opacity 0.5s ease, text-decoration 0.5s ease;
-    opacity: 1;
-  }
-  .transition-fade-out.line-through {
-    opacity: 0.5;
-    text-decoration: line-through;
-  }
-</style>
-
 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
   🗓️ Eventos Planeados
 </h3>
 
-<% if @events.any? %>
-  <ul class="space-y-3" id="upcoming-tasks-list">
-    <% @events.each do |event| %>
-      <%# Usa dom_id para id único do item para Turbo %>
-      <li id="<%= dom_id(event[:type] == :task ? PlannedTask.new(id: event[:id]) : IrrigationSchedule.new(id: event[:id])) %>"
-          class="border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition">
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-
-          <!-- Ícone + Conteúdo -->
-          <div class="flex items-start gap-3">
-            <div class="mt-1 shrink-0">
-              <% if event[:type] == :task %>
-                <div class="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center text-xs text-gray-400">
-                  ✓
-                </div>
-              <% else %>
-                <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600">
-                  🚿
-                </div>
-              <% end %>
-            </div>
-
-            <div class="flex-1 min-w-0">
-              <p class="font-semibold text-sm text-gray-800 break-words">
-                <%= event[:title] %>
-              </p>
-
-              <div class="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500">
-                <span class="flex items-center gap-1">
-                  🕒 <%= l(event[:time], format: "%d/%m/%Y %H:%M") %>
-                </span>
-
-                <% if event[:type] == :task && event[:priority].present? %>
-                  <% priority_color = case event[:priority].downcase
-                    when "high" then "text-red-600"
-                    when "medium" then "text-yellow-600"
-                    else "text-green-600"
-                  end %>
-                  <span class="<%= priority_color %> font-semibold capitalize"><%= event[:priority] %></span>
-                <% end %>
-
-                <span><%= event[:field] %></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Botão Cancelar -->
-          <div class="sm:mt-1 sm:ml-2">
-            <% if event[:type] == :task %>
-              <%= button_to "✖", planned_task_path(event[:id]),
-                  method: :delete,
-                  data: { confirm: "Cancelar esta tarefa?", turbo_confirm: "Cancelar esta tarefa?" },
-                  form_class: "inline",
-                  class: "text-red-500 text-sm hover:underline",
-                  role: "button",
-                  title: "Cancelar tarefa" %>
-            <% else %>
-              <%= button_to "✖", field_irrigation_schedule_path(event[:field_id], event[:id]),
-                  method: :delete,
-                  data: { confirm: "Cancelar esta irrigação?", turbo_confirm: "Cancelar esta irrigação?" },
-                  form_class: "inline",
-                  class: "text-red-500 text-sm hover:underline",
-                  role: "button",
-                  title: "Cancelar irrigação" %>
-            <% end %>
-          </div>
-
-        </div>
-      </li>
-    <% end %>
-  </ul>
-<% else %>
-  <p class="text-sm text-gray-500 italic">Nenhum evento planeado para hoje.</p>
-<% end %>
-
-<script>
-  document.addEventListener("turbo:load", () => {
-    document.querySelectorAll("form button[data-confirm]").forEach(button => {
-      button.addEventListener("click", (e) => {
-        e.preventDefault();
-        const form = button.closest("form");
-        if (!form) return;
-
-        if (!confirm(button.dataset.confirm)) return;
-
-        const listItem = form.closest("li");
-        if (!listItem) {
-          form.submit();
-          return;
-        }
-
-        listItem.classList.add("transition-fade-out", "line-through");
-
-        setTimeout(() => {
-          form.submit();
-        }, 5000);
-      });
-    });
-  });
-</script>
+<turbo-frame id="planned-events-list">
+  <% if @events.any? %>
+    <ul class="space-y-3">
+      <%= render partial: "dashboard/event", collection: @events, as: :event %>
+    </ul>
+  <% else %>
+    <p class="text-sm text-gray-500 italic">Nenhum evento planeado para hoje.</p>
+  <% end %>
+</turbo-frame>

@@ -37,21 +37,16 @@ class IrrigationSchedulesController < ApplicationController
   def destroy
     @schedule = IrrigationSchedule.find(params[:id])
     if @schedule.destroy
-      # Broadcast via ActionCable para remoção em tempo real
       ActionCable.server.broadcast(
         "planned_events_#{current_user.id}",
-        action: 'destroy_irrigation',
-        irrigation_id: @schedule.id
+        {
+          action: 'destroy_irrigation',
+          irrigation_id: @schedule.id
+        }
       )
-      respond_to do |format|
-        format.html { redirect_to dashboard_path, notice: "Irrigação cancelada com sucesso." }
-        format.turbo_stream
-      end
+      redirect_to dashboard_path, notice: "Irrigação cancelada com sucesso."
     else
-      respond_to do |format|
-        format.html { redirect_to dashboard_path, alert: "Erro ao cancelar irrigação." }
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("flash", partial: "shared/flash", locals: { alert: "Erro ao cancelar irrigação." }) }
-      end
+      redirect_to dashboard_path, alert: "Erro ao cancelar irrigação."
     end
   end
 

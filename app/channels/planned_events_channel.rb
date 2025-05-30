@@ -1,10 +1,10 @@
 class PlannedEventsChannel < ApplicationCable::Channel
   def subscribed
-    # Pode ser mais específico por utilizador, ex:
-    stream_from "planned_events_#{current_user.id}"
+    # Assumindo que tens current_user disponível aqui
+    stream_for current_user
   end
 
   def unsubscribed
-    # Cleanup se necessário
+    # Cleanup (se necessário)
   end
 end
