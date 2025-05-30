@@ -52,9 +52,19 @@
           <!-- Botão Cancelar -->
           <div class="sm:mt-1 sm:ml-2">
             <% if event[:type] == :task %>
-              <%= link_to "✖", planned_task_path(event[:id]), method: :delete, data: { confirm: "Cancelar esta tarefa?" }, class: "text-red-500 text-sm hover:underline" %>
+              <%= link_to "✖", planned_task_path(event[:id]),
+                  method: :delete,
+                  data: { confirm: "Cancelar esta tarefa?" },
+                  class: "text-red-500 text-sm hover:underline",
+                  role: "button",
+                  title: "Cancelar tarefa" %>
             <% else %>
-              <%= link_to "✖", irrigation_schedule_path(event[:id]), method: :delete, data: { confirm: "Cancelar esta irrigação?" }, class: "text-red-500 text-sm hover:underline" %>
+              <%= link_to "✖", irrigation_schedule_path(event[:id]),
+                  method: :delete,
+                  data: { confirm: "Cancelar esta irrigação?" },
+                  class: "text-red-500 text-sm hover:underline",
+                  role: "button",
+                  title: "Cancelar irrigação" %>
             <% end %>
           </div>
         </div>

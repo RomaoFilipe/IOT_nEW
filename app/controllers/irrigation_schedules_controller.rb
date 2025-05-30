@@ -38,6 +38,14 @@ class IrrigationSchedulesController < ApplicationController
       .order(:hour, :minute)
   end
   
+  def destroy
+    irrigation_schedule = IrrigationSchedule.find(params[:id])
+    irrigation_schedule.destroy
+    respond_to do |format|
+      format.html { redirect_to irrigation_schedules_path, notice: "Irrigação cancelada com sucesso." }
+      format.turbo_stream
+    end
+  end
   
 
   def destroy
