@@ -1,4 +1,3 @@
-# app/controllers/events_controller.rb
 class EventsController < ApplicationController
   before_action :authenticate_user!
 
@@ -35,7 +34,6 @@ class EventsController < ApplicationController
           id: schedule.id,
           type: 'irrigation',
           title: "Irrigação - #{schedule.sensor.name}",
-          description: "#{schedule.duration}s",
           field_id: schedule.sensor.field.id,
           field: schedule.sensor.field.name,
           time: scheduled_time
