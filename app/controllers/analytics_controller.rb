@@ -70,7 +70,7 @@ class AnalyticsController < ApplicationController
           data: labels_ordenadas.map { |m| grouped[m].select { |r| r.crop_type == type }.sum(&:amount) },
           backgroundColor: "##{SecureRandom.hex(3)}"
         }
-      }
+      end
     }
 
     # 🌡️ Temperatura média diária e mensal
