@@ -31,7 +31,6 @@ gem 'webpacker', '~> 5.4.0'
 gem 'jquery-rails', '~> 4.5.0'
 
 gem "pundit"
-gem "groupdate"
 gem 'mqtt'
 gem 'clockwork'
 gem 'sidekiq'

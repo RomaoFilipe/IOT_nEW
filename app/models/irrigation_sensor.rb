@@ -1,7 +1,6 @@
 # app/models/irrigation_sensor.rb
 class IrrigationSensor < Sensor
-  has_many :irrigation_schedules, dependent: :destroy
-
+has_many :irrigation_schedules, foreign_key: :sensor_id, dependent: :destroy
   # ⚠️ Usamos logs com base no device_id para flexibilidade
   def irrigation_logs
     IrrigationLog.where(device_id: device_id)

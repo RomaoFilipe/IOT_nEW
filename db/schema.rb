@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_29_165642) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_02_160313) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -82,15 +82,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_165642) do
 
   create_table "irrigation_schedules", force: :cascade do |t|
     t.bigint "field_id", null: false
+    t.bigint "sensor_id", null: false
     t.integer "day_of_week", null: false
     t.integer "hour", null: false
     t.integer "minute", null: false
     t.integer "duration", default: 60, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "sensor_id", null: false
     t.datetime "executed_at"
     t.integer "scheduled_day"
+    t.bigint "irrigation_sensor_id"
     t.index ["field_id"], name: "index_irrigation_schedules_on_field_id"
     t.index ["sensor_id"], name: "index_irrigation_schedules_on_sensor_id"
   end
@@ -119,6 +120,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_165642) do
     t.string "status"
     t.integer "remaining_time"
     t.integer "last_duration"
+    t.integer "light_intensity"
+    t.float "wind_speed"
+    t.integer "wind_direction"
+    t.float "air_temperature"
+    t.integer "air_humidity"
+    t.float "soil_ph"
+    t.float "soil_ec"
+    t.integer "soil_nitrogen"
+    t.integer "soil_potassium"
+    t.integer "soil_phosphorus"
+    t.integer "uptime"
+    t.integer "error_count"
     t.index ["sensor_id"], name: "index_sensor_readings_on_sensor_id"
   end
 
@@ -143,6 +156,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_165642) do
     t.datetime "irrigation_started_at"
     t.integer "irrigation_duration"
     t.integer "remaining_time"
+    t.integer "last_duration"
     t.index ["field_id"], name: "index_sensors_on_field_id"
     t.index ["type"], name: "index_sensors_on_type"
   end
@@ -155,6 +169,19 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_165642) do
     t.datetime "measured_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "uptime"
+    t.integer "light_intensity"
+    t.float "wind_speed"
+    t.float "air_temperature"
+    t.integer "air_humidity"
+    t.float "soil_ph"
+    t.float "soil_ec"
+    t.integer "soil_nitrogen"
+    t.integer "soil_potassium"
+    t.integer "soil_phosphorus"
+    t.integer "error_count"
+    t.float "temperature"
+    t.integer "wind_direction"
     t.index ["field_id"], name: "index_soil_readings_on_field_id"
   end
 

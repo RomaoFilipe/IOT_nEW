@@ -50,9 +50,9 @@ class Sensor < ApplicationRecord
 
   private
 
-  def irrigation_status_changed?
-    saved_change_to_status? || saved_change_to_last_reading? || saved_change_to_last_duration?
-  end
+def irrigation_status_changed?
+  saved_change_to_status? || saved_change_to_last_reading? || saved_change_to_irrigation_duration?
+end
 
   def broadcast_irrigation_status
     ActionCable.server.broadcast("irrigation_status", {
