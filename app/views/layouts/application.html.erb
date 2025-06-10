@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <title><%= content_for(:title) || "IoT Agricultural Platform" %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= action_cable_meta_tag %> <!-- necessário para WebSocket -->
@@ -14,20 +13,25 @@
     <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <% if @sensor %>
       <meta name="sensor-id" content="<%= @sensor.id %>">
     <% end %>
   </head>
 
-  <body>
-    <% unless devise_controller? %>
-      <%= render 'shared/navbar' %>
-    <% end %>
+<body>
+  <% unless devise_controller? %>
+    <%= render 'shared/navbar' %>
+  <% end %>
 
-    <div class="main-content">
-      <turbo-frame id="main-content">
-        <%= yield %>
-      </turbo-frame>
-    </div>
-  </body>
+  <%# 🔁 Aviso de simulação de utilizador %>
+  <%= render "shared/return_to_owner" %>
+
+  <div class="main-content">
+    <turbo-frame id="main-content">
+      <%= yield %>
+    </turbo-frame>
+  </div>
+</body>y
 </html>

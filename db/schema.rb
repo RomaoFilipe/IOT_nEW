@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_02_160313) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_10_161158) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "accounts", force: :cascade do |t|
+    t.string "name"
+    t.string "nif", null: false
+    t.integer "farm_type", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["nif"], name: "index_accounts_on_nif", unique: true
+  end
 
   create_table "crop_yields", force: :cascade do |t|
     t.bigint "field_id", null: false
@@ -206,6 +215,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_160313) do
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
     t.string "company_nif"
+    t.bigint "account_id"
+    t.index ["account_id"], name: "index_users_on_account_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -219,4 +230,5 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_160313) do
   add_foreign_key "sensor_readings", "sensors"
   add_foreign_key "sensors", "fields"
   add_foreign_key "soil_readings", "fields"
+  add_foreign_key "users", "accounts"
 end
