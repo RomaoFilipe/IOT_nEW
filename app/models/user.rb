@@ -1,51 +1,54 @@
 class User < ApplicationRecord
-  # Devise modules
+  # 🔐 Autenticação com Devise
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :trackable
 
+  # 📊 Status possíveis
   STATUSES = %w[active inactive].freeze
 
-  # Montar o uploader para foto
+  # 🖼 Upload da foto de perfil
   mount_uploader :photo, PhotoUploader
 
-  # Relacionamentos
+  # 🔗 Associações
+  belongs_to :account, optional: true
   has_many :tasks, dependent: :destroy
   has_many :fields, dependent: :destroy
 
-  # Roles
-  enum role: { admin: 'admin', manager: 'manager', viewer: 'viewer' }
+  # 🧭 Funções (roles)
+  enum role: {
+    owner: 'owner',         # Dono da plataforma
+    admin: 'admin',         # Dono da empresa (NIF)
+    manager: 'manager',     # Garante gestão da equipa
+    technician: 'technician', # Técnico no terreno
+    viewer: 'viewer'        # Só leitura
+  }
 
-  # Validações
+  # ✅ Validações
   validates :role, presence: true
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }, if: :password_required?
   validates :status, inclusion: { in: STATUSES }
+
+  # 🧾 Associação automática a Account via NIF
+  attr_accessor :company_nif
   validates :company_nif, presence: true, if: :requires_nif?
   validates :company_nif, format: { with: /\A\d{9}\z/, message: "deve ter 9 dígitos numéricos" }, allow_blank: true
 
-
-  # Notificações (novos atributos booleanos)
+  # ✉️ Preferências de notificação
   attribute :notif_email, :boolean, default: true
   attribute :notif_sms, :boolean, default: false
 
+  # 🧠 Métodos auxiliares
   def requires_nif?
-    role.in?(%w[admin manager])
+    admin? || manager?
   end
 
-
-  # Helpers
-  def admin?
-    role == 'admin'
-  end
-
-  def manager?
-    role == 'manager'
-  end
-
-  def viewer?
-    role == 'viewer'
-  end
+  def owner?       = role == 'owner'
+  def admin?       = role == 'admin'
+  def manager?     = role == 'manager'
+  def technician?  = role == 'technician'
+  def viewer?      = role == 'viewer'
 
   private
 
