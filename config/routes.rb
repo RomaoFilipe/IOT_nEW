@@ -1,34 +1,67 @@
 Rails.application.routes.draw do
-  # 🔐 Autenticação com Devise
-  devise_for :users
+  # 🔐 Devise (com controlador custom para registos se usares)
+  devise_for :users, controllers: {
+    registrations: "users/registrations"
+  }
 
-  # 🏠 Página pública inicial
+  # 🏠 Página pública (landing page)
   root to: "home#index"
   get "/home", to: "home#index", as: "home"
 
-  # 🔒 Áreas protegidas (após login)
+  # 🔒 Área protegida (após login)
   authenticate :user do
-    get "dashboard", to: "dashboard#index"
+    get "dashboard", to: "dashboard#index", as: :dashboard
     get "/analytics", to: "analytics#index", as: "analytics"
     get "/settings", to: "settings#index", as: "settings"
     get "admin_dashboard", to: "users#admin_dashboard", as: "admin_dashboard"
 
-    # ✅ Administração de utilizadores
-    resources :users, only: [ :index, :new, :create, :edit, :update, :destroy ] do
+    # ✅ OWNER - ver todas as contas criadas
+    namespace :admin do
+      resources :accounts, only: [:index, :new, :create, :edit, :update, :destroy]
+    end
+
+    # ✅ ADMIN / MANAGER - gerir equipa da conta
+namespace :team do
+  resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
+    post :impersonate, on: :member
+  end
+end
+
+post "/revert_impersonation", to: "team/users#revert_impersonation", as: :revert_impersonation
+
+
+    # ✅ Utilizadores (geral - para owner ou painel admin)
+    resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
       get :entrar_como, on: :member
       post :retornar_como_admin, on: :collection
     end
 
-    # 🌾 Gestão de dados agrícolas
-    resources :tasks, only: [ :index, :create, :update, :destroy ]
-    resources :crop_yields, only: [ :create ]
-    resources :soil_readings, only: [ :create ]
-    resources :financials, only: [ :create ]
-    resources :planned_tasks, only: [ :destroy ]
-    resources :irrigation_schedules, only: [ :destroy ]
+    # ✅ Campos agrícolas
+    resources :fields, only: [:index, :show, :new, :create, :destroy] do
+      resources :sensors, only: [:create, :destroy] do
+        post :simulate, on: :member
+        patch :toggle_status, on: :member
+      end
+    end
 
-    # 📡 Sensores (globais)
-    resources :sensors, only: [ :create, :destroy, :update ] do
+    resources :fields do
+      resources :irrigation_schedules, only: [:create, :destroy] do
+        collection do
+          get :today
+        end
+      end
+    end
+
+    # ✅ Dados agrícolas
+    resources :tasks, only: [:index, :create, :update, :destroy]
+    resources :planned_tasks, only: [:destroy]
+    resources :crop_yields, only: [:create]
+    resources :soil_readings, only: [:create]
+    resources :financials, only: [:create]
+    resources :irrigation_schedules, only: [:destroy]
+
+    # ✅ Sensores globais
+    resources :sensors, only: [:create, :destroy, :update] do
       post :simulate, on: :member
       post :stop_irrigation, on: :member
       post :start_irrigation, on: :member
@@ -44,41 +77,25 @@ Rails.application.routes.draw do
       end
     end
 
-      # ✅ ROTA DE POLLING
-  get 'sensors/:id/irrigation_status', to: 'sensors#irrigation_status'
-  get 'fields/:id/show_details', to: 'fields#show_details', as: 'show_field_details'
-  get "/events/upcoming", to: "events#upcoming"
-  get "/dashboard/upcoming_events", to: "dashboard#upcoming_events", as: :dashboard_upcoming_events
+    # 📅 Eventos
+    get "/events/upcoming", to: "events#upcoming"
+    get "/dashboard/upcoming_events", to: "dashboard#upcoming_events", as: :dashboard_upcoming_events
 
-  get 'analytics/export_csv', to: 'analytics#export_csv', as: 'export_analytics_csv'
-  get 'analytics/export_field_comparison_csv', to: 'analytics#export_field_comparison_csv', as: 'export_field_comparison_csv'
-  get 'analytics/export_irrigation_efficiency_csv', to: 'analytics#export_irrigation_efficiency_csv', as: 'export_irrigation_efficiency_csv'
+    # 📈 Exportações
+    get 'analytics/export_csv', to: 'analytics#export_csv', as: 'export_analytics_csv'
+    get 'analytics/export_field_comparison_csv', to: 'analytics#export_field_comparison_csv', as: 'export_field_comparison_csv'
+    get 'analytics/export_irrigation_efficiency_csv', to: 'analytics#export_irrigation_efficiency_csv', as: 'export_irrigation_efficiency_csv'
 
-
-
-
-
-    resource :settings, only: [ :index ] do
+    # ⚙️ Configurações
+    resource :settings, only: [:index] do
       patch :update_profile
       patch :update_notifications
       patch :update_password
     end
 
-    # 🗺️ Campos com sensores aninhados
-    resources :fields, only: [ :index, :show, :new, :create, :destroy ] do
-      resources :sensors, only: [ :create, :destroy ] do
-        post :simulate, on: :member
-        patch :toggle_status, on: :member
-      end
-    end
-
-    resources :fields do
-      resources :irrigation_schedules, only: [ :create, :destroy ] do
-        collection do
-          get :today
-        end
-      end
-    end
+    # 🛰️ Endpoints auxiliares
+    get 'sensors/:id/irrigation_status', to: 'sensors#irrigation_status'
+    get 'fields/:id/show_details', to: 'fields#show_details', as: 'show_field_details'
   end
 
   # 🌐 API pública e protegida
@@ -91,12 +108,12 @@ Rails.application.routes.draw do
       post "readings", to: "sensor_readings#create", on: :member
     end
 
-    resources :irrigation_logs, only: [ :create ]
+    resources :irrigation_logs, only: [:create]
   end
 
-  # 👤 Perfil
+  # 👤 Perfil do utilizador
   get "profile/:id", to: "profiles#show", as: "user_profile"
 
-  # 📡 WebSocket (ActionCable)
+  # 📡 WebSocket
   mount ActionCable.server => "/cable"
 end

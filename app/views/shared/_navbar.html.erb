@@ -9,37 +9,44 @@
 </head>
 <body class="bg-gray-100">
 
+<!-- app/views/shared/_navbar.html.erb -->
 <nav class="bg-white shadow-md px-6 py-4" x-data="{ mobileMenu: false }">
   <div class="flex items-center justify-between">
     <!-- Logo -->
     <div class="flex items-center gap-2">
-      <a href="<%= home_path %>" class="text-green-700 font-bold text-xl flex items-center gap-2">
+      <%= link_to (user_signed_in? ? dashboard_path : root_path), class: "text-green-700 font-bold text-xl flex items-center gap-2" do %>
         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-cog">
           <circle cx="12" cy="17" r="3"/>
           <path d="M4.2 15.1A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.2"/>
         </svg>
         AgriloT Synergy
-      </a>
+      <% end %>
     </div>
 
     <!-- Menu Links (Desktop) -->
     <div class="hidden md:flex items-center space-x-6 text-gray-700">
-      <%= link_to home_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-        <i class="lucide lucide-home w-4 h-4"></i>
-        <span>Home</span>
+      <%= link_to root_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
+        <i class="lucide lucide-home w-4 h-4"></i><span>Home</span>
       <% end %>
       <% if user_signed_in? %>
         <%= link_to dashboard_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-          <i class="lucide lucide-layout-dashboard w-4 h-4"></i>
-          <span>Dashboard</span>
+          <i class="lucide lucide-layout-dashboard w-4 h-4"></i><span>Dashboard</span>
         <% end %>
         <%= link_to fields_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-          <i class="lucide lucide-map w-4 h-4"></i>
-          <span>Fields</span>
+          <i class="lucide lucide-map w-4 h-4"></i><span>Fields</span>
         <% end %>
         <%= link_to analytics_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-          <i class="lucide lucide-chart-line w-4 h-4"></i>
-          <span>Analytics</span>
+          <i class="lucide lucide-chart-line w-4 h-4"></i><span>Analytics</span>
+        <% end %>
+
+        <% if current_user.owner? %>
+          <%= link_to main_app.admin_accounts_path, class: "flex items-center gap-1 hover:text-blue-600 transition" do %>
+            <i class="lucide lucide-users w-4 h-4"></i><span>Contas</span>
+          <% end %>
+        <% elsif current_user.admin? || current_user.manager? %>
+          <%= link_to main_app.team_users_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
+            <i class="lucide lucide-user-plus w-4 h-4"></i><span>Equipa</span>
+          <% end %>
         <% end %>
       <% end %>
     </div>
@@ -59,16 +66,31 @@
         <div x-data="{ open: false }" class="relative">
           <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
             <img src="<%= current_user.photo.url || image_path('placeholder-user.png') %>" alt="Avatar" class="w-9 h-9 rounded-full object-cover border" />
-            <span class="text-gray-700 font-medium"><%= current_user.name %></span>
+            <div class="text-left">
+              <span class="text-gray-700 font-medium"><%= current_user.name %></span>
+              <div class="text-xs text-gray-500">
+                <% if current_user.owner? %>👑 Owner
+                <% elsif current_user.admin? %>🧑‍💼 Admin
+                <% elsif current_user.manager? %>👨‍🌾 Manager
+                <% elsif current_user.technician? %>🔧 Técnico
+                <% elsif current_user.viewer? %>👀 Viewer
+                <% end %>
+              </div>
+            </div>
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
           <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-50 py-2">
             <%= link_to "Perfil", edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <%= link_to "Configurações", settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <%= link_to settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>Configurações<% end %>
+            <% if current_user.owner? %>
+              <%= link_to main_app.admin_accounts_path, class: "block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100" do %>Contas<% end %>
+            <% elsif current_user.admin? || current_user.manager? %>
+              <%= link_to main_app.team_users_path, class: "block px-4 py-2 text-sm text-green-700 hover:bg-green-100" do %>Equipa<% end %>
+            <% end %>
             <% if current_user.admin? %>
-              <%= link_to "Painel de Administração", admin_dashboard_path, class: "block px-4 py-2 text-sm text-purple-700 hover:bg-purple-100" %>
+              <%= link_to admin_dashboard_path, class: "block px-4 py-2 text-sm text-purple-700 hover:bg-purple-100" do %>Painel de Administração<% end %>
             <% end %>
             <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
               <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">Logout</button>
@@ -84,15 +106,20 @@
 
   <!-- Mobile Menu Dropdown -->
   <div x-show="mobileMenu" class="md:hidden mt-4 space-y-2">
-    <%= link_to home_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Home<% end %>
+    <%= link_to root_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Home<% end %>
     <% if user_signed_in? %>
       <%= link_to dashboard_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Dashboard<% end %>
       <%= link_to fields_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Fields<% end %>
       <%= link_to analytics_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Analytics<% end %>
+      <% if current_user.owner? %>
+        <%= link_to main_app.admin_accounts_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Contas<% end %>
+      <% elsif current_user.admin? || current_user.manager? %>
+        <%= link_to main_app.team_users_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %>Equipa<% end %>
+      <% end %>
       <%= link_to "Perfil", edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
       <%= link_to "Configurações", settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
       <% if current_user.admin? %>
-        <%= link_to "Painel de Administração", admin_dashboard_path, class: "block px-4 py-2 text-sm text-purple-700 hover:bg-purple-100" %>
+        <%= link_to admin_dashboard_path, class: "block px-4 py-2 text-sm text-purple-700 hover:bg-purple-100" do %>Painel de Administração<% end %>
       <% end %>
       <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
         <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">Logout</button>
@@ -107,6 +134,3 @@
 <!-- Lucide Icons -->
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>lucide.createIcons();</script>
-
-</body>
-</html>

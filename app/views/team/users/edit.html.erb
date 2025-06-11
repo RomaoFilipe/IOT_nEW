@@ -1,0 +1,66 @@
+<!-- app/views/team/users/edit.html.erb -->
+
+<h1 class="text-3xl font-bold mb-6 text-gray-800">✏️ Editar Utilizador</h1>
+
+<%= form_with model: @user, url: team_user_path(@user), method: :patch, local: true, class: "space-y-6 max-w-xl bg-white p-6 rounded-lg shadow-md" do |f| %>
+  <!-- Nome -->
+  <div>
+    <%= f.label :name, "Nome", class: "block text-sm font-semibold text-gray-700" %>
+    <%= f.text_field :name, placeholder: "Ex: João Silva", class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
+  </div>
+
+  <!-- Email -->
+  <div>
+    <%= f.label :email, "Email", class: "block text-sm font-semibold text-gray-700" %>
+    <%= f.email_field :email, placeholder: "exemplo@email.com", class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
+  </div>
+
+  <!-- Nova Password -->
+  <div>
+    <%= f.label :password, "Nova Palavra-passe", class: "block text-sm font-semibold text-gray-700" %>
+    <%= f.password_field :password, placeholder: "Deixar em branco se não quiser alterar", class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
+  </div>
+
+  <!-- Confirmação -->
+  <div>
+    <%= f.label :password_confirmation, "Confirmação", class: "block text-sm font-semibold text-gray-700" %>
+    <%= f.password_field :password_confirmation, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
+  </div>
+
+  <!-- Função -->
+  <div>
+    <%= f.label :role, "Função", class: "block text-sm font-semibold text-gray-700" %>
+    <%= f.select :role, User.roles.except("owner", "admin").keys.map { |r| [r.capitalize, r] }, {}, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
+  </div>
+
+  <!-- Foto -->
+  <div>
+    <%= f.label :photo, "Foto (opcional)", class: "block text-sm font-semibold text-gray-700" %>
+    <%= f.file_field :photo, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm" %>
+
+    <% if @user.photo.present? %>
+      <div class="mt-3">
+        <p class="text-xs text-gray-500 mb-1">Foto atual:</p>
+        <img src="<%= @user.photo.url %>" class="w-20 h-20 rounded-full object-cover border" />
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Notificações -->
+  <div class="flex items-center gap-2">
+    <%= f.check_box :notif_email, class: "rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" %>
+    <%= f.label :notif_email, "Receber notificações por email", class: "text-sm text-gray-700" %>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <%= f.check_box :notif_sms, class: "rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" %>
+    <%= f.label :notif_sms, "Receber notificações por SMS", class: "text-sm text-gray-700" %>
+  </div>
+
+  <!-- Submeter -->
+  <div class="pt-4">
+    <%= f.submit "💾 Atualizar Utilizador", class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-md transition duration-200" %>
+  </div>
+<% end %>
+
+<%= link_to "← Voltar para a Equipa", team_users_path, class: "inline-block mt-6 text-sm text-gray-600 hover:underline" %>

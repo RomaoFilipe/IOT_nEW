@@ -1,33 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt">
-  <head>
-    <meta charset="utf-8" />
-    <title><%= content_for(:title) || "IoT Agricultural Platform" %></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+  <meta charset="utf-8">
+  <title><%= content_for?(:title) ? yield(:title) : "AgriloT Synergy" %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
-    <%= action_cable_meta_tag %> <!-- necessário para WebSocket -->
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag "application", "https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css", media: "all", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
 
-    <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+  <!-- Tailwind e AlpineJS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
 
-    <% if @sensor %>
-      <meta name="sensor-id" content="<%= @sensor.id %>">
-    <% end %>
-  </head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+  <!-- 🔝 Navbar -->
+  <%= render partial: "shared/navbar" %>
 
-  <body>
-    <% unless devise_controller? %>
-      <%= render 'shared/navbar' %>
-    <% end %>
-
-    <div class="main-content">
-      <turbo-frame id="main-content">
-        <%= yield %>
-      </turbo-frame>
+  <!-- 🔄 Flash Messages -->
+  <% flash.each do |key, message| %>
+    <div class="p-4 text-sm text-white <%= key == 'notice' ? 'bg-green-600' : 'bg-red-600' %>">
+      <%= message %>
     </div>
-  </body>
+  <% end %>
+
+  <!-- 📦 Conteúdo principal -->
+  <main class="flex-grow container mx-auto px-6 py-6">
+    <%= yield %>
+  </main>
+
+  <!-- 👣 Rodapé (opcional) -->
+  <footer class="bg-white text-center py-4 text-gray-500 text-sm border-t">
+    &copy; <%= Time.current.year %> AgriloT Synergy - Todos os direitos reservados.
+  </footer>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
 </html>
