@@ -20,46 +20,53 @@
 
     <!-- Formulário -->
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+
+      <!-- Alerta de Erro -->
+      <% if flash[:alert].present? %>
+        <div id="login-alert" class="mb-5 flex items-start gap-3 px-4 py-3 rounded-md bg-red-100 border border-red-300 text-red-800 text-sm font-medium transition duration-300">
+          <svg class="w-5 h-5 mt-0.5 text-red-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93" />
+          </svg>
+          <span><%= flash[:alert] %></span>
+        </div>
+      <% end %>
+
       <h2 class="text-xl font-semibold text-gray-800 mb-1 text-center">Sign in</h2>
       <p class="text-sm text-gray-500 text-center mb-6">Enter your credentials to access your account</p>
 
       <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-5" }) do |f| %>
-        <!-- Company label -->
-        <div>
-          <p class="text-sm text-gray-700 font-semibold mb-1">Company</p>
-          <span class="text-sm text-gray-500">› Company</span>
-        </div>
 
-        <!-- Company label (NIF da Empresa) -->
-<div>
-  <%= f.label :company_nif, "NIF da Empresa", class: "block text-sm font-medium text-gray-700 mb-1" %>
-  <%= f.text_field :company_nif, placeholder: "501234567", class: "w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
-</div>
+        <!-- NIF da Empresa -->
+        <div>
+          <%= f.label :company_nif, "NIF da Empresa", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :company_nif, placeholder: "501234567", class: "w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
+        </div>
 
         <!-- Email -->
         <div class="relative">
           <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2.25 2.25 0 002.22 0L21 8M5.25 6h13.5A2.25 2.25 0 0121 8.25v7.5A2.25 2.25 0 0118.75 18H5.25A2.25 2.25 0 013 15.75v-7.5A2.25 2.25 0 015.25 6z"/></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2.25 2.25 0 002.22 0L21 8M5.25 6h13.5A2.25 2.25 0 0121 8.25v7.5A2.25 2.25 0 0118.75 18H5.25A2.25 2.25 0 013 15.75v-7.5A2.25 2.25 0 015.25 6z"/>
+            </svg>
           </div>
           <%= f.email_field :email, placeholder: "name@example.com", autocomplete: "email", class: "pl-10 w-full border border-gray-300 rounded-md shadow-sm py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
         </div>
 
         <!-- Password -->
-<div class="relative">
-  <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5v-3a4.5 4.5 0 10-9 0v3M4.5 10.5h15v9a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5v-9z"/>
-    </svg>
-  </div>
-  <%= f.password_field :password, id: "password", autocomplete: "current-password", placeholder: "Password", class: "pl-10 pr-10 w-full border border-gray-300 rounded-md shadow-sm py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
-  <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-    <svg id="eye-password" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z"/>
-    </svg>
-  </button>
-</div>
-
+        <div class="relative">
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5v-3a4.5 4.5 0 10-9 0v3M4.5 10.5h15v9a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5v-9z"/>
+            </svg>
+          </div>
+          <%= f.password_field :password, id: "password", autocomplete: "current-password", placeholder: "Password", class: "pl-10 pr-10 w-full border border-gray-300 rounded-md shadow-sm py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
+          <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <svg id="eye-password" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z"/>
+            </svg>
+          </button>
+        </div>
 
         <!-- Remember me -->
         <% if devise_mapping.rememberable? %>
@@ -101,7 +108,7 @@
     </p>
   </div>
 
-  <!-- JS: Toggle password -->
+  <!-- Toggle password e alerta -->
   <script>
     function togglePassword(id) {
       const input = document.getElementById(id);
@@ -113,6 +120,16 @@
         ? '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 01-6 0"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" />'
         : '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" />';
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const alertBox = document.getElementById("login-alert");
+      if (alertBox) {
+        setTimeout(() => {
+          alertBox.classList.add("opacity-0", "translate-y-2");
+          setTimeout(() => alertBox.remove(), 300);
+        }, 4000);
+      }
+    });
   </script>
 
 </body>

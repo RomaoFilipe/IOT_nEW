@@ -26,4 +26,15 @@ class ApplicationController < ActionController::Base
   def user_not_authorized
     redirect_to root_path, alert: 'Você não tem permissão para realizar esta ação.'
   end
+
+
+def current_account
+  if session[:simulated_account_id]
+    Account.find(session[:simulated_account_id])
+  else
+    current_user.account
+  end
+end
+helper_method :current_account
+
 end

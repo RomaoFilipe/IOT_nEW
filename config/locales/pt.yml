@@ -1,0 +1,5 @@
+pt:
+  field_types:
+    agriculture: "Agricultura"
+    aquaculture_tank: "Aquacultura (Tanque)"
+    aquaculture_sea: "Aquacultura (Marinha)"

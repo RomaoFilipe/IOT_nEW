@@ -1,0 +1,39 @@
+<h1 class="text-2xl font-bold mb-6">✏️ Editar Utilizador</h1>
+
+<%= form_with model: [:admin, @user], local: true, class: "space-y-6 max-w-xl" do |f| %>
+  <div>
+    <%= f.label :name, "Nome" %>
+    <%= f.text_field :name, class: "block w-full rounded border-gray-300 shadow-sm" %>
+  </div>
+
+  <div>
+    <%= f.label :email, "Email" %>
+    <%= f.email_field :email, class: "block w-full rounded border-gray-300 shadow-sm" %>
+  </div>
+
+  <div>
+    <%= f.label :role, "Função" %>
+    <%= f.select :role, User.roles.keys.map { |r| [r.capitalize, r] }, {}, class: "block w-full rounded border-gray-300 shadow-sm" %>
+  </div>
+
+  <% if current_user.owner? %>
+    <div>
+      <%= f.label :account_id, "Conta" %>
+      <%= f.collection_select :account_id, Account.all, :id, :name, {}, class: "block w-full rounded border-gray-300 shadow-sm" %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :password, "Nova Password" %>
+    <%= f.password_field :password, class: "block w-full rounded border-gray-300 shadow-sm" %>
+  </div>
+
+  <div>
+    <%= f.label :password_confirmation, "Confirmação de Password" %>
+    <%= f.password_field :password_confirmation, class: "block w-full rounded border-gray-300 shadow-sm" %>
+  </div>
+
+  <div class="pt-4">
+    <%= f.submit "Guardar Alterações", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+  </div>
+<% end %>

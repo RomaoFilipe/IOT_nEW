@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_11_144546) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_01_085511) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -64,6 +64,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_11_144546) do
     t.jsonb "field_boundary"
     t.jsonb "polygon_coordinates"
     t.string "soil_quality"
+    t.bigint "account_id", null: false
+    t.index ["account_id"], name: "index_fields_on_account_id"
   end
 
   create_table "financials", force: :cascade do |t|
@@ -232,6 +234,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_11_144546) do
   end
 
   add_foreign_key "crop_yields", "fields"
+  add_foreign_key "fields", "accounts"
   add_foreign_key "financials", "fields"
   add_foreign_key "irrigation_logs", "sensors"
   add_foreign_key "irrigation_schedules", "fields"

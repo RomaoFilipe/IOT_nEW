@@ -10,25 +10,30 @@ Rails.application.routes.draw do
 
   # 🔒 Área protegida (após login)
   authenticate :user do
+    # 🧭 Navegação principal
     get "dashboard", to: "dashboard#index", as: :dashboard
     get "/analytics", to: "analytics#index", as: "analytics"
     get "/settings", to: "settings#index", as: "settings"
-    get "admin_dashboard", to: "users#admin_dashboard", as: "admin_dashboard"
 
-    # ✅ OWNER - ver todas as contas criadas
+    # ✅ OWNER - ver todas as contas e simular
     namespace :admin do
-      resources :accounts, only: [:index, :new, :create, :edit, :update, :destroy]
+      resources :accounts do
+        member do
+          post :simulate           # /admin/accounts/:id/simulate
+        end
+        collection do
+          delete :stop_simulation  # /admin/accounts/stop_simulation
+        end
+      end
     end
 
     # ✅ ADMIN / MANAGER - gerir equipa da conta
-namespace :team do
-  resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
-    post :impersonate, on: :member
-  end
-end
-
-post "/revert_impersonation", to: "team/users#revert_impersonation", as: :revert_impersonation
-
+    namespace :team do
+      resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
+        post :impersonate, on: :member
+      end
+    end
+    post "/revert_impersonation", to: "team/users#revert_impersonation", as: :revert_impersonation
 
     # ✅ Utilizadores (geral - para owner ou painel admin)
     resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
@@ -77,7 +82,7 @@ post "/revert_impersonation", to: "team/users#revert_impersonation", as: :revert
       end
     end
 
-    # 📅 Eventos
+    # 📅 Eventos e notificações
     get "/events/upcoming", to: "events#upcoming"
     get "/dashboard/upcoming_events", to: "dashboard#upcoming_events", as: :dashboard_upcoming_events
 
@@ -86,7 +91,7 @@ post "/revert_impersonation", to: "team/users#revert_impersonation", as: :revert
     get 'analytics/export_field_comparison_csv', to: 'analytics#export_field_comparison_csv', as: 'export_field_comparison_csv'
     get 'analytics/export_irrigation_efficiency_csv', to: 'analytics#export_irrigation_efficiency_csv', as: 'export_irrigation_efficiency_csv'
 
-    # ⚙️ Configurações
+    # ⚙️ Configurações pessoais
     resource :settings, only: [:index] do
       patch :update_profile
       patch :update_notifications
@@ -111,7 +116,7 @@ post "/revert_impersonation", to: "team/users#revert_impersonation", as: :revert
     resources :irrigation_logs, only: [:create]
   end
 
-  # 👤 Perfil do utilizador
+  # 👤 Perfil individual
   get "profile/:id", to: "profiles#show", as: "user_profile"
 
   # 📡 WebSocket

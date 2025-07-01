@@ -58,13 +58,6 @@ class UsersController < ApplicationController
     redirect_to users_path, notice: "Usuário excluído com sucesso."
   end
 
-  def admin_dashboard
-    authorize User  # Garante que apenas admins podem aceder
-    @users = User.all
-    render layout: "admin"
-  end
-
-
 
   private
 

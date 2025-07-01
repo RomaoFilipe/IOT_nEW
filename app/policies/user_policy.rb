@@ -1,33 +1,33 @@
 class UserPolicy < ApplicationPolicy
   def index?
-    user.admin?
+    user.owner? || user.admin?
   end
 
   def show?
-    user.admin? || user.manager?
+    user.owner? || user.admin? || user.manager?
   end
 
   def create?
-    user.admin?
+    user.owner? || user.admin?
   end
 
   def update?
-    user.admin? || (user.manager? && record.role == "viewer")
+    user.owner? || user.admin? || (user.manager? && record.role == "viewer")
   end
 
   def destroy?
-    user.admin?
+    user.owner? || user.admin?
   end
 
   def admin_dashboard?
-    user.admin?
+    user.owner? || user.admin?
   end
 
   def entrar_como?
-    user.admin? && user != record
+    (user.owner? || user.admin?) && user != record
   end
 
   def retornar_como_admin?
-    user.admin?
+    user.owner? || user.admin?
   end
 end
