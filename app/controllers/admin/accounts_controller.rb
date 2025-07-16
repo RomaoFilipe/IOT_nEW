@@ -22,13 +22,18 @@ class Admin::AccountsController < ApplicationController
 
   def edit; end
 
-  def update
-    if @account.update(account_params)
-      redirect_to admin_accounts_path, notice: "Conta atualizada com sucesso."
-    else
-      render :edit, status: :unprocessable_entity
-    end
+def update
+  if @account.fields.exists? && params[:account][:farm_type] != @account.farm_type
+    redirect_to admin_account_path(@account), alert: "⚠️ Não é possível alterar o tipo de produção com campos já existentes."
+    return
   end
+
+  if @account.update(account_params)
+    redirect_to admin_account_path(@account), notice: "Conta atualizada com sucesso."
+  else
+    render :edit, status: :unprocessable_entity
+  end
+end
 
   def destroy
     @account.destroy

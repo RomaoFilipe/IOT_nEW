@@ -42,13 +42,19 @@ class Team::UsersController < ApplicationController
     end
   end
 
-  def update_account
-    if @account.update(account_params)
-      redirect_to team_users_path, notice: "Nome da empresa atualizado com sucesso."
-    else
-      redirect_to team_users_path, alert: "Erro ao atualizar o nome da empresa."
-    end
+def update_account
+  if @account.fields.any? && account_params[:farm_type] != @account.farm_type
+    flash[:alert] = "Não é possível alterar o tipo de exploração porque existem campos associados."
+    return redirect_to team_users_path
   end
+
+  if @account.update(account_params)
+    redirect_to team_users_path, notice: "Dados da empresa atualizados com sucesso."
+  else
+    redirect_to team_users_path, alert: "Erro ao atualizar os dados da empresa."
+  end
+end
+
 
   def impersonate
     session[:owner_user_id] = current_user.id

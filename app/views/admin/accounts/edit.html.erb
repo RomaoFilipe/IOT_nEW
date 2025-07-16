@@ -24,15 +24,24 @@
       <%= form.text_field :nif, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
     </div>
 
-    <div>
-      <%= form.label :farm_type, "Tipo de Produção", class: "block text-sm font-medium text-gray-700" %>
-      <%= form.select :farm_type, [["Agricultura", "agriculture"], ["Aquacultura (Marinha)", "aquaculture_sea"], ["Aquacultura (Tanque)", "aquaculture_tank"]],
-        {}, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
-    </div>
+<div>
+  <%= form.label :farm_type, "Tipo de Produção", class: "block text-sm font-medium text-gray-700" %>
 
-    <div class="flex justify-between items-center pt-4">
-      <%= link_to "← Voltar", admin_accounts_path, class: "text-sm text-gray-600 hover:underline" %>
-      <%= form.submit "Guardar Alterações", class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" %>
+  <% if @account.fields.any? %>
+    <%= form.select :farm_type, Account.farm_types.keys.map { |t| [t.humanize, t] },
+          {}, class: "mt-1 block w-full bg-gray-100 text-gray-500 border-gray-300 rounded-md shadow-sm", disabled: true %>
+    <p class="text-sm text-red-500 mt-1">⚠ Não é possível alterar o tipo de produção porque existem campos registados.</p>
+  <% else %>
+    <%= form.select :farm_type, Account.farm_types.keys.map { |t| [t.humanize, t] },
+          {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+  <% end %>
+</div>
+
+
+
+    <div class="flex justify-between items-center pt-4"> <%= link_to "← Voltar", admin_accounts_path, 
+      class: "text-sm text-gray-600 hover:underline" %> <%= form.submit "Guardar Alterações", class: 
+      "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" %>
     </div>
   <% end %>
 </div>
