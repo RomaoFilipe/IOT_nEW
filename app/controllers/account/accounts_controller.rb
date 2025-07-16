@@ -1,4 +1,3 @@
-# app/controllers/account/accounts_controller.rb
 class Account::AccountsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_account
