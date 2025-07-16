@@ -12,16 +12,22 @@ class Team::UsersController < ApplicationController
     @user = current_user.account.users.new
   end
 
-  def create
-    @user = current_user.account.users.new(user_params)
-    @user.status = "active"
+def create
+  @user = current_user.account.users.new(user_params)
+  generated_password = Devise.friendly_token.first(12)
+  @user.password = generated_password
+  @user.status = "active"
 
-    if @user.save
-      redirect_to team_users_path, notice: "Utilizador criado com sucesso."
-    else
-      render :new, status: :unprocessable_entity
+  if @user.save
+    if @user.notif_email?
+      UserMailer.welcome_email(@user, generated_password).deliver_later
     end
+    redirect_to team_users_path, notice: "Utilizador criado com sucesso#{@user.notif_email? ? ' e notificado por email.' : '.'}"
+  else
+    render :new, status: :unprocessable_entity
   end
+end
+
 
   def edit; end
 
