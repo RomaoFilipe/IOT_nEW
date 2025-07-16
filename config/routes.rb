@@ -29,11 +29,14 @@ Rails.application.routes.draw do
 
 
     # ✅ ADMIN / MANAGER - gerir equipa da conta
-    namespace :team do
-      resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
-        post :impersonate, on: :member
-      end
+namespace :team do
+  resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
+    post :impersonate, on: :member
+    collection do
+      patch :update_account
     end
+  end
+end
     post "/revert_impersonation", to: "team/users#revert_impersonation", as: :revert_impersonation
 
     # ✅ Utilizadores (geral - para owner ou painel admin)
