@@ -1,66 +1,73 @@
-<h1 class="text-2xl font-bold mb-6">Contas da Plataforma</h1>
+<% content_for :title, "Contas da Plataforma" %>
 
-<% @accounts.each do |account| %>
-  <div x-data="{ open: false }" class="bg-white shadow rounded-lg p-4 mb-6 transition-all">
-    <!-- Cabeçalho -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-      <div class="flex items-start gap-4">
-        <i class="lucide lucide-building-2 w-6 h-6 text-blue-600 mt-1"></i>
-        <div>
-          <h2 class="text-lg font-bold text-gray-800"><%= account.name %></h2>
-          <p class="text-sm text-gray-500">NIF: <%= account.nif %></p>
-          <% tipo = case account.farm_type
-            when "agriculture" then "Agricultura"
-            when "aquaculture_sea" then "Aquacultura (Marinha)"
-            when "aquaculture_tank" then "Aquacultura (Tanque)"
-          end %>
-          <span class="inline-flex items-center text-xs px-3 py-1 rounded-full font-semibold
-            <%= account.farm_type == "agriculture" ? "bg-green-100 text-green-700" : account.farm_type == "aquaculture_sea" ? "bg-blue-100 text-blue-700" : "bg-cyan-100 text-cyan-700" %>">
-            <i class="lucide lucide-bar-chart-3 w-3 h-3 mr-1"></i>
-            <%= tipo %>
-          </span>
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+  <h1 class="text-3xl font-bold text-gray-800 mb-4">🏢 Contas da Plataforma</h1>
+
+  <% @accounts.each do |account| %>
+    <div x-data="{ open: false }" class="bg-white shadow rounded-lg p-4 transition-all border">
+      <!-- Cabeçalho -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex items-start gap-4">
+          <i class="lucide lucide-building-2 w-6 h-6 text-blue-600 mt-1"></i>
+          <div>
+            <h2 class="text-lg font-bold text-gray-800"><%= account.name %></h2>
+            <p class="text-sm text-gray-500">NIF: <%= account.nif %></p>
+            <% tipo = case account.farm_type
+              when "agriculture" then "Agricultura"
+              when "aquaculture_sea" then "Aquacultura (Marinha)"
+              when "aquaculture_tank" then "Aquacultura (Tanque)"
+            end %>
+            <span class="inline-flex items-center text-xs mt-1 px-3 py-1 rounded-full font-semibold
+              <%= account.farm_type == "agriculture" ? "bg-green-100 text-green-700" : account.farm_type == "aquaculture_sea" ? "bg-blue-100 text-blue-700" : "bg-cyan-100 text-cyan-700" %>">
+              <i class="lucide lucide-bar-chart-3 w-3 h-3 mr-1"></i>
+              <%= tipo %>
+            </span>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="flex items-center gap-2 mt-2 md:mt-0">
+          <%= link_to "✏️ Editar", edit_admin_account_path(account), class: "text-sm text-blue-700 hover:underline" %>
+          <%= link_to "📄 Ver", admin_account_path(account), class: "text-sm text-gray-700 hover:underline" %>
+          <%= button_to "🗑️ Apagar", admin_account_path(account), method: :delete, data: { confirm: "Tens a certeza que queres apagar esta conta?" }, class: "text-sm text-red-600 hover:underline" %>
+          <button @click="open = !open" class="text-sm px-3 py-1 border rounded hover:bg-gray-50 transition">
+            <template x-if="!open">➤ Expandir</template>
+            <template x-if="open">⮝ Recolher</template>
+          </button>
         </div>
       </div>
 
-      <!-- Ações -->
-      <div class="flex items-center gap-2">
-        <%= link_to "✏️ Editar", edit_admin_account_path(account), class: "text-sm text-blue-700 hover:underline" %>
-        <%= button_to "🗑️ Apagar", admin_account_path(account), method: :delete, data: { confirm: "Tens a certeza que queres apagar esta conta?" }, class: "text-sm text-red-600 hover:underline" %>
-        <button @click="open = !open" class="text-sm px-4 py-2 border rounded hover:bg-gray-50 transition">
-          <span x-show="!open">➤ Expandir</span>
-          <span x-show="open" x-cloak>⮝ Recolher</span>
-        </button>
-      </div>
-    </div>
+      <!-- Utilizadores -->
+      <div x-show="open" x-transition class="mt-4 border-t pt-4 space-y-2" x-cloak>
+        <h3 class="text-sm font-semibold text-gray-600 mb-2">Utilizadores (<%= account.users.count %>)</h3>
 
-    <!-- Utilizadores -->
-    <div x-show="open" x-transition class="mt-4 border-t pt-4 space-y-2" x-cloak>
-      <h3 class="text-sm font-semibold text-gray-600 mb-2">Utilizadores (<%= account.users.count %>)</h3>
-      <% account.users.each do |user| %>
-        <% icon, badge_class = case user.role
-          when "admin" then ["👑", "bg-yellow-100 text-yellow-800"]
-          when "manager" then ["🧑‍🌾", "bg-green-100 text-green-700"]
-          when "technician" then ["🔧", "bg-purple-100 text-purple-700"]
-          when "viewer" then ["👀", "bg-gray-100 text-gray-600"]
-          else ["❓", "bg-red-100 text-red-600"]
-        end %>
-        <div class="flex justify-between items-center bg-gray-50 hover:bg-gray-100 rounded px-4 py-2 mb-2 transition">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl"><%= icon %></span>
-            <div>
-              <p class="font-semibold text-sm text-gray-800"><%= user.name %></p>
-              <p class="text-xs text-gray-500"><%= user.email %></p>
+        <% account.users.each do |user| %>
+          <% icon, badge_class = case user.role
+            when "admin" then ["👑", "bg-yellow-100 text-yellow-800"]
+            when "manager" then ["🧑‍🌾", "bg-green-100 text-green-700"]
+            when "technician" then ["🔧", "bg-purple-100 text-purple-700"]
+            when "viewer" then ["👀", "bg-gray-100 text-gray-600"]
+            else ["❓", "bg-red-100 text-red-600"]
+          end %>
+
+          <div class="flex justify-between items-center bg-gray-50 hover:bg-gray-100 rounded px-4 py-2 transition">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl"><%= icon %></span>
+              <div>
+                <p class="font-semibold text-sm text-gray-800"><%= user.name %></p>
+                <p class="text-xs text-gray-500"><%= user.email %></p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-semibold px-3 py-1 rounded-full <%= badge_class %>">
+                <%= user.role&.capitalize || "Sem função" %>
+              </span>
+              <%= link_to "✏️", edit_user_path(user), class: "text-sm text-blue-600 hover:underline", title: "Editar utilizador" %>
+              <%= button_to "🗑️", user_path(user), method: :delete, data: { confirm: "Apagar este utilizador?" }, class: "text-sm text-red-600 hover:underline", title: "Remover utilizador" %>
             </div>
           </div>
-          <div class="flex items-center gap-3">
-<span class="text-sm text-gray-500">
-  <%= user.role&.capitalize || "Sem função" %>
-</span>
-<%= link_to "✏️", edit_user_path(user), class: "text-sm text-blue-600 hover:underline", title: "Editar utilizador" %>
-<%= button_to "🗑️", user_path(user), method: :delete, data: { confirm: "Apagar este utilizador?" }, class: "text-sm text-red-600 hover:underline", title: "Remover utilizador" %>
-          </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
-  </div>
-<% end %>
+  <% end %>
+</div>
