@@ -7,10 +7,13 @@
       <%= f.text_field :name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
     </div>
 
-    <!-- Tipo de Campo -->
+    <!-- Tipo de Campo (automático, apenas leitura) -->
     <div>
-      <%= f.label :field_type, "Tipo de Campo", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.select :field_type, Field.field_types.keys.map { |k| [k.humanize, k] }, {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+      <label class="block text-sm font-medium text-gray-700">Tipo de Exploração</label>
+      <input type="text" 
+             value="<%= current_user.account.farm_type.humanize.capitalize %>" 
+             readonly 
+             class="mt-1 block w-full bg-gray-100 text-gray-600 border border-gray-300 rounded-md px-4 py-2 text-sm cursor-not-allowed" />
     </div>
 
     <!-- Área -->
@@ -38,47 +41,50 @@
     </div>
 
     <!-- 🔁 Campos específicos para Aquacultura em Tanque -->
-    <div class="md:col-span-2" id="aquaculture_fields" style="<%= field.field_type == 'aquaculture_tank' ? '' : 'display:none;' %>">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <%= f.label :species, "Espécie", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_field :species, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
-        </div>
+    <% if current_user.account.farm_type == "aquaculture_tank" %>
+      <div class="md:col-span-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <%= f.label :species, "Espécie", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :species, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+          </div>
 
-        <div>
-          <%= f.label :tank_volume, "Volume do Tanque (m³)", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.number_field :tank_volume, step: 0.1, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
-        </div>
+          <div>
+            <%= f.label :tank_volume, "Volume do Tanque (m³)", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.number_field :tank_volume, step: 0.1, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+          </div>
 
-        <div>
-          <%= f.label :stocking_density, "Densidade de Estocagem (kg/m³)", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.number_field :stocking_density, step: 0.1, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
-        </div>
+          <div>
+            <%= f.label :stocking_density, "Densidade de Estocagem (kg/m³)", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.number_field :stocking_density, step: 0.1, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+          </div>
 
-        <div>
-          <%= f.label :feeding_regime, "Regime Alimentar", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_field :feeding_regime, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
-        </div>
+          <div>
+            <%= f.label :feeding_regime, "Regime Alimentar", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :feeding_regime, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+          </div>
 
-        <div>
-          <%= f.label :fish_placement_date, "Data de Introdução dos Peixes", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.date_field :fish_placement_date, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
-        </div>
+          <div>
+            <%= f.label :fish_placement_date, "Data de Introdução dos Peixes", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.date_field :fish_placement_date, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+          </div>
 
-        <div>
-          <%= f.label :estimated_harvest_date, "Data Estimada de Colheita", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.date_field :estimated_harvest_date, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+          <div>
+            <%= f.label :estimated_harvest_date, "Data Estimada de Colheita", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.date_field :estimated_harvest_date, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+          </div>
         </div>
       </div>
-    </div>
+    <% end %>
   </div>
 
   <!-- Botões -->
   <div class="mt-6 flex justify-end gap-4">
     <%= link_to "Cancelar", fields_path, class: "inline-block px-4 py-2 text-sm rounded-md bg-gray-100 hover:bg-gray-200" %>
-    <%= f.submit class: "inline-block px-4 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700" %>
+    <%= f.submit "Guardar", class: "inline-block px-4 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700" %>
   </div>
 <% end %>
+
 
 <!-- Mostrar/ocultar campos de aquacultura dinamicamente -->
 <script>

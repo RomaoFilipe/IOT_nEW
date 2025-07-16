@@ -18,6 +18,7 @@ end
   def create
     @field = current_user.fields.build(field_params)
     @field.account = current_user.account
+    @field.field_type = current_user.account.farm_type
 
     if @field.save
       respond_to do |format|
@@ -78,7 +79,7 @@ end
 
 def field_params
   permitted = params.require(:field).permit(
-    :name, :field_type, :area, :latitude, :longitude, :notes, :polygon_coordinates,
+    :name, :area, :latitude, :longitude, :notes, :polygon_coordinates,
     :species, :tank_volume, :stocking_density, :feeding_regime, :fish_placement_date, :estimated_harvest_date
   )
 
@@ -88,4 +89,5 @@ def field_params
 
   permitted
 end
+
 end
