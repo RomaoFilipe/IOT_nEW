@@ -27,9 +27,6 @@ Rails.application.routes.draw do
       end
     end
 
-    namespace :account do
-  resource :account, only: [:edit, :update]
-end
 
     # ✅ ADMIN / MANAGER - gerir equipa da conta
     namespace :team do
