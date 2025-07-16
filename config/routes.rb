@@ -1,3 +1,5 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
   # 🔐 Devise (com controlador custom para registos se usares)
   devise_for :users, controllers: {
@@ -61,6 +63,8 @@ end
       end
     end
 
+    
+
     # ✅ Dados agrícolas
     resources :tasks, only: [:index, :create, :update, :destroy]
     resources :planned_tasks, only: [:destroy]
@@ -111,6 +115,11 @@ end
     # 🛰️ Endpoints auxiliares
     get 'sensors/:id/irrigation_status', to: 'sensors#irrigation_status'
     get 'fields/:id/show_details', to: 'fields#show_details', as: 'show_field_details'
+  end
+
+    # ✅ Painel Sidekiq (fora do bloco anterior)
+  authenticate :user, lambda { |u| u.admin? } do
+    mount Sidekiq::Web => "/sidekiq"
   end
 
   # 🌐 API pública e protegida

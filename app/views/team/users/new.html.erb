@@ -33,17 +33,6 @@
       <%= f.select :role, User.roles.except("owner").map { |r, _| [r.capitalize, r] }, {}, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
     </div>
 
-    <!-- Palavra-passe -->
-    <div>
-      <%= f.label :password, "Palavra-passe", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.password_field :password, required: true, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
-    </div>
-
-    <!-- Confirmação -->
-    <div>
-      <%= f.label :password_confirmation, "Confirmação de Palavra-passe", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.password_field :password_confirmation, required: true, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
-    </div>
 
     <!-- Foto de perfil -->
     <div>
