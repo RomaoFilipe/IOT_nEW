@@ -1,0 +1,23 @@
+<div class="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-8">
+  <h1 class="text-3xl font-extrabold text-gray-800 mb-6 flex items-center gap-2">
+    <i class="lucide lucide-pencil w-6 h-6 text-blue-600"></i> Editar Campo
+  </h1>
+
+  <%= render "form", field: @field %>
+</div>
+
+<!-- Mostrar/ocultar campos de aquacultura dinamicamente -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const fieldTypeSelect = document.querySelector("[name='field[field_type]']");
+    const aquaFields = document.getElementById("aquaculture_fields");
+    if (!fieldTypeSelect || !aquaFields) return;
+
+    function toggleAquaFields() {
+      aquaFields.style.display = fieldTypeSelect.value === "aquaculture_tank" ? "" : "none";
+    }
+
+    fieldTypeSelect.addEventListener("change", toggleAquaFields);
+    toggleAquaFields();
+  });
+</script>

@@ -1,0 +1,10 @@
+<% if field.errors.any? %>
+  <div class="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 shadow-sm">
+    <h3 class="font-semibold mb-2">⚠️ Erros ao criar o campo:</h3>
+    <ul class="list-disc list-inside space-y-1">
+      <% field.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

@@ -1,0 +1,2 @@
+class AquacultureSeasController < ApplicationController
+end

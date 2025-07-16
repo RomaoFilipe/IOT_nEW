@@ -34,7 +34,7 @@
 
     <!-- Conteúdo das Tabs -->
     <div id="overview-<%= field_id %>" class="tab-content mt-4">
-      <%= render partial: "fields/tabs/overview", locals: { field: field } %>
+<%= render partial: "fields/overviews/#{field.field_type}", locals: { field: field } %>
     </div>
 
     <div id="iot-equipment-<%= field_id %>" class="tab-content hidden mt-4">

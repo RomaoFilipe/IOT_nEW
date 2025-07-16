@@ -1,0 +1,2 @@
+module AquacultureTanksHelper
+end

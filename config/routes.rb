@@ -64,6 +64,12 @@ Rails.application.routes.draw do
     resources :soil_readings, only: [:create]
     resources :financials, only: [:create]
     resources :irrigation_schedules, only: [:destroy]
+    resources :agriculture_fields
+    resources :aquaculture_tanks
+    resources :aquaculture_seas
+
+
+
 
     # ✅ Sensores globais
     resources :sensors, only: [:create, :destroy, :update] do

@@ -1,0 +1,102 @@
+<%= form_with model: field, local: true do |f| %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    <!-- Nome -->
+    <div>
+      <%= f.label :name, "Nome do Campo", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+    </div>
+
+    <!-- Tipo de Campo -->
+    <div>
+      <%= f.label :field_type, "Tipo de Campo", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.select :field_type, Field.field_types.keys.map { |k| [k.humanize, k] }, {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+    </div>
+
+    <!-- Área -->
+    <div>
+      <%= f.label :area, "Área (ha)", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.number_field :area, step: 0.01, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+    </div>
+
+    <!-- Latitude -->
+    <div>
+      <%= f.label :latitude, "Latitude", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.number_field :latitude, step: 0.00001, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+    </div>
+
+    <!-- Longitude -->
+    <div>
+      <%= f.label :longitude, "Longitude", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.number_field :longitude, step: 0.00001, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+    </div>
+
+    <!-- Notas -->
+    <div class="md:col-span-2">
+      <%= f.label :notes, "Notas", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_area :notes, rows: 3, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+    </div>
+
+    <!-- 🔁 Campos específicos para Aquacultura em Tanque -->
+    <div class="md:col-span-2" id="aquaculture_fields" style="<%= field.field_type == 'aquaculture_tank' ? '' : 'display:none;' %>">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <%= f.label :species, "Espécie", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :species, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :tank_volume, "Volume do Tanque (m³)", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :tank_volume, step: 0.1, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :stocking_density, "Densidade de Estocagem (kg/m³)", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :stocking_density, step: 0.1, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :feeding_regime, "Regime Alimentar", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :feeding_regime, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :fish_placement_date, "Data de Introdução dos Peixes", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.date_field :fish_placement_date, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :estimated_harvest_date, "Data Estimada de Colheita", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.date_field :estimated_harvest_date, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botões -->
+  <div class="mt-6 flex justify-end gap-4">
+    <%= link_to "Cancelar", fields_path, class: "inline-block px-4 py-2 text-sm rounded-md bg-gray-100 hover:bg-gray-200" %>
+    <%= f.submit class: "inline-block px-4 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700" %>
+  </div>
+<% end %>
+
+<!-- Mostrar/ocultar campos de aquacultura dinamicamente -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const fieldTypeSelect = document.querySelector("[name='field[field_type]']");
+    const aquaFields = document.getElementById("aquaculture_fields");
+
+    if (!fieldTypeSelect || !aquaFields) return;
+
+    function toggleAquaFields() {
+      if (fieldTypeSelect.value === "aquaculture_tank") {
+        aquaFields.style.display = "";
+      } else {
+        aquaFields.style.display = "none";
+      }
+    }
+
+    fieldTypeSelect.addEventListener("change", toggleAquaFields);
+    toggleAquaFields();
+  });
+</script>

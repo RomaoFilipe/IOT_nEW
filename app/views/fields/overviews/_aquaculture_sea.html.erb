@@ -1,0 +1,74 @@
+<%= turbo_frame_tag "overview-#{field.id}" do %>
+  <!-- Cabeçalho com botão Editar -->
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+      <i class="lucide lucide-wave-square w-5 h-5 text-blue-600"></i>
+      Detalhes da Aquacultura Marinha
+    </h2>
+
+    <%= link_to edit_field_path(field), class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition" do %>
+      <i class="lucide lucide-pencil w-4 h-4"></i>
+      Editar
+    <% end %>
+  </div>
+
+  <!-- Informações gerais -->
+  <div class="grid grid-cols-2 gap-6">
+    <!-- Mapa -->
+    <div class="bg-blue-50 rounded-lg h-40 flex items-center justify-center">
+      <i class="lucide lucide-map-pin w-12 h-12 text-blue-500"></i>
+    </div>
+
+    <!-- Dados principais -->
+    <div>
+      <h3 class="font-semibold mb-2">Localização e Espécies</h3>
+      <p><strong>Espécie cultivada:</strong> <%= field.species || "-" %></p>
+      <p><strong>Área Marinha:</strong> <%= field.area || "-" %> ha</p>
+      <p><strong>Densidade de povoamento:</strong> <%= field.stocking_density || "-" %> kg/ha</p>
+      <p><strong>Data de introdução:</strong> <%= field.fish_placement_date&.strftime("%Y-%m-%d") || "-" %></p>
+      <p><strong>Previsão de colheita:</strong> <%= field.estimated_harvest_date&.strftime("%Y-%m-%d") || "-" %></p>
+
+      <h3 class="font-semibold mt-4">Notas</h3>
+      <p class="text-sm text-gray-600"><%= field.notes || "Sem observações no momento." %></p>
+    </div>
+  </div>
+
+  <!-- Leituras de sensores -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+    <!-- Salinidade -->
+    <div class="bg-blue-100 p-4 rounded-lg text-center">
+      <span class="block text-indigo-500 text-2xl">🧂</span>
+      <p class="text-gray-600">Salinidade</p>
+      <p class="font-bold text-lg">
+        <%= field.sensors.average(:salinity)&.round(1) || '-' %> ppt
+      </p>
+    </div>
+
+    <!-- Oxigénio -->
+    <div class="bg-blue-100 p-4 rounded-lg text-center">
+      <span class="block text-cyan-500 text-2xl">🫧</span>
+      <p class="text-gray-600">Oxigénio</p>
+      <p class="font-bold text-lg">
+        <%= field.sensors.average(:oxygen)&.round(1) || '-' %> mg/L
+      </p>
+    </div>
+
+    <!-- Temperatura -->
+    <div class="bg-blue-100 p-4 rounded-lg text-center">
+      <span class="block text-red-500 text-2xl">🌡</span>
+      <p class="text-gray-600">Temperatura da Água</p>
+      <p class="font-bold text-lg">
+        <%= field.sensors.average(:water_temperature)&.round(1) || '-' %>°C
+      </p>
+    </div>
+
+    <!-- Corrente Marinha -->
+    <div class="bg-blue-100 p-4 rounded-lg text-center">
+      <span class="block text-blue-400 text-2xl">🌊</span>
+      <p class="text-gray-600">Velocidade da Corrente</p>
+      <p class="font-bold text-lg">
+        <%= field.sensors.average(:current_speed)&.round(1) || '-' %> m/s
+      </p>
+    </div>
+  </div>
+<% end %>

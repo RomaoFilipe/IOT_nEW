@@ -1,0 +1,2 @@
+class AgricultureFieldsController < ApplicationController
+end

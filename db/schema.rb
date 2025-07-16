@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_01_085511) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_01_210057) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,6 +21,66 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_01_085511) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["nif"], name: "index_accounts_on_nif", unique: true
+  end
+
+  create_table "agriculture_fields", force: :cascade do |t|
+    t.string "name"
+    t.string "field_type"
+    t.float "area"
+    t.float "latitude"
+    t.float "longitude"
+    t.bigint "account_id", null: false
+    t.bigint "user_id", null: false
+    t.jsonb "polygon_coordinates"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_agriculture_fields_on_account_id"
+    t.index ["user_id"], name: "index_agriculture_fields_on_user_id"
+  end
+
+  create_table "aquaculture_readings", force: :cascade do |t|
+    t.bigint "field_id", null: false
+    t.float "temperature"
+    t.float "ph"
+    t.float "salinity"
+    t.float "oxygen_level"
+    t.datetime "measured_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field_id"], name: "index_aquaculture_readings_on_field_id"
+  end
+
+  create_table "aquaculture_seas", force: :cascade do |t|
+    t.string "name"
+    t.float "salinity"
+    t.float "wave_height"
+    t.float "area"
+    t.float "latitude"
+    t.float "longitude"
+    t.bigint "account_id", null: false
+    t.bigint "user_id", null: false
+    t.jsonb "polygon_coordinates"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_aquaculture_seas_on_account_id"
+    t.index ["user_id"], name: "index_aquaculture_seas_on_user_id"
+  end
+
+  create_table "aquaculture_tanks", force: :cascade do |t|
+    t.string "name"
+    t.float "tank_volume"
+    t.float "ph_level"
+    t.float "temperature"
+    t.float "area"
+    t.float "latitude"
+    t.float "longitude"
+    t.bigint "account_id", null: false
+    t.bigint "user_id", null: false
+    t.jsonb "polygon_coordinates"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_aquaculture_tanks_on_account_id"
+    t.index ["user_id"], name: "index_aquaculture_tanks_on_user_id"
   end
 
   create_table "crop_yields", force: :cascade do |t|
@@ -44,7 +104,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_01_085511) do
 
   create_table "fields", force: :cascade do |t|
     t.string "name"
-    t.string "field_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id"
@@ -65,6 +124,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_01_085511) do
     t.jsonb "polygon_coordinates"
     t.string "soil_quality"
     t.bigint "account_id", null: false
+    t.integer "field_type", default: 0, null: false
+    t.string "species"
+    t.float "tank_volume"
+    t.float "stocking_density"
+    t.string "feeding_regime"
+    t.date "fish_placement_date"
+    t.date "estimated_harvest_date"
     t.index ["account_id"], name: "index_fields_on_account_id"
   end
 
@@ -159,7 +225,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_01_085511) do
     t.bigint "field_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.float "temperature"
+    t.float "water_temperature"
     t.float "moisture"
     t.string "device_id"
     t.boolean "manually_disabled"
@@ -168,6 +234,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_01_085511) do
     t.integer "irrigation_duration"
     t.integer "remaining_time"
     t.integer "last_duration"
+    t.float "oxygen"
+    t.float "ph"
+    t.float "salinity"
+    t.float "ammonia"
+    t.float "temperature"
     t.index ["field_id"], name: "index_sensors_on_field_id"
     t.index ["type"], name: "index_sensors_on_type"
   end
@@ -233,6 +304,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_01_085511) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "agriculture_fields", "accounts"
+  add_foreign_key "agriculture_fields", "users"
+  add_foreign_key "aquaculture_readings", "fields"
+  add_foreign_key "aquaculture_seas", "accounts"
+  add_foreign_key "aquaculture_seas", "users"
+  add_foreign_key "aquaculture_tanks", "accounts"
+  add_foreign_key "aquaculture_tanks", "users"
   add_foreign_key "crop_yields", "fields"
   add_foreign_key "fields", "accounts"
   add_foreign_key "financials", "fields"
