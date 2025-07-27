@@ -1,115 +1,130 @@
-<!-- 🔧 Informações da Empresa -->
-<div class="mb-8 bg-white shadow-lg rounded-2xl p-6">
-  <h2 class="text-xl font-bold text-gray-900 mb-5 flex items-center gap-2">
-    <i class="lucide lucide-building-2 w-5 h-5 text-blue-600"></i>
-    Editar Conta da Empresa
-  </h2>
+<div class="max-w-7xl mx-auto px-6 py-8">
 
-  <%= form_with model: @account, url: update_account_team_users_path, method: :patch, local: true do |f| %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Nome da Empresa -->
-      <div>
-        <%= f.label :name, "Nome da Empresa", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= f.text_field :name, class: "w-full rounded-lg border-gray-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
-      </div>
+  <!-- 🔧 Informações da Empresa -->
+  <div class="mb-10 bg-white shadow-lg rounded-2xl p-6">
+    <h2 class="text-xl font-bold text-gray-900 mb-5 flex items-center gap-2">
+      <i class="lucide lucide-building-2 w-5 h-5 text-blue-600"></i>
+      Editar Conta da Empresa
+    </h2>
 
-      <!-- NIF (não editável) -->
-      <div>
-        <%= f.label :nif, "NIF", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= f.text_field :nif, value: @account.nif, disabled: true,
-              class: "w-full bg-gray-100 text-gray-600 border border-gray-300 rounded-lg px-4 py-2 text-sm cursor-not-allowed" %>
-      </div>
-
-      <!-- Tipo de Produção -->
-      <div class="md:col-span-2">
-        <%= f.label :farm_type, "Tipo de Produção", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= f.select :farm_type,
-              Account.farm_types.keys.map { |type| [type.humanize.capitalize, type] },
-              {},
-              class: "w-full rounded-lg border-gray-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500",
-              disabled: @account.fields.exists? %>
-        <% if @account.fields.exists? %>
-          <p class="text-xs text-red-500 mt-1">❗ Não é possível alterar o tipo de produção com campos existentes.</p>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Ações -->
-    <div class="flex justify-between items-center pt-6">
-      <%= link_to "← Voltar", team_users_path, class: "text-sm text-gray-600 hover:underline" %>
-      <%= f.submit "💾 Guardar Alterações", class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm" %>
-    </div>
-  <% end %>
-</div>
-
-<!-- 👥 Equipa -->
-<h1 class="text-2xl font-bold mb-6 text-gray-800">👥 Equipa da Empresa</h1>
-
-<%= link_to "➕ Adicionar Utilizador", new_team_user_path, class: "mb-6 inline-block bg-green-600 text-white font-semibold px-5 py-2 rounded-md hover:bg-green-700 transition" %>
-
-<% if @users.any? %>
-  <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-    <% @users.each do |user| %>
-      <div class="bg-white border rounded-xl shadow p-5 flex flex-col justify-between h-full">
-        <!-- Foto + Info -->
-        <div class="flex items-center gap-4 mb-4">
-          <% if user.photo.present? %>
-            <img src="<%= user.photo.url %>" class="w-16 h-16 rounded-full object-cover border" alt="<%= user.name %>">
-          <% else %>
-            <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xl">
-              <i class="lucide lucide-user"></i>
-            </div>
-          <% end %>
-
-          <div class="flex-grow">
-            <h2 class="text-lg font-bold text-gray-800"><%= user.name %></h2>
-            <p class="text-sm text-gray-500"><%= user.email %></p>
-            <span class="inline-block mt-1 text-xs px-3 py-1 rounded-full font-semibold
-              <%= case user.role
-                when "admin" then "bg-yellow-100 text-yellow-800"
-                when "manager" then "bg-green-100 text-green-700"
-                when "technician" then "bg-purple-100 text-purple-700"
-                when "viewer" then "bg-gray-100 text-gray-600"
-                else "bg-red-100 text-red-600"
-              end %>">
-              <%= user.role.capitalize %>
-            </span>
-            <% if user == current_user %>
-              <span class="ml-2 text-gray-400 italic text-xs">(Tu)</span>
-            <% end %>
-          </div>
+    <%= form_with model: @account, url: update_account_team_users_path, method: :patch, local: true do |f| %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Nome da Empresa -->
+        <div>
+          <%= f.label :name, "Nome da Empresa", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :name, class: "w-full rounded-lg border-gray-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
         </div>
 
-        <!-- Botões -->
-        <div class="mt-3 flex flex-wrap gap-2">
-          <%= link_to "✏️ Editar", edit_team_user_path(user),
-              class: "flex-1 text-center px-3 py-2 text-sm border rounded-md hover:bg-gray-100 transition" %>
+        <!-- NIF (não editável) -->
+        <div>
+          <%= f.label :nif, "NIF", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :nif, value: @account.nif, disabled: true,
+                class: "w-full bg-gray-100 text-gray-600 border border-gray-300 rounded-lg px-4 py-2 text-sm cursor-not-allowed" %>
+        </div>
 
-          <% unless user == current_user %>
-            <%= button_to "❌ Apagar", team_user_path(user), method: :delete,
-                  data: { confirm: "Tens a certeza que queres apagar este utilizador?" },
-                  class: "flex-1 text-center px-3 py-2 text-sm border border-red-600 text-red-600 rounded-md hover:bg-red-50 transition" %>
+        <!-- Tipo de Produção -->
+        <div class="md:col-span-2">
+          <%= f.label :farm_type, "Tipo de Produção", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :farm_type,
+                Account.farm_types.keys.map { |type| [type.humanize.capitalize, type] },
+                {}, disabled: @account.fields.exists?,
+                class: "w-full rounded-lg border-gray-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
 
-            <%# Hierarquia de simulação %>
-            <% can_impersonate = case current_user.role
-              when "admin" then true
-              when "manager" then !user.admin?
-              else false
-            end %>
-
-            <% if can_impersonate %>
-              <%= button_to "👀 Simular", impersonate_team_user_path(user), method: :post,
-                    class: "flex-1 text-center px-3 py-2 text-sm border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition" %>
-            <% end %>
+          <% if @account.fields.exists? %>
+            <p class="text-xs text-red-500 mt-1">⚠ Não é possível alterar o tipo de produção com campos existentes.</p>
           <% end %>
         </div>
+      </div>
+
+      <!-- Ações -->
+      <div class="flex justify-between items-center pt-6">
+        <%= link_to "← Voltar", team_users_path, class: "text-sm text-gray-600 hover:underline" %>
+        <%= f.submit "💾 Guardar Alterações", class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm" %>
       </div>
     <% end %>
   </div>
-<% else %>
-  <p class="text-gray-500">Ainda não existem utilizadores nesta conta.</p>
-<% end %>
 
+  <!-- 👥 Equipa da Empresa -->
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+      <i class="lucide lucide-users w-5 h-5 text-green-600"></i>
+      Equipa da Empresa
+    </h2>
 
-<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <%= link_to "➕ Adicionar Utilizador", new_team_user_path,
+      class: "bg-blue-600 text-white px-5 py-2 rounded-md font-semibold hover:bg-blue-700 transition text-sm" %>
+  </div>
 
+  <% if @users.any? %>
+    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+      <% @users.each do |user| %>
+        <div class="bg-white border rounded-xl shadow p-5 flex flex-col justify-between h-full">
+          <!-- Perfil -->
+          <div class="flex items-center gap-4 mb-4">
+            <% if user.photo.present? %>
+              <img src="<%= user.photo.url %>" class="w-14 h-14 rounded-full object-cover border" alt="<%= user.name %>">
+            <% else %>
+              <div class="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xl">
+                <%= user.initials || user.name.first(2).upcase %>
+              </div>
+            <% end %>
+
+            <div class="flex-grow">
+              <p class="text-base font-semibold text-gray-800">
+                <%= user.name %>
+                <% if user == current_user %>
+                  <span class="ml-2 text-xs italic text-gray-400">(Tu)</span>
+                <% end %>
+              </p>
+              <p class="text-sm text-gray-500"><%= user.email %></p>
+
+              <span class="inline-block mt-1 text-xs px-3 py-1 rounded-full font-semibold
+                <%= case user.role
+                  when "admin" then "bg-yellow-100 text-yellow-800"
+                  when "manager" then "bg-green-100 text-green-700"
+                  when "technician" then "bg-blue-100 text-blue-700"
+                  when "viewer" then "bg-gray-100 text-gray-600"
+                  else "bg-red-100 text-red-600"
+                end %>">
+                <%= user.role.capitalize %>
+              </span>
+            </div>
+          </div>
+
+          <!-- Botões -->
+          <div class="mt-3 flex flex-wrap gap-2">
+            <%= link_to "✏️ Editar", edit_team_user_path(user),
+              class: "flex-1 text-center px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition" %>
+
+            <% unless user == current_user %>
+              <%= button_to "🗑 Apagar", team_user_path(user), method: :delete,
+                data: { confirm: "Tens a certeza que queres apagar este utilizador?" },
+                class: "flex-1 text-center px-3 py-2 text-sm border border-red-600 text-red-600 rounded-md hover:bg-red-50 transition" %>
+
+              <%# Hierarquia para simular %>
+              <% can_impersonate = case current_user.role
+                when "admin" then true
+                when "manager" then !user.admin?
+                else false
+              end %>
+
+              <% if can_impersonate %>
+                <%= button_to "👀 Simular", impersonate_team_user_path(user), method: :post,
+                  class: "flex-1 text-center px-3 py-2 text-sm border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition" %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-500">Ainda não existem utilizadores nesta conta.</p>
+  <% end %>
+
+</div>
+
+<!-- Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
