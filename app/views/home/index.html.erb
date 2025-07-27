@@ -87,17 +87,16 @@
                     <%= t("landing.footer.description") %>
                 </p>
             </div>
-
-            <% ['platform', 'resources', 'company'].each do |section| %>
-                <div>
-                    <h3 class="text-sm font-bold text-gray-900 uppercase"><%= t("landing.footer.sections.\#{section}.title") %></h3>
-                    <ul class="mt-3 space-y-2 text-sm">
-                        <% t("landing.footer.sections.\#{section}.links").each do |item| %>
-                            <li><a href="#" class="hover:text-green-600 transition"><%= item %></a></li>
-                        <% end %>
-                    </ul>
-                </div>
-            <% end %>
+<% ['platform', 'resources', 'company'].each do |section| %>
+  <div>
+    <h3 class="text-sm font-bold text-gray-900 uppercase"><%= t("landing.footer.sections.#{section}.title") %></h3>
+    <ul class="mt-3 space-y-2 text-sm">
+      <% t("landing.footer.sections.#{section}.links").each do |item| %>
+        <li><a href="#" class="hover:text-green-600 transition"><%= item %></a></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
         </div>
 
         <div class="border-t border-gray-200 mt-8 pt-6 text-center text-sm text-gray-600">

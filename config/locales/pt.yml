@@ -24,7 +24,6 @@ pt:
     simulating: "A simular:"
     exit_simulation: "Sair da Simulação"
 
-
   landing:
     title: "Agricultura Inteligente"
 
@@ -40,17 +39,23 @@ pt:
       title: "Funcionalidades Poderosas de IoT"
       description: "A nossa plataforma combina tecnologia de ponta com conhecimento agrícola para decisões informadas."
       items:
-        - title: "Monitorização Ambiental"
+        env_monitoring:
+          title: "Monitorização Ambiental"
           desc: "Acompanha temperatura, humidade e solo em tempo real com sensores de precisão."
-        - title: "Rega Inteligente"
+        smart_irrigation:
+          title: "Rega Inteligente"
           desc: "Automatiza a rega com base em dados do solo e previsões meteorológicas."
-        - title: "Previsão de Colheitas"
+        yield_forecasting:
+          title: "Previsão de Colheitas"
           desc: "Prevê colheitas com base em dados históricos e condições atuais."
-        - title: "Conectividade de Campo"
+        field_connectivity:
+          title: "Conectividade de Campo"
           desc: "Liga todos os campos com rede mesh mesmo em zonas remotas."
-        - title: "Análises Baseadas em Dados"
+        data_insights:
+          title: "Análises Baseadas em Dados"
           desc: "Tira partido da IA e machine learning para obter insights valiosos."
-        - title: "Acesso Móvel"
+        mobile_access:
+          title: "Acesso Móvel"
           desc: "Monitoriza e controla tudo a partir do teu telemóvel."
 
     how_it_works:

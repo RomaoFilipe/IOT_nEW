@@ -17,102 +17,96 @@ es:
     accounts: "Cuentas"
     team: "Equipo"
     profile: "Perfil"
-    settings: "Configuración"
+    settings: "Configuraciones"
     login: "Iniciar Sesión"
     signup: "Registrarse"
     logout: "Cerrar Sesión"
     simulating: "Simulando:"
     exit_simulation: "Salir de la Simulación"
 
-
   landing:
-    title: Agricultura Inteligente
+    title: "Agricultura Inteligente"
+
     hero:
-      highlight: Agricultura Inteligente
-      continuation: para un Futuro Sostenible
-      description: Transforma tus operaciones agrícolas con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos.
+      highlight: "Agricultura Inteligente"
+      continuation: "para un Futuro Sostenible"
+      description: "Transforma tu explotación agrícola con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos."
       cta:
-        get_started: Empezar Ahora
-        request_demo: Solicitar Demostración
+        get_started: "Comenzar Ahora"
+        request_demo: "Solicitar Demostración"
 
     features:
-      title: Funcionalidades IoT Potentes
-      description: Nuestra plataforma combina tecnología de vanguardia con experiencia agrícola para ayudarte a tomar decisiones informadas.
+      title: "Potentes Funcionalidades IoT"
+      description: "Nuestra plataforma combina tecnología avanzada con conocimientos agrícolas para tomar decisiones informadas."
       items:
-        env_monitoring:
-          title: Monitoreo Ambiental
-          desc: Supervisa temperatura, humedad y condiciones del suelo en tiempo real con sensores de precisión.
-        smart_irrigation:
-          title: Riego Inteligente
-          desc: Automatiza el riego según datos de humedad del suelo y previsiones meteorológicas.
-        yield_forecasting:
-          title: Predicción de Cosechas
-          desc: Predice los rendimientos utilizando datos históricos, condiciones actuales y clima.
-        field_connectivity:
-          title: Conectividad de Campo
-          desc: Conecta todos tus campos con nuestra red mesh resistente, incluso en zonas remotas.
-        data_insights:
-          title: Información Basada en Datos
-          desc: Aprovecha la IA y el aprendizaje automático para obtener información práctica.
-        mobile_access:
-          title: Acceso Móvil
-          desc: Supervisa y controla tu explotación desde cualquier lugar con nuestra interfaz móvil.
+        - title: "Monitoreo Ambiental"
+          desc: "Supervisa la temperatura, la humedad y el suelo en tiempo real con sensores de precisión."
+        - title: "Riego Inteligente"
+          desc: "Automatiza el riego según datos del suelo y previsiones meteorológicas."
+        - title: "Predicción de Cosechas"
+          desc: "Predice cosechas basadas en datos históricos y condiciones actuales."
+        - title: "Conectividad de Campo"
+          desc: "Conecta todos tus campos con una red mallada incluso en zonas remotas."
+        - title: "Análisis Basado en Datos"
+          desc: "Aprovecha la IA y el aprendizaje automático para obtener información útil."
+        - title: "Acceso Móvil"
+          desc: "Supervisa y controla todo desde tu móvil."
 
     how_it_works:
-      title: Cómo Funciona
-      description: Nuestra plataforma agrícola IoT está diseñada para ser fácil de instalar y poderosa de utilizar.
+      title: "Cómo Funciona"
+      description: "Nuestra plataforma agrícola IoT es fácil de configurar y potente de usar."
       items:
         deploy:
           icon: "🌱"
-          title: Instalar Sensores
-          desc: Coloca sensores inteligentes para monitorear el suelo, clima y salud del cultivo.
+          title: "Instalar Sensores"
+          desc: "Coloca sensores inteligentes para monitorear suelo, clima y salud de los cultivos."
         connect:
           icon: "☁️"
-          title: Conectar a la Plataforma
-          desc: Los sensores se conectan automáticamente a la nube mediante nuestra red mesh.
+          title: "Conectar a la Plataforma"
+          desc: "Los sensores se conectan automáticamente a la nube mediante red mallada."
         analyze:
           icon: "📊"
-          title: Analizar Datos
-          desc: Nuestra plataforma analiza los datos de tu explotación y proporciona información útil.
+          title: "Analizar Datos"
+          desc: "La plataforma analiza los datos recolectados y proporciona recomendaciones."
         implement:
           icon: "⚡"
-          title: Implementar Acciones
-          desc: Aplica o automatiza acciones como el riego en base a datos en tiempo real.
+          title: "Implementar Acciones"
+          desc: "Aplica o automatiza acciones como riego basadas en datos en tiempo real."
 
     stats:
-      description: Únete a miles de agricultores que ya utilizan nuestra plataforma para optimizar su producción.
+      description: "Únete a miles de agricultores que ya usan nuestra plataforma para optimizar la producción."
       water:
         value: "95%"
-        label: Ahorro de Agua
+        label: "Ahorro de Agua"
       yield:
         value: "30%"
-        label: Aumento del Rendimiento
+        label: "Aumento de Producción"
       labor:
         value: "40%"
-        label: Reducción de Mano de Obra
+        label: "Reducción de Mano de Obra"
 
     footer:
-      description: Transformamos la agricultura con tecnología IoT para un futuro más sostenible y eficiente.
-      copyright: © 2025 AgriloT Synergy. Todos los derechos reservados.
+      description: "Transformamos la agricultura con tecnología IoT para un futuro más sostenible."
+      copyright: "© 2025 AgriloT Synergy. Todos los derechos reservados."
       sections:
         platform:
-          title: Plataforma
+          title: "Plataforma"
           links:
-            - Panel
-            - Campos
-            - Análisis
-            - Configuración
+            - "Panel"
+            - "Campos"
+            - "Análisis"
+            - "Configuraciones"
         resources:
-          title: Recursos
+          title: "Recursos"
           links:
-            - Blog
-            - Documentación
-            - Base de Conocimiento
-            - Comunidad
+            - "Blog"
+            - "Documentación"
+            - "Base de Conocimiento"
+            - "Comunidad"
         company:
-          title: Empresa
+          title: "Empresa"
           links:
-            - Sobre Nosotros
-            - Empleos
-            - Contacto
-            - Privacidad
+            - "Sobre Nosotros"
+            - "Carreras"
+            - "Contactos"
+            - "Privacidad"
