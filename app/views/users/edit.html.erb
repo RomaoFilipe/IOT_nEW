@@ -24,22 +24,22 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
           <%= f.label :name, 'Nome', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.text_field :name, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200', required: true %>
+          <%= f.text_field :name, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500', required: true %>
         </div>
 
         <div>
           <%= f.label :email, 'Email', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.email_field :email, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200', required: true %>
+          <%= f.email_field :email, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500', required: true %>
         </div>
 
         <div>
           <%= f.label :role, 'Função', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.select :role, User.roles.keys.map { |role| [role.humanize, role] }, {}, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+          <%= f.select :role, User.roles.keys.map { |role| [role.humanize, role] }, {}, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500' %>
         </div>
 
         <div>
           <%= f.label :status, 'Status', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.select :status, [['Ativo', 'active'], ['Inativo', 'inactive']], {}, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+          <%= f.select :status, [['Ativo', 'active'], ['Inativo', 'inactive']], {}, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500' %>
         </div>
       </div>
 
@@ -49,12 +49,12 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <%= f.label :password, 'Nova Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-            <%= f.password_field :password, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+            <%= f.password_field :password, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500' %>
             <p class="text-xs text-gray-500 italic">Deixa em branco para manter a atual.</p>
           </div>
           <div>
             <%= f.label :password_confirmation, 'Confirmar Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-            <%= f.password_field :password_confirmation, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+            <%= f.password_field :password_confirmation, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500' %>
           </div>
         </div>
       </div>
@@ -64,7 +64,7 @@
         <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-1">Foto de Perfil</h2>
         <div class="flex items-center gap-4">
           <% if @user.photo.present? %>
-            <%= image_tag @user.photo.url, class: 'w-16 h-16 rounded-full object-cover border' %>
+            <%= image_tag @user.photo.url, class: 'w-16 h-16 rounded-full object-cover border border-gray-300' %>
           <% end %>
           <%= f.file_field :photo, class: 'text-sm text-gray-600 border border-gray-300 rounded-md bg-white p-2' %>
         </div>
@@ -72,7 +72,7 @@
 
       <!-- Ações -->
       <div class="flex justify-between items-center mt-10">
-        <%= f.submit '💾 Salvar Alterações', class: 'bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition' %>
+        <%= f.submit '💾 Salvar Alterações', class: 'bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition duration-200 ease-in-out' %>
         <%= link_to 'Cancelar', admin_accounts_path, class: 'text-gray-500 hover:text-red-600 text-sm underline' %>
       </div>
     <% end %>
