@@ -1,0 +1,565 @@
+es:
+  field_types:
+    agriculture: "Agricultura"
+    aquaculture_tank: "Acuicultura (Tanque)"
+    aquaculture_sea: "Acuicultura (Marina)"
+
+  languages:
+    pt: "Portugués"
+    en: "Inglés"
+    es: "Español"
+
+  navbar:
+    home: "Inicio"
+    dashboard: "Panel"
+    fields: "Campos"
+    analytics: "Análisis"
+    accounts: "Cuentas"
+    team: "Equipo"
+    profile: "Perfil"
+    settings: "Configuraciones"
+    login: "Entrar"
+    signup: "Registrar"
+    logout: "Salir"
+    simulating: "Simulando:"
+    exit_simulation: "Salir de la Simulación"
+
+  landing:
+    title: "Agricultura Inteligente"
+    hero:
+      title: "Agricultura Inteligente"
+      description: "Transforma tu explotación agrícola con nuestra plataforma IoT. Monitorea el suelo, automatiza el riego y toma decisiones basadas en datos."
+      cta:
+        get_started: "Comenzar Ahora"
+    choose_type:
+      title: "Elige tu tipo de explotación"
+      agriculture:
+        title: "Agricultura"
+        description: "Monitorea el suelo, automatiza el riego, maximiza la producción."
+      sea:
+        title: "Acuicultura Marina"
+        description: "Controla la salinidad, temperatura y oxígeno en tiempo real."
+      tank:
+        title: "Acuicultura en Tanque"
+        description: "Gestión inteligente de viveros y tanques acuáticos."
+    how_it_works:
+      title: "Cómo Funciona"
+      description: "Descubre cómo nuestra solución se adapta a tu tipo de explotación."
+    testimonials:
+      title: "Historias Reales, Resultados Reales"
+      subtitle: "Cómo nuestros clientes están transformando sus explotaciones con tecnología inteligente."
+      marta:
+        quote: "Reducimos el consumo de agua en un 35% con sensores de suelo conectados a nuestra cuenta AgriloT."
+        name: "Marta Silva"
+        role: "Productora de hortalizas"
+      tiago:
+        quote: "Gracias a la monitorización continua, los peces están más saludables y el oxígeno siempre está en su punto."
+        name: "Tiago Ramos"
+        role: "Gestor de acuicultura en tanque"
+      carlos:
+        quote: "Evitamos un brote de algas gracias a la alerta de la plataforma. Nunca más trabajaré sin esto."
+        name: "Carlos Fonseca"
+        role: "Acuicultura marina"
+    comparison:
+      title: "Antes y Después de la Plataforma"
+      subtitle: "Ve el impacto real de la digitalización de tu explotación."
+      before:
+        emoji: "🌧"
+        title: "Antes"
+        items:
+          - "Riego manual sin datos concretos"
+          - "Desperdicio de agua y energía"
+          - "Falta de alertas y previsiones"
+          - "Decisiones basadas en la experiencia"
+      after:
+        emoji: "☀️"
+        title: "Después"
+        items:
+          - "Automatización de riego y alertas"
+          - "Informes e historial en tiempo real"
+          - "Mayor productividad con menos recursos"
+          - "Decisiones basadas en datos"
+    technologies:
+      title: "Tecnología que Potencia la Agricultura y Acuicultura"
+      subtitle: "Integraciones y compatibilidades con los mejores estándares de la industria."
+      items:
+        - "MQTT"
+        - "LoRaWAN"
+        - "Raspberry Pi"
+        - "Tuya"
+        - "API REST"
+        - "Wi-Fi / BLE"
+    cta_final:
+      title: "¿Listo para transformar tu explotación?"
+      subtitle: "Crea tu cuenta gratuita y comienza hoy mismo a monitorear y automatizar lo que importa."
+      button: "Crear Cuenta Gratuita"
+    footer:
+      description: "Transformamos la agricultura con tecnología IoT para un futuro más sostenible."
+      sections:
+        platform:
+          title: "Plataforma"
+          links:
+            - "Panel"
+            - "Campos"
+            - "Análisis"
+            - "Configuraciones"
+        resources:
+          title: "Recursos"
+          links:
+            - "Blog"
+            - "Documentación"
+            - "Base de Conocimiento"
+            - "Comunidad"
+        company:
+          title: "Empresa"
+          links:
+            - "Sobre Nosotros"
+            - "Carreras"
+            - "Contactos"
+            - "Privacidad"
+      copyright: "© 2025 AgriloT Synergy. Todos los derechos reservados."
+
+  dashboard:
+    title: "Panel Agrícola"
+    system_ok: "Todos los sistemas operativos"
+    sky: "Cielo"
+    wind_at: "a"
+    weather_error: "Error al obtener datos meteorológicos"
+    weather:
+      title: "Condiciones Meteorológicas"
+      select_field: "Campo:"
+      loading: "Cargando..."
+      wind: "Viento"
+      precipitation: "Precipitación"
+      next_days: "Próximos Días"
+      next_24h: "Próximas 24 Horas"
+      code:
+        "0": "Cielo despejado"
+        "1": "Pocas nubes"
+        "2": "Nubes dispersas"
+        "3": "Cielo nublado"
+        "45": "Niebla"
+        "48": "Niebla con escarcha"
+        "51": "Lluvias ligeras"
+        "53": "Lluvias moderadas"
+        "55": "Lluvias fuertes"
+        "61": "Lluvia débil"
+        "63": "Lluvia moderada"
+        "65": "Lluvia fuerte"
+        "66": "Lluvia helada"
+        "67": "Lluvia helada fuerte"
+        "71": "Nieve ligera"
+        "73": "Nieve moderada"
+        "75": "Nieve intensa"
+        "95": "Tormenta"
+        "96": "Tormenta con granizo"
+        "99": "Tormenta severa"
+        unknown: "Desconocido"
+    upcoming_tasks:
+      title: "🗓️ Eventos Planeados"
+      none: "No hay eventos planeados para hoy."
+      time: "🕒"
+      cancel_task: "¿Cancelar esta tarea?"
+      cancel_irrigation: "¿Cancelar este riego?"
+    sensor_status:
+      irrigation_status: "Estado del Riego"
+      remaining: "Faltan:"
+      done: "Riego completado"
+      soil_moisture: "Humedad del Suelo"
+      temperature: "Temperatura"
+      battery: "Batería"
+      previous: "« Anterior"
+      next: "Siguiente »"
+    quick_actions:
+      analytics:
+        title: "Ver Análisis"
+        description: "Gráficos detallados"
+        button: "Acceder"
+      fields:
+        title: "Gestionar Campos"
+        description: "Ver y editar"
+        button: "Acceder"
+      settings:
+        title: "Configuraciones"
+        description: "Preferencias del sistema"
+        button: "Acceder"
+    field_status:
+      title: "Estado de los Campos"
+      see_all: "Ver Todos"
+      no_fields: "🚨 No hay campos registrados aún. Por favor, añade un campo para ver el estado."
+      sensors_active: "📡 Sensores Activos"
+      soil_type: "🧪 Tipo de Suelo"
+      last_irrigation: "💧 Último Riego"
+      coordinates: "🗺️ Coordenadas"
+      harvest_prediction: "Predicción de Cosecha"
+      details: "Detalles"
+      unknown: "Desconocido"
+
+  users:
+    edit:
+      title: "Editar Usuario"
+      submit: "📎 Actualizar Usuario"
+      back: "← Volver al Equipo"
+
+    new:
+      title: "➕ Nuevo Usuario"
+      errors_title: "Errores al crear usuario:"
+      submit: "💾 Crear Usuario"
+      back: "← Volver"
+
+    forms:
+      shared:
+        name: "Nombre"
+        name_placeholder: "Ej: Juan Pérez"
+        email: "Email"
+        email_placeholder: "ejemplo@email.com"
+        password: "Contraseña"
+        password_placeholder: "Dejar en blanco si no desea cambiar"
+        password_confirmation: "Confirmación de Contraseña"
+        role: "Función"
+        photo: "Foto de perfil (opcional)"
+        current_photo: "Foto actual:"
+        notif_email: "Recibir notificaciones por email"
+        notif_sms: "Recibir notificaciones por SMS"
+
+    status:
+      active: "Activo"
+      inactive: "Inactivo"
+
+    dashboard:
+      title: "Panel de Administración"
+      users: "Usuarios"
+      description: "Gestión completa de cuentas registradas en la plataforma."
+      search_placeholder: "Buscar por nombre o email..."
+      new_user: "Nuevo Usuario"
+      back_to_home: "Volver a Inicio"
+      created_at: "Creado en"
+      confirm_delete: "¿Estás seguro de que deseas eliminar este usuario?"
+      login_as: "Entrar como"
+      simulating_as: "Estás navegando como"
+      return_to_admin: "Regresar como Admin"
+      back: "Volver"
+
+    roles:
+      admin: "Administrador"
+      manager: "Gerente"
+      user: "Usuario"
+      technician: "Técnico"
+      viewer: "Espectador"
+
+  actions:
+    edit: "Editar"
+    delete: "Eliminar"
+
+  team:
+    users:
+      edit:
+        title: "Editar Usuario"
+        submit: "📎 Actualizar Usuario"
+        back: "← Volver al Equipo"
+
+      new:
+        title: "➕ Nuevo Usuario"
+        errors_title: "Errores al crear usuario:"
+        submit: "💾 Crear Usuario"
+        back: "← Volver"
+
+      forms:
+        shared:
+          name: "Nombre"
+          name_placeholder: "Ej: Juan Pérez"
+          email: "Email"
+          email_placeholder: "ejemplo@email.com"
+          password: "Nueva Contraseña"
+          password_placeholder: "Dejar en blanco si no desea cambiar"
+          password_confirmation: "Confirmación"
+          role: "Función"
+          photo: "Foto (opcional)"
+          current_photo: "Foto actual:"
+          notif_email: "Recibir notificaciones por email"
+          notif_sms: "Recibir notificaciones por SMS"
+
+    account:
+      edit_title: "Editar Cuenta de la Empresa"
+      name: "Nombre de la Empresa"
+      nif: "NIF"
+      farm_type: "Tipo de Producción"
+      back: "← Volver"
+      save: "💾 Guardar Cambios"
+      team_title: "Equipo de la Empresa"
+      add_user: "➕ Agregar Usuario"
+      confirm_delete: "¿Estás seguro de que deseas eliminar este usuario?"
+      impersonate: "Simular"
+      collapse: "Colapsar"
+      expand: "Expandir"
+      status: "Estado"
+      notifications: "Notificaciones"
+      no_users: "Aún no hay usuarios en esta cuenta."
+      you_label: "Tú"
+
+  tasks:
+    form:
+      crop: "Cultivo"
+      select_crop: "Seleccionar Cultivo"
+      name: "Nombre de la Tarea"
+      start_time: "Hora de Inicio"
+      end_time: "Hora de Fin"
+      description: "Descripción"
+      submit: "Guardar Tarea"
+
+  settings:
+    title: "Configuraciones del Sistema"
+    active: "Activo ✅"
+    inactive: "Desactivado ❌"
+    unknown: "Desconocido"
+
+    notifications:
+      customize: "Personalizar Notificaciones"
+      summary: "Resumen de Notificaciones"
+      email: "Notificaciones por Email"
+      sms: "Notificaciones por SMS"
+      email_label: "Email"
+      sms_label: "SMS"
+
+    security:
+      title: "Resumen de Seguridad"
+      change_password: "Cambiar Contraseña"
+      password_warning: "Tu contraseña no ha sido actualizada en más de 90 días. Se recomienda cambiarla inmediatamente."
+      password_label: "Contraseña"
+      updated_ago: "Actualizada hace %{time}"
+      2fa: "Autenticación de Dos Factores"
+      last_login: "Último Acceso"
+      current_ip: "IP Actual"
+      last_ip: "IP Último Acceso"
+      total_logins: "Total de Inicios de Sesión"
+
+  sensors:
+    update:
+      title: "Sensor %{name}"
+      temperature: "Temperatura"
+      moisture: "Humedad"
+      battery: "Batería"
+      signal: "Señal"
+      last_reading: "Última lectura"
+      ago: "hace"
+      value: "Valor"
+    readings:
+      title: "Historial del Sensor: %{name}"
+      not_found: "Sensor no encontrado."
+      date: "Fecha"
+      temperature: "Temperatura (°C)"
+      moisture: "Humedad (%)"
+      battery: "Batería (%)"
+      signal: "Señal (%)"
+      back: "Volver"
+      chart_title: "Lecturas del Sensor"
+    irrigation:
+      title: "Historial de Riego: %{name}"
+      not_found: "Sensor no encontrado."
+      date: "Fecha"
+      duration: "Duración (s)"
+      status: "Estado"
+      back: "Volver"
+      chart_title: "Historial de Riego"
+      chart_label: "Duración de Riego (s)"
+      x_axis: "Fecha y Hora"
+      y_axis: "Segundos"
+      statuses:
+        executed: "Ejecutado"
+        failed: "Fallido"
+        unknown: "Desconocido"
+    unassigned:
+      title: "Sensores No Asignados"
+      name: "Nombre"
+      type: "Tipo"
+      last_reading: "Última lectura"
+      actions: "Acciones"
+      no_data: "Sin datos"
+      assign: "Asignar a este campo"
+    status:
+      label: "Estado"
+      updated_at: "Actualizado"
+      states:
+        irrigating: "Riegando"
+        stopped: "Detenido"
+        inactive: "Inactivo"
+    card:
+      title: "Sensor %{name}"
+      temperature: "Temperatura"
+      moisture: "Humedad"
+      battery: "Batería"
+      signal: "Señal"
+      last_reading: "Última lectura"
+      ago: "hace"
+      value: "Valor"
+      confirm_delete: "¿Eliminar este sensor?"
+    row:
+      view_today_schedules: "Ver horarios de hoy"
+      irrigation_history: "Historial de Riegos"
+      readings_history: "Historial de Lecturas"
+      schedule: "Programar"
+      schedule_irrigation: "Programar Riego"
+      schedule_for: "Configura el horario para %{name}"
+      weekdays: "Días de la Semana"
+      hour: "Hora"
+      minute: "Minuto"
+      duration: "Duración"
+    sensor_status:
+      states:
+        active: "Activo"
+        inactive: "Inactivo"
+    types:
+      temperature: "Temperatura"
+      moisture: "Humedad"
+      irrigation: "Riego"
+      confirm_delete: "¿Eliminar este sensor?"
+    cancel: "Cancelar"
+    confirm: "Confirmar"
+    delete: "Eliminar"
+    schedule_modal:
+      title: "Horarios de Riego"
+      confirm_delete: "¿Eliminar este horario?"
+      none: "Ninguno"
+    close: "Cerrar"
+
+  irrigation_status:
+    label: "Estado del Riego"
+    remaining: "Faltan"
+    stop_button: "Detener Riego"
+    stopped_success: "Riego Detenido con Éxito"
+    confirm_stop: "¿Estás seguro de que deseas detener el riego?"
+  status:
+    states:
+      irrigating: "Riegando"
+      stopped: "Detenido"
+      inactive: "Inactivo"
+      active: "Activo"
+      inactive: "Inactivo"
+  form:
+    title: "Agregar Equipamiento IoT"
+    subtitle: "Configuración para %{name}"
+    name: "Nombre del Sensor"
+    name_placeholder: "ej: Sensor de Suelo Norte"
+    type: "Tipo"
+    device_id: "ID del Dispositivo"
+    device_placeholder: "ej: sensor_001"
+    verify_button: "Verificar dispositivo"
+    verify_warning: "⚠️ Introduce un ID de Dispositivo."
+    verify_success: "Dispositivo verificado"
+    verify_error: "Error: Dispositivo no encontrado."
+    save_button: "Guardar Sensor"
+
+  types:
+    temperature: "Temperatura"
+    moisture: "Humedad"
+    other: "Otro"
+
+actions:
+  cancel: "Cancelar"
+  users:
+  manage:
+    title: "Gestionar Usuarios"
+    heading: "Gestionar Usuarios"
+    profile_photo_alt: "Foto del Usuario"
+    email: "Email"
+    created_at: "Cuenta creada en"
+    edit_profile: "Editar Perfil"
+    user_list: "Lista de Usuarios"
+    name: "Nombre"
+    creation_date: "Fecha de Creación"
+    actions: "Acciones"
+    add_new: "Agregar Nuevo Usuario"
+    confirm_delete: "¿Estás seguro de que deseas eliminar este usuario?"
+  modal:
+    title: "Agregar Nuevo Campo"
+    description: "Completa los datos necesarios para crear un nuevo campo agrícola."
+    name: "Nombre del Campo"
+    field_type: "Tipo de Cultivo"
+    area: "Área (ha)"
+    latitude: "Latitud"
+    longitude: "Longitud"
+    boundary: "Límite del Campo"
+    boundary_button: "Definir Límite"
+    notes: "Notas"
+    submit: "Crear Campo"
+
+map:
+  controls:
+    satellite: "Satélite"
+    terrain: "Terreno"
+    sensors: "Sensores"
+  legend:
+    title: "Leyenda"
+    good: "Buena condición"
+    warning: "Advertencia"
+    moisture: "Sensor de Humedad"
+  details:
+    title: "Detalles del Campo"
+    crop: "Cultivo"
+    area: "Área"
+    latitude: "Latitud"
+    longitude: "Longitud"
+    updated_at: "Última actualización"
+  field_list:
+    title: "Lista de Campos"
+    view: "Ver en el Mapa"
+
+fields:
+  list_view:
+    view_on_map: "Ver en el mapa completo"
+    crop: "Cultivo"
+    location: "Ubicación"
+    area: "Área"
+    last_updated: "Última actualización"
+    view_details: "Ver Detalles"
+  boundary:
+    title: "Definir Límites del Campo"
+    instructions: "Haga clic en el mapa para definir hasta 8 vértices del límite del campo. Haga clic en 'Guardar Área' cuando haya terminado."
+    points: "Puntos"
+    reset: "Restablecer"
+    cancel: "Cancelar"
+    save: "Guardar Área"
+  overview:
+    planting_info: "Información de Siembra"
+    planting_date: "Fecha de Siembra"
+    harvest_date: "Fecha de Cosecha"
+    expected_yield: "Rendimiento Esperado"
+    maintenance: "Mantenimiento"
+    pest_control: "Control de Plagas"
+    irrigation: "Riego"
+    fertilization: "Fertilización"
+    notes: "Notas"
+    notes_example: "Las plantas se están desarrollando bien, adelantadas al cronograma. La última inspección no mostró plagas ni enfermedades."
+    basic_info: "Información Básica"
+    crop: "Cultivo"
+    area: "Área"
+    soil_quality: "Calidad del Suelo"
+    active_sensors: "Sensores Activos"
+    last_updated: "Última Actualización"
+    current_conditions: "Condiciones Actuales"
+    moisture: "Humedad"
+    temperature: "Temperatura"
+    crop_health: "Salud del Cultivo"
+    good: "Bueno"
+    modal:
+      submit: "Crear Campo"
+
+iot_equipment:
+  title: "Equipo IoT Asociado"
+  add_button: "Agregar Equipo"
+  name: "Nombre"
+  type: "Tipo"
+  status: "Estado"
+  battery: "Batería"
+  signal: "Señal"
+  last_reading: "Última Lectura"
+  actions: "Acciones"
+  none_assigned: "No hay sensor asignado a este campo aún."
+  enter_device_id: "Ingrese un device_id."
+  verifying: "Verificando..."
+  device_found: "Sensor encontrado o creado"
+  not_found: "Sensor no encontrado."
+  server_error: "Error al contactar con el servidor."
+
+time:
+  ago: "hace"
