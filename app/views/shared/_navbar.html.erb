@@ -1,165 +1,69 @@
-<!DOCTYPE html>
-<html lang="<%= I18n.locale %>">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Navbar - AgriloT Synergy</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head>
-<body class="bg-gray-100">
-
-<!-- app/views/shared/_navbar.html.erb -->
-<nav class="bg-white shadow-md px-6 py-4" x-data="{ mobileMenu: false }">
-  <div class="flex items-center justify-between">
-    <!-- Logo -->
-    <div class="flex items-center gap-2">
+<nav class="bg-white shadow-md px-6 py-4" x-data="{ mobileMenu: false, openLang: false }">
+  <div class="flex items-center justify-between w-full">
+    
+    <!-- LOGO -->
+    <div class="flex items-center gap-3">
       <%= link_to (user_signed_in? ? dashboard_path : root_path), class: "text-green-700 font-bold text-xl flex items-center gap-2" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-cog">
-          <circle cx="12" cy="17" r="3"/>
-          <path d="M4.2 15.1A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.2"/>
-        </svg>
-        AgriloT Synergy
+        <i data-lucide="cloud-cog" class="w-6 h-6"></i> AgriloT Synergy
       <% end %>
     </div>
 
-    <!-- Menu Links (Desktop) -->
+    <!-- CENTRO: Links principais -->
     <div class="hidden md:flex items-center space-x-6 text-gray-700">
-      <%= link_to root_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-        <i class="lucide lucide-home w-4 h-4"></i><span><%= t('navbar.home') %></span>
-      <% end %>
+      <%= link_to root_path, class: "hover:text-green-600 transition" do %><%= t('navbar.home') %><% end %>
       <% if user_signed_in? %>
-        <%= link_to dashboard_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-          <i class="lucide lucide-layout-dashboard w-4 h-4"></i><span><%= t('navbar.dashboard') %></span>
-        <% end %>
-        <%= link_to fields_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-          <i class="lucide lucide-map w-4 h-4"></i><span><%= t('navbar.fields') %></span>
-        <% end %>
-        <%= link_to analytics_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-          <i class="lucide lucide-chart-line w-4 h-4"></i><span><%= t('navbar.analytics') %></span>
-        <% end %>
-
-        <% if current_user.owner? %>
-          <%= link_to main_app.admin_accounts_path, class: "flex items-center gap-1 hover:text-blue-600 transition" do %>
-            <i class="lucide lucide-users w-4 h-4"></i><span><%= t('navbar.accounts') %></span>
-          <% end %>
-        <% elsif current_user.admin? || current_user.manager? %>
-          <%= link_to main_app.team_users_path, class: "flex items-center gap-1 hover:text-green-600 transition" do %>
-            <i class="lucide lucide-user-plus w-4 h-4"></i><span><%= t('navbar.team') %></span>
-          <% end %>
-        <% end %>
+        <%= link_to dashboard_path, class: "hover:text-green-600 transition" do %><%= t('navbar.dashboard') %><% end %>
+        <%= link_to fields_path, class: "hover:text-green-600 transition" do %><%= t('navbar.fields') %><% end %>
+        <%= link_to analytics_path, class: "hover:text-green-600 transition" do %><%= t('navbar.analytics') %><% end %>
       <% end %>
     </div>
 
-    <!-- Botão Hamburger (Mobile) -->
-    <div class="md:hidden">
-      <button @click="mobileMenu = !mobileMenu" class="text-gray-700 focus:outline-none">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-    </div>
-
-    <!-- Perfil (Desktop) -->
-    <div class="hidden md:flex items-center space-x-4">
-      <% if user_signed_in? %>
-        <div x-data="{ open: false }" class="relative">
-          <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
-            <img src="<%= current_user.photo.url || image_path('placeholder-user.png') %>" alt="Avatar" class="w-9 h-9 rounded-full object-cover border" />
-            <div class="text-left">
-              <span class="text-gray-700 font-medium"><%= current_user.name %></span>
-              <div class="text-xs text-gray-500">
-                <% if current_user.owner? %>👑 Owner
-                <% elsif current_user.admin? %>🧑‍💼 Admin
-                <% elsif current_user.manager? %>👨‍🌾 Manager
-                <% elsif current_user.technician? %>🔧 Técnico
-                <% elsif current_user.viewer? %>👀 Viewer
-                <% end %>
-              </div>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-50 py-2">
-            <%= link_to t('navbar.profile'), edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <%= link_to t('navbar.settings'), settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <% if current_user.owner? %>
-              <%= link_to t('navbar.accounts'), main_app.admin_accounts_path, class: "block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100" %>
-            <% elsif current_user.admin? || current_user.manager? %>
-              <%= link_to t('navbar.team'), main_app.team_users_path, class: "block px-4 py-2 text-sm text-green-700 hover:bg-green-100" %>
+    <!-- DIREITA: Idioma + Login/Profile -->
+    <div class="flex items-center gap-4">
+      
+      <!-- Idioma -->
+      <div class="relative" x-data="{ openLang: false }">
+        <button @click="openLang = !openLang" class="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 transition">
+          🌐 <%= I18n.t(\"languages.#{I18n.locale}\") %>
+          <i data-lucide=\"chevron-down\" class=\"w-4 h-4\"></i>
+        </button>
+        <div x-show=\"openLang\" @click.away=\"openLang = false\" class=\"absolute right-0 mt-2 w-36 bg-white border rounded shadow-md z-50 py-2 text-sm">
+          <% ['pt', 'en', 'es'].each do |locale| %>
+            <%= form_with url: locale_path, method: :put, local: true do %>
+              <%= hidden_field_tag :locale, locale %>
+              <button type=\"submit\" class=\"w-full px-4 py-2 text-left hover:bg-gray-100\">
+                <%= case locale
+                    when 'pt' then '🇵🇹 Português'
+                    when 'en' then '🇬🇧 English'
+                    when 'es' then '🇪🇸 Español'
+                    end %>
+              </button>
             <% end %>
-
-            <% if session[:simulated_account_id] %>
-              <div class="px-4 py-2 text-xs text-red-600">
-                <strong><%= t('navbar.simulating') %></strong> <%= current_account.name %><br>
-                <%= button_to "🔙 #{t('navbar.exit_simulation')}", stop_simulation_admin_accounts_path,
-                    method: :delete,
-                    class: "mt-1 text-red-600 underline text-xs px-0 py-0 bg-transparent hover:bg-transparent" %>
-              </div>
-            <% end %>
-
-            <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
-              <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><%= t('navbar.logout') %></button>
-            <% end %>
-          </div>
+          <% end %>
         </div>
-      <% else %>
-        <%= link_to t('navbar.login'), new_user_session_path, class: "px-4 py-2 border border-gray-400 text-gray-700 rounded-md font-medium hover:bg-gray-100 transition" %>
-        <%= link_to t('navbar.signup'), new_user_registration_path, class: "px-4 py-2 bg-green-700 text-white rounded-md font-medium hover:bg-green-800 transition" %>
-      <% end %>
-    </div>
-  </div>
+      </div>
 
-  <!-- Seletor de Idioma -->
-  <div class="relative ml-4" x-data="{ openLang: false }">
-    <button @click="openLang = !openLang" class="flex items-center gap-2 text-sm text-gray-600 hover:text-green-700">
-      🌐 <%= I18n.t("languages.#{I18n.locale}") %>
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-      </svg>
-    </button>
-    <div x-show="openLang" @click.away="openLang = false" class="absolute right-0 mt-2 w-36 bg-white border rounded shadow-md z-50 py-2 text-sm">
-      <% ['pt', 'en', 'es'].each do |locale| %>
-        <%= form_with url: locale_path, method: :put, local: true do %>
-          <%= hidden_field_tag :locale, locale %>
-          <button type="submit" class="w-full px-4 py-2 text-left hover:bg-gray-100">
-            <%= case locale
-                when 'pt' then '🇵🇹 Português'
-                when 'en' then '🇬🇧 English'
-                when 'es' then '🇪🇸 Español'
-                end %>
-          </button>
+      <!-- Sessão -->
+      <% if user_signed_in? %>
+        <%= link_to edit_user_registration_path, class: "flex items-center gap-2" do %>
+          <img src="<%= current_user.photo.url || image_path('placeholder-user.png') %>" alt="Avatar" class="w-9 h-9 rounded-full object-cover border" />
+          <span class="hidden md:inline text-sm font-medium text-gray-800"><%= current_user.name %></span>
         <% end %>
+      <% else %>
+        <%= link_to t('navbar.login'), new_user_session_path, class: "px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition" %>
+        <%= link_to t('navbar.signup'), new_user_registration_path, class: "px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800 transition" %>
       <% end %>
     </div>
   </div>
 
-  <!-- Mobile Menu Dropdown -->
+  <!-- MENU MOBILE -->
   <div x-show="mobileMenu" class="md:hidden mt-4 space-y-2">
     <%= link_to root_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.home') %><% end %>
     <% if user_signed_in? %>
       <%= link_to dashboard_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.dashboard') %><% end %>
       <%= link_to fields_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.fields') %><% end %>
       <%= link_to analytics_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.analytics') %><% end %>
-      <% if current_user.owner? %>
-        <%= link_to main_app.admin_accounts_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.accounts') %><% end %>
-      <% elsif current_user.admin? || current_user.manager? %>
-        <%= link_to main_app.team_users_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.team') %><% end %>
-      <% end %>
-      <%= link_to t('navbar.profile'), edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-      <%= link_to t('navbar.settings'), settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-      <% if session[:simulated_account_id] %>
-        <div class="px-4 text-sm text-red-600">
-          <strong><%= t('navbar.simulating') %></strong> <%= current_account.name %>
-          <%= button_to "🔙 #{t('navbar.exit_simulation')}", stop_simulation_admin_accounts_path,
-              method: :delete,
-              class: "block text-red-600 underline text-xs mt-1" %>
-        </div>
-      <% end %>
-      <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
-        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><%= t('navbar.logout') %></button>
-      <% end %>
+      <%= link_to edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %><%= t('navbar.profile') %><% end %>
     <% else %>
       <%= link_to t('navbar.login'), new_user_session_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" %>
       <%= link_to t('navbar.signup'), new_user_registration_path, class: "block px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800" %>
@@ -167,7 +71,8 @@
   </div>
 </nav>
 
-<!-- Lucide Icons -->
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-<script>lucide.createIcons();</script>
-        
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+  });
+</script>

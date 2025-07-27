@@ -25,88 +25,96 @@ es:
     exit_simulation: "Salir de la Simulación"
 
   landing:
-    title: "Agricultura Inteligente"
-
-    hero:
-      highlight: "Agricultura Inteligente"
-      continuation: "para un Futuro Sostenible"
-      description: "Transforma tu explotación agrícola con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos."
-      cta:
-        get_started: "Comenzar Ahora"
-        request_demo: "Solicitar Demostración"
-
-    features:
-      title: "Potentes Funcionalidades IoT"
-      description: "Nuestra plataforma combina tecnología avanzada con conocimientos agrícolas para tomar decisiones informadas."
-      items:
-        - title: "Monitoreo Ambiental"
-          desc: "Supervisa la temperatura, la humedad y el suelo en tiempo real con sensores de precisión."
-        - title: "Riego Inteligente"
-          desc: "Automatiza el riego según datos del suelo y previsiones meteorológicas."
-        - title: "Predicción de Cosechas"
-          desc: "Predice cosechas basadas en datos históricos y condiciones actuales."
-        - title: "Conectividad de Campo"
-          desc: "Conecta todos tus campos con una red mallada incluso en zonas remotas."
-        - title: "Análisis Basado en Datos"
-          desc: "Aprovecha la IA y el aprendizaje automático para obtener información útil."
-        - title: "Acceso Móvil"
-          desc: "Supervisa y controla todo desde tu móvil."
-
-    how_it_works:
-      title: "Cómo Funciona"
-      description: "Nuestra plataforma agrícola IoT es fácil de configurar y potente de usar."
-      items:
-        deploy:
-          icon: "🌱"
-          title: "Instalar Sensores"
-          desc: "Coloca sensores inteligentes para monitorear suelo, clima y salud de los cultivos."
-        connect:
-          icon: "☁️"
-          title: "Conectar a la Plataforma"
-          desc: "Los sensores se conectan automáticamente a la nube mediante red mallada."
-        analyze:
-          icon: "📊"
-          title: "Analizar Datos"
-          desc: "La plataforma analiza los datos recolectados y proporciona recomendaciones."
-        implement:
-          icon: "⚡"
-          title: "Implementar Acciones"
-          desc: "Aplica o automatiza acciones como riego basadas en datos en tiempo real."
-
-    stats:
-      description: "Únete a miles de agricultores que ya usan nuestra plataforma para optimizar la producción."
-      water:
-        value: "95%"
-        label: "Ahorro de Agua"
-      yield:
-        value: "30%"
-        label: "Aumento de Producción"
-      labor:
-        value: "40%"
-        label: "Reducción de Mano de Obra"
-
-    footer:
-      description: "Transformamos la agricultura con tecnología IoT para un futuro más sostenible."
-      copyright: "© 2025 AgriloT Synergy. Todos los derechos reservados."
-      sections:
-        platform:
-          title: "Plataforma"
-          links:
-            - "Panel"
-            - "Campos"
-            - "Análisis"
-            - "Configuraciones"
-        resources:
-          title: "Recursos"
-          links:
-            - "Blog"
-            - "Documentación"
-            - "Base de Conocimiento"
-            - "Comunidad"
-        company:
-          title: "Empresa"
-          links:
-            - "Sobre Nosotros"
-            - "Carreras"
-            - "Contactos"
-            - "Privacidad"
+      title: "Agricultura Inteligente"
+      hero:
+        title: "Agricultura Inteligente"
+        description: "Transforma tu explotación agrícola con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos."
+        cta:
+          get_started: "Comenzar Ahora"
+      choose_type:
+        title: "Elige tu tipo de explotación"
+        agriculture:
+          title: "Agricultura"
+          description: "Supervisa el suelo, automatiza el riego y maximiza la producción."
+        sea:
+          title: "Acuicultura Marina"
+          description: "Controla salinidad, temperatura y oxígeno en tiempo real."
+        tank:
+          title: "Acuicultura en Tanque"
+          description: "Gestión inteligente de tanques y viveros acuáticos."
+      how_it_works:
+        title: "Cómo Funciona"
+        description: "Descubre cómo nuestra solución se adapta a tu tipo de explotación."
+      testimonials:
+        title: "Historias Reales, Resultados Reales"
+        subtitle: "Cómo nuestros clientes están transformando sus explotaciones con tecnología inteligente."
+        marta:
+          quote: "Reducimos el consumo de agua un 35% gracias a sensores de suelo conectados a AgriloT."
+          name: "Marta Silva"
+          role: "Productora de hortalizas"
+        tiago:
+          quote: "Gracias a la monitorización continua, los peces están más sanos y el oxígeno siempre perfecto."
+          name: "Tiago Ramos"
+          role: "Gestor de acuicultura en tanque"
+        carlos:
+          quote: "Evitamos un brote de algas gracias al sistema de alertas de la plataforma. Ya no trabajo sin ella."
+          name: "Carlos Fonseca"
+          role: "Acuicultura marina"
+      comparison:
+        title: "Antes y Después de la Plataforma"
+        subtitle: "Descubre el impacto real de digitalizar tu explotación."
+        before:
+          emoji: "🌧"
+          title: "Antes"
+          items:
+            - "Riego manual sin datos"
+            - "Desperdicio de agua y energía"
+            - "Falta de alertas y previsiones"
+            - "Decisiones basadas en experiencia"
+        after:
+          emoji: "☀️"
+          title: "Después"
+          items:
+            - "Automatización de riego y alertas"
+            - "Informes e historial en tiempo real"
+            - "Mayor productividad con menos recursos"
+            - "Decisiones basadas en datos"
+      technologies:
+        title: "Tecnología que Impulsa la Agricultura y Acuicultura"
+        subtitle: "Integraciones compatibles con los estándares líderes de la industria."
+        items:
+          - "MQTT"
+          - "LoRaWAN"
+          - "Raspberry Pi"
+          - "Tuya"
+          - "API REST"
+          - "Wi-Fi / BLE"
+      cta_final:
+        title: "¿Listo para transformar tu explotación?"
+        subtitle: "Crea tu cuenta gratuita y empieza hoy mismo a monitorizar y automatizar lo importante."
+        button: "Crear Cuenta Gratuita"
+      footer:
+        description: "Transformamos la agricultura con tecnología IoT para un futuro más sostenible."
+        sections:
+          platform:
+            title: "Plataforma"
+            links:
+              - "Panel"
+              - "Campos"
+              - "Análisis"
+              - "Configuración"
+          resources:
+            title: "Recursos"
+            links:
+              - "Blog"
+              - "Documentación"
+              - "Base de conocimiento"
+              - "Comunidad"
+          company:
+            title: "Empresa"
+            links:
+              - "Sobre Nosotros"
+              - "Carreras"
+              - "Contacto"
+              - "Privacidad"
+        copyright: "© 2025 AgriloT Synergy. Todos los derechos reservados."

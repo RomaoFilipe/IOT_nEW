@@ -26,74 +26,75 @@ pt:
 
   landing:
     title: "Agricultura Inteligente"
-
     hero:
-      highlight: "Agricultura Inteligente"
-      continuation: "para um Futuro Sustentável"
+      title: "Agricultura Inteligente"
       description: "Transforma a tua exploração agrícola com a nossa plataforma IoT. Monitoriza o solo, automatiza a rega e toma decisões baseadas em dados."
       cta:
         get_started: "Começar Agora"
-        request_demo: "Pedir Demonstração"
-
-    features:
-      title: "Funcionalidades Poderosas de IoT"
-      description: "A nossa plataforma combina tecnologia de ponta com conhecimento agrícola para decisões informadas."
-      items:
-        env_monitoring:
-          title: "Monitorização Ambiental"
-          desc: "Acompanha temperatura, humidade e solo em tempo real com sensores de precisão."
-        smart_irrigation:
-          title: "Rega Inteligente"
-          desc: "Automatiza a rega com base em dados do solo e previsões meteorológicas."
-        yield_forecasting:
-          title: "Previsão de Colheitas"
-          desc: "Prevê colheitas com base em dados históricos e condições atuais."
-        field_connectivity:
-          title: "Conectividade de Campo"
-          desc: "Liga todos os campos com rede mesh mesmo em zonas remotas."
-        data_insights:
-          title: "Análises Baseadas em Dados"
-          desc: "Tira partido da IA e machine learning para obter insights valiosos."
-        mobile_access:
-          title: "Acesso Móvel"
-          desc: "Monitoriza e controla tudo a partir do teu telemóvel."
-
+    choose_type:
+      title: "Escolhe o teu tipo de exploração"
+      agriculture:
+        title: "Agricultura"
+        description: "Monitoriza o solo, automatiza a rega, maximiza a produção."
+      sea:
+        title: "Aquacultura Marinha"
+        description: "Controla salinidade, temperatura e oxigénio em tempo real."
+      tank:
+        title: "Aquacultura em Tanque"
+        description: "Gestão inteligente de viveiros e tanques aquáticos."
     how_it_works:
       title: "Como Funciona"
-      description: "A nossa plataforma agrícola IoT é fácil de configurar e poderosa de utilizar."
+      description: "Descobre como a nossa solução se adapta ao teu tipo de exploração."
+    testimonials:
+      title: "Histórias Reais, Resultados Reais"
+      subtitle: "Como os nossos clientes estão a transformar as suas explorações com tecnologia inteligente."
+      marta:
+        quote: "Reduzimos o consumo de água em 35% com sensores de solo conectados à nossa conta AgriloT."
+        name: "Marta Silva"
+        role: "Produtora de hortícolas"
+      tiago:
+        quote: "Graças à monitorização contínua, os peixes estão mais saudáveis e o oxigénio sempre no ponto."
+        name: "Tiago Ramos"
+        role: "Gestor de aquacultura em tanque"
+      carlos:
+        quote: "Evitei um surto de algas graças ao alerta da plataforma. Nunca mais trabalho sem isto."
+        name: "Carlos Fonseca"
+        role: "Aquacultura marinha"
+    comparison:
+      title: "Antes e Depois da Plataforma"
+      subtitle: "Vê o impacto real da digitalização da tua exploração."
+      before:
+        emoji: "🌧"
+        title: "Antes"
+        items:
+          - "Rega manual sem dados concretos"
+          - "Desperdício de água e energia"
+          - "Falta de alertas e previsões"
+          - "Decisões baseadas na experiência"
+      after:
+        emoji: "☀️"
+        title: "Depois"
+        items:
+          - "Automatização de rega e alertas"
+          - "Relatórios e histórico em tempo real"
+          - "Maior produtividade com menos recursos"
+          - "Decisões baseadas em dados"
+    technologies:
+      title: "Tecnologia que Potencia a Agricultura e Aquacultura"
+      subtitle: "Integrações e compatibilidades com os melhores padrões da indústria."
       items:
-        deploy:
-          icon: "🌱"
-          title: "Instalar Sensores"
-          desc: "Coloca sensores inteligentes para monitorizar solo, clima e saúde das plantas."
-        connect:
-          icon: "☁️"
-          title: "Conectar à Plataforma"
-          desc: "Os sensores ligam-se automaticamente à cloud através de rede mesh."
-        analyze:
-          icon: "📊"
-          title: "Analisar Dados"
-          desc: "A plataforma analisa os dados recolhidos e fornece recomendações."
-        implement:
-          icon: "⚡"
-          title: "Implementar Ações"
-          desc: "Aplica ou automatiza ações como rega com base em dados em tempo real."
-
-    stats:
-      description: "Junta-te a milhares de agricultores que já usam a nossa plataforma para otimizar a produção."
-      water:
-        value: "95%"
-        label: "Poupança de Água"
-      yield:
-        value: "30%"
-        label: "Aumento de Produção"
-      labor:
-        value: "40%"
-        label: "Redução de Mão de Obra"
-
+        - "MQTT"
+        - "LoRaWAN"
+        - "Raspberry Pi"
+        - "Tuya"
+        - "API REST"
+        - "Wi-Fi / BLE"
+    cta_final:
+      title: "Pronto para transformar a tua exploração?"
+      subtitle: "Cria a tua conta gratuita e começa hoje mesmo a monitorizar e automatizar o que importa."
+      button: "Criar Conta Gratuita"
     footer:
       description: "Transformamos a agricultura com tecnologia IoT para um futuro mais sustentável."
-      copyright: "© 2025 AgriloT Synergy. Todos os direitos reservados."
       sections:
         platform:
           title: "Plataforma"
@@ -116,3 +117,5 @@ pt:
             - "Carreiras"
             - "Contactos"
             - "Privacidade"
+      copyright: "© 2025 AgriloT Synergy. Todos os direitos reservados."
+

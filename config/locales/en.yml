@@ -25,94 +25,96 @@ en:
     exit_simulation: "Exit Simulation"
 
   landing:
-      title: "Smart Farming"
-
-      hero:
-        highlight: "Smart Farming"
-        continuation: "for a Sustainable Future"
-        description: "Transform your agricultural operations with our IoT platform. Monitor soil, automate irrigation, and make data-driven decisions."
-        cta:
-          get_started: "Get Started"
-          request_demo: "Request Demo"
-
-      features:
-        title: "Powerful IoT Features"
-        description: "Our platform combines cutting-edge technology with agricultural expertise for informed decisions."
+    title: "Smart Agriculture"
+    hero:
+      title: "Smart Agriculture"
+      description: "Transform your farm with our IoT platform. Monitor soil, automate irrigation, and make data-driven decisions."
+      cta:
+        get_started: "Get Started"
+    choose_type:
+      title: "Choose your type of operation"
+      agriculture:
+        title: "Agriculture"
+        description: "Monitor soil, automate irrigation, and maximize yield."
+      sea:
+        title: "Marine Aquaculture"
+        description: "Control salinity, temperature, and oxygen in real time."
+      tank:
+        title: "Tank Aquaculture"
+        description: "Smart management of aquatic tanks and nurseries."
+    how_it_works:
+      title: "How It Works"
+      description: "Discover how our solution adapts to your type of operation."
+    testimonials:
+      title: "Real Stories, Real Results"
+      subtitle: "How our clients are transforming their operations with smart technology."
+      marta:
+        quote: "We reduced water consumption by 35% using soil sensors integrated with AgriloT."
+        name: "Marta Silva"
+        role: "Vegetable grower"
+      tiago:
+        quote: "Thanks to real-time monitoring, our fish are healthier and oxygen levels are perfect."
+        name: "Tiago Ramos"
+        role: "Tank aquaculture manager"
+      carlos:
+        quote: "I avoided an algae outbreak thanks to the platform's alert system. I can't work without it now."
+        name: "Carlos Fonseca"
+        role: "Marine aquaculture"
+    comparison:
+      title: "Before and After the Platform"
+      subtitle: "See the real impact of digitising your operation."
+      before:
+        emoji: "🌧"
+        title: "Before"
         items:
-          env_monitoring:
-            title: "Environmental Monitoring"
-            desc: "Track temperature, humidity, and soil conditions in real-time with precision sensors."
-          smart_irrigation:
-            title: "Smart Irrigation"
-            desc: "Automate watering based on soil data and weather forecasts."
-          yield_forecasting:
-            title: "Yield Forecasting"
-            desc: "Forecast yields based on historical data and current conditions."
-          field_connectivity:
-            title: "Field Connectivity"
-            desc: "Connect all your fields with a mesh network, even in remote areas."
-          data_insights:
-            title: "Data-Driven Insights"
-            desc: "Use AI and machine learning to gain valuable insights."
-          mobile_access:
-            title: "Mobile Access"
-            desc: "Monitor and control everything from your phone."
-
-      how_it_works:
-        title: "How It Works"
-        description: "Our IoT platform is simple to set up and powerful to use."
+          - "Manual irrigation without data"
+          - "Water and energy waste"
+          - "Lack of alerts and forecasts"
+          - "Experience-based decisions"
+      after:
+        emoji: "☀️"
+        title: "After"
         items:
-          deploy:
-            icon: "🌱"
-            title: "Deploy Sensors"
-            desc: "Place smart sensors to monitor soil, weather, and crop health."
-          connect:
-            icon: "☁️"
-            title: "Connect to Platform"
-            desc: "Sensors connect automatically to the cloud via mesh network."
-          analyze:
-            icon: "📊"
-            title: "Analyze Data"
-            desc: "The platform analyzes collected data and provides recommendations."
-          implement:
-            icon: "⚡"
-            title: "Implement Actions"
-            desc: "Apply or automate actions like irrigation based on real-time data."
-
-      stats:
-        description: "Join thousands of farmers already using our platform to optimize production."
-        water:
-          value: "95%"
-          label: "Water Savings"
-        yield:
-          value: "30%"
-          label: "Yield Increase"
-        labor:
-          value: "40%"
-          label: "Labor Reduction"
-
-      footer:
-        description: "We transform agriculture with IoT technology for a more sustainable future."
-        copyright: "© 2025 AgriloT Synergy. All rights reserved."
-        sections:
-          platform:
-            title: "Platform"
-            links:
-              - "Dashboard"
-              - "Fields"
-              - "Analytics"
-              - "Settings"
-          resources:
-            title: "Resources"
-            links:
-              - "Blog"
-              - "Documentation"
-              - "Knowledge Base"
-              - "Community"
-          company:
-            title: "Company"
-            links:
-              - "About Us"
-              - "Careers"
-              - "Contact"
-              - "Privacy"
+          - "Automated irrigation and alerts"
+          - "Real-time reports and history"
+          - "Higher productivity with fewer resources"
+          - "Data-driven decisions"
+    technologies:
+      title: "Technology Empowering Agriculture & Aquaculture"
+      subtitle: "Integrations and compatibility with leading industry standards."
+      items:
+        - "MQTT"
+        - "LoRaWAN"
+        - "Raspberry Pi"
+        - "Tuya"
+        - "API REST"
+        - "Wi-Fi / BLE"
+    cta_final:
+      title: "Ready to transform your operation?"
+      subtitle: "Create your free account and start monitoring and automating today."
+      button: "Create Free Account"
+    footer:
+      description: "We transform agriculture with IoT technology for a more sustainable future."
+      sections:
+        platform:
+          title: "Platform"
+          links:
+            - "Dashboard"
+            - "Fields"
+            - "Analytics"
+            - "Settings"
+        resources:
+          title: "Resources"
+          links:
+            - "Blog"
+            - "Documentation"
+            - "Knowledge Base"
+            - "Community"
+        company:
+          title: "Company"
+          links:
+            - "About Us"
+            - "Careers"
+            - "Contact"
+            - "Privacy"
+      copyright: "© 2025 AgriloT Synergy. All rights reserved."
