@@ -1,13 +1,13 @@
 <%= turbo_stream.replace "sensor-#{@sensor.id}-status" do %>
   <div id="sensor-<%= @sensor.id %>-status" class="p-4 border rounded-xl shadow bg-white">
-    <h3 class="text-lg font-semibold mb-2">📟 Sensor <%= @sensor.name %></h3>
+    <h3 class="text-lg font-semibold mb-2">📟 <%= t("sensors.update.title", name: @sensor.name) %></h3>
     <ul class="text-sm space-y-1">
-      <li>🌡️ Temperatura: <strong><%= @sensor.temperature %>°C</strong></li>
-      <li>💧 Humidade: <strong><%= @sensor.moisture %>%</strong></li>
-      <li>🔋 Bateria: <strong><%= @sensor.battery %>%</strong></li>
-      <li>📶 Sinal: <strong><%= @sensor.signal %>%</strong></li>
-      <li>🕓 Última leitura: <%= time_ago_in_words(@sensor.last_reading) %> atrás</li>
-      <li>📦 Valor: <%= @sensor.value %></li>
+      <li>🌡️ <%= t("sensors.update.temperature") %>: <strong><%= @sensor.temperature %>°C</strong></li>
+      <li>💧 <%= t("sensors.update.moisture") %>: <strong><%= @sensor.moisture %>%</strong></li>
+      <li>🔋 <%= t("sensors.update.battery") %>: <strong><%= @sensor.battery %>%</strong></li>
+      <li>📶 <%= t("sensors.update.signal") %>: <strong><%= @sensor.signal %>%</strong></li>
+      <li>🕓 <%= t("sensors.update.last_reading") %>: <%= time_ago_in_words(@sensor.last_reading) %> <%= t("sensors.update.ago") %></li>
+      <li>📦 <%= t("sensors.update.value") %>: <%= @sensor.value %></li>
     </ul>
   </div>
 <% end %>

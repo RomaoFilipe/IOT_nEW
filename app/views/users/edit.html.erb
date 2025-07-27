@@ -3,65 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Editar Utilizador</title>
+  <title><%= t("users.edit.title") %></title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
   <div class="w-full max-w-3xl bg-white shadow-lg rounded-xl p-8">
-    <!-- Título e Botão Voltar -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.304.534 6.121 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-        Editar Utilizador
+        <%= t("users.edit.title") %>
       </h1>
-      <%= link_to '← Voltar para Contas', admin_accounts_path, class: 'text-sm text-gray-600 hover:text-green-600 underline' %>
+      <%= link_to t("users.edit.back"), admin_accounts_path, class: 'text-sm text-gray-600 hover:text-green-600 underline' %>
     </div>
 
     <%= form_with(model: @user, local: true, html: { multipart: true }) do |f| %>
-      <!-- Dados Pessoais -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <%= f.label :name, 'Nome', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.label :name, t("users.form.name"), class: 'block text-sm font-medium text-gray-700 mb-1' %>
           <%= f.text_field :name, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200', required: true %>
         </div>
 
         <div>
-          <%= f.label :email, 'Email', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.label :email, t("users.form.email"), class: 'block text-sm font-medium text-gray-700 mb-1' %>
           <%= f.email_field :email, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200', required: true %>
         </div>
 
         <div>
-          <%= f.label :role, 'Função', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.label :role, t("users.form.role"), class: 'block text-sm font-medium text-gray-700 mb-1' %>
           <%= f.select :role, User.roles.keys.map { |role| [role.humanize, role] }, {}, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
         </div>
 
         <div>
-          <%= f.label :status, 'Status', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.select :status, [['Ativo', 'active'], ['Inativo', 'inactive']], {}, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+          <%= f.label :status, t("users.form.status"), class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= f.select :status, [[t("users.status.active"), 'active'], [t("users.status.inactive"), 'inactive']], {}, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
         </div>
       </div>
 
-      <!-- Atualizar Palavra-passe -->
       <div class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-1">Atualizar Palavra-passe</h2>
+        <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-1"><%= t("users.edit.update_password") %></h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <%= f.label :password, 'Nova Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+            <%= f.label :password, t("users.form.password"), class: 'block text-sm font-medium text-gray-700 mb-1' %>
             <%= f.password_field :password, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
-            <p class="text-xs text-gray-500 italic">Deixa em branco para manter a atual.</p>
+            <p class="text-xs text-gray-500 italic"><%= t("users.form.password_hint") %></p>
           </div>
           <div>
-            <%= f.label :password_confirmation, 'Confirmar Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+            <%= f.label :password_confirmation, t("users.form.password_confirmation"), class: 'block text-sm font-medium text-gray-700 mb-1' %>
             <%= f.password_field :password_confirmation, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
           </div>
         </div>
       </div>
 
-      <!-- Foto de Perfil -->
       <div class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-1">Foto de Perfil</h2>
+        <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-1"><%= t("users.edit.profile_picture") %></h2>
         <div class="flex items-center gap-4">
           <% if @user.photo.present? %>
             <%= image_tag @user.photo.url, class: 'w-16 h-16 rounded-full object-cover border' %>
@@ -70,10 +66,9 @@
         </div>
       </div>
 
-      <!-- Ações -->
       <div class="flex justify-between items-center mt-10">
-        <%= f.submit '💾 Salvar Alterações', class: 'bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition' %>
-        <%= link_to 'Cancelar', admin_accounts_path, class: 'text-gray-500 hover:text-red-600 text-sm underline' %>
+        <%= f.submit t("users.edit.save"), class: 'bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition' %>
+        <%= link_to t("users.edit.cancel"), admin_accounts_path, class: 'text-gray-500 hover:text-red-600 text-sm underline' %>
       </div>
     <% end %>
   </div>

@@ -1,36 +1,39 @@
 <%= turbo_frame_tag dom_id(sensor) do %>
   <div id="sensor-<%= sensor.id %>-status" class="p-4 border rounded-xl shadow bg-white space-y-2">
-    <h3 class="text-lg font-semibold">📿 Sensor <%= sensor.name %></h3>
+    <h3 class="text-lg font-semibold">📿 <%= t("sensors.card.title", name: sensor.name) %></h3>
 
     <ul class="text-sm space-y-1">
-      <li>🌡️ Temperatura: <strong><%= sensor.temperature || "—" %>°C</strong></li>
-      <li>💧 Humidade: <strong><%= sensor.moisture || "—" %>%</strong></li>
-      <li>🔋 Bateria: <strong><%= sensor.battery || "—" %>%</strong></li>
-      <li>📶 Sinal: <strong><%= sensor.signal || "—" %>%</strong></li>
-      <li>🕓 Última leitura: <%= sensor.last_reading.present? ? time_ago_in_words(sensor.last_reading) + " atrás" : "—" %></li>
-      <li>📦 Valor: <%= sensor.value || "—" %></li>
+      <li>🌡️ <%= t("sensors.card.temperature") %>: <strong><%= sensor.temperature || "—" %>°C</strong></li>
+      <li>💧 <%= t("sensors.card.moisture") %>: <strong><%= sensor.moisture || "—" %>%</strong></li>
+      <li>🔋 <%= t("sensors.card.battery") %>: <strong><%= sensor.battery || "—" %>%</strong></li>
+      <li>📶 <%= t("sensors.card.signal") %>: <strong><%= sensor.signal || "—" %>%</strong></li>
+      <li>🕓 <%= t("sensors.card.last_reading") %>: 
+        <%= sensor.last_reading.present? ? time_ago_in_words(sensor.last_reading) + " " + t("sensors.card.ago") : "—" %>
+      </li>
+      <li>📦 <%= t("sensors.card.value") %>: <%= sensor.value || "—" %></li>
     </ul>
 
     <div class="flex items-center justify-between mt-4">
-      <!-- Switch com Turbo Stream -->
       <%= form_with model: sensor, url: toggle_status_sensor_path(sensor), method: :patch, data: { turbo_stream: true }, class: "inline-block" do %>
         <label class="relative inline-flex items-center cursor-pointer">
-        <% disabled = sensor.status == "Inactive" && (sensor.last_reading.nil? || sensor.last_reading < 5.minutes.ago) %>
-        <input type="checkbox" name="active" onchange="this.form.submit()" class="sr-only peer"
-          <%= 'checked' if sensor.status == "Active" %>
-          <%= 'disabled' if disabled %>>
+          <% disabled = sensor.status == "Inactive" && (sensor.last_reading.nil? || sensor.last_reading < 5.minutes.ago) %>
+          <input type="checkbox" name="active" onchange="this.form.submit()" class="sr-only peer"
+            <%= 'checked' if sensor.status == "Active" %>
+            <%= 'disabled' if disabled %> >
           <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
           <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-full transition-transform"></div>
         </label>
       <% end %>
 
-      <!-- Botão de apagar -->
-      <%= button_to field_sensor_path(sensor.field, sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" }, class: "text-red-500 hover:text-red-700 text-xl" do %>
+      <%= button_to field_sensor_path(sensor.field, sensor), method: :delete,
+          data: { turbo_confirm: t("sensors.card.confirm_delete") },
+          class: "text-red-500 hover:text-red-700 text-xl" do %>
         🖑
       <% end %>
     </div>
   </div>
 <% end %>
+
 <script type="module">
   import flatpickr from "flatpickr";
 

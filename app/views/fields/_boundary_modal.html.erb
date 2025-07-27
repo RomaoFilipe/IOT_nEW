@@ -1,24 +1,25 @@
 <div id="boundaryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
   <div class="bg-white w-full max-w-4xl p-6 rounded-lg shadow-lg relative">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold text-gray-800">Define Field Boundary</h2>
+      <h2 class="text-lg font-semibold text-gray-800"><%= t("fields.boundary.title") %></h2>
       <button onclick="closeBoundaryModal()" class="text-gray-500 text-xl hover:text-red-600">&times;</button>
     </div>
 
-    <p class="text-gray-500 text-sm mb-4">Click on the map to define up to 8 vertices of your field boundary. Click "Save Boundary" when finished.</p>
+    <p class="text-gray-500 text-sm mb-4"><%= t("fields.boundary.instructions") %></p>
 
     <div id="boundaryMap" class="w-full h-[400px] rounded-md border border-gray-200 mb-4"></div>
 
     <div class="flex justify-between items-center">
-      <div class="text-sm text-gray-600">Points: <span id="pointCount">0</span>/8</div>
+      <div class="text-sm text-gray-600"><%= t("fields.boundary.points") %>: <span id="pointCount">0</span>/8</div>
       <div class="space-x-2">
-        <button onclick="resetBoundary()" class="px-3 py-2 border text-sm rounded-md text-gray-600 hover:bg-gray-100">🗑 Reset</button>
-        <button onclick="closeBoundaryModal()" class="px-3 py-2 border text-sm rounded-md text-gray-600 hover:bg-gray-100">✖ Cancel</button>
-        <button onclick="saveBoundary()" class="px-4 py-2 bg-green-500 text-white text-sm rounded-md hover:bg-green-600">✔ Save Boundary</button>
+        <button onclick="resetBoundary()" class="px-3 py-2 border text-sm rounded-md text-gray-600 hover:bg-gray-100">🗑 <%= t("fields.boundary.reset") %></button>
+        <button onclick="closeBoundaryModal()" class="px-3 py-2 border text-sm rounded-md text-gray-600 hover:bg-gray-100">✖ <%= t("fields.boundary.cancel") %></button>
+        <button onclick="saveBoundary()" class="px-4 py-2 bg-green-500 text-white text-sm rounded-md hover:bg-green-600">✔ <%= t("fields.boundary.save") %></button>
       </div>
     </div>
   </div>
 </div>
+
 
 <script>
 let boundaryMap, boundaryMarkers = [], boundaryCoords = [], boundaryPolygon;

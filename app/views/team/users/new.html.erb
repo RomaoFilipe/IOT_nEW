@@ -1,10 +1,9 @@
-<h1 class="text-2xl font-bold mb-6">➕ Novo Utilizador</h1>
+<h1 class="text-2xl font-bold mb-6"><%= t("team.users.new.title") %></h1>
 
 <div class="max-w-xl bg-white p-6 rounded-lg shadow space-y-6">
-
   <% if @user.errors.any? %>
     <div class="bg-red-100 border border-red-300 text-red-700 rounded p-4">
-      <p class="font-semibold mb-2">⚠️ Erros ao criar utilizador:</p>
+      <p class="font-semibold mb-2">⚠️ <%= t("team.users.new.errors_title") %></p>
       <ul class="list-disc list-inside text-sm">
         <% @user.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
@@ -15,60 +14,51 @@
 
   <%= form_with model: @user, url: team_users_path, local: true, class: "space-y-5" do |f| %>
 
-    <!-- Nome -->
     <div>
-      <%= f.label :name, "Nome", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.label :name, t("team.users.form.name"), class: "block text-sm font-medium text-gray-700" %>
       <%= f.text_field :name, required: true, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
     </div>
 
-    <!-- Email -->
     <div>
-      <%= f.label :email, "Email", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.label :email, t("team.users.form.email"), class: "block text-sm font-medium text-gray-700" %>
       <%= f.email_field :email, required: true, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
     </div>
 
-    <!-- Função -->
     <div>
-      <%= f.label :role, "Função", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.label :role, t("team.users.form.role"), class: "block text-sm font-medium text-gray-700" %>
       <%= f.select :role, User.roles.except("owner").map { |r, _| [r.capitalize, r] }, {}, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
     </div>
 
-    <!-- Palavra-passe -->
     <div>
-      <%= f.label :password, "Palavra-passe", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.label :password, t("team.users.form.password"), class: "block text-sm font-medium text-gray-700" %>
       <%= f.password_field :password, required: true, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
     </div>
 
-    <!-- Confirmação -->
     <div>
-      <%= f.label :password_confirmation, "Confirmação de Palavra-passe", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.label :password_confirmation, t("team.users.form.password_confirmation"), class: "block text-sm font-medium text-gray-700" %>
       <%= f.password_field :password_confirmation, required: true, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
     </div>
 
-    <!-- Foto de perfil -->
     <div>
-      <%= f.label :photo, "Foto de perfil (opcional)", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.label :photo, t("team.users.form.photo"), class: "block text-sm font-medium text-gray-700" %>
       <%= f.file_field :photo, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm file:bg-green-50 file:text-green-700 file:font-semibold file:border-0 file:px-4 file:py-2 file:rounded file:cursor-pointer hover:file:bg-green-100" %>
     </div>
 
-    <!-- Notificações -->
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="flex items-center gap-2">
         <%= f.check_box :notif_email, checked: true, class: "rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" %>
-        <%= f.label :notif_email, "Receber notificações por email", class: "text-sm text-gray-700" %>
+        <%= f.label :notif_email, t("team.users.form.notif_email"), class: "text-sm text-gray-700" %>
       </div>
 
       <div class="flex items-center gap-2">
         <%= f.check_box :notif_sms, class: "rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" %>
-        <%= f.label :notif_sms, "Receber notificações por SMS", class: "text-sm text-gray-700" %>
+        <%= f.label :notif_sms, t("team.users.form.notif_sms"), class: "text-sm text-gray-700" %>
       </div>
     </div>
 
-    <!-- Botão -->
     <div class="flex justify-between items-center pt-4">
-      <%= link_to "← Voltar", team_users_path, class: "text-sm text-gray-600 hover:underline" %>
-      <%= f.submit "💾 Criar Utilizador", class: "bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-md text-sm transition" %>
+      <%= link_to t("team.users.new.back"), team_users_path, class: "text-sm text-gray-600 hover:underline" %>
+      <%= f.submit t("team.users.new.submit"), class: "bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-md text-sm transition" %>
     </div>
-
   <% end %>
 </div>

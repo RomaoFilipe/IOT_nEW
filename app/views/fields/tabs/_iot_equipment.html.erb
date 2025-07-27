@@ -1,10 +1,10 @@
-<h3 class="text-xl font-bold text-gray-800 mb-6">📡 Equipamentos IoT Associados</h3>
+<h3 class="text-xl font-bold text-gray-800 mb-6">📡 <%= t("fields.iot_equipment.title") %></h3>
 
 <!-- Botão de adicionar sensor -->
 <div class="flex justify-end mb-6">
   <button onclick="toggleSensorModal()" class="bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-800 transition">
     <i class="fa-solid fa-plus-circle"></i>
-    <span>Adicionar Equipamento</span>
+    <span><%= t("fields.iot_equipment.add_button") %></span>
   </button>
 </div>
 
@@ -17,13 +17,13 @@
     <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
       <thead class="bg-gray-100 text-gray-700 font-medium">
         <tr>
-          <th class="px-4 py-3">Nome</th>
-          <th class="px-4 py-3">Tipo</th>
-          <th class="px-4 py-3">Estado</th>
-          <th class="px-4 py-3">Bateria</th>
-          <th class="px-4 py-3">Sinal</th>
-          <th class="px-4 py-3">Última Leitura</th>
-          <th class="px-4 py-3 text-center">Ações</th>
+          <th class="px-4 py-3"><%= t("fields.iot_equipment.name") %></th>
+          <th class="px-4 py-3"><%= t("fields.iot_equipment.type") %></th>
+          <th class="px-4 py-3"><%= t("fields.iot_equipment.status") %></th>
+          <th class="px-4 py-3"><%= t("fields.iot_equipment.battery") %></th>
+          <th class="px-4 py-3"><%= t("fields.iot_equipment.signal") %></th>
+          <th class="px-4 py-3"><%= t("fields.iot_equipment.last_reading") %></th>
+          <th class="px-4 py-3 text-center"><%= t("fields.iot_equipment.actions") %></th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
@@ -32,7 +32,7 @@
     </table>
   </div>
 <% else %>
-  <p class="text-gray-500 italic mt-6">Nenhum sensor atribuído a este campo ainda.</p>
+  <p class="text-gray-500 italic mt-6"><%= t("fields.iot_equipment.none_assigned") %></p>
 <% end %>
 
 <!-- Sensores não atribuídos -->
@@ -51,27 +51,27 @@
     const result = document.getElementById("deviceCheckResult");
 
     if (!deviceId) {
-      result.innerText = "⚠️ Introduz um device_id.";
+      result.innerText = "⚠️ <%= t("fields.iot_equipment.enter_device_id") %>";
       result.className = "text-red-600 text-sm mt-2";
       return;
     }
 
-    result.innerText = "🔍 A verificar...";
+    result.innerText = "🔍 <%= t("fields.iot_equipment.verifying") %>";
     result.className = "text-gray-600 text-sm mt-2";
 
     fetch(`/api/sensors/identify?device_id=${encodeURIComponent(deviceId)}`)
       .then(response => response.json())
       .then(data => {
         if (data.id) {
-          result.innerText = `✅ Sensor encontrado ou criado: ${data.name} (ID: ${data.id})`;
+          result.innerText = `✅ <%= t("fields.iot_equipment.device_found") %>: ${data.name} (ID: ${data.id})`;
           result.className = "text-green-600 text-sm mt-2";
         } else {
-          result.innerText = "❌ Sensor não encontrado.";
+          result.innerText = "❌ <%= t("fields.iot_equipment.not_found") %>";
           result.className = "text-red-600 text-sm mt-2";
         }
       })
       .catch(err => {
-        result.innerText = "❌ Erro ao contactar o servidor.";
+        result.innerText = "❌ <%= t("fields.iot_equipment.server_error") %>";
         result.className = "text-red-600 text-sm mt-2";
       });
   }

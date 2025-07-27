@@ -2,21 +2,21 @@
 
 <div class="max-w-4xl mx-auto mt-10 px-4">
   <% if @sensor.present? %>
-  <h2 class="text-2xl font-semibold mb-4">📊 Histórico do Sensor: <%= @sensor.name %></h2>
-<% else %>
-  <p class="text-red-600">Sensor não encontrado.</p>
-<% end %>
+    <h2 class="text-2xl font-semibold mb-4">📊 <%= t("sensors.readings.title", name: @sensor.name) %></h2>
+  <% else %>
+    <p class="text-red-600"><%= t("sensors.readings.not_found") %></p>
+  <% end %>
 
   <canvas id="sensorChart" class="mb-6"></canvas>
 
   <table class="min-w-full bg-white border rounded-lg shadow">
     <thead class="bg-gray-100 text-left text-sm font-medium text-gray-700">
       <tr>
-        <th class="px-4 py-2">Data</th>
-        <th class="px-4 py-2">Temperatura (°C)</th>
-        <th class="px-4 py-2">Humidade (%)</th>
-        <th class="px-4 py-2">Bateria (%)</th>
-        <th class="px-4 py-2">Sinal (%)</th>
+        <th class="px-4 py-2"><%= t("sensors.readings.date") %></th>
+        <th class="px-4 py-2"><%= t("sensors.readings.temperature") %></th>
+        <th class="px-4 py-2"><%= t("sensors.readings.moisture") %></th>
+        <th class="px-4 py-2"><%= t("sensors.readings.battery") %></th>
+        <th class="px-4 py-2"><%= t("sensors.readings.signal") %></th>
       </tr>
     </thead>
     <tbody class="text-sm divide-y divide-gray-100">
@@ -33,7 +33,7 @@
   </table>
 
   <div class="mt-6">
-    <%= link_to "← Voltar", fields_path, class: "text-blue-600 hover:underline" %>
+    <%= link_to "← #{t("sensors.readings.back")}", fields_path, class: "text-blue-600 hover:underline" %>
   </div>
 </div>
 
@@ -47,14 +47,14 @@
         labels: <%= raw @readings.map { |r| r.read_at.strftime("%d/%m %H:%M") }.reverse.to_json %>,
         datasets: [
           {
-            label: "Temperatura (°C)",
+            label: "<%= t("sensors.readings.temperature") %>",
             data: <%= raw @readings.map(&:temperature).reverse.to_json %>,
             borderColor: "rgba(255, 99, 132, 1)",
             fill: false,
             tension: 0.2
           },
           {
-            label: "Humidade (%)",
+            label: "<%= t("sensors.readings.moisture") %>",
             data: <%= raw @readings.map(&:moisture).reverse.to_json %>,
             borderColor: "rgba(54, 162, 235, 1)",
             fill: false,
@@ -66,7 +66,7 @@
         responsive: true,
         plugins: {
           legend: { position: 'top' },
-          title: { display: true, text: 'Leituras do Sensor' }
+          title: { display: true, text: "<%= t("sensors.readings.chart_title") %>" }
         },
         scales: {
           y: { beginAtZero: true }

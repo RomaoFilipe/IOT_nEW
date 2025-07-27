@@ -1,13 +1,14 @@
 <% unassigned = Sensor.where(field_id: nil) %>
 <% if unassigned.any? %>
-  <h3 class="text-md font-semibold mt-6 mb-2 text-gray-800">Sensores Não Atribuídos</h3>
+  <h3 class="text-md font-semibold mt-6 mb-2 text-gray-800"><%= t("sensors.unassigned.title") %></h3>
+
   <table class="min-w-full border rounded-lg shadow-sm divide-y divide-gray-200">
     <thead class="bg-gray-100">
       <tr class="text-sm text-gray-700">
-        <th class="px-4 py-2 text-left">Nome</th>
-        <th class="px-4 py-2 text-left">Tipo</th>
-        <th class="px-4 py-2 text-left">Última leitura</th>
-        <th class="px-4 py-2 text-left">Ações</th>
+        <th class="px-4 py-2 text-left"><%= t("sensors.unassigned.name") %></th>
+        <th class="px-4 py-2 text-left"><%= t("sensors.unassigned.type") %></th>
+        <th class="px-4 py-2 text-left"><%= t("sensors.unassigned.last_reading") %></th>
+        <th class="px-4 py-2 text-left"><%= t("sensors.unassigned.actions") %></th>
       </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-100">
@@ -15,9 +16,9 @@
         <tr>
           <td class="px-4 py-2"><%= sensor.name %></td>
           <td class="px-4 py-2"><%= sensor.sensor_type %></td>
-          <td class="px-4 py-2"><%= sensor.last_reading&.strftime("%d/%m %H:%M") || "Sem dados" %></td>
+          <td class="px-4 py-2"><%= sensor.last_reading&.strftime("%d/%m %H:%M") || t("sensors.unassigned.no_data") %></td>
           <td class="px-4 py-2">
-            <%= button_to "Atribuir a este campo", assign_field_sensor_path(sensor), method: :patch,
+            <%= button_to t("sensors.unassigned.assign"), assign_field_sensor_path(sensor), method: :patch,
                 params: { field_id: field.id },
                 class: "text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition" %>
           </td>

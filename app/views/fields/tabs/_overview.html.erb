@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "overview-\#{field.id}" do %>
+<%= turbo_frame_tag "overview-#{field.id}" do %>
 <div class="grid grid-cols-2 gap-6">
   <!-- Mapa -->
   <div class="bg-gray-100 rounded-lg h-40 flex items-center justify-center">
@@ -9,64 +9,64 @@
     </svg>
   </div>
 
-  <!-- Planting Information -->
+  <!-- Informação de Plantação -->
   <div>
-    <h3 class="font-semibold mb-2">Planting Information</h3>
-    <p><strong>Planting Date:</strong> 2023-03-15</p>
-    <p><strong>Harvest Date:</strong> 2023-09-25</p>
-    <p><strong>Expected Yield:</strong> <span class="font-bold">8.2 tons/ha</span></p>
+    <h3 class="font-semibold mb-2"><%= t("fields.overview.planting_info") %></h3>
+    <p><strong><%= t("fields.overview.planting_date") %>:</strong> 2023-03-15</p>
+    <p><strong><%= t("fields.overview.harvest_date") %>:</strong> 2023-09-25</p>
+    <p><strong><%= t("fields.overview.expected_yield") %>:</strong> <span class="font-bold">8.2 tons/ha</span></p>
 
-    <h3 class="font-semibold mt-4">Maintenance</h3>
-    <p><strong>Pest Control:</strong> Minimal intervention needed</p>
-    <p><strong>Irrigation:</strong> Every 3 days, 2 hours</p>
-    <p><strong>Fertilization:</strong> Applied on 2023-05-10</p>
+    <h3 class="font-semibold mt-4"><%= t("fields.overview.maintenance") %></h3>
+    <p><strong><%= t("fields.overview.pest_control") %>:</strong> Minimal</p>
+    <p><strong><%= t("fields.overview.irrigation") %>:</strong> Every 3 days, 2 hours</p>
+    <p><strong><%= t("fields.overview.fertilization") %>:</strong> Applied on 2023-05-10</p>
 
-    <h3 class="font-semibold mt-4">Notes</h3>
-    <p class="text-sm text-gray-600">Plants are developing well, ahead of schedule. Last inspection showed no signs of pests or diseases.</p>
+    <h3 class="font-semibold mt-4"><%= t("fields.overview.notes") %></h3>
+    <p class="text-sm text-gray-600"><%= t("fields.overview.notes_example") %></p>
   </div>
 </div>
 
-<!-- Basic Information -->
+<!-- Informações Básicas -->
 <div class="mt-6">
-  <h3 class="font-semibold mb-2">Basic Information</h3>
-  <p><strong>Crop:</strong> <%= field.field_type %></p>
-  <p><strong>Area:</strong> <%= field.area %> ha</p>
-  <p><strong>Soil Quality:</strong> <span class="text-green-600 font-semibold">Excellent</span></p>
-  <p><strong>Active Sensors:</strong> <%= field.sensors.count %></p>
-  <p><strong>Last Updated:</strong> 10 minutes ago</p>
+  <h3 class="font-semibold mb-2"><%= t("fields.overview.basic_info") %></h3>
+  <p><strong><%= t("fields.overview.crop") %>:</strong> <%= field.field_type %></p>
+  <p><strong><%= t("fields.overview.area") %>:</strong> <%= field.area %> ha</p>
+  <p><strong><%= t("fields.overview.soil_quality") %>:</strong> <span class="text-green-600 font-semibold">Excelente</span></p>
+  <p><strong><%= t("fields.overview.active_sensors") %>:</strong> <%= field.sensors.count %></p>
+  <p><strong><%= t("fields.overview.last_updated") %>:</strong> <%= time_ago_in_words(field.updated_at) %> atrás</p>
 </div>
 
-<!-- Current Conditions -->
+<!-- Condições Atuais -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-  <!-- Moisture -->
+  <!-- Humidade -->
   <div class="bg-gray-100 p-4 rounded-lg text-center">
     <span class="block text-blue-500 text-2xl">💧</span>
-    <p class="text-gray-600">Moisture</p>
+    <p class="text-gray-600"><%= t("fields.overview.moisture") %></p>
     <p class="font-bold text-lg">
       <%= field.sensors.average(:moisture)&.round(1) || '-' %>%
     </p>
   </div>
 
-  <!-- Temperature -->
+  <!-- Temperatura -->
   <div class="bg-gray-100 p-4 rounded-lg text-center">
     <span class="block text-orange-500 text-2xl">🌡</span>
-    <p class="text-gray-600">Temperature</p>
+    <p class="text-gray-600"><%= t("fields.overview.temperature") %></p>
     <p class="font-bold text-lg">
       <%= field.sensors.average(:temperature)&.round(1) || "-" %>°C
     </p>
   </div>
 
-  <!-- Crop Health (estático por agora) -->
+  <!-- Saúde da Cultura -->
   <div class="bg-gray-100 p-4 rounded-lg text-center">
     <span class="block text-green-500 text-2xl">🌱</span>
-    <p class="text-gray-600">Crop Health</p>
-    <p class="font-bold text-lg">Good</p>
+    <p class="text-gray-600"><%= t("fields.overview.crop_health") %></p>
+    <p class="font-bold text-lg"><%= t("fields.overview.good") %></p>
   </div>
 
   <% if irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation") %>
     <div class="bg-gray-100 p-4 rounded-lg text-center" id="<%= dom_id(irrigation_sensor, :irrigation_status_block) %>">
       <span class="block text-blue-500 text-2xl">💦</span>
-      <p class="text-gray-600">Irrigation</p>
+      <p class="text-gray-600"><%= t("fields.overview.irrigation") %></p>
 
       <%= render partial: "sensors/irrigation_status_block", locals: { sensor: irrigation_sensor } %>
     </div>
@@ -87,7 +87,6 @@
               console.log(`⛔ Canal de irrigação desconectado: sensor ${sensorId}`);
             },
             received(data) {
-              // ✅ Atualiza sempre que receber dados
               fetch(`/sensors/${sensorId}/status_info`)
                 .then(res => res.text())
                 .then(html => {

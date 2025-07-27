@@ -2,49 +2,40 @@
 <div class="mb-8 bg-white shadow-lg rounded-2xl p-6">
   <h2 class="text-xl font-bold text-gray-900 mb-5 flex items-center gap-2">
     <i class="lucide lucide-building-2 w-5 h-5 text-blue-600"></i>
-    Editar Conta da Empresa
+    <%= t("team.account.edit_title") %>
   </h2>
 
-<%= form_with model: @account, url: admin_account_path(@account), method: :patch, local: true, class: "space-y-5" do |f| %>    
-    <!-- Nome da Empresa -->
+  <%= form_with model: @account, url: admin_account_path(@account), method: :patch, local: true, class: "space-y-5" do |f| %>
     <div>
-      <%= f.label :name, "Nome da Empresa", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.label :name, t("team.account.name"), class: "block text-sm font-medium text-gray-700 mb-1" %>
       <%= f.text_field :name, class: "w-full rounded-lg border-gray-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 focus:outline-none" %>
     </div>
 
-    <!-- NIF (não editável) -->
     <div>
-      <%= f.label :nif, "NIF", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.label :nif, t("team.account.nif"), class: "block text-sm font-medium text-gray-700 mb-1" %>
       <%= f.text_field :nif, value: @account.nif, disabled: true, class: "w-full bg-gray-100 text-gray-600 border border-gray-300 rounded-lg px-4 py-2 text-sm cursor-not-allowed" %>
     </div>
 
-    <!-- Tipo de Produção -->
     <div>
-      <%= f.label :farm_type, "Tipo de Produção", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.label :farm_type, t("team.account.farm_type"), class: "block text-sm font-medium text-gray-700 mb-1" %>
       <%= f.select :farm_type, Account.farm_types.keys.map { |type| [type.humanize.capitalize, type] }, {}, class: "w-full rounded-lg border-gray-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 focus:outline-none" %>
     </div>
 
-    <!-- Ações -->
     <div class="flex justify-between items-center pt-4">
-      <%= link_to "← Voltar", team_users_path, class: "text-sm text-gray-600 hover:underline" %>
-      <%= f.submit "💾 Guardar Alterações", class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm" %>
+      <%= link_to t("team.account.back"), team_users_path, class: "text-sm text-gray-600 hover:underline" %>
+      <%= f.submit t("team.account.save"), class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm" %>
     </div>
-
   <% end %>
 </div>
 
+<h1 class="text-2xl font-bold mb-6"><%= t("team.account.team_title") %></h1>
 
-
-
-<h1 class="text-2xl font-bold mb-6">Equipa da Empresa</h1>
-
-<%= link_to "➕ Adicionar Utilizador", new_team_user_path, class: "mb-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition" %>
+<%= link_to t("team.account.add_user"), new_team_user_path, class: "mb-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition" %>
 
 <% if @users.any? %>
   <div class="space-y-4">
     <% @users.each do |user| %>
       <div x-data="{ open: false }" class="bg-white shadow rounded-lg p-4 flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-        <!-- Info do Utilizador -->
         <div class="flex items-start gap-4">
           <i class="lucide lucide-user w-6 h-6 text-blue-600 mt-1"></i>
           <div>
@@ -60,35 +51,33 @@
                   when "viewer" then "bg-gray-100 text-gray-600"
                   else "bg-red-100 text-red-600"
                 end %>">
-                <%= user.role.capitalize %>
+                <%= t("team.roles.#{user.role}") %>
               </span>
 
               <% if user == current_user %>
-                <span class="text-gray-400 italic text-xs">Tu</span>
+                <span class="text-gray-400 italic text-xs"><%= t("team.account.you_label") %></span>
               <% end %>
             </div>
           </div>
         </div>
 
-        <!-- Ações -->
         <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:ml-auto mt-2 md:mt-0">
-          <%= link_to "✏️ Editar", edit_team_user_path(user), class: "px-4 py-1 border rounded text-sm hover:bg-gray-100 transition" %>
+          <%= link_to "✏️ #{t("actions.edit")}", edit_team_user_path(user), class: "px-4 py-1 border rounded text-sm hover:bg-gray-100 transition" %>
 
           <% unless user == current_user %>
-            <%= button_to "❌ Apagar", team_user_path(user), method: :delete, data: { confirm: "Tens a certeza que queres apagar este utilizador?" }, class: "px-4 py-1 border border-red-600 text-red-600 rounded text-sm hover:bg-red-50 transition" %>
-            <%= button_to "👀 Simular", impersonate_team_user_path(user), method: :post, class: "px-4 py-1 border text-blue-600 border-blue-600 rounded text-sm hover:bg-blue-50 transition" %>
+            <%= button_to "❌ #{t("actions.delete")}", team_user_path(user), method: :delete, data: { confirm: t("team.account.confirm_delete") }, class: "px-4 py-1 border border-red-600 text-red-600 rounded text-sm hover:bg-red-50 transition" %>
+            <%= button_to "👀 #{t("team.account.impersonate")}", impersonate_team_user_path(user), method: :post, class: "px-4 py-1 border text-blue-600 border-blue-600 rounded text-sm hover:bg-blue-50 transition" %>
           <% end %>
 
-          <button @click="open = !open" class="px-4 py-1 border rounded text-sm hover:bg-gray-50 transition">
-            <span x-text="open ? '⮝ Recolher' : '➤ Expandir'"></span>
+          <button @click="open = !open" class: "px-4 py-1 border rounded text-sm hover:bg-gray-50 transition">
+            <span x-text="open ? '⮝ <%= t(\"team.account.collapse\") %>' : '➤ <%= t(\"team.account.expand\") %>'"></span>
           </button>
         </div>
 
-        <!-- Detalhes Expandidos -->
         <div x-show="open" x-transition class="mt-4 border-t pt-3 text-sm text-gray-600 w-full" x-cloak>
           <p><strong>ID:</strong> <%= user.id %></p>
-          <p><strong>Status:</strong> <%= user.status.capitalize %></p>
-          <p><strong>Notificações:</strong>
+          <p><strong><%= t("team.account.status") %>:</strong> <%= user.status.capitalize %></p>
+          <p><strong><%= t("team.account.notifications") %>:</strong>
             <% if user.notif_email %>
               <span class="inline-flex items-center gap-1 mr-2">
                 <i class="lucide lucide-mail w-4 h-4 text-blue-500"></i> Email
@@ -105,8 +94,9 @@
     <% end %>
   </div>
 <% else %>
-  <p class="text-gray-500">Ainda não existem utilizadores nesta conta.</p>
+  <p class="text-gray-500"><%= t("team.account.no_users") %></p>
 <% end %>
+
 
 
 <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

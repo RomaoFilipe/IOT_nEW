@@ -1,5 +1,5 @@
 <span class="irrigation-status block text-sm font-medium text-gray-600 mb-1">
-  Estado da Irrigação: <%= sensor.status.capitalize %>
+  <%= t("sensors.irrigation_status.label") %>: <%= t("sensors.status.states.#{sensor.status.downcase}", default: sensor.status.capitalize) %>
 </span>
 
 <% if sensor.status == "irrigando" && sensor.remaining_time.present? && sensor.last_duration.present? %>
@@ -7,14 +7,12 @@
 
   <!-- Barra de progresso -->
   <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-    <div class="bg-green-500 h-full transition-all duration-500 ease-linear"
-         style="width: <%= percent %>%;">
-    </div>
+    <div class="bg-green-500 h-full transition-all duration-500 ease-linear" style="width: <%= percent %>%;"></div>
   </div>
 
   <!-- Tempo restante -->
   <span class="block text-sm text-gray-700 mt-1">
-    Faltam: <%= Time.at(sensor.remaining_time).utc.strftime("%Hh %Mm %Ss") %>
+    <%= t("sensors.irrigation_status.remaining") %>: <%= Time.at(sensor.remaining_time).utc.strftime("%Hh %Mm %Ss") %>
   </span>
 
   <!-- Botão parar irrigação -->
@@ -29,20 +27,20 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
         </svg>
-        <span id="stop-text-<%= sensor.id %>">⛔ Parar Irrigação</span>
+        <span id="stop-text-<%= sensor.id %>">⛔ <%= t("sensors.irrigation_status.stop_button") %></span>
       </button>
     </form>
   </div>
 
 <% else %>
   <div id="irrigation-stopped-alert-<%= sensor.id %>" class="bg-blue-100 text-blue-800 px-3 py-2 rounded mt-3 text-sm animate-fade-in">
-    💧 Irrigação Parada com Sucesso
+    💧 <%= t("sensors.irrigation_status.stopped_success") %>
   </div>
 <% end %>
 
 <script>
   function confirmStopIrrigation(sensorId) {
-    const confirmed = confirm("Tem a certeza que deseja parar a irrigação?");
+    const confirmed = confirm("<%= t("sensors.irrigation_status.confirm_stop") %>");
     if (confirmed) {
       const btn = document.getElementById(`stop-btn-${sensorId}`);
       const spinner = document.getElementById(`spinner-${sensorId}`);

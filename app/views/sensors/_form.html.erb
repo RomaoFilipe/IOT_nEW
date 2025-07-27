@@ -4,36 +4,38 @@
       &times;
     </button>
 
-    <h2 class="text-xl font-semibold text-gray-800 mb-1">Adicionar Equipamento IoT</h2>
-    <p class="text-sm text-gray-500 mb-6">Configuração para <strong><%= field.name %></strong></p>
+    <h2 class="text-xl font-semibold text-gray-800 mb-1"><%= t("sensors.form.title") %></h2>
+    <p class="text-sm text-gray-500 mb-6"><%= t("sensors.form.subtitle", name: field.name) %></p>
 
     <%= form_with(model: [field, Sensor.new], local: true) do |form| %>
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700">Nome do Sensor</label>
-          <%= form.text_field :name, placeholder: 'e.g., Sensor de Solo Norte', class: 'w-full mt-1 px-3 py-2 border rounded-md shadow-sm focus:ring-green-600 focus:border-green-600' %>
+          <label class="block text-sm font-medium text-gray-700"><%= t("sensors.form.name") %></label>
+          <%= form.text_field :name, placeholder: t("sensors.form.name_placeholder"), class: 'w-full mt-1 px-3 py-2 border rounded-md shadow-sm focus:ring-green-600 focus:border-green-600' %>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700">Tipo</label>
-          <%= form.select :sensor_type, ["Temperatura", "Humidade", "Outro"], {}, class: 'w-full mt-1 px-3 py-2 border rounded-md shadow-sm focus:ring-green-600 focus:border-green-600' %>
+          <label class="block text-sm font-medium text-gray-700"><%= t("sensors.form.type") %></label>
+          <%= form.select :sensor_type, [t("sensors.types.temperatura"), t("sensors.types.humidade"), t("sensors.types.outro")], {}, class: 'w-full mt-1 px-3 py-2 border rounded-md shadow-sm focus:ring-green-600 focus:border-green-600' %>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700">Device ID</label>
-          <%= form.text_field :device_id, id: "device_id_input", placeholder: 'e.g., sensor_001', class: 'w-full mt-1 px-3 py-2 border rounded-md shadow-sm', oninput: "resetVerification()", required: true %>
+          <label class="block text-sm font-medium text-gray-700"><%= t("sensors.form.device_id") %></label>
+          <%= form.text_field :device_id, id: "device_id_input", placeholder: t("sensors.form.device_placeholder"), class: 'w-full mt-1 px-3 py-2 border rounded-md shadow-sm', oninput: "resetVerification()", required: true %>
         </div>
 
         <div class="flex items-center gap-3 mt-1">
-          <button type="button" onclick="verifyDevice()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Verificar dispositivo</button>
+          <button type="button" onclick="verifyDevice()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            <%= t("sensors.form.verify_button") %>
+          </button>
           <p id="deviceCheckResult" class="text-sm mt-2 text-gray-700"></p>
         </div>
 
         <%= form.hidden_field :field_id, value: field.id %>
 
         <div class="flex flex-col sm:flex-row justify-end mt-6 gap-2">
-          <button type="button" onclick="toggleSensorModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancelar</button>
-          <%= form.submit 'Guardar Sensor', id: 'saveButton', disabled: true, class: 'px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800' %>
+          <button type="button" onclick="toggleSensorModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800"><%= t("actions.cancel") %></button>
+          <%= form.submit t("sensors.form.save_button"), id: 'saveButton', disabled: true, class: 'px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800' %>
         </div>
       </div>
     <% end %>
@@ -54,7 +56,7 @@
     const deviceId = input.value.trim();
 
     if (!deviceId) {
-      result.textContent = "⚠️ Introduz um Device ID.";
+      result.textContent = "<%= t("sensors.form.verify_warning") %>";
       result.className = "text-sm mt-2 text-yellow-600";
       saveBtn.disabled = true;
       return;
@@ -65,19 +67,19 @@
         if (response.status === 200 || response.status === 201) {
           return response.json();
         } else {
-          throw new Error("Não encontrado");
+          throw new Error("Not found");
         }
       })
       .then(data => {
         isVerified = true;
         saveBtn.disabled = false;
-        result.textContent = `✅ Dispositivo verificado: ${data.name}`;
+        result.textContent = `✅ <%= t("sensors.form.verify_success") %>: ${data.name}`;
         result.className = "text-sm mt-2 text-green-600";
       })
       .catch(() => {
         isVerified = false;
         saveBtn.disabled = true;
-        result.textContent = "❌ Erro: Dispositivo não encontrado.";
+        result.textContent = "❌ <%= t("sensors.form.verify_error") %>";
         result.className = "text-sm mt-2 text-red-600";
       });
   }

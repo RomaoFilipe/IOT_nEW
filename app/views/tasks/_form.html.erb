@@ -1,18 +1,18 @@
 <%= form_with(model: task, local: true) do |form| %>
-  <%= form.label :crop_id, "Cultura" %>
-  <%= form.collection_select :crop_id, Crop.all, :id, :name, prompt: "Selecionar Cultura" %>
+  <%= form.label :crop_id, t("tasks.form.crop") %>
+  <%= form.collection_select :crop_id, Crop.all, :id, :name, prompt: t("tasks.form.select_crop") %>
 
-  <%= form.label :name, "Nome da Tarefa" %>
+  <%= form.label :name, t("tasks.form.name") %>
   <%= form.text_field :name %>
 
-  <%= form.label :start_time, "Horário de Início" %>
+  <%= form.label :start_time, t("tasks.form.start_time") %>
   <%= form.datetime_select :start_time %>
 
-  <%= form.label :end_time, "Horário de Fim" %>
+  <%= form.label :end_time, t("tasks.form.end_time") %>
   <%= form.datetime_select :end_time %>
 
-  <%= form.label :description, "Descrição" %>
+  <%= form.label :description, t("tasks.form.description") %>
   <%= form.text_area :description %>
 
-  <%= form.submit %>
+  <%= form.submit t("tasks.form.submit") %>
 <% end %>

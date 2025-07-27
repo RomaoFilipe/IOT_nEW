@@ -1,8 +1,8 @@
 <div class="max-w-4xl mx-auto mt-10 px-4">
   <% if @sensor.present? %>
-    <h2 class="text-2xl font-semibold mb-4">💧 Histórico de Irrigação: <%= @sensor.name %></h2>
+    <h2 class="text-2xl font-semibold mb-4">💧 <%= t("sensors.irrigation.title", name: @sensor.name) %></h2>
   <% else %>
-    <p class="text-red-600">Sensor não encontrado.</p>
+    <p class="text-red-600"><%= t("sensors.irrigation.not_found") %></p>
   <% end %>
 
   <canvas id="irrigationChart" class="mb-6"></canvas>
@@ -10,9 +10,9 @@
   <table class="min-w-full bg-white border rounded-lg shadow">
     <thead class="bg-gray-100 text-left text-sm font-medium text-gray-700">
       <tr>
-        <th class="px-4 py-2">Data</th>
-        <th class="px-4 py-2">Duração (s)</th>
-        <th class="px-4 py-2">Estado</th>
+        <th class="px-4 py-2"><%= t("sensors.irrigation.date") %></th>
+        <th class="px-4 py-2"><%= t("sensors.irrigation.duration") %></th>
+        <th class="px-4 py-2"><%= t("sensors.irrigation.status") %></th>
       </tr>
     </thead>
     <tbody class="text-sm divide-y divide-gray-100">
@@ -26,7 +26,7 @@
               when "falhou" then "text-red-600"
               else "text-gray-600"
             end %>
-            <span class="font-medium <%= status_color %>"><%= log.status.capitalize %></span>
+            <span class="font-medium <%= status_color %>"><%= t("sensors.irrigation.statuses.#{log.status}") %></span>
           </td>
         </tr>
       <% end %>
@@ -34,7 +34,7 @@
   </table>
 
   <div class="mt-6">
-    <%= link_to "← Voltar", fields_path, class: "text-blue-600 hover:underline" %>
+    <%= link_to "← #{t("sensors.irrigation.back")}", fields_path, class: "text-blue-600 hover:underline" %>
   </div>
 </div>
 
@@ -51,7 +51,7 @@
         labels: <%= raw @irrigation_logs.map { |r| r.executed_at.strftime("%Y-%m-%dT%H:%M:%S") }.reverse.to_json %>,
         datasets: [
           {
-            label: "Duração de Irrigação (s)",
+            label: "<%= t("sensors.irrigation.chart_label") %>",
             data: <%= raw @irrigation_logs.map(&:duration).reverse.to_json %>,
             backgroundColor: "rgba(75, 192, 192, 0.6)",
             borderColor: "rgba(75, 192, 192, 1)",
@@ -63,7 +63,7 @@
         responsive: true,
         plugins: {
           legend: { display: false },
-          title: { display: true, text: 'Histórico de Irrigação' }
+          title: { display: true, text: "<%= t("sensors.irrigation.chart_title") %>" }
         },
         scales: {
           x: {
@@ -78,14 +78,14 @@
             },
             title: {
               display: true,
-              text: 'Data e Hora'
+              text: "<%= t("sensors.irrigation.x_axis") %>"
             }
           },
           y: {
             beginAtZero: true,
             title: {
               display: true,
-              text: 'Segundos'
+              text: "<%= t("sensors.irrigation.y_axis") %>"
             }
           }
         }

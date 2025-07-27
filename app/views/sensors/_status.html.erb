@@ -1,14 +1,14 @@
 <!-- app/views/sensors/_status.html.erb -->
 <div id="sensor-status-<%= sensor.id %>" class="text-sm text-gray-800">
   <p class="mb-1">
-    <strong>Status:</strong>
+    <strong><%= t("sensors.status.label") %>:</strong>
     <span class="<%= sensor.status == "irrigando" ? "text-green-600 font-semibold" : "text-gray-600" %>">
-      <%= sensor.status.capitalize %>
+      <%= t("sensors.status.states.#{sensor.status}", default: sensor.status.capitalize) %>
     </span>
   </p>
 
   <p class="text-xs text-gray-500">
     <i class="bi bi-clock"></i>
-    Atualizado: <%= l(sensor.last_reading, format: :short) %>
+    <%= t("sensors.status.updated_at") %>: <%= l(sensor.last_reading, format: :short) %>
   </p>
 </div>

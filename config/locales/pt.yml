@@ -155,14 +155,12 @@ pt:
         "96": "Trovoada com granizo"
         "99": "Tempestade severa"
         unknown: "Desconhecido"
-
     upcoming_tasks:
       title: "🗓️ Eventos Planeados"
       none: "Nenhum evento planeado para hoje."
       time: "🕒"
       cancel_task: "Cancelar esta tarefa?"
       cancel_irrigation: "Cancelar esta irrigação?"
-
     sensor_status:
       irrigation_status: "Estado da Irrigação"
       remaining: "Faltam:"
@@ -172,7 +170,6 @@ pt:
       battery: "Bateria"
       previous: "« Anterior"
       next: "Próximo »"
-
     quick_actions:
       analytics:
         title: "Ver Analytics"
@@ -186,7 +183,6 @@ pt:
         title: "Definições"
         description: "Preferências do sistema"
         button: "Aceder"
-
     field_status:
       title: "Estado dos Campos"
       see_all: "Ver Todos"
@@ -198,3 +194,427 @@ pt:
       harvest_prediction: "Previsão de Colheita"
       details: "Detalhes"
       unknown: "Desconhecido"
+
+  users:
+    edit:
+      title: "Editar Utilizador"
+      back: "← Voltar para Contas"
+      update_password: "Atualizar Palavra-passe"
+      profile_picture: "Foto de Perfil"
+      save: "💾 Salvar Alterações"
+      cancel: "Cancelar"
+
+    form:
+      name: "Nome"
+      email: "Email"
+      role: "Função"
+      status: "Estado"
+      password: "Nova Password"
+      password_confirmation: "Confirmar Password"
+      password_hint: "Deixa em branco para manter a atual."
+
+    status:
+      active: "Ativo"
+      inactive: "Inativo"
+
+    dashboard:
+      title: "Painel de Administração"
+      users: "Utilizadores"
+      description: "Gestão completa de contas registadas na plataforma."
+      search_placeholder: "Pesquisar por nome ou email..."
+      new_user: "Novo Utilizador"
+      back_to_home: "Voltar para Home"
+      created_at: "Criado em"
+      confirm_delete: "Tens a certeza que queres eliminar este utilizador?"
+      login_as: "Entrar como"
+      simulating_as: "Estás a navegar como"
+      return_to_admin: "Retornar como Admin"
+      back: "Voltar"
+
+    roles:
+      admin: "Administrador"
+      manager: "Gestor"
+      user: "Utilizador"
+
+  actions:
+    edit: "Editar"
+    delete: "Eliminar"
+
+
+
+team:
+  users:
+    edit:
+      title: "Editar Utilizador"
+      submit: "📎 Atualizar Utilizador"
+      back: "← Voltar para a Equipa"
+    form:
+      name: "Nome"
+      name_placeholder: "Ex: João Silva"
+      email: "Email"
+      email_placeholder: "exemplo@email.com"
+      password: "Nova Palavra-passe"
+      password_placeholder: "Deixar em branco se não quiser alterar"
+      password_confirmation: "Confirmação"
+      role: "Função"
+      photo: "Foto (opcional)"
+      current_photo: "Foto atual:"
+      notif_email: "Receber notificações por email"
+      notif_sms: "Receber notificações por SMS"
+
+      new:
+      title: "➕ Novo Utilizador"
+      errors_title: "Erros ao criar utilizador:"
+      submit: "💾 Criar Utilizador"
+      back: "← Voltar"
+    form:
+      name: "Nome"
+      email: "Email"
+      role: "Função"
+      password: "Palavra-passe"
+      password_confirmation: "Confirmação de Palavra-passe"
+      photo: "Foto de perfil (opcional)"
+      notif_email: "Receber notificações por email"
+      notif_sms: "Receber notificações por SMS"
+  
+  account:
+    edit_title: "Editar Conta da Empresa"
+    name: "Nome da Empresa"
+    nif: "NIF"
+    farm_type: "Tipo de Produção"
+    back: "← Voltar"
+    save: "💾 Guardar Alterações"
+    team_title: "Equipa da Empresa"
+    add_user: "➕ Adicionar Utilizador"
+    confirm_delete: "Tens a certeza que queres apagar este utilizador?"
+    impersonate: "Simular"
+    collapse: "Recolher"
+    expand: "Expandir"
+    status: "Estado"
+    notifications: "Notificações"
+    no_users: "Ainda não existem utilizadores nesta conta."
+    you_label: "Tu"
+
+  roles:
+    admin: "Administrador"
+    manager: "Gestor"
+    technician: "Técnico"
+    viewer: "Visualizador"
+
+actions:
+  edit: "Editar"
+  delete: "Apagar"
+
+
+tasks:
+  form:
+    crop: "Cultura"
+    select_crop: "Selecionar Cultura"
+    name: "Nome da Tarefa"
+    start_time: "Horário de Início"
+    end_time: "Horário de Fim"
+    description: "Descrição"
+    submit: "Guardar Tarefa"
+
+
+settings:
+  title: "Configurações do Sistema"
+  active: "Ativo ✅"
+  inactive: "Desativado ❌"
+  unknown: "Desconhecido"
+
+  notifications:
+    customize: "Personalizar Notificações"
+    summary: "Resumo das Notificações"
+    email: "Notificações por Email"
+    sms: "Notificações por SMS"
+    email_label: "Email"
+    sms_label: "SMS"
+
+  security:
+    title: "Resumo de Segurança"
+    change_password: "Alterar Password"
+    password_warning: "A tua password não foi atualizada há mais de 90 dias. Recomenda-se alterar imediatamente."
+    password_label: "Password"
+    updated_ago: "Atualizada há %{time}"
+    2fa: "Autenticação de Dois Fatores"
+    last_login: "Último Acesso"
+    current_ip: "IP Atual"
+    last_ip: "IP Último Acesso"
+    total_logins: "Total de Logins"
+
+
+sensors:
+  update:
+    title: "Sensor %{name}"
+    temperature: "Temperatura"
+    moisture: "Humidade"
+    battery: "Bateria"
+    signal: "Sinal"
+    last_reading: "Última leitura"
+    ago: "atrás"
+    value: "Valor"
+  readings:
+    title: "Histórico do Sensor: %{name}"
+    not_found: "Sensor não encontrado."
+    date: "Data"
+    temperature: "Temperatura (°C)"
+    moisture: "Humidade (%)"
+    battery: "Bateria (%)"
+    signal: "Sinal (%)"
+    back: "Voltar"
+    chart_title: "Leituras do Sensor"
+  irrigation:
+    title: "Histórico de Irrigação: %{name}"
+    not_found: "Sensor não encontrado."
+    date: "Data"
+    duration: "Duração (s)"
+    status: "Estado"
+    back: "Voltar"
+    chart_title: "Histórico de Irrigação"
+    chart_label: "Duração de Irrigação (s)"
+    x_axis: "Data e Hora"
+    y_axis: "Segundos"
+    statuses:
+      executado: "Executado"
+      falhou: "Falhou"
+      desconhecido: "Desconhecido"
+  unassigned:
+    title: "Sensores Não Atribuídos"
+    name: "Nome"
+    type: "Tipo"
+    last_reading: "Última leitura"
+    actions: "Ações"
+    no_data: "Sem dados"
+    assign: "Atribuir a este campo"
+  status:
+    label: "Estado"
+    updated_at: "Atualizado"
+    states:
+      irrigando: "Irrigando"
+      parado: "Parado"
+      inativo: "Inativo"
+  card:
+    title: "Sensor %{name}"
+    temperature: "Temperatura"
+    moisture: "Humidade"
+    battery: "Bateria"
+    signal: "Sinal"
+    last_reading: "Última leitura"
+    ago: "atrás"
+    value: "Valor"
+    confirm_delete: "Apagar este sensor?"
+  row:
+    view_today_schedules: "Ver horários de hoje"
+    irrigation_history: "Histórico de Irrigações"
+    readings_history: "Histórico de Leituras"
+    schedule: "Agendar"
+    schedule_irrigation: "Agendar Irrigação"
+    schedule_for: "Configure o agendamento para %{name}"
+    weekdays: "Dias da Semana"
+    hour: "Hora"
+    minute: "Minuto"
+    duration: "Duração"
+  status:
+    states:
+      active: "Ativo"
+      inactive: "Inativo"
+  types:
+    temperatura: "Temperatura"
+    humidade: "Humidade"
+    irrigation: "Irrigação"
+  card:
+    confirm_delete: "Apagar este sensor?"
+actions:
+  cancel: "Cancelar"
+  confirm: "Confirmar"
+  delete: "Apagar"
+  schedule_modal:
+    title: "Horários de Irrigação"
+    confirm_delete: "Remover este agendamento?"
+    none: "Nenhum"
+actions:
+  close: "Fechar"
+
+  irrigation_status:
+    label: "Estado da Irrigação"
+    remaining: "Faltam"
+    stop_button: "Parar Irrigação"
+    stopped_success: "Irrigação Parada com Sucesso"
+    confirm_stop: "Tem a certeza que deseja parar a irrigação?"
+  status:
+    states:
+      irrigando: "Irrigando"
+      parado: "Parado"
+      inativo: "Inativo"
+      active: "Ativo"
+      inactive: "Inativo"
+  form:
+    title: "Adicionar Equipamento IoT"
+    subtitle: "Configuração para %{name}"
+    name: "Nome do Sensor"
+    name_placeholder: "ex: Sensor de Solo Norte"
+    type: "Tipo"
+    device_id: "Device ID"
+    device_placeholder: "ex: sensor_001"
+    verify_button: "Verificar dispositivo"
+    verify_warning: "⚠️ Introduz um Device ID."
+    verify_success: "Dispositivo verificado"
+    verify_error: "Erro: Dispositivo não encontrado."
+    save_button: "Guardar Sensor"
+
+  types:
+    temperatura: "Temperatura"
+    humidade: "Humidade"
+    outro: "Outro"
+
+actions:
+  cancel: "Cancelar"
+  users:
+  manage:
+    title: "Gerir Utilizadores"
+    heading: "Gerir Utilizadores"
+    profile_photo_alt: "Foto do Utilizador"
+    email: "Email"
+    created_at: "Conta criada em"
+    edit_profile: "Editar Perfil"
+    user_list: "Lista de Utilizadores"
+    name: "Nome"
+    creation_date: "Data de Criação"
+    actions: "Ações"
+    add_new: "Adicionar Novo Utilizador"
+    confirm_delete: "Tens a certeza que queres excluir este utilizador?"
+actions:
+  edit: "Editar"
+  delete: "Excluir"
+
+profiles:
+  edit:
+    title: "Editar Perfil"
+    heading: "Editar Perfil"
+    name: "Nome"
+    email: "Email"
+    password: "Nova Palavra-passe"
+    password_confirmation: "Confirmar Palavra-passe"
+    photo: "Foto de Perfil"
+    submit: "Atualizar Perfil"
+irrigation_schedules:
+  today:
+    title: "Próximas Irrigações Hoje"
+    sensor_label: "Sensor"
+    history_link: "Histórico"
+    none_today: "Nenhuma irrigação agendada para o restante do dia."
+
+fields:
+  index:
+    title: "Campos"
+    heading: "Visão Geral dos Campos"
+    list_view: "Vista em Lista"
+    map_view: "Vista no Mapa"
+    filter: "Filtrar"
+    add_field: "Adicionar Campo"
+  view_details:
+    status: "Informações detalhadas e análises deste campo"
+    tabs:
+      overview: "Resumo"
+      iot: "Equipamentos IoT"
+      analytics: "Analytics"
+    actions:
+      schedule_task: "Agendar Tarefa"
+      view_history: "Ver Histórico"
+      generate_report: "Gerar Relatório"
+    delete_button: "Eliminar Campo"
+    confirm_delete: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada."
+  modal:
+    title: "Adicionar Novo Campo"
+    description: "Preenche os dados necessários para criar um novo campo agrícola."
+    name: "Nome do Campo"
+    field_type: "Tipo de Cultura"
+    area: "Área (ha)"
+    latitude: "Latitude"
+    longitude: "Longitude"
+    boundary: "Delimitação do Campo"
+    boundary_button: "Definir Delimitação"
+    notes: "Anotações"
+    submit: "Criar Campo"
+
+actions:
+  cancel: "Cancelar"
+
+map:
+  controls:
+    satellite: "Satélite"
+    terrain: "Relevo"
+    sensors: "Sensores"
+  legend:
+    title: "Legenda"
+    good: "Bom estado"
+    warning: "Atenção"
+    moisture: "Sensor Humidade"
+  details:
+    title: "Detalhes do Campo"
+    crop: "Cultura"
+    area: "Área"
+    latitude: "Latitude"
+    longitude: "Longitude"
+    updated_at: "Última atualização"
+  field_list:
+    title: "Lista de Campos"
+    view: "Ver no Mapa"
+
+fields:
+  list_view:
+    view_on_map: "Ver no mapa completo"
+    crop: "Cultura"
+    location: "Localização"
+    area: "Área"
+    last_updated: "Última atualização"
+    view_details: "Ver Detalhes"
+  boundary:
+    title: "Definir Limites do Campo"
+    instructions: "Clica no mapa para definir até 8 vértices do limite do campo. Clica em \"Guardar Área\" quando terminares."
+    points: "Pontos"
+    reset: "Reiniciar"
+    cancel: "Cancelar"
+    save: "Guardar Área"
+  overview:
+    planting_info: "Informação da Plantação"
+    planting_date: "Data de Plantação"
+    harvest_date: "Data de Colheita"
+    expected_yield: "Produção Esperada"
+    maintenance: "Manutenção"
+    pest_control: "Controlo de Pragas"
+    irrigation: "Irrigação"
+    fertilization: "Fertilização"
+    notes: "Anotações"
+    notes_example: "As plantas estão a desenvolver-se bem, adiantadas no calendário. Última inspeção sem pragas ou doenças."
+    basic_info: "Informações Básicas"
+    crop: "Cultura"
+    area: "Área"
+    soil_quality: "Qualidade do Solo"
+    active_sensors: "Sensores Ativos"
+    last_updated: "Última Atualização"
+    current_conditions: "Condições Atuais"
+    moisture: "Humidade"
+    temperature: "Temperatura"
+    crop_health: "Estado da Cultura"
+    good: "Bom"
+  iot_equipment:
+    title: "Equipamentos IoT Associados"
+    add_button: "Adicionar Equipamento"
+    name: "Nome"
+    type: "Tipo"
+    status: "Estado"
+    battery: "Bateria"
+    signal: "Sinal"
+    last_reading: "Última Leitura"
+    actions: "Ações"
+    none_assigned: "Nenhum sensor atribuído a este campo ainda."
+    enter_device_id: "Introduz um device_id."
+    verifying: "A verificar..."
+    device_found: "Sensor encontrado ou criado"
+    not_found: "Sensor não encontrado."
+    server_error: "Erro ao contactar o servidor."
+time:
+  ago: "atrás"
+  

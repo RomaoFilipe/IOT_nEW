@@ -2,7 +2,7 @@
   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10m-9 4h4m4 0h1a2 2 0 002-2V7a2 2 0 00-2-2h-1m-8 12h10a2 2 0 002-2v-5a2 2 0 00-2-2H6a2 2 0 00-2 2v5a2 2 0 002 2z" />
   </svg>
-  Próximas Irrigações Hoje
+  <%= t("irrigation_schedules.today.title") %>
 </h2>
 
 <% if @schedules.any? %>
@@ -20,10 +20,12 @@
               <span class="font-semibold text-green-700"><%= format('%02d:%02d', schedule.hour, schedule.minute) %></span>
               — <%= schedule.duration %>s
             </p>
-            <p class="text-xs text-gray-500">Sensor: <span class="font-medium"><%= schedule.sensor.name %></span></p>
+            <p class="text-xs text-gray-500">
+              <%= t("irrigation_schedules.today.sensor_label") %>: <span class="font-medium"><%= schedule.sensor.name %></span>
+            </p>
           </div>
         </div>
-        <%= link_to "💧 Histórico", irrigation_history_sensor_path(schedule.sensor), class: "text-sm text-blue-600 hover:underline self-center" %>
+        <%= link_to "💧 " + t("irrigation_schedules.today.history_link"), irrigation_history_sensor_path(schedule.sensor), class: "text-sm text-blue-600 hover:underline self-center" %>
       </li>
     <% end %>
   </ul>
@@ -32,6 +34,6 @@
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20.5a8.5 8.5 0 100-17 8.5 8.5 0 000 17z" />
     </svg>
-    Nenhuma irrigação agendada para o restante do dia.
+    <%= t("irrigation_schedules.today.none_today") %>
   </div>
 <% end %>
