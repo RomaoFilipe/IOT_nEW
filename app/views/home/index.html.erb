@@ -1,255 +1,188 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= I18n.locale %>">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Farming</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= t("landing.title") %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-gray-50">
-    <!-- Hero Section -->
-    <div class="relative w-full h-screen bg-gradient-to-b from-white to-gray-100 flex flex-col items-center justify-center text-center px-6">
-        <h1 class="text-5xl font-bold text-gray-900 leading-tight">
-            <span class="text-green-700">Smart Farming</span> for a <span class="text-black">Sustainable Future</span>
+<body class="bg-gray-50 text-gray-800">
+
+  <main class="flex-grow">
+
+    <!-- HERO -->
+    <section class="relative bg-gradient-to-br from-emerald-50 to-blue-50 py-24 px-6 text-center">
+      <div class="max-w-5xl mx-auto">
+        <h1 class="text-5xl font-extrabold text-emerald-800">
+          🌱 <%= t("landing.hero.title") %>
         </h1>
-        <p class="text-lg text-gray-600 mt-4 max-w-2xl">
-            Transform your agricultural operations with our IoT-powered platform. Monitor soil conditions, automate irrigation, and make data-driven decisions to increase yields while conserving resources.
-        </p>
-        <div class="mt-6 flex space-x-4">
-            <a href="#" class="px-6 py-3 bg-green-700 text-white rounded-md font-medium flex items-center space-x-2 hover:bg-green-800 transition">
-                <span>Get Started</span>
-                <span>&rarr;</span>
-            </a>
-            <a href="#" class="px-6 py-3 border border-gray-400 text-gray-700 rounded-md font-medium hover:bg-gray-100 transition">
-                Request Demo
-            </a>
+        <p class="text-lg text-gray-600 mt-6"><%= t("landing.hero.description") %></p>
+        <div class="mt-8 flex justify-center">
+          <%= link_to new_user_registration_path, class: "bg-emerald-700 text-white px-6 py-3 rounded-md font-semibold hover:bg-emerald-800 transition flex items-center gap-2" do %>
+            <%= t("landing.hero.cta.get_started") %> <i data-lucide="arrow-right"></i>
+          <% end %>
         </div>
-    </div>
-
-    <!-- Features Section -->
-<!-- Features Section -->
-<section class="bg-white py-20 text-center">
-    <h2 class="text-3xl font-bold text-gray-900">Powerful IoT Features</h2>
-    <p class="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
-        Our platform combines cutting-edge technology with agricultural expertise to help you make informed decisions.
-    </p>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 max-w-6xl mx-auto">
-        <div class="bg-white shadow-md rounded-lg p-6 text-left">
-            <div class="bg-gray-100 p-3 rounded-md inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
-                    <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold mt-4">Environmental Monitoring</h3>
-            <p class="text-gray-600 mt-2">Track temperature, humidity, and soil conditions in real-time with precision sensors.</p>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 text-left">
-            <div class="bg-gray-100 p-3 rounded-md inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
-                    <path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/>
-                    <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/>
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold mt-4">Smart Irrigation</h3>
-            <p class="text-gray-600 mt-2">Automate watering based on soil moisture data and weather forecasts to optimize water usage.</p>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 text-left">
-            <div class="bg-gray-100 p-3 rounded-md inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
-                    <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
-                    <path d="M18 17V9"/>
-                    <path d="M13 17V5"/>
-                    <path d="M8 17v-3"/>
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold mt-4">Yield Forecasting</h3>
-            <p class="text-gray-600 mt-2">Predict crop yields using historical data, current conditions, and weather forecasts.</p>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 text-left">
-            <div class="bg-gray-100 p-3 rounded-md inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
-                    <path d="M12 20h.01"/>
-                    <path d="M2 8.82a15 15 0 0 1 20 0"/>
-                    <path d="M5 12.859a10 10 0 0 1 14 0"/>
-                    <path d="M8.5 16.429a5 5 0 0 1 7 0"/>
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold mt-4">Field Connectivity</h3>
-            <p class="text-gray-600 mt-2">Connect all your fields with our resilient mesh network, even in remote areas.</p>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 text-left">
-            <div class="bg-gray-100 p-3 rounded-md inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
-                    <circle cx="12" cy="17" r="3"/>
-                    <path d="M4.2 15.1A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.2"/>
-                    <path d="m15.7 18.4-.9-.3"/>
-                    <path d="m9.2 15.9-.9-.3"/>
-                    <path d="m10.6 20.7.3-.9"/>
-                    <path d="m13.1 14.2.3-.9"/>
-                    <path d="m13.6 20.7-.4-1"/>
-                    <path d="m10.8 14.3-.4-1"/>
-                    <path d="m8.3 18.6 1-.4"/>
-                    <path d="m14.7 15.8 1-.4"/>
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold mt-4">Data-Driven Insights</h3>
-            <p class="text-gray-600 mt-2">Leverage AI and machine learning to derive actionable insights from your farm data.</p>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 text-left">
-            <div class="bg-gray-100 p-3 rounded-md inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
-                    <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
-                    <path d="M12 18h.01"/>
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold mt-4">Mobile Access</h3>
-            <p class="text-gray-600 mt-2">Monitor and control your farm from anywhere with our responsive mobile interface.</p>
-        </div>
-    </div>
-</section>
-
-
-    <!-- How It Works Section -->
-    <section class="bg-gray-100 py-20 text-center">
-        <h2 class="text-3xl font-bold text-gray-900">How It Works</h2>
-        <p class="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
-            Our agricultural IoT platform is designed to be simple to set up and powerful to use.
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 max-w-6xl mx-auto">
-            <div class="bg-white shadow-md rounded-lg p-6 text-center">
-                <div class="bg-green-700 p-4 rounded-full inline-block text-white">🌱</div>
-                <h3 class="text-lg font-bold mt-4">Deploy Sensors</h3>
-                <p class="text-gray-600 mt-2">Place our smart sensors throughout your fields to monitor soil conditions, weather, and crop health.</p>
-            </div>
-            <div class="bg-white shadow-md rounded-lg p-6 text-center">
-                <div class="bg-blue-700 p-4 rounded-full inline-block text-white">☁️</div>
-                <h3 class="text-lg font-bold mt-4">Connect to Platform</h3>
-                <p class="text-gray-600 mt-2">Sensors automatically connect to our cloud platform through our resilient mesh network technology.</p>
-            </div>
-            <div class="bg-white shadow-md rounded-lg p-6 text-center">
-                <div class="bg-gray-900 p-4 rounded-full inline-block text-white">📊</div>
-                <h3 class="text-lg font-bold mt-4">Analyze Data</h3>
-                <p class="text-gray-600 mt-2">Our platform analyzes your farm data and provides actionable insights to optimize your operations.</p>
-            </div>
-            <div class="bg-white shadow-md rounded-lg p-6 text-center">
-                <div class="bg-green-500 p-4 rounded-full inline-block text-white">⚡</div>
-                <h3 class="text-lg font-bold mt-4">Implement Actions</h3>
-                <p class="text-gray-600 mt-2">Apply the recommended actions or automate processes like irrigation based on real-time data.</p>
-            </div>
-        </div>
-        <!-- Estatísticas - Join thousands of farmers -->
-<div class="text-center mt-12">
-    <p class="text-lg text-gray-700">Join thousands of farmers already using our platform to optimize their operations</p>
-    <div class="flex justify-center gap-16 mt-6">
-        <!-- Estatística 1 -->
-        <div>
-            <p class="text-4xl font-bold text-green-700">95%</p>
-            <p class="text-gray-600">Water Savings</p>
-        </div>
-        <!-- Estatística 2 -->
-        <div>
-            <p class="text-4xl font-bold text-green-500">30%</p>
-            <p class="text-gray-600">Yield Increase</p>
-        </div>
-        <!-- Estatística 3 -->
-        <div>
-            <p class="text-4xl font-bold text-blue-600">40%</p>
-            <p class="text-gray-600">Labor Reduction</p>
-        </div>
-    </div>
-</div>
-
+      </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-white py-10 mt-20 border-t border-gray-200">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 text-gray-700">
-            
-            <!-- Logo e Descrição -->
-            <div>
-                <div class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-cog text-gray-700">
-                        <circle cx="12" cy="17" r="3"/>
-                        <path d="M4.2 15.1A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.2"/>
-                        <path d="m15.7 18.4-.9-.3"/>
-                        <path d="m9.2 15.9-.9-.3"/>
-                        <path d="m10.6 20.7.3-.9"/>
-                        <path d="m13.1 14.2.3-.9"/>
-                        <path d="m13.6 20.7-.4-1"/>
-                        <path d="m10.8 14.3-.4-1"/>
-                        <path d="m8.3 18.6 1-.4"/>
-                        <path d="m14.7 15.8 1-.4"/>
-                    </svg>
-                    <span class="text-lg font-bold text-gray-900">AgriloT Synergy</span>
-                </div>
-                <p class="text-sm text-gray-600 mt-3">
-                    Transforming agriculture with IoT technology for a more sustainable and efficient future.
-                </p>
-            </div>
-
-            <!-- Plataforma -->
-            <div>
-                <h3 class="text-sm font-bold text-gray-900 uppercase">Platform</h3>
-                <ul class="mt-3 space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-green-600 transition">Dashboard</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Fields</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Analytics</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Settings</a></li>
-                </ul>
-            </div>
-
-            <!-- Recursos -->
-            <div>
-                <h3 class="text-sm font-bold text-gray-900 uppercase">Resources</h3>
-                <ul class="mt-3 space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-green-600 transition">Blog</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Documentation</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Knowledge Base</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Community</a></li>
-                </ul>
-            </div>
-
-            <!-- Empresa -->
-            <div>
-                <h3 class="text-sm font-bold text-gray-900 uppercase">Company</h3>
-                <ul class="mt-3 space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-green-600 transition">About Us</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Careers</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Contact</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Privacy</a></li>
-                </ul>
-            </div>
+    <!-- TIPO DE EXPLORAÇÃO -->
+    <section class="py-16 bg-white text-center">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6"><%= t("landing.choose_type.title") %></h2>
+      <div class="flex flex-wrap justify-center gap-10">
+        <div data-exploration="agriculture" class="bg-green-100 rounded-lg p-6 w-72 hover:shadow-lg transition cursor-pointer border-2 border-emerald-600" id="card-agriculture">
+          <div class="text-4xl">🌾</div>
+          <h3 class="text-xl font-semibold mt-2"><%= t("landing.choose_type.agriculture.title") %></h3>
+          <p class="text-gray-600 text-sm mt-1"><%= t("landing.choose_type.agriculture.description") %></p>
         </div>
-
-        <!-- Linha separadora -->
-        <div class="border-t border-gray-200 mt-8 pt-6 text-center text-sm text-gray-600">
-            <p>© 2025 AgriloT Synergy. All rights reserved.</p>
-            
-            <!-- Ícones sociais -->
-            <div class="flex justify-center space-x-4 mt-4">
-                <a href="#" class="text-gray-500 hover:text-gray-900 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 2h4v4"/><path d="M17 9l5-5"/><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                    </svg>
-                </a>
-                <a href="#" class="text-gray-500 hover:text-gray-900 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 8a6 6 0 0 1-6 6"/><circle cx="12" cy="12" r="10"/>
-                    </svg>
-                </a>
-                <a href="#" class="text-gray-500 hover:text-gray-900 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 8a6 6 0 0 1-6 6"/><circle cx="12" cy="12" r="10"/>
-                    </svg>
-                </a>
-            </div>
+        <div data-exploration="aquaculture_sea" class="bg-blue-100 rounded-lg p-6 w-72 hover:shadow-lg transition cursor-pointer" id="card-aquaculture_sea">
+          <div class="text-4xl">🌊</div>
+          <h3 class="text-xl font-semibold mt-2"><%= t("landing.choose_type.sea.title") %></h3>
+          <p class="text-gray-600 text-sm mt-1"><%= t("landing.choose_type.sea.description") %></p>
         </div>
-    </footer>
+        <div data-exploration="aquaculture_tank" class="bg-cyan-100 rounded-lg p-6 w-72 hover:shadow-lg transition cursor-pointer" id="card-aquaculture_tank">
+          <div class="text-4xl">🌿</div>
+          <h3 class="text-xl font-semibold mt-2"><%= t("landing.choose_type.tank.title") %></h3>
+          <p class="text-gray-600 text-sm mt-1"><%= t("landing.choose_type.tank.description") %></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section class="bg-gray-100 py-20 text-center">
+      <h2 class="text-3xl font-bold text-gray-900"><%= t("landing.how_it_works.title") %></h2>
+      <p class="text-lg text-gray-600 mt-2 max-w-2xl mx-auto"><%= t("landing.how_it_works.description") %></p>
+      <div id="howItWorksContent" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-10 max-w-6xl mx-auto px-6">
+        <!-- Inserido dinamicamente por JS -->
+      </div>
+    </section>
+
+    <!-- HISTÓRIAS REAIS -->
+    <section class="bg-white py-20 text-center">
+      <h2 class="text-3xl font-bold text-gray-900"><%= t("landing.testimonials.title") %></h2>
+      <p class="text-lg text-gray-600 mt-2"><%= t("landing.testimonials.subtitle") %></p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 max-w-6xl mx-auto px-6">
+        <% [:marta, :tiago, :carlos].each do |person| %>
+          <div class="bg-gray-100 p-6 rounded-lg">
+            <p class="text-sm text-gray-700 italic"><%= t("landing.testimonials.#{person}.quote") %></p>
+            <p class="mt-4 font-bold"><%= t("landing.testimonials.#{person}.name") %></p>
+            <p class="text-sm text-gray-500"><%= t("landing.testimonials.#{person}.role") %></p>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <!-- COMPARATIVO ANTES/DEPOIS -->
+    <section class="bg-gray-50 py-20 text-center">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6"><%= t("landing.comparison.title") %></h2>
+        <p class="text-lg text-gray-600 mb-10"><%= t("landing.comparison.subtitle") %></p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <% [:before, :after].each do |phase| %>
+            <div class="<%= phase == :before ? 'bg-white' : 'bg-emerald-100' %> rounded-lg p-6 shadow">
+              <h3 class="font-bold text-xl mb-2"><%= t("landing.comparison.#{phase}.emoji") %> <%= t("landing.comparison.#{phase}.title") %></h3>
+              <ul class="list-disc list-inside text-left text-gray-600">
+                <% t("landing.comparison.#{phase}.items").each do |item| %>
+                  <li><%= item %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECNOLOGIAS -->
+    <section class="bg-white py-20 text-center">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-3xl font-bold text-gray-900"><%= t("landing.technologies.title") %></h2>
+        <p class="text-lg text-gray-600 mt-4"><%= t("landing.technologies.subtitle") %></p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 mt-10">
+          <% t("landing.technologies.items").each do |tech| %>
+            <div class="bg-gray-100 p-4 rounded-lg"><%= tech %></div>
+          <% end %>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="bg-emerald-800 text-white py-20 text-center">
+      <h2 class="text-3xl font-bold mb-4"><%= t("landing.cta_final.title") %></h2>
+      <p class="mb-6 text-lg"><%= t("landing.cta_final.subtitle") %></p>
+      <%= link_to new_user_registration_path, class: "bg-white text-emerald-800 font-semibold px-6 py-3 rounded-md hover:bg-gray-100 transition" do %>
+        <%= t("landing.cta_final.button") %>
+      <% end %>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-100 py-12 mt-10 border-t border-gray-200">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-6 text-sm text-gray-700">
+      <div>
+        <div class="flex items-center gap-2 text-lg font-bold text-gray-900">
+          <i data-lucide="cloud-cog"></i> AgriloT Synergy
+        </div>
+        <p class="mt-3 text-gray-600"><%= t("landing.footer.description") %></p>
+      </div>
+      <% ['platform', 'resources', 'company'].each do |section| %>
+        <div>
+          <h3 class="font-semibold uppercase text-gray-900"><%= t("landing.footer.sections.#{section}.title") %></h3>
+          <ul class="mt-3 space-y-1">
+            <% t("landing.footer.sections.#{section}.links").each do |item| %>
+              <li><a href="#" class="hover:text-green-700 transition"><%= item %></a></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+    <div class="text-center text-gray-500 mt-10 border-t pt-6 text-xs">
+      <%= t("landing.footer.copyright") %>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script>
+    lucide.createIcons();
+    document.addEventListener("DOMContentLoaded", () => {
+      const buttons = document.querySelectorAll("[data-exploration]");
+      const content = document.getElementById("howItWorksContent");
+      const cardBorders = {
+        agriculture: document.getElementById("card-agriculture"),
+        aquaculture_sea: document.getElementById("card-aquaculture_sea"),
+        aquaculture_tank: document.getElementById("card-aquaculture_tank")
+      };
+      const templates = {
+        agriculture: `<div class='bg-white p-6 rounded-lg shadow'><div class='text-green-600 text-3xl mb-4'>🚜</div><h3 class='text-lg font-bold'>1. Sensores no Campo</h3><p class='text-sm text-gray-600 mt-2'>Humidade, temperatura e qualidade do solo.</p></div>`,
+        aquaculture_sea: `<div class='bg-white p-6 rounded-lg shadow'><div class='text-blue-600 text-3xl mb-4'>🌊</div><h3 class='text-lg font-bold'>1. Monitorização Marinha</h3><p class='text-sm text-gray-600 mt-2'>Oxigénio, salinidade, temperatura da água.</p></div>`,
+        aquaculture_tank: `<div class='bg-white p-6 rounded-lg shadow'><div class='text-cyan-600 text-3xl mb-4'>🐟</div><h3 class='text-lg font-bold'>1. Gestão de Tanques</h3><p class='text-sm text-gray-600 mt-2'>Sensores nos viveiros, alertas automáticos e relatórios.</p></div>`
+      };
+      function updateCards(selected) {
+        Object.keys(cardBorders).forEach(key => {
+          cardBorders[key].classList.remove("border-2", "border-emerald-600");
+        });
+        cardBorders[selected].classList.add("border-2", "border-emerald-600");
+      }
+      function renderContent(type) {
+        updateCards(type);
+        content.innerHTML = templates[type] + `
+          <div class='bg-white p-6 rounded-lg shadow'>
+            <div class='text-yellow-500 text-3xl mb-4'>📊</div>
+            <h3 class='text-lg font-bold'>2. Análise Inteligente</h3>
+            <p class='text-sm text-gray-600 mt-2'>Plataforma com gráficos, previsões e alertas.</p>
+          </div>
+          <div class='bg-white p-6 rounded-lg shadow'>
+            <div class='text-emerald-600 text-3xl mb-4'>⚙️</div>
+            <h3 class='text-lg font-bold'>3. Ações Automatizadas</h3>
+            <p class='text-sm text-gray-600 mt-2'>Rega, ventilação, alarmes e notificações automáticas.</p>
+          </div>`;
+      }
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => renderContent(btn.dataset.exploration));
+      });
+      renderContent("agriculture");
+    });
+  </script>
 
 </body>
 </html>
