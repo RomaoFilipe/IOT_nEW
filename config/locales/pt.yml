@@ -404,7 +404,7 @@ pt:
       hour: "Hora"
       minute: "Minuto"
       duration: "Duração"
-    status:
+    sensor_status:
       states:
         active: "Ativo"
         inactive: "Inativo"
@@ -412,9 +412,7 @@ pt:
       temperatura: "Temperatura"
       humidade: "Humidade"
       irrigation: "Irrigação"
-    card:
       confirm_delete: "Apagar este sensor?"
-  actions:
     cancel: "Cancelar"
     confirm: "Confirmar"
     delete: "Apagar"
@@ -422,7 +420,6 @@ pt:
       title: "Horários de Irrigação"
       confirm_delete: "Remover este agendamento?"
       none: "Nenhum"
-  actions:
     close: "Fechar"
 
   irrigation_status:
@@ -473,47 +470,6 @@ actions:
     actions: "Ações"
     add_new: "Adicionar Novo Utilizador"
     confirm_delete: "Tens a certeza que queres excluir este utilizador?"
-  actions:
-    edit: "Editar"
-    delete: "Excluir"
-
-profiles:
-  edit:
-    title: "Editar Perfil"
-    heading: "Editar Perfil"
-    name: "Nome"
-    email: "Email"
-    password: "Nova Palavra-passe"
-    password_confirmation: "Confirmar Palavra-passe"
-    photo: "Foto de Perfil"
-    submit: "Atualizar Perfil"
-irrigation_schedules:
-  today:
-    title: "Próximas Irrigações Hoje"
-    sensor_label: "Sensor"
-    history_link: "Histórico"
-    none_today: "Nenhuma irrigação agendada para o restante do dia."
-
-fields:
-  index:
-    title: "Campos"
-    heading: "Visão Geral dos Campos"
-    list_view: "Vista em Lista"
-    map_view: "Vista no Mapa"
-    filter: "Filtrar"
-    add_field: "Adicionar Campo"
-  view_details:
-    status: "Informações detalhadas e análises deste campo"
-    tabs:
-      overview: "Resumo"
-      iot: "Equipamentos IoT"
-      analytics: "Analytics"
-    actions:
-      schedule_task: "Agendar Tarefa"
-      view_history: "Ver Histórico"
-      generate_report: "Gerar Relatório"
-    delete_button: "Eliminar Campo"
-    confirm_delete: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada."
   modal:
     title: "Adicionar Novo Campo"
     description: "Preenche os dados necessários para criar um novo campo agrícola."
@@ -526,9 +482,6 @@ fields:
     boundary_button: "Definir Delimitação"
     notes: "Anotações"
     submit: "Criar Campo"
-
-actions:
-  cancel: "Cancelar"
 
 map:
   controls:
