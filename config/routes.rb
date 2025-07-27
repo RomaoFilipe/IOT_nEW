@@ -1,6 +1,7 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
+  scope "(:locale)", locale: /pt|en|es/ do
   # 🔐 Devise (com controlador custom para registos se usares)
   devise_for :users, controllers: {
     registrations: "users/registrations"
@@ -138,6 +139,8 @@ end
   # 👤 Perfil individual
   get "profile/:id", to: "profiles#show", as: "user_profile"
 
+  # Rota para alterar idioma
+    put '/locale', to: 'settings#locale', as: :locale
   # 📡 WebSocket
   mount ActionCable.server => "/cable"
 end
