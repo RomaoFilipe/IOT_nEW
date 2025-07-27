@@ -25,93 +25,89 @@ en:
     exit_simulation: "Exit Simulation"
 
   landing:
-    title: Smart Farming
+    title: "Smart Farming"
     hero:
-      highlight: Smart Farming
-      continuation: for a Sustainable Future
-      description: Transform your agricultural operations with our IoT platform. Monitor soil, automate irrigation, and make data-driven decisions.
+      highlight: "Smart Farming"
+      continuation: "for a Sustainable Future"
+      description: "Transform your agricultural operations with our IoT-powered platform. Monitor soil conditions, automate irrigation, and make data-driven decisions to increase yields while conserving resources."
       cta:
-        get_started: Get Started
-        request_demo: Request Demo
-
+        get_started: "Get Started"
+        request_demo: "Request Demo"
     features:
-      title: Powerful IoT Features
-      description: We combine cutting-edge technology with agricultural expertise for smarter decisions.
+      title: "Powerful IoT Features"
+      description: "Our platform combines cutting-edge technology with agricultural expertise to help you make informed decisions."
       items:
         env_monitoring:
-          title: Environmental Monitoring
-          desc: Monitor temperature, humidity, and soil in real-time with precision sensors.
+          title: "Environmental Monitoring"
+          desc: "Track temperature, humidity, and soil conditions in real-time with precision sensors."
         smart_irrigation:
-          title: Smart Irrigation
-          desc: Automate irrigation based on soil moisture and weather forecasts.
+          title: "Smart Irrigation"
+          desc: "Automate watering based on soil moisture data and weather forecasts to optimize water usage."
         yield_forecasting:
-          title: Yield Forecasting
-          desc: Estimate production using historical data, current conditions, and forecasts.
+          title: "Yield Forecasting"
+          desc: "Predict crop yields using historical data, current conditions, and weather forecasts."
         field_connectivity:
-          title: Field Connectivity
-          desc: Connect all your fields even in remote areas with our resilient mesh network.
+          title: "Field Connectivity"
+          desc: "Connect all your fields with our resilient mesh network, even in remote areas."
         data_insights:
-          title: Data-Driven Insights
-          desc: Use AI and machine learning to gain actionable insights from your farm data.
+          title: "Data-Driven Insights"
+          desc: "Leverage AI and machine learning to derive actionable insights from your farm data."
         mobile_access:
-          title: Mobile Access
-          desc: Monitor and control your farm remotely with our mobile-friendly interface.
-
+          title: "Mobile Access"
+          desc: "Monitor and control your farm from anywhere with our responsive mobile interface."
     how_it_works:
-      title: How It Works
-      description: Our agricultural IoT platform is easy to set up and powerful to use.
+      title: "How It Works"
+      description: "Our agricultural IoT platform is designed to be simple to set up and powerful to use."
       items:
         deploy:
           icon: "🌱"
-          title: Deploy Sensors
-          desc: Place smart sensors across your land to monitor soil, weather, and crop health.
+          title: "Deploy Sensors"
+          desc: "Place our smart sensors throughout your fields to monitor soil conditions, weather, and crop health."
         connect:
           icon: "☁️"
-          title: Connect to Platform
-          desc: Sensors automatically connect to the cloud through mesh network technology.
+          title: "Connect to Platform"
+          desc: "Sensors automatically connect to our cloud platform through our resilient mesh network technology."
         analyze:
           icon: "📊"
-          title: Analyze Data
-          desc: The platform analyzes farm data and provides actionable recommendations.
+          title: "Analyze Data"
+          desc: "Our platform analyzes your farm data and provides actionable insights to optimize your operations."
         implement:
           icon: "⚡"
-          title: Implement Actions
-          desc: Apply or automate irrigation and more based on real-time insights.
-
+          title: "Implement Actions"
+          desc: "Apply the recommended actions or automate processes like irrigation based on real-time data."
     stats:
-      description: Join thousands of farmers already using our platform to optimize their operations.
+      description: "Join thousands of farmers already using our platform to optimize their operations"
       water:
         value: "95%"
-        label: Water Savings
+        label: "Water Savings"
       yield:
         value: "30%"
-        label: Yield Increase
+        label: "Yield Increase"
       labor:
         value: "40%"
-        label: Labor Reduction
-
+        label: "Labor Reduction"
     footer:
-      description: Empowering agriculture with IoT technology for a more efficient and sustainable future.
-      copyright: © 2025 AgriloT Synergy. All rights reserved.
+      description: "Transforming agriculture with IoT technology for a more sustainable and efficient future."
+      copyright: "© 2025 AgriloT Synergy. All rights reserved."
       sections:
         platform:
-          title: Platform
+          title: "Platform"
           links:
-            - Dashboard
-            - Fields
-            - Analytics
-            - Settings
+            - "Dashboard"
+            - "Fields"
+            - "Analytics"
+            - "Settings"
         resources:
-          title: Resources
+          title: "Resources"
           links:
-            - Blog
-            - Documentation
-            - Knowledge Base
-            - Community
+            - "Blog"
+            - "Documentation"
+            - "Knowledge Base"
+            - "Community"
         company:
-          title: Company
+          title: "Company"
           links:
-            - About Us
-            - Careers
-            - Contact
-            - Privacy
+            - "About Us"
+            - "Careers"
+            - "Contact"
+            - "Privacy"

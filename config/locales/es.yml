@@ -24,75 +24,76 @@ es:
     simulating: "Simulando:"
     exit_simulation: "Salir de la Simulación"
 
+
   landing:
     title: Agricultura Inteligente
     hero:
       highlight: Agricultura Inteligente
       continuation: para un Futuro Sostenible
-      description: Transforma tu explotación agrícola con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos.
+      description: Transforma tus operaciones agrícolas con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos.
       cta:
         get_started: Empezar Ahora
         request_demo: Solicitar Demostración
 
     features:
-      title: Funcionalidades Potentes de IoT
-      description: Combinamos tecnología avanzada con conocimiento agrícola para decisiones más inteligentes.
+      title: Funcionalidades IoT Potentes
+      description: Nuestra plataforma combina tecnología de vanguardia con experiencia agrícola para ayudarte a tomar decisiones informadas.
       items:
         env_monitoring:
           title: Monitoreo Ambiental
-          desc: Controla la temperatura, humedad y condiciones del suelo en tiempo real.
+          desc: Supervisa temperatura, humedad y condiciones del suelo en tiempo real con sensores de precisión.
         smart_irrigation:
           title: Riego Inteligente
-          desc: Automatiza el riego según la humedad del suelo y el pronóstico del tiempo.
+          desc: Automatiza el riego según datos de humedad del suelo y previsiones meteorológicas.
         yield_forecasting:
           title: Predicción de Cosechas
-          desc: Estima las producciones con datos históricos y condiciones actuales.
+          desc: Predice los rendimientos utilizando datos históricos, condiciones actuales y clima.
         field_connectivity:
           title: Conectividad de Campo
-          desc: Conecta todos tus campos incluso en zonas remotas con nuestra red mallada.
+          desc: Conecta todos tus campos con nuestra red mesh resistente, incluso en zonas remotas.
         data_insights:
-          title: Análisis Basado en Datos
-          desc: Utiliza IA y aprendizaje automático para obtener información útil de tus datos agrícolas.
+          title: Información Basada en Datos
+          desc: Aprovecha la IA y el aprendizaje automático para obtener información práctica.
         mobile_access:
           title: Acceso Móvil
-          desc: Supervisa y controla tu granja desde cualquier lugar con nuestra interfaz móvil.
+          desc: Supervisa y controla tu explotación desde cualquier lugar con nuestra interfaz móvil.
 
     how_it_works:
       title: Cómo Funciona
-      description: Nuestra plataforma IoT agrícola es fácil de instalar y muy potente de usar.
+      description: Nuestra plataforma agrícola IoT está diseñada para ser fácil de instalar y poderosa de utilizar.
       items:
         deploy:
           icon: "🌱"
           title: Instalar Sensores
-          desc: Coloca sensores inteligentes para monitorear el suelo, clima y cultivos.
+          desc: Coloca sensores inteligentes para monitorear el suelo, clima y salud del cultivo.
         connect:
           icon: "☁️"
           title: Conectar a la Plataforma
-          desc: Los sensores se conectan automáticamente a la nube mediante tecnología mesh.
+          desc: Los sensores se conectan automáticamente a la nube mediante nuestra red mesh.
         analyze:
           icon: "📊"
           title: Analizar Datos
-          desc: La plataforma interpreta los datos agrícolas y sugiere acciones eficaces.
+          desc: Nuestra plataforma analiza los datos de tu explotación y proporciona información útil.
         implement:
           icon: "⚡"
           title: Implementar Acciones
-          desc: Aplica o automatiza procesos como el riego en tiempo real.
+          desc: Aplica o automatiza acciones como el riego en base a datos en tiempo real.
 
     stats:
-      description: Únete a miles de agricultores que ya utilizan nuestra plataforma para optimizar sus operaciones.
+      description: Únete a miles de agricultores que ya utilizan nuestra plataforma para optimizar su producción.
       water:
         value: "95%"
         label: Ahorro de Agua
       yield:
         value: "30%"
-        label: Aumento de Producción
+        label: Aumento del Rendimiento
       labor:
         value: "40%"
         label: Reducción de Mano de Obra
 
     footer:
-      description: Transformamos la agricultura con IoT para un futuro más eficiente y sostenible.
-      copyright: Todos los derechos reservados.
+      description: Transformamos la agricultura con tecnología IoT para un futuro más sostenible y eficiente.
+      copyright: © 2025 AgriloT Synergy. Todos los derechos reservados.
       sections:
         platform:
           title: Plataforma
@@ -112,6 +113,6 @@ es:
           title: Empresa
           links:
             - Sobre Nosotros
-            - Carreras
+            - Empleos
             - Contacto
             - Privacidad

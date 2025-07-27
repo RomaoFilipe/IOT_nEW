@@ -24,94 +24,90 @@ pt:
     simulating: "A simular:"
     exit_simulation: "Sair da Simulação"
 
+
   landing:
-    title: Agricultura Inteligente
+    title: "Agricultura Inteligente"
+
     hero:
-      highlight: Agricultura Inteligente
-      continuation: para um Futuro Sustentável
-      description: Transforma a tua exploração agrícola com a nossa plataforma IoT. Monitoriza o solo, automatiza a rega e toma decisões baseadas em dados.
+      highlight: "Agricultura Inteligente"
+      continuation: "para um Futuro Sustentável"
+      description: "Transforma a tua exploração agrícola com a nossa plataforma IoT. Monitoriza o solo, automatiza a rega e toma decisões baseadas em dados."
       cta:
-        get_started: Começar Agora
-        request_demo: Pedir Demonstração
+        get_started: "Começar Agora"
+        request_demo: "Pedir Demonstração"
 
     features:
-      title: Funcionalidades Poderosas de IoT
-      description: Combinamos tecnologia de ponta com conhecimento agrícola para decisões inteligentes.
+      title: "Funcionalidades Poderosas de IoT"
+      description: "A nossa plataforma combina tecnologia de ponta com conhecimento agrícola para decisões informadas."
       items:
-        env_monitoring:
-          title: Monitorização Ambiental
-          desc: Acompanha temperatura, humidade e solo em tempo real com sensores de precisão.
-        smart_irrigation:
-          title: Rega Inteligente
-          desc: Automatiza a rega com base em sensores de humidade e previsões meteorológicas.
-        yield_forecasting:
-          title: Previsão de Colheitas
-          desc: Estima a produção com base em dados históricos, condições atuais e meteorologia.
-        field_connectivity:
-          title: Conectividade de Campo
-          desc: Liga todos os teus campos através de rede mesh resiliente, mesmo em zonas remotas.
-        data_insights:
-          title: Análises Baseadas em Dados
-          desc: Usa IA e machine learning para extrair insights acionáveis dos dados agrícolas.
-        mobile_access:
-          title: Acesso Móvel
-          desc: Monitoriza e controla tudo à distância com uma interface adaptada ao telemóvel.
+        - title: "Monitorização Ambiental"
+          desc: "Acompanha temperatura, humidade e solo em tempo real com sensores de precisão."
+        - title: "Rega Inteligente"
+          desc: "Automatiza a rega com base em dados do solo e previsões meteorológicas."
+        - title: "Previsão de Colheitas"
+          desc: "Prevê colheitas com base em dados históricos e condições atuais."
+        - title: "Conectividade de Campo"
+          desc: "Liga todos os campos com rede mesh mesmo em zonas remotas."
+        - title: "Análises Baseadas em Dados"
+          desc: "Tira partido da IA e machine learning para obter insights valiosos."
+        - title: "Acesso Móvel"
+          desc: "Monitoriza e controla tudo a partir do teu telemóvel."
 
     how_it_works:
-      title: Como Funciona
-      description: A nossa plataforma agrícola IoT é fácil de configurar e poderosa de utilizar.
+      title: "Como Funciona"
+      description: "A nossa plataforma agrícola IoT é fácil de configurar e poderosa de utilizar."
       items:
         deploy:
           icon: "🌱"
-          title: Instalar Sensores
-          desc: Coloca sensores inteligentes no terreno para recolher dados do solo, clima e saúde das plantas.
+          title: "Instalar Sensores"
+          desc: "Coloca sensores inteligentes para monitorizar solo, clima e saúde das plantas."
         connect:
           icon: "☁️"
-          title: Conectar à Plataforma
-          desc: Os sensores ligam-se automaticamente à cloud via rede mesh.
+          title: "Conectar à Plataforma"
+          desc: "Os sensores ligam-se automaticamente à cloud através de rede mesh."
         analyze:
           icon: "📊"
-          title: Analisar Dados
-          desc: A plataforma interpreta os dados agrícolas e sugere ações inteligentes.
+          title: "Analisar Dados"
+          desc: "A plataforma analisa os dados recolhidos e fornece recomendações."
         implement:
           icon: "⚡"
-          title: Implementar Ações
-          desc: Aplica ou automatiza rega e outras ações com base em dados em tempo real.
+          title: "Implementar Ações"
+          desc: "Aplica ou automatiza ações como rega com base em dados em tempo real."
 
     stats:
-      description: Junta-te a milhares de agricultores que já usam a nossa plataforma para otimizar a produção.
+      description: "Junta-te a milhares de agricultores que já usam a nossa plataforma para otimizar a produção."
       water:
         value: "95%"
-        label: Poupança de Água
+        label: "Poupança de Água"
       yield:
         value: "30%"
-        label: Aumento de Produção
+        label: "Aumento de Produção"
       labor:
         value: "40%"
-        label: Redução de Mão de Obra
+        label: "Redução de Mão de Obra"
 
     footer:
-      description: Transformamos a agricultura com tecnologia IoT para um futuro mais eficiente e sustentável.
-      copyright: © 2025 AgriloT Synergy. Todos os direitos reservados.
+      description: "Transformamos a agricultura com tecnologia IoT para um futuro mais sustentável."
+      copyright: "© 2025 AgriloT Synergy. Todos os direitos reservados."
       sections:
         platform:
-          title: Plataforma
+          title: "Plataforma"
           links:
-            - Painel
-            - Campos
-            - Análises
-            - Definições
+            - "Dashboard"
+            - "Campos"
+            - "Análises"
+            - "Definições"
         resources:
-          title: Recursos
+          title: "Recursos"
           links:
-            - Blog
-            - Documentação
-            - Base de Conhecimento
-            - Comunidade
+            - "Blog"
+            - "Documentação"
+            - "Base de Conhecimento"
+            - "Comunidade"
         company:
-          title: Empresa
+          title: "Empresa"
           links:
-            - Sobre Nós
-            - Carreiras
-            - Contactos
-            - Privacidade
+            - "Sobre Nós"
+            - "Carreiras"
+            - "Contactos"
+            - "Privacidade"
