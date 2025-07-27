@@ -30,6 +30,15 @@ class SettingsController < ApplicationController
     end
   end
 
+
+  def locale
+  if params[:locale].present? && I18n.available_locales.map(&:to_s).include?(params[:locale])
+    session[:locale] = params[:locale]
+  end
+  # Redireciona SEMPRE para a mesma página mas com o novo locale na URL
+  redirect_back fallback_location: root_path(locale: session[:locale] || I18n.default_locale)
+end
+
   private
 
   def set_user
