@@ -90,28 +90,28 @@ pt:
         value: "40%"
         label: Redução de Mão de Obra
 
-      footer:
-        description: Transformamos a agricultura com tecnologia IoT para um futuro mais eficiente e sustentável.
-        copyright: © 2025 AgriloT Synergy. Todos os direitos reservados.
-        sections:
-          platform:
-            title: Plataforma
-            links:
-              - Painel
-              - Campos
-              - Análises
-              - Definições
-          resources:
-            title: Recursos
-            links:
-              - Blog
-              - Documentação
-              - Base de Conhecimento
-              - Comunidade
-          company:
-            title: Empresa
-            links:
-              - Sobre Nós
-              - Carreiras
-              - Contactos
-              - Privacidade
+footer:
+  description: Transformamos a agricultura com tecnologia IoT para um futuro mais eficiente e sustentável.
+  copyright: © 2025 AgriloT Synergy. Todos os direitos reservados.
+  sections:
+    platform:
+      title: Plataforma
+      links:
+        - Painel
+        - Campos
+        - Análises
+        - Definições
+    resources:
+      title: Recursos
+      links:
+        - Blog
+        - Documentação
+        - Base de Conhecimento
+        - Comunidade
+    company:
+      title: Empresa
+      links:
+        - Sobre Nós
+        - Carreiras
+        - Contactos
+        - Privacidade
