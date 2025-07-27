@@ -1,10 +1,10 @@
 <h3 class="text-md font-semibold text-gray-800 mb-3 flex items-center justify-between">
-  Estado dos Campos
-  <a href="#" class="text-sm text-blue-500 hover:underline font-medium">Ver Todos</a>
+  <%= t("dashboard.field_status.title") %>
+  <a href="#" class="text-sm text-blue-500 hover:underline font-medium"><%= t("dashboard.field_status.see_all") %></a>
 </h3>
 
 <% if @fields.any? %>
-  <div 
+  <div
     x-data="{
       active: <%= @fields.first.id %>,
       fields: <%= raw @fields.map(&:id).to_json %>,
@@ -42,9 +42,9 @@
     <!-- Cartão de estado do campo -->
     <div class="bg-white rounded-xl border shadow p-4 max-w-xl mx-auto min-h-auto space-y-4">
       <% @fields.each do |field| %>
-        <div 
+        <div
           id="field-card-<%= field.id %>"
-          x-show="active === <%= field.id %>" 
+          x-show="active === <%= field.id %>"
           x-cloak
           x-transition:enter="transition ease-out duration-300"
           x-transition:enter-start="opacity-0"
@@ -62,7 +62,7 @@
               <p class="text-sm text-gray-500"><%= field.area %> ha</p>
             </div>
             <span class="<%= field.status == 'Ativo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %> text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
-              <%= field.status.presence || 'Desconhecido' %>
+              <%= field.status.presence || t("dashboard.field_status.unknown") %>
             </span>
           </div>
 
@@ -70,7 +70,7 @@
           <div class="space-y-2 text-sm text-gray-700">
             <div>
               <div class="flex justify-between">
-                <span class="flex items-center gap-1">📡 Sensores Ativos</span>
+                <span class="flex items-center gap-1"><%= t("dashboard.field_status.sensors_active") %></span>
                 <span class="font-medium"><%= field.sensors.where(status: 'Active').count %></span>
               </div>
               <div class="w-full h-2 bg-gray-200 rounded-full">
@@ -82,24 +82,24 @@
           <!-- Dados diversos -->
           <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
             <div class="flex items-center gap-1">
-              🧪 <span><%= field.soil_type.presence || 'N/A' %></span>
+              <%= t("dashboard.field_status.soil_type") %> <span><%= field.soil_type.presence || 'N/A' %></span>
             </div>
             <div class="flex items-center gap-1">
-              💧 <span><%= field.irrigation_schedules.order(created_at: :desc).first&.created_at&.strftime('%d/%m/%Y') || 'Sem registo' %></span>
+              <%= t("dashboard.field_status.last_irrigation") %> <span><%= field.irrigation_schedules.order(created_at: :desc).first&.created_at&.strftime('%d/%m/%Y') || t("dashboard.field_status.unknown") %></span>
             </div>
             <div class="flex items-center gap-1 col-span-2">
-              🗺️ <span><%= field.latitude %>, <%= field.longitude %></span>
+              <%= t("dashboard.field_status.coordinates") %> <span><%= field.latitude %>, <%= field.longitude %></span>
             </div>
           </div>
 
           <!-- Colheita e botão -->
           <div class="flex justify-between items-center pt-2 border-t mt-2 text-sm">
             <div>
-              <p class="text-gray-500">Previsão de Colheita</p>
+              <p class="text-gray-500"><%= t("dashboard.field_status.harvest_prediction") %></p>
               <p class="font-semibold text-gray-800">30/08/2023</p>
             </div>
             <button @click="openDetails(<%= field.id %>)" class="text-sm px-4 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100 transition">
-              Detalhes
+              <%= t("dashboard.field_status.details") %>
             </button>
           </div>
         </div>
@@ -107,13 +107,12 @@
     </div>
   </div>
 
-  <!-- ✅ Renderização inline dos modais para funcionamento do botão Detalhes -->
   <% @fields.each do |field| %>
     <%= render partial: "fields/view_details", locals: { field: field } %>
   <% end %>
 <% else %>
   <div class="p-4 bg-yellow-100 text-yellow-800 rounded-md">
-    🚨 Nenhum campo registado ainda. Por favor adicione um campo para visualizar o estado.
+    <%= t("dashboard.field_status.no_fields") %>
   </div>
 <% end %>
 
@@ -123,20 +122,16 @@
     margin-left: auto;
     margin-right: auto;
   }
-
   .min-h-auto {
     min-height: auto !important;
   }
-
   .space-y-4 {
     gap: 1rem !important;
   }
-
   .flex.justify-between.items-center.flex-nowrap.gap-2 {
     flex-wrap: nowrap !important;
     gap: 0.5rem !important;
   }
-
   @media (min-width: 640px) {
     .max-w-xl.mx-auto {
       max-width: 700px;

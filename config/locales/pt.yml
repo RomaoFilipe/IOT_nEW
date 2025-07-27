@@ -119,3 +119,82 @@ pt:
             - "Privacidade"
       copyright: "© 2025 AgriloT Synergy. Todos os direitos reservados."
 
+  dashboard:
+    title: "Painel Agrícola"
+    system_ok: "Todos os sistemas operacionais"
+    sky: "Céu"
+    wind_at: "a"
+    weather_error: "Erro ao obter dados meteorológicos"
+    weather:
+      title: "Condições Meteorológicas"
+      select_field: "Campo:"
+      loading: "A carregar..."
+      wind: "Vento"
+      precipitation: "Precipitação"
+      next_days: "Próximos Dias"
+      next_24h: "Próximas 24 Horas"
+      code:
+        "0": "Céu limpo"
+        "1": "Poucas nuvens"
+        "2": "Nuvens dispersas"
+        "3": "Céu nublado"
+        "45": "Nevoeiro"
+        "48": "Nevoeiro com geada"
+        "51": "Chuviscos leves"
+        "53": "Chuviscos moderados"
+        "55": "Chuviscos fortes"
+        "61": "Chuva fraca"
+        "63": "Chuva moderada"
+        "65": "Chuva forte"
+        "66": "Chuva gelada"
+        "67": "Chuva gelada forte"
+        "71": "Neve leve"
+        "73": "Neve moderada"
+        "75": "Neve intensa"
+        "95": "Trovoada"
+        "96": "Trovoada com granizo"
+        "99": "Tempestade severa"
+        unknown: "Desconhecido"
+
+    upcoming_tasks:
+      title: "🗓️ Eventos Planeados"
+      none: "Nenhum evento planeado para hoje."
+      time: "🕒"
+      cancel_task: "Cancelar esta tarefa?"
+      cancel_irrigation: "Cancelar esta irrigação?"
+
+    sensor_status:
+      irrigation_status: "Estado da Irrigação"
+      remaining: "Faltam:"
+      done: "Irrigação concluída"
+      soil_moisture: "Humidade do Solo"
+      temperature: "Temperatura"
+      battery: "Bateria"
+      previous: "« Anterior"
+      next: "Próximo »"
+
+    quick_actions:
+      analytics:
+        title: "Ver Analytics"
+        description: "Gráficos detalhados"
+        button: "Aceder"
+      fields:
+        title: "Gerir Campos"
+        description: "Ver e editar"
+        button: "Aceder"
+      settings:
+        title: "Definições"
+        description: "Preferências do sistema"
+        button: "Aceder"
+
+    field_status:
+      title: "Estado dos Campos"
+      see_all: "Ver Todos"
+      no_fields: "🚨 Nenhum campo registado ainda. Por favor adicione um campo para visualizar o estado."
+      sensors_active: "📡 Sensores Ativos"
+      soil_type: "🧪 Tipo de Solo"
+      last_irrigation: "💧 Última Irrigação"
+      coordinates: "🗺️ Coordenadas"
+      harvest_prediction: "Previsão de Colheita"
+      details: "Detalhes"
+      unknown: "Desconhecido"

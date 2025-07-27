@@ -2,7 +2,7 @@ en:
   field_types:
     agriculture: "Agriculture"
     aquaculture_tank: "Aquaculture (Tank)"
-    aquaculture_sea: "Aquaculture (Marine)"
+    aquaculture_sea: "Aquaculture (Sea)"
 
   languages:
     pt: "Portuguese"
@@ -25,63 +25,63 @@ en:
     exit_simulation: "Exit Simulation"
 
   landing:
-    title: "Smart Agriculture"
+    title: "Smart Farming"
     hero:
-      title: "Smart Agriculture"
-      description: "Transform your farm with our IoT platform. Monitor soil, automate irrigation, and make data-driven decisions."
+      title: "Smart Farming"
+      description: "Transform your farm with our IoT platform. Monitor soil, automate irrigation and make data-driven decisions."
       cta:
         get_started: "Get Started"
     choose_type:
-      title: "Choose your type of operation"
+      title: "Choose Your Farm Type"
       agriculture:
         title: "Agriculture"
-        description: "Monitor soil, automate irrigation, and maximize yield."
+        description: "Monitor soil, automate irrigation, maximize yield."
       sea:
-        title: "Marine Aquaculture"
-        description: "Control salinity, temperature, and oxygen in real time."
+        title: "Sea Aquaculture"
+        description: "Control salinity, temperature and oxygen in real time."
       tank:
         title: "Tank Aquaculture"
-        description: "Smart management of aquatic tanks and nurseries."
+        description: "Smart management of aquatic tanks and hatcheries."
     how_it_works:
       title: "How It Works"
-      description: "Discover how our solution adapts to your type of operation."
+      description: "See how our solution adapts to your farm type."
     testimonials:
       title: "Real Stories, Real Results"
-      subtitle: "How our clients are transforming their operations with smart technology."
+      subtitle: "How our clients are transforming their operations with smart tech."
       marta:
-        quote: "We reduced water consumption by 35% using soil sensors integrated with AgriloT."
+        quote: "We reduced water usage by 35% with soil sensors connected to our AgriloT account."
         name: "Marta Silva"
-        role: "Vegetable grower"
+        role: "Vegetable Producer"
       tiago:
-        quote: "Thanks to real-time monitoring, our fish are healthier and oxygen levels are perfect."
+        quote: "Thanks to continuous monitoring, our fish are healthier and oxygen levels are always right."
         name: "Tiago Ramos"
-        role: "Tank aquaculture manager"
+        role: "Tank Aquaculture Manager"
       carlos:
-        quote: "I avoided an algae outbreak thanks to the platform's alert system. I can't work without it now."
+        quote: "The platform warned me in time to prevent an algae outbreak. I won't work without it again."
         name: "Carlos Fonseca"
-        role: "Marine aquaculture"
+        role: "Sea Aquaculture"
     comparison:
       title: "Before and After the Platform"
-      subtitle: "See the real impact of digitising your operation."
+      subtitle: "See the real impact of digitizing your farm."
       before:
         emoji: "🌧"
         title: "Before"
         items:
-          - "Manual irrigation without data"
+          - "Manual irrigation without solid data"
           - "Water and energy waste"
           - "Lack of alerts and forecasts"
-          - "Experience-based decisions"
+          - "Decisions based on intuition"
       after:
         emoji: "☀️"
         title: "After"
         items:
           - "Automated irrigation and alerts"
-          - "Real-time reports and history"
+          - "Live reports and history"
           - "Higher productivity with fewer resources"
           - "Data-driven decisions"
     technologies:
-      title: "Technology Empowering Agriculture & Aquaculture"
-      subtitle: "Integrations and compatibility with leading industry standards."
+      title: "Technology Empowering Agriculture and Aquaculture"
+      subtitle: "Integrations and compatibility with industry-leading standards."
       items:
         - "MQTT"
         - "LoRaWAN"
@@ -90,11 +90,11 @@ en:
         - "API REST"
         - "Wi-Fi / BLE"
     cta_final:
-      title: "Ready to transform your operation?"
-      subtitle: "Create your free account and start monitoring and automating today."
+      title: "Ready to Transform Your Farm?"
+      subtitle: "Create your free account and start monitoring and automating what matters most."
       button: "Create Free Account"
     footer:
-      description: "We transform agriculture with IoT technology for a more sustainable future."
+      description: "We empower agriculture with IoT technology for a more sustainable future."
       sections:
         platform:
           title: "Platform"
@@ -118,3 +118,83 @@ en:
             - "Contact"
             - "Privacy"
       copyright: "© 2025 AgriloT Synergy. All rights reserved."
+
+  dashboard:
+    title: "Farm Dashboard"
+    system_ok: "All systems operational"
+    sky: "Sky"
+    wind_at: "at"
+    weather_error: "Error fetching weather data"
+    weather:
+      title: "Weather Conditions"
+      select_field: "Field:"
+      loading: "Loading..."
+      wind: "Wind"
+      precipitation: "Precipitation"
+      next_days: "Next Days"
+      next_24h: "Next 24 Hours"
+      code:
+        "0": "Clear sky"
+        "1": "Mostly clear"
+        "2": "Partly cloudy"
+        "3": "Overcast"
+        "45": "Fog"
+        "48": "Fog with frost"
+        "51": "Light drizzle"
+        "53": "Moderate drizzle"
+        "55": "Heavy drizzle"
+        "61": "Light rain"
+        "63": "Moderate rain"
+        "65": "Heavy rain"
+        "66": "Freezing rain"
+        "67": "Heavy freezing rain"
+        "71": "Light snow"
+        "73": "Moderate snow"
+        "75": "Heavy snow"
+        "95": "Thunderstorm"
+        "96": "Thunderstorm with hail"
+        "99": "Severe storm"
+        unknown: "Unknown"
+
+    upcoming_tasks:
+      title: "🗓️ Scheduled Events"
+      none: "No planned events for today."
+      time: "🕒"
+      cancel_task: "Cancel this task?"
+      cancel_irrigation: "Cancel this irrigation?"
+
+    sensor_status:
+      irrigation_status: "Irrigation Status"
+      remaining: "Remaining:"
+      done: "Irrigation completed"
+      soil_moisture: "Soil Moisture"
+      temperature: "Temperature"
+      battery: "Battery"
+      previous: "« Previous"
+      next: "Next »"
+
+    quick_actions:
+      analytics:
+        title: "View Analytics"
+        description: "Detailed charts"
+        button: "Go"
+      fields:
+        title: "Manage Fields"
+        description: "View and edit"
+        button: "Go"
+      settings:
+        title: "Settings"
+        description: "System preferences"
+        button: "Go"
+
+    field_status:
+      title: "Field Status"
+      see_all: "See All"
+      no_fields: "🚨 No fields registered yet. Please add a field to view its status."
+      sensors_active: "📡 Active Sensors"
+      soil_type: "🧪 Soil Type"
+      last_irrigation: "💧 Last Irrigation"
+      coordinates: "🗺️ Coordinates"
+      harvest_prediction: "Harvest Forecast"
+      details: "Details"
+      unknown: "Unknown"

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= I18n.locale %>">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Farm Operations Dashboard</title>
+  <title><%= t("dashboard.title") %></title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -11,8 +11,8 @@
 
 <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
   <div class="flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-gray-900">Farm Dashboard</h1>
-    <p class="text-sm text-green-600 font-semibold">✔ All systems operational</p>
+    <h1 class="text-2xl font-bold text-gray-900"><%= t("dashboard.title") %></h1>
+    <p class="text-sm text-green-600 font-semibold">✔ <%= t("dashboard.system_ok") %></p>
   </div>
 
   <!-- Previsão + Status dos Sensores lado a lado -->
@@ -25,13 +25,12 @@
       <% @fields.each_with_index do |field, index| %>
         <% irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation")&.reload %>
         <% next unless irrigation_sensor %>
-
         <%= render partial: 'dashboard/sensor_status', locals: { sensor: irrigation_sensor, field: field, index: index } %>
       <% end %>
     </div>
   </div>
 
-  <!-- Estado dos Campos + Upcoming Tasks lado a lado -->
+  <!-- Estado dos Campos + Tarefas -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
     <div class="bg-white p-4 rounded-xl shadow-md h-full">
       <%= render "dashboard/field_status" %>
@@ -57,8 +56,8 @@
 
       const current = data.current_weather;
       document.getElementById("current-temp").textContent = `${Math.round(current.temperature)}°C`;
-      document.getElementById("current-description").textContent = "Céu: " + weatherText(current.weathercode);
-      document.getElementById("wind-info").textContent = `${current.winddirection}° a ${current.windspeed} km/h`;
+      document.getElementById("current-description").textContent = "<%= t('dashboard.sky') %>: " + weatherText(current.weathercode);
+      document.getElementById("wind-info").textContent = `${current.winddirection}° <%= t('dashboard.wind_at') %> ${current.windspeed} km/h`;
 
       const today = new Date().toISOString().slice(0, 10);
       const todayIndexes = data.hourly.time.map((t, i) => t.startsWith(today) ? i : -1).filter(i => i >= 0);
@@ -68,7 +67,7 @@
       const container = document.getElementById("hourly-forecast");
       container.innerHTML = "";
       for (let i = 0; i < 24; i++) {
-        const hourLabel = new Date(data.hourly.time[i]).toLocaleTimeString("pt-PT", { hour: '2-digit', minute: '2-digit' });
+        const hourLabel = new Date(data.hourly.time[i]).toLocaleTimeString("<%= I18n.locale %>", { hour: '2-digit', minute: '2-digit' });
         container.innerHTML += `
           <div class="bg-blue-50 rounded p-1 shadow-sm min-w-[3.5rem]">
             <p class="font-semibold text-xs">${hourLabel}</p>
@@ -81,7 +80,7 @@
       const dailyContainer = document.getElementById("daily-forecast");
       dailyContainer.innerHTML = "";
       for (let i = 0; i < data.daily.time.length; i++) {
-        const dia = new Date(data.daily.time[i]).toLocaleDateString('pt-PT', { weekday: 'short' });
+        const dia = new Date(data.daily.time[i]).toLocaleDateString('<%= I18n.locale %>', { weekday: 'short' });
         const max = Math.round(data.daily.temperature_2m_max[i]);
         const min = Math.round(data.daily.temperature_2m_min[i]);
         const icon = weatherIcon(data.daily.weathercode[i]);
@@ -95,7 +94,7 @@
       }
 
     } catch (err) {
-      console.error("Erro ao obter meteo:", err);
+      console.error("<%= t('dashboard.weather_error') %>", err);
     }
   }
 
@@ -111,13 +110,15 @@
 
   function weatherText(code) {
     const map = {
-      0: "Céu limpo", 1: "Poucas nuvens", 2: "Nuvens dispersas", 3: "Céu nublado",
-      45: "Nevoeiro", 48: "Nevoeiro com geada", 51: "Chuviscos", 53: "Chuviscos",
-      55: "Chuviscos", 61: "Chuva fraca", 63: "Chuva", 65: "Chuva forte",
-      66: "Chuva gelada", 67: "Chuva gelada forte", 71: "Neve leve", 73: "Neve",
-      75: "Neve intensa", 95: "Trovoada", 96: "Trovoada com granizo", 99: "Tempestade severa"
+      0: "<%= t('weather.code.0') %>", 1: "<%= t('weather.code.1') %>", 2: "<%= t('weather.code.2') %>", 3: "<%= t('weather.code.3') %>",
+      45: "<%= t('weather.code.45') %>", 48: "<%= t('weather.code.48') %>",
+      51: "<%= t('weather.code.51') %>", 53: "<%= t('weather.code.53') %>", 55: "<%= t('weather.code.55') %>",
+      61: "<%= t('weather.code.61') %>", 63: "<%= t('weather.code.63') %>", 65: "<%= t('weather.code.65') %>",
+      66: "<%= t('weather.code.66') %>", 67: "<%= t('weather.code.67') %>",
+      71: "<%= t('weather.code.71') %>", 73: "<%= t('weather.code.73') %>", 75: "<%= t('weather.code.75') %>",
+      95: "<%= t('weather.code.95') %>", 96: "<%= t('weather.code.96') %>", 99: "<%= t('weather.code.99') %>"
     };
-    return map[code] || "Desconhecido";
+    return map[code] || "<%= t('weather.code.unknown') %>";
   }
 
   document.addEventListener("DOMContentLoaded", () => {

@@ -25,96 +25,176 @@ es:
     exit_simulation: "Salir de la Simulación"
 
   landing:
+    title: "Agricultura Inteligente"
+    hero:
       title: "Agricultura Inteligente"
-      hero:
-        title: "Agricultura Inteligente"
-        description: "Transforma tu explotación agrícola con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos."
-        cta:
-          get_started: "Comenzar Ahora"
-      choose_type:
-        title: "Elige tu tipo de explotación"
-        agriculture:
-          title: "Agricultura"
-          description: "Supervisa el suelo, automatiza el riego y maximiza la producción."
-        sea:
-          title: "Acuicultura Marina"
-          description: "Controla salinidad, temperatura y oxígeno en tiempo real."
-        tank:
-          title: "Acuicultura en Tanque"
-          description: "Gestión inteligente de tanques y viveros acuáticos."
-      how_it_works:
-        title: "Cómo Funciona"
-        description: "Descubre cómo nuestra solución se adapta a tu tipo de explotación."
-      testimonials:
-        title: "Historias Reales, Resultados Reales"
-        subtitle: "Cómo nuestros clientes están transformando sus explotaciones con tecnología inteligente."
-        marta:
-          quote: "Reducimos el consumo de agua un 35% gracias a sensores de suelo conectados a AgriloT."
-          name: "Marta Silva"
-          role: "Productora de hortalizas"
-        tiago:
-          quote: "Gracias a la monitorización continua, los peces están más sanos y el oxígeno siempre perfecto."
-          name: "Tiago Ramos"
-          role: "Gestor de acuicultura en tanque"
-        carlos:
-          quote: "Evitamos un brote de algas gracias al sistema de alertas de la plataforma. Ya no trabajo sin ella."
-          name: "Carlos Fonseca"
-          role: "Acuicultura marina"
-      comparison:
-        title: "Antes y Después de la Plataforma"
-        subtitle: "Descubre el impacto real de digitalizar tu explotación."
-        before:
-          emoji: "🌧"
-          title: "Antes"
-          items:
-            - "Riego manual sin datos"
-            - "Desperdicio de agua y energía"
-            - "Falta de alertas y previsiones"
-            - "Decisiones basadas en experiencia"
-        after:
-          emoji: "☀️"
-          title: "Después"
-          items:
-            - "Automatización de riego y alertas"
-            - "Informes e historial en tiempo real"
-            - "Mayor productividad con menos recursos"
-            - "Decisiones basadas en datos"
-      technologies:
-        title: "Tecnología que Impulsa la Agricultura y Acuicultura"
-        subtitle: "Integraciones compatibles con los estándares líderes de la industria."
+      description: "Transforma tu explotación con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos."
+      cta:
+        get_started: "Comenzar Ahora"
+    choose_type:
+      title: "Elige tu tipo de explotación"
+      agriculture:
+        title: "Agricultura"
+        description: "Supervisa el suelo, automatiza el riego y maximiza la producción."
+      sea:
+        title: "Acuicultura Marina"
+        description: "Controla salinidad, temperatura y oxígeno en tiempo real."
+      tank:
+        title: "Acuicultura en Tanque"
+        description: "Gestión inteligente de criaderos y tanques acuáticos."
+    how_it_works:
+      title: "Cómo Funciona"
+      description: "Descubre cómo nuestra solución se adapta a tu explotación."
+    testimonials:
+      title: "Historias Reales, Resultados Reales"
+      subtitle: "Cómo nuestros clientes están transformando sus explotaciones con tecnología inteligente."
+      marta:
+        quote: "Reducimos el consumo de agua en un 35% con sensores de suelo conectados a nuestra cuenta AgriloT."
+        name: "Marta Silva"
+        role: "Productora de hortalizas"
+      tiago:
+        quote: "Gracias a la monitorización continua, los peces están más sanos y el oxígeno siempre controlado."
+        name: "Tiago Ramos"
+        role: "Gestor de acuicultura en tanque"
+      carlos:
+        quote: "Evité un brote de algas gracias a las alertas de la plataforma. Ya no trabajo sin ella."
+        name: "Carlos Fonseca"
+        role: "Acuicultura marina"
+    comparison:
+      title: "Antes y Después de la Plataforma"
+      subtitle: "Observa el impacto real de digitalizar tu explotación."
+      before:
+        emoji: "🌧"
+        title: "Antes"
         items:
-          - "MQTT"
-          - "LoRaWAN"
-          - "Raspberry Pi"
-          - "Tuya"
-          - "API REST"
-          - "Wi-Fi / BLE"
-      cta_final:
-        title: "¿Listo para transformar tu explotación?"
-        subtitle: "Crea tu cuenta gratuita y empieza hoy mismo a monitorizar y automatizar lo importante."
-        button: "Crear Cuenta Gratuita"
-      footer:
-        description: "Transformamos la agricultura con tecnología IoT para un futuro más sostenible."
-        sections:
-          platform:
-            title: "Plataforma"
-            links:
-              - "Panel"
-              - "Campos"
-              - "Análisis"
-              - "Configuración"
-          resources:
-            title: "Recursos"
-            links:
-              - "Blog"
-              - "Documentación"
-              - "Base de conocimiento"
-              - "Comunidad"
-          company:
-            title: "Empresa"
-            links:
-              - "Sobre Nosotros"
-              - "Carreras"
-              - "Contacto"
-              - "Privacidad"
-        copyright: "© 2025 AgriloT Synergy. Todos los derechos reservados."
+          - "Riego manual sin datos"
+          - "Desperdicio de agua y energía"
+          - "Falta de alertas y previsiones"
+          - "Decisiones basadas en intuición"
+      after:
+        emoji: "☀️"
+        title: "Después"
+        items:
+          - "Riego y alertas automatizadas"
+          - "Informes e historial en tiempo real"
+          - "Mayor productividad con menos recursos"
+          - "Decisiones basadas en datos"
+    technologies:
+      title: "Tecnología que Potencia la Agricultura y Acuicultura"
+      subtitle: "Integraciones y compatibilidad con los estándares líderes del sector."
+      items:
+        - "MQTT"
+        - "LoRaWAN"
+        - "Raspberry Pi"
+        - "Tuya"
+        - "API REST"
+        - "Wi-Fi / BLE"
+    cta_final:
+      title: "¿Listo para transformar tu explotación?"
+      subtitle: "Crea tu cuenta gratuita y empieza hoy mismo a supervisar y automatizar lo que importa."
+      button: "Crear Cuenta Gratuita"
+    footer:
+      description: "Transformamos la agricultura con tecnología IoT para un futuro más sostenible."
+      sections:
+        platform:
+          title: "Plataforma"
+          links:
+            - "Panel"
+            - "Campos"
+            - "Análisis"
+            - "Configuraciones"
+        resources:
+          title: "Recursos"
+          links:
+            - "Blog"
+            - "Documentación"
+            - "Base de Conocimiento"
+            - "Comunidad"
+        company:
+          title: "Empresa"
+          links:
+            - "Sobre Nosotros"
+            - "Carreras"
+            - "Contacto"
+            - "Privacidad"
+      copyright: "© 2025 AgriloT Synergy. Todos los derechos reservados."
+
+  dashboard:
+    title: "Panel Agrícola"
+    system_ok: "Todos los sistemas operativos"
+    sky: "Cielo"
+    wind_at: "a"
+    weather_error: "Error al obtener datos meteorológicos"
+    weather:
+      title: "Condiciones Meteorológicas"
+      select_field: "Campo:"
+      loading: "Cargando..."
+      wind: "Viento"
+      precipitation: "Precipitación"
+      next_days: "Próximos Días"
+      next_24h: "Próximas 24 Horas"
+      code:
+        "0": "Cielo despejado"
+        "1": "Pocas nubes"
+        "2": "Nubes dispersas"
+        "3": "Nublado"
+        "45": "Niebla"
+        "48": "Niebla con escarcha"
+        "51": "Llovizna ligera"
+        "53": "Llovizna moderada"
+        "55": "Llovizna intensa"
+        "61": "Lluvia ligera"
+        "63": "Lluvia moderada"
+        "65": "Lluvia fuerte"
+        "66": "Lluvia helada"
+        "67": "Lluvia helada intensa"
+        "71": "Nieve ligera"
+        "73": "Nieve moderada"
+        "75": "Nieve intensa"
+        "95": "Tormenta"
+        "96": "Tormenta con granizo"
+        "99": "Tormenta severa"
+        unknown: "Desconocido"
+
+    upcoming_tasks:
+      title: "🗓️ Eventos Programados"
+      none: "No hay eventos programados para hoy."
+      time: "🕒"
+      cancel_task: "¿Cancelar esta tarea?"
+      cancel_irrigation: "¿Cancelar este riego?"
+
+    sensor_status:
+      irrigation_status: "Estado de Riego"
+      remaining: "Faltan:"
+      done: "Riego completado"
+      soil_moisture: "Humedad del Suelo"
+      temperature: "Temperatura"
+      battery: "Batería"
+      previous: "« Anterior"
+      next: "Siguiente »"
+
+    quick_actions:
+      analytics:
+        title: "Ver Análisis"
+        description: "Gráficos detallados"
+        button: "Acceder"
+      fields:
+        title: "Gestionar Campos"
+        description: "Ver y editar"
+        button: "Acceder"
+      settings:
+        title: "Configuraciones"
+        description: "Preferencias del sistema"
+        button: "Acceder"
+
+    field_status:
+      title: "Estado de los Campos"
+      see_all: "Ver Todos"
+      no_fields: "🚨 Aún no hay campos registrados. Por favor, añade uno para ver el estado."
+      sensors_active: "📡 Sensores Activos"
+      soil_type: "🧪 Tipo de Suelo"
+      last_irrigation: "💧 Último Riego"
+      coordinates: "🗺️ Coordenadas"
+      harvest_prediction: "Predicción de Cosecha"
+      details: "Detalles"
+      unknown: "Desconocido"
