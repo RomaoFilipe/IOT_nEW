@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 <nav class="bg-white shadow-md px-6 py-4" x-data="{ mobileMenu: false, openLang: false }">
   <div class="flex items-center justify-between w-full">
     
@@ -39,79 +38,11 @@
               when 'es' then '🇪🇸 Español'
               end %>
         </button>
-<<<<<<< HEAD
       <% end %>
     <% end %>
   </div>
 </div>
 
-=======
-        <div x-show=\"openLang\" @click.away=\"openLang = false\" class=\"absolute right-0 mt-2 w-36 bg-white border rounded shadow-md z-50 py-2 text-sm">
-          <% ['pt', 'en', 'es'].each do |locale| %>
-            <%= form_with url: locale_path, method: :put, local: true do %>
-              <%= hidden_field_tag :locale, locale %>
-              <button type=\"submit\" class=\"w-full px-4 py-2 text-left hover:bg-gray-100\">
-=======
-<!DOCTYPE html>
-<html lang="<%= I18n.locale %>">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Navbar - AgriloT Synergy</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head>
-<body class="bg-gray-100">
-
-<!-- app/views/shared/_navbar.html.erb -->
-<nav class="bg-white shadow-md px-6 py-4" x-data="{ mobileMenu: false, openLang: false, profileMenu: false }">
-  <div class="flex items-center justify-between w-full">
-
-    <!-- LOGO -->
-    <div class="flex items-center gap-2">
-      <%= link_to (user_signed_in? ? dashboard_path : root_path), class: "text-green-700 font-bold text-xl flex items-center gap-2" do %>
-        <i data-lucide="cloud-cog" class="w-6 h-6"></i>
-        AgriloT Synergy
-      <% end %>
-    </div>
-
-    <!-- LINKS CENTRAIS -->
-    <div class="hidden md:flex items-center gap-6 text-gray-700">
-      <%= link_to root_path, class: "hover:text-green-600 transition font-medium" do %><%= t("navbar.home") %><% end %>
-      <% if user_signed_in? %>
-        <%= link_to dashboard_path, class: "hover:text-green-600 transition font-medium" do %><%= t("navbar.dashboard") %><% end %>
-        <%= link_to fields_path, class: "hover:text-green-600 transition font-medium" do %><%= t("navbar.fields") %><% end %>
-        <%= link_to analytics_path, class: "hover:text-green-600 transition font-medium" do %><%= t("navbar.analytics") %><% end %>
-      <% end %>
-    </div>
-
-    <!-- PERFIL + IDIOMA -->
-    <div class="flex items-center gap-4">
-
-      <!-- IDIOMA -->
-      <div class="relative" x-data="{ openLang: false }">
-        <button @click="openLang = !openLang" class="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 transition">
-          🌐 <%= t("languages.#{I18n.locale}") %>
-          <i data-lucide="chevron-down" class="w-4 h-4"></i>
-        </button>
-        <div x-show="openLang" @click.away="openLang = false" class="absolute right-0 mt-2 w-36 bg-white border rounded shadow-md z-50 py-2 text-sm">
-          <% ['pt', 'en', 'es'].each do |locale| %>
-            <%= form_with url: locale_path, method: :put, local: true do %>
-              <%= hidden_field_tag :locale, locale %>
-              <button type="submit" class="w-full px-4 py-2 text-left hover:bg-gray-100">
->>>>>>> Stashed changes
-                <%= case locale
-                    when 'pt' then '🇵🇹 Português'
-                    when 'en' then '🇬🇧 English'
-                    when 'es' then '🇪🇸 Español'
-                    end %>
-              </button>
-<<<<<<< Updated upstream
-            <% end %>
-          <% end %>
-        </div>
-      </div>
->>>>>>> 939f479 (Melhorias no navbar e traduções em EN)
 
       <!-- Sessão -->
       <% if user_signed_in? %>
@@ -127,84 +58,20 @@
   </div>
 
   <!-- MENU MOBILE -->
-=======
-            <% end %>
-          <% end %>
-        </div>
-      </div>
-
-      <% if user_signed_in? %>
-        <!-- AVATAR E DROPDOWN -->
-        <div class="relative" x-data="{ profileMenu: false }">
-          <button @click="profileMenu = !profileMenu" class="flex items-center gap-2 focus:outline-none">
-            <img src="<%= current_user.photo.url || image_path('placeholder-user.png') %>" alt="Avatar" class="w-9 h-9 rounded-full object-cover border" />
-            <span class="hidden md:inline text-sm font-medium text-gray-800"><%= current_user.name %></span>
-            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-600"></i>
-          </button>
-          <div x-show="profileMenu" @click.away="profileMenu = false" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-50 py-2">
-            <%= link_to t("navbar.profile"), edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <%= link_to t("navbar.settings"), settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-
-            <% if current_user.owner? %>
-              <%= link_to t("navbar.accounts"), main_app.admin_accounts_path, class: "block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100" %>
-            <% elsif current_user.admin? || current_user.manager? %>
-              <%= link_to t("navbar.team"), main_app.team_users_path, class: "block px-4 py-2 text-sm text-green-700 hover:bg-green-100" %>
-            <% end %>
-
-            <% if session[:simulated_account_id] %>
-              <div class="px-4 py-2 text-xs text-red-600">
-                <strong><%= t('navbar.simulating') %></strong> <%= current_account.name %><br>
-                <%= button_to "🔙 #{t('navbar.exit_simulation')}", stop_simulation_admin_accounts_path,
-              method: :delete,
-              class: "mt-1 text-red-600 underline text-xs px-0 py-0 bg-transparent hover:bg-transparent" %>
-
-            <% end %>
-
-            <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
-              <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><%= t("navbar.logout") %></button>
-            <% end %>
-          </div>
-        </div>
-      <% else %>
-        <%= link_to t("navbar.login"), new_user_session_path, class: "px-4 py-2 border border-gray-400 text-gray-700 rounded-md font-medium hover:bg-gray-100 transition" %>
-        <%= link_to t("navbar.signup"), new_user_registration_path, class: "px-4 py-2 bg-green-700 text-white rounded-md font-medium hover:bg-green-800 transition" %>
-      <% end %>
-    </div>
-  </div>
-
-  <!-- MOBILE MENU -->
->>>>>>> Stashed changes
   <div x-show="mobileMenu" class="md:hidden mt-4 space-y-2">
-    <%= link_to root_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t("navbar.home") %><% end %>
+    <%= link_to root_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.home') %><% end %>
     <% if user_signed_in? %>
-<<<<<<< Updated upstream
       <%= link_to dashboard_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.dashboard') %><% end %>
       <%= link_to fields_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.fields') %><% end %>
       <%= link_to analytics_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.analytics') %><% end %>
       <%= link_to edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %><%= t('navbar.profile') %><% end %>
-=======
-      <%= link_to dashboard_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t("navbar.dashboard") %><% end %>
-      <%= link_to fields_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t("navbar.fields") %><% end %>
-      <%= link_to analytics_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t("navbar.analytics") %><% end %>
-      <%= link_to t("navbar.profile"), edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-      <%= link_to t("navbar.settings"), settings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-      <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
-        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><%= t("navbar.logout") %></button>
-      <% end %>
->>>>>>> Stashed changes
     <% else %>
-      <%= link_to t("navbar.login"), new_user_session_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" %>
-      <%= link_to t("navbar.signup"), new_user_registration_path, class: "block px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800" %>
+      <%= link_to t('navbar.login'), new_user_session_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" %>
+      <%= link_to t('navbar.signup'), new_user_registration_path, class: "block px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800" %>
     <% end %>
   </div>
 </nav>
 
-<<<<<<< Updated upstream
-=======
-<!-- Lucide Icons -->
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-
->>>>>>> Stashed changes
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     lucide.createIcons();
