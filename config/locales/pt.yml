@@ -541,6 +541,8 @@ fields:
     temperature: "Temperatura"
     crop_health: "Estado da Cultura"
     good: "Bom"
+    modal:
+      submit: "Criar Campo"
   iot_equipment:
     title: "Equipamentos IoT Associados"
     add_button: "Adicionar Equipamento"

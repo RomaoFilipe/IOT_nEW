@@ -13,15 +13,20 @@ class FieldsController < ApplicationController
     @field = Field.new
   end
 
-  def create
-    @field = current_user.fields.build(field_params)
-    
-    if @field.save
-      redirect_to fields_path, notice: "Field created successfully."
-    else
-      render :new, status: :unprocessable_entity
+def create
+  @field = current_user.fields.new(field_params)
+  if @field.save
+    redirect_to fields_path, notice: "Campo criado com sucesso."
+  else
+    # Se estiveres a usar um modal, renderiza um partial com Turbo Stream
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace("field_form", partial: "fields/form", locals: { field: @field })
+      end
+      format.html { redirect_to fields_path, alert: "Erro ao criar campo." }
     end
   end
+end
 
   def destroy
     @field = Field.find(params[:id])
