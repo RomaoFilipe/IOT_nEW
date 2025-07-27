@@ -141,6 +141,8 @@ end
 
   # Rota para alterar idioma
     put '/locale', to: 'settings#locale', as: :locale
+
+end
   # 📡 WebSocket
   mount ActionCable.server => "/cable"
 end
