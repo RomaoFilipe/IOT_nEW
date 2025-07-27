@@ -119,6 +119,9 @@ Rails.application.routes.draw do
   # 👤 Perfil individual
   get "profile/:id", to: "profiles#show", as: "user_profile"
 
+
+  put '/locale', to: 'settings#locale', as: :locale
+
   # 📡 WebSocket
   mount ActionCable.server => "/cable"
 end

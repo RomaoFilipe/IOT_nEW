@@ -1,31 +1,117 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  field_types:
+    agriculture: "Agriculture"
+    aquaculture_tank: "Aquaculture (Tank)"
+    aquaculture_sea: "Aquaculture (Marine)"
+
+  languages:
+    pt: "Portuguese"
+    en: "English"
+    es: "Spanish"
+
+  navbar:
+    home: "Home"
+    dashboard: "Dashboard"
+    fields: "Fields"
+    analytics: "Analytics"
+    accounts: "Accounts"
+    team: "Team"
+    profile: "Profile"
+    settings: "Settings"
+    login: "Login"
+    signup: "Sign Up"
+    logout: "Logout"
+    simulating: "Simulating:"
+    exit_simulation: "Exit Simulation"
+
+  landing:
+    title: Smart Farming
+    hero:
+      highlight: Smart Farming
+      continuation: for a Sustainable Future
+      description: Transform your agricultural operations with our IoT platform. Monitor soil, automate irrigation, and make data-driven decisions.
+      cta:
+        get_started: Get Started
+        request_demo: Request Demo
+
+    features:
+      title: Powerful IoT Features
+      description: We combine cutting-edge technology with agricultural expertise for smarter decisions.
+      items:
+        env_monitoring:
+          title: Environmental Monitoring
+          desc: Monitor temperature, humidity, and soil in real-time with precision sensors.
+        smart_irrigation:
+          title: Smart Irrigation
+          desc: Automate irrigation based on soil moisture and weather forecasts.
+        yield_forecasting:
+          title: Yield Forecasting
+          desc: Estimate production using historical data, current conditions, and forecasts.
+        field_connectivity:
+          title: Field Connectivity
+          desc: Connect all your fields even in remote areas with our resilient mesh network.
+        data_insights:
+          title: Data-Driven Insights
+          desc: Use AI and machine learning to gain actionable insights from your farm data.
+        mobile_access:
+          title: Mobile Access
+          desc: Monitor and control your farm remotely with our mobile-friendly interface.
+
+    how_it_works:
+      title: How It Works
+      description: Our agricultural IoT platform is easy to set up and powerful to use.
+      items:
+        deploy:
+          icon: "🌱"
+          title: Deploy Sensors
+          desc: Place smart sensors across your land to monitor soil, weather, and crop health.
+        connect:
+          icon: "☁️"
+          title: Connect to Platform
+          desc: Sensors automatically connect to the cloud through mesh network technology.
+        analyze:
+          icon: "📊"
+          title: Analyze Data
+          desc: The platform analyzes farm data and provides actionable recommendations.
+        implement:
+          icon: "⚡"
+          title: Implement Actions
+          desc: Apply or automate irrigation and more based on real-time insights.
+
+    stats:
+      description: Join thousands of farmers already using our platform to optimize their operations.
+      water:
+        value: "95%"
+        label: Water Savings
+      yield:
+        value: "30%"
+        label: Yield Increase
+      labor:
+        value: "40%"
+        label: Labor Reduction
+
+    footer:
+      description: Empowering agriculture with IoT technology for a more efficient and sustainable future.
+      copyright: © 2025 AgriloT Synergy. All rights reserved.
+      sections:
+        platform:
+          title: Platform
+          links:
+            - Dashboard
+            - Fields
+            - Analytics
+            - Settings
+        resources:
+          title: Resources
+          links:
+            - Blog
+            - Documentation
+            - Knowledge Base
+            - Community
+        company:
+          title: Company
+          links:
+            - About Us
+            - Careers
+            - Contact
+            - Privacy

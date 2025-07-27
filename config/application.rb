@@ -8,18 +8,18 @@ Bundler.require(*Rails.groups)
 
 module IoTAgriculturalPlatform
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.2
 
-    # Ignorar diretórios específicos no lib que não contêm arquivos .rb
     config.autoload_paths += Dir[Rails.root.join('lib', '{assets,tasks}')]
     config.eager_load_paths += Dir[Rails.root.join('lib', '{assets,tasks}')]
 
-    # Evitar erro de callback para ações ausentes
     config.action_controller.raise_on_missing_callback_actions = false
 
-    # ✅ CONFIGURAÇÃO DO FUSO HORÁRIO
     config.time_zone = 'Lisbon'
     config.active_record.default_timezone = :local
+
+    # ✅ Aqui dentro!
+    config.i18n.default_locale = :pt
+    config.i18n.available_locales = [:pt, :en, :es]
   end
 end

@@ -30,6 +30,11 @@ class SettingsController < ApplicationController
     end
   end
 
+    def locale
+    session[:locale] = params[:locale]
+    redirect_back fallback_location: root_path
+  end
+
   private
 
   def set_user

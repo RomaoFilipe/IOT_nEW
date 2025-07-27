@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   before_action :configure_permitted_parameters, if: :devise_controller?
   helper SensorsHelper
+  before_action :set_locale
 
   include Pundit
 
@@ -26,6 +27,10 @@ class ApplicationController < ActionController::Base
   def user_not_authorized
     redirect_to root_path, alert: 'Você não tem permissão para realizar esta ação.'
   end
+
+  def set_locale
+  I18n.locale = session[:locale] || I18n.default_locale
+end
 
 
 def current_account
