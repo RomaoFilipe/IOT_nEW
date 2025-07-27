@@ -153,6 +153,161 @@
         aquaculture_tank: document.getElementById("card-aquaculture_tank")
       };
       const templates = {
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= t("landing.title") %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <main class="flex-grow">
+
+    <!-- HERO -->
+    <section class="relative bg-gradient-to-br from-emerald-50 to-blue-50 py-24 px-6 text-center">
+      <div class="max-w-5xl mx-auto">
+        <h1 class="text-5xl font-extrabold text-emerald-800">
+          🌱 <%= t("landing.hero.title") %>
+        </h1>
+        <p class="text-lg text-gray-600 mt-6"><%= t("landing.hero.description") %></p>
+        <div class="mt-8 flex justify-center">
+          <%= link_to new_user_registration_path, class: "bg-emerald-700 text-white px-6 py-3 rounded-md font-semibold hover:bg-emerald-800 transition flex items-center gap-2" do %>
+            <%= t("landing.hero.cta.get_started") %> <i data-lucide="arrow-right"></i>
+          <% end %>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIPO DE EXPLORAÇÃO -->
+    <section class="py-16 bg-white text-center">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6"><%= t("landing.choose_type.title") %></h2>
+      <div class="flex flex-wrap justify-center gap-10">
+        <div data-exploration="agriculture" class="bg-green-100 rounded-lg p-6 w-72 hover:shadow-lg transition cursor-pointer border-2 border-emerald-600" id="card-agriculture">
+          <div class="text-4xl">🌾</div>
+          <h3 class="text-xl font-semibold mt-2"><%= t("landing.choose_type.agriculture.title") %></h3>
+          <p class="text-gray-600 text-sm mt-1"><%= t("landing.choose_type.agriculture.description") %></p>
+        </div>
+        <div data-exploration="aquaculture_sea" class="bg-blue-100 rounded-lg p-6 w-72 hover:shadow-lg transition cursor-pointer" id="card-aquaculture_sea">
+          <div class="text-4xl">🌊</div>
+          <h3 class="text-xl font-semibold mt-2"><%= t("landing.choose_type.sea.title") %></h3>
+          <p class="text-gray-600 text-sm mt-1"><%= t("landing.choose_type.sea.description") %></p>
+        </div>
+        <div data-exploration="aquaculture_tank" class="bg-cyan-100 rounded-lg p-6 w-72 hover:shadow-lg transition cursor-pointer" id="card-aquaculture_tank">
+          <div class="text-4xl">🌿</div>
+          <h3 class="text-xl font-semibold mt-2"><%= t("landing.choose_type.tank.title") %></h3>
+          <p class="text-gray-600 text-sm mt-1"><%= t("landing.choose_type.tank.description") %></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section class="bg-gray-100 py-20 text-center">
+      <h2 class="text-3xl font-bold text-gray-900"><%= t("landing.how_it_works.title") %></h2>
+      <p class="text-lg text-gray-600 mt-2 max-w-2xl mx-auto"><%= t("landing.how_it_works.description") %></p>
+      <div id="howItWorksContent" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-10 max-w-6xl mx-auto px-6">
+        <!-- Inserido dinamicamente por JS -->
+      </div>
+    </section>
+
+    <!-- HISTÓRIAS REAIS -->
+    <section class="bg-white py-20 text-center">
+      <h2 class="text-3xl font-bold text-gray-900"><%= t("landing.testimonials.title") %></h2>
+      <p class="text-lg text-gray-600 mt-2"><%= t("landing.testimonials.subtitle") %></p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 max-w-6xl mx-auto px-6">
+        <% [:marta, :tiago, :carlos].each do |person| %>
+          <div class="bg-gray-100 p-6 rounded-lg">
+            <p class="text-sm text-gray-700 italic"><%= t("landing.testimonials.#{person}.quote") %></p>
+            <p class="mt-4 font-bold"><%= t("landing.testimonials.#{person}.name") %></p>
+            <p class="text-sm text-gray-500"><%= t("landing.testimonials.#{person}.role") %></p>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <!-- COMPARATIVO ANTES/DEPOIS -->
+    <section class="bg-gray-50 py-20 text-center">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6"><%= t("landing.comparison.title") %></h2>
+        <p class="text-lg text-gray-600 mb-10"><%= t("landing.comparison.subtitle") %></p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <% [:before, :after].each do |phase| %>
+            <div class="<%= phase == :before ? 'bg-white' : 'bg-emerald-100' %> rounded-lg p-6 shadow">
+              <h3 class="font-bold text-xl mb-2"><%= t("landing.comparison.#{phase}.emoji") %> <%= t("landing.comparison.#{phase}.title") %></h3>
+              <ul class="list-disc list-inside text-left text-gray-600">
+                <% t("landing.comparison.#{phase}.items").each do |item| %>
+                  <li><%= item %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECNOLOGIAS -->
+    <section class="bg-white py-20 text-center">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-3xl font-bold text-gray-900"><%= t("landing.technologies.title") %></h2>
+        <p class="text-lg text-gray-600 mt-4"><%= t("landing.technologies.subtitle") %></p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 mt-10">
+          <% t("landing.technologies.items").each do |tech| %>
+            <div class="bg-gray-100 p-4 rounded-lg"><%= tech %></div>
+          <% end %>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="bg-emerald-800 text-white py-20 text-center">
+      <h2 class="text-3xl font-bold mb-4"><%= t("landing.cta_final.title") %></h2>
+      <p class="mb-6 text-lg"><%= t("landing.cta_final.subtitle") %></p>
+      <%= link_to new_user_registration_path, class: "bg-white text-emerald-800 font-semibold px-6 py-3 rounded-md hover:bg-gray-100 transition" do %>
+        <%= t("landing.cta_final.button") %>
+      <% end %>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-100 py-12 mt-10 border-t border-gray-200">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-6 text-sm text-gray-700">
+      <div>
+        <div class="flex items-center gap-2 text-lg font-bold text-gray-900">
+          <i data-lucide="cloud-cog"></i> AgriloT Synergy
+        </div>
+        <p class="mt-3 text-gray-600"><%= t("landing.footer.description") %></p>
+      </div>
+      <% ['platform', 'resources', 'company'].each do |section| %>
+        <div>
+          <h3 class="font-semibold uppercase text-gray-900"><%= t("landing.footer.sections.#{section}.title") %></h3>
+          <ul class="mt-3 space-y-1">
+            <% t("landing.footer.sections.#{section}.links").each do |item| %>
+              <li><a href="#" class="hover:text-green-700 transition"><%= item %></a></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+    <div class="text-center text-gray-500 mt-10 border-t pt-6 text-xs">
+      <%= t("landing.footer.copyright") %>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script>
+    lucide.createIcons();
+    document.addEventListener("DOMContentLoaded", () => {
+      const buttons = document.querySelectorAll("[data-exploration]");
+      const content = document.getElementById("howItWorksContent");
+      const cardBorders = {
+        agriculture: document.getElementById("card-agriculture"),
+        aquaculture_sea: document.getElementById("card-aquaculture_sea"),
+        aquaculture_tank: document.getElementById("card-aquaculture_tank")
+      };
+      const templates = {
         agriculture: `<div class='bg-white p-6 rounded-lg shadow'><div class='text-green-600 text-3xl mb-4'>🚜</div><h3 class='text-lg font-bold'>1. Sensores no Campo</h3><p class='text-sm text-gray-600 mt-2'>Humidade, temperatura e qualidade do solo.</p></div>`,
         aquaculture_sea: `<div class='bg-white p-6 rounded-lg shadow'><div class='text-blue-600 text-3xl mb-4'>🌊</div><h3 class='text-lg font-bold'>1. Monitorização Marinha</h3><p class='text-sm text-gray-600 mt-2'>Oxigénio, salinidade, temperatura da água.</p></div>`,
         aquaculture_tank: `<div class='bg-white p-6 rounded-lg shadow'><div class='text-cyan-600 text-3xl mb-4'>🐟</div><h3 class='text-lg font-bold'>1. Gestão de Tanques</h3><p class='text-sm text-gray-600 mt-2'>Sensores nos viveiros, alertas automáticos e relatórios.</p></div>`
