@@ -1,0 +1,13 @@
+base_locale: pt
+locales: [pt, en, es]
+
+data:
+  read:
+    file: config/locales/%{locale}.yml
+  write:
+    file: config/locales/%{locale}.yml
+
+translation:
+  backend: deepl
+  deepl_api_key: <%= ENV["DEEPL_API_KEY"] %>
+  deepl_host: "https://api-free.deepl.com"

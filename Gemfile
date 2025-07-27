@@ -34,8 +34,9 @@ gem "pundit"
 gem 'mqtt'
 gem 'clockwork'
 gem 'sidekiq'
+gem 'easy_translate'
 
-
+gem 'i18n-tasks', require: false
 gem 'dotenv-rails', groups: [:development, :test]
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]

@@ -21,27 +21,28 @@
     <!-- DIREITA: Idioma + Login/Profile -->
     <div class="flex items-center gap-4">
       
-      <!-- Idioma -->
-      <div class="relative" x-data="{ openLang: false }">
-        <button @click="openLang = !openLang" class="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 transition">
-          🌐 <%= I18n.t(\"languages.#{I18n.locale}\") %>
-          <i data-lucide=\"chevron-down\" class=\"w-4 h-4\"></i>
+<!-- Idioma -->
+<div class="relative" x-data="{ openLang: false }">
+  <button @click="openLang = !openLang" class="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 transition">
+    🌐 <%= t("languages.#{I18n.locale}") %>
+    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+  </button>
+  <div x-show="openLang" @click.away="openLang = false" class="absolute right-0 mt-2 w-36 bg-white border rounded shadow-md z-50 py-2 text-sm">
+    <% ['pt', 'en', 'es'].each do |locale| %>
+      <%= form_with url: locale_path, method: :put, local: true do %>
+        <%= hidden_field_tag :locale, locale %>
+        <button type="submit" class="w-full px-4 py-2 text-left hover:bg-gray-100">
+          <%= case locale
+              when 'pt' then '🇵🇹 Português'
+              when 'en' then '🇬🇧 English'
+              when 'es' then '🇪🇸 Español'
+              end %>
         </button>
-        <div x-show=\"openLang\" @click.away=\"openLang = false\" class=\"absolute right-0 mt-2 w-36 bg-white border rounded shadow-md z-50 py-2 text-sm">
-          <% ['pt', 'en', 'es'].each do |locale| %>
-            <%= form_with url: locale_path, method: :put, local: true do %>
-              <%= hidden_field_tag :locale, locale %>
-              <button type=\"submit\" class=\"w-full px-4 py-2 text-left hover:bg-gray-100\">
-                <%= case locale
-                    when 'pt' then '🇵🇹 Português'
-                    when 'en' then '🇬🇧 English'
-                    when 'es' then '🇪🇸 Español'
-                    end %>
-              </button>
-            <% end %>
-          <% end %>
-        </div>
-      </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
 
       <!-- Sessão -->
       <% if user_signed_in? %>

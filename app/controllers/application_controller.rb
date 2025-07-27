@@ -1,12 +1,20 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
-  before_action :configure_permitted_parameters, if: :devise_controller?
   helper SensorsHelper
-  before_action :set_locale
-
   include Pundit
 
+  before_action :set_locale
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
+  def set_locale
+    I18n.locale = params[:locale] || I18n.default_locale
+  end
+
+  def default_url_options
+    { locale: I18n.locale }
+  end
 
   protected
 
@@ -16,30 +24,24 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit(:account_update, keys: permitted)
   end
 
-  def after_sign_in_path_for(resource)
-    home_path
-  end
+def after_sign_in_path_for(resource)
+  home_path(locale: I18n.locale)
+end
 
-  def after_sign_out_path_for(resource_or_scope)
-    root_path
-  end
+def after_sign_out_path_for(resource_or_scope)
+  root_path(locale: I18n.locale)
+end
 
   def user_not_authorized
     redirect_to root_path, alert: 'Você não tem permissão para realizar esta ação.'
   end
 
-  def set_locale
-  I18n.locale = session[:locale] || I18n.default_locale
-end
-
-
-def current_account
-  if session[:simulated_account_id]
-    Account.find(session[:simulated_account_id])
-  else
-    current_user.account
+  def current_account
+    if session[:simulated_account_id]
+      Account.find(session[:simulated_account_id])
+    else
+      current_user.account
+    end
   end
-end
-helper_method :current_account
-
+  helper_method :current_account
 end

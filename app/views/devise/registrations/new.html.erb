@@ -22,7 +22,7 @@
       <h2 class="text-xl font-bold text-gray-800 text-center mb-1">Create an account</h2>
       <p class="text-sm text-gray-500 text-center mb-6">Enter your information to create your account</p>
 
-      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { multipart: true }) do |f| %>
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name, locale: I18n.locale), html: { multipart: true }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
 
         <!-- Nome -->
@@ -101,7 +101,7 @@
         <!-- Sign In Link -->
         <p class="text-center text-sm text-gray-600">
           Already have an account?
-          <%= link_to "Sign in", new_session_path(resource_name), class: "text-green-600 hover:underline font-medium" %>
+<%= link_to "Sign in", new_session_path(resource_name, locale: I18n.locale), class: "text-green-600 hover:underline font-medium" %>
         </p>
       <% end %>
     </div>
