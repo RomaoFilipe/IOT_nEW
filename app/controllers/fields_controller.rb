@@ -15,15 +15,12 @@ class FieldsController < ApplicationController
 
 def create
   @field = current_user.fields.new(field_params)
+
   if @field.save
     redirect_to fields_path, notice: "Campo criado com sucesso."
   else
-    flash.now[:alert] = "Erro ao criar campo. Verifica os dados preenchidos."
-    render turbo_stream: turbo_stream.replace(
-      "field_form_modal",
-      partial: "fields/form",
-      locals: { field: @field }
-    )
+    flash[:alert] = "Erro ao criar campo. Verifica os dados preenchidos."
+    redirect_to fields_path(anchor: "addFieldModal") # opcional: abre o modal novamente
   end
 end
 
