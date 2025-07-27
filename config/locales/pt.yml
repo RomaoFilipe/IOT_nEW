@@ -198,20 +198,29 @@ pt:
   users:
     edit:
       title: "Editar Utilizador"
-      back: "← Voltar para Contas"
-      update_password: "Atualizar Palavra-passe"
-      profile_picture: "Foto de Perfil"
-      save: "💾 Salvar Alterações"
-      cancel: "Cancelar"
+      submit: "📎 Atualizar Utilizador"
+      back: "← Voltar para a Equipa"
 
-    form:
-      name: "Nome"
-      email: "Email"
-      role: "Função"
-      status: "Estado"
-      password: "Nova Password"
-      password_confirmation: "Confirmar Password"
-      password_hint: "Deixa em branco para manter a atual."
+    new:
+      title: "➕ Novo Utilizador"
+      errors_title: "Erros ao criar utilizador:"
+      submit: "💾 Criar Utilizador"
+      back: "← Voltar"
+
+    forms:
+      shared:
+        name: "Nome"
+        name_placeholder: "Ex: João Silva"
+        email: "Email"
+        email_placeholder: "exemplo@email.com"
+        password: "Palavra-passe"
+        password_placeholder: "Deixar em branco se não quiser alterar"
+        password_confirmation: "Confirmação de Palavra-passe"
+        role: "Função"
+        photo: "Foto de perfil (opcional)"
+        current_photo: "Foto atual:"
+        notif_email: "Receber notificações por email"
+        notif_sms: "Receber notificações por SMS"
 
     status:
       active: "Ativo"
@@ -235,206 +244,186 @@ pt:
       admin: "Administrador"
       manager: "Gestor"
       user: "Utilizador"
+      technician: "Técnico"
+      viewer: "Visualizador"
 
   actions:
     edit: "Editar"
     delete: "Eliminar"
 
-
-
-team:
-  users:
-    edit:
-      title: "Editar Utilizador"
-      submit: "📎 Atualizar Utilizador"
-      back: "← Voltar para a Equipa"
-    form:
-      name: "Nome"
-      name_placeholder: "Ex: João Silva"
-      email: "Email"
-      email_placeholder: "exemplo@email.com"
-      password: "Nova Palavra-passe"
-      password_placeholder: "Deixar em branco se não quiser alterar"
-      password_confirmation: "Confirmação"
-      role: "Função"
-      photo: "Foto (opcional)"
-      current_photo: "Foto atual:"
-      notif_email: "Receber notificações por email"
-      notif_sms: "Receber notificações por SMS"
+  team:
+    users:
+      edit:
+        title: "Editar Utilizador"
+        submit: "📎 Atualizar Utilizador"
+        back: "← Voltar para a Equipa"
 
       new:
-      title: "➕ Novo Utilizador"
-      errors_title: "Erros ao criar utilizador:"
-      submit: "💾 Criar Utilizador"
+        title: "➕ Novo Utilizador"
+        errors_title: "Erros ao criar utilizador:"
+        submit: "💾 Criar Utilizador"
+        back: "← Voltar"
+
+      forms:
+        shared:
+          name: "Nome"
+          name_placeholder: "Ex: João Silva"
+          email: "Email"
+          email_placeholder: "exemplo@email.com"
+          password: "Nova Palavra-passe"
+          password_placeholder: "Deixar em branco se não quiser alterar"
+          password_confirmation: "Confirmação"
+          role: "Função"
+          photo: "Foto (opcional)"
+          current_photo: "Foto atual:"
+          notif_email: "Receber notificações por email"
+          notif_sms: "Receber notificações por SMS"
+
+    account:
+      edit_title: "Editar Conta da Empresa"
+      name: "Nome da Empresa"
+      nif: "NIF"
+      farm_type: "Tipo de Produção"
       back: "← Voltar"
+      save: "💾 Guardar Alterações"
+      team_title: "Equipa da Empresa"
+      add_user: "➕ Adicionar Utilizador"
+      confirm_delete: "Tens a certeza que queres apagar este utilizador?"
+      impersonate: "Simular"
+      collapse: "Recolher"
+      expand: "Expandir"
+      status: "Estado"
+      notifications: "Notificações"
+      no_users: "Ainda não existem utilizadores nesta conta."
+      you_label: "Tu"
+
+  tasks:
     form:
+      crop: "Cultura"
+      select_crop: "Selecionar Cultura"
+      name: "Nome da Tarefa"
+      start_time: "Horário de Início"
+      end_time: "Horário de Fim"
+      description: "Descrição"
+      submit: "Guardar Tarefa"
+
+  settings:
+    title: "Configurações do Sistema"
+    active: "Ativo ✅"
+    inactive: "Desativado ❌"
+    unknown: "Desconhecido"
+
+    notifications:
+      customize: "Personalizar Notificações"
+      summary: "Resumo das Notificações"
+      email: "Notificações por Email"
+      sms: "Notificações por SMS"
+      email_label: "Email"
+      sms_label: "SMS"
+
+    security:
+      title: "Resumo de Segurança"
+      change_password: "Alterar Password"
+      password_warning: "A tua password não foi atualizada há mais de 90 dias. Recomenda-se alterar imediatamente."
+      password_label: "Password"
+      updated_ago: "Atualizada há %{time}"
+      2fa: "Autenticação de Dois Fatores"
+      last_login: "Último Acesso"
+      current_ip: "IP Atual"
+      last_ip: "IP Último Acesso"
+      total_logins: "Total de Logins"
+
+  sensors:
+    update:
+      title: "Sensor %{name}"
+      temperature: "Temperatura"
+      moisture: "Humidade"
+      battery: "Bateria"
+      signal: "Sinal"
+      last_reading: "Última leitura"
+      ago: "atrás"
+      value: "Valor"
+    readings:
+      title: "Histórico do Sensor: %{name}"
+      not_found: "Sensor não encontrado."
+      date: "Data"
+      temperature: "Temperatura (°C)"
+      moisture: "Humidade (%)"
+      battery: "Bateria (%)"
+      signal: "Sinal (%)"
+      back: "Voltar"
+      chart_title: "Leituras do Sensor"
+    irrigation:
+      title: "Histórico de Irrigação: %{name}"
+      not_found: "Sensor não encontrado."
+      date: "Data"
+      duration: "Duração (s)"
+      status: "Estado"
+      back: "Voltar"
+      chart_title: "Histórico de Irrigação"
+      chart_label: "Duração de Irrigação (s)"
+      x_axis: "Data e Hora"
+      y_axis: "Segundos"
+      statuses:
+        executado: "Executado"
+        falhou: "Falhou"
+        desconhecido: "Desconhecido"
+    unassigned:
+      title: "Sensores Não Atribuídos"
       name: "Nome"
-      email: "Email"
-      role: "Função"
-      password: "Palavra-passe"
-      password_confirmation: "Confirmação de Palavra-passe"
-      photo: "Foto de perfil (opcional)"
-      notif_email: "Receber notificações por email"
-      notif_sms: "Receber notificações por SMS"
-  
-  account:
-    edit_title: "Editar Conta da Empresa"
-    name: "Nome da Empresa"
-    nif: "NIF"
-    farm_type: "Tipo de Produção"
-    back: "← Voltar"
-    save: "💾 Guardar Alterações"
-    team_title: "Equipa da Empresa"
-    add_user: "➕ Adicionar Utilizador"
-    confirm_delete: "Tens a certeza que queres apagar este utilizador?"
-    impersonate: "Simular"
-    collapse: "Recolher"
-    expand: "Expandir"
-    status: "Estado"
-    notifications: "Notificações"
-    no_users: "Ainda não existem utilizadores nesta conta."
-    you_label: "Tu"
-
-  roles:
-    admin: "Administrador"
-    manager: "Gestor"
-    technician: "Técnico"
-    viewer: "Visualizador"
-
-actions:
-  edit: "Editar"
-  delete: "Apagar"
-
-
-tasks:
-  form:
-    crop: "Cultura"
-    select_crop: "Selecionar Cultura"
-    name: "Nome da Tarefa"
-    start_time: "Horário de Início"
-    end_time: "Horário de Fim"
-    description: "Descrição"
-    submit: "Guardar Tarefa"
-
-
-settings:
-  title: "Configurações do Sistema"
-  active: "Ativo ✅"
-  inactive: "Desativado ❌"
-  unknown: "Desconhecido"
-
-  notifications:
-    customize: "Personalizar Notificações"
-    summary: "Resumo das Notificações"
-    email: "Notificações por Email"
-    sms: "Notificações por SMS"
-    email_label: "Email"
-    sms_label: "SMS"
-
-  security:
-    title: "Resumo de Segurança"
-    change_password: "Alterar Password"
-    password_warning: "A tua password não foi atualizada há mais de 90 dias. Recomenda-se alterar imediatamente."
-    password_label: "Password"
-    updated_ago: "Atualizada há %{time}"
-    2fa: "Autenticação de Dois Fatores"
-    last_login: "Último Acesso"
-    current_ip: "IP Atual"
-    last_ip: "IP Último Acesso"
-    total_logins: "Total de Logins"
-
-
-sensors:
-  update:
-    title: "Sensor %{name}"
-    temperature: "Temperatura"
-    moisture: "Humidade"
-    battery: "Bateria"
-    signal: "Sinal"
-    last_reading: "Última leitura"
-    ago: "atrás"
-    value: "Valor"
-  readings:
-    title: "Histórico do Sensor: %{name}"
-    not_found: "Sensor não encontrado."
-    date: "Data"
-    temperature: "Temperatura (°C)"
-    moisture: "Humidade (%)"
-    battery: "Bateria (%)"
-    signal: "Sinal (%)"
-    back: "Voltar"
-    chart_title: "Leituras do Sensor"
-  irrigation:
-    title: "Histórico de Irrigação: %{name}"
-    not_found: "Sensor não encontrado."
-    date: "Data"
-    duration: "Duração (s)"
-    status: "Estado"
-    back: "Voltar"
-    chart_title: "Histórico de Irrigação"
-    chart_label: "Duração de Irrigação (s)"
-    x_axis: "Data e Hora"
-    y_axis: "Segundos"
-    statuses:
-      executado: "Executado"
-      falhou: "Falhou"
-      desconhecido: "Desconhecido"
-  unassigned:
-    title: "Sensores Não Atribuídos"
-    name: "Nome"
-    type: "Tipo"
-    last_reading: "Última leitura"
-    actions: "Ações"
-    no_data: "Sem dados"
-    assign: "Atribuir a este campo"
-  status:
-    label: "Estado"
-    updated_at: "Atualizado"
-    states:
-      irrigando: "Irrigando"
-      parado: "Parado"
-      inativo: "Inativo"
-  card:
-    title: "Sensor %{name}"
-    temperature: "Temperatura"
-    moisture: "Humidade"
-    battery: "Bateria"
-    signal: "Sinal"
-    last_reading: "Última leitura"
-    ago: "atrás"
-    value: "Valor"
-    confirm_delete: "Apagar este sensor?"
-  row:
-    view_today_schedules: "Ver horários de hoje"
-    irrigation_history: "Histórico de Irrigações"
-    readings_history: "Histórico de Leituras"
-    schedule: "Agendar"
-    schedule_irrigation: "Agendar Irrigação"
-    schedule_for: "Configure o agendamento para %{name}"
-    weekdays: "Dias da Semana"
-    hour: "Hora"
-    minute: "Minuto"
-    duration: "Duração"
-  status:
-    states:
-      active: "Ativo"
-      inactive: "Inativo"
-  types:
-    temperatura: "Temperatura"
-    humidade: "Humidade"
-    irrigation: "Irrigação"
-  card:
-    confirm_delete: "Apagar este sensor?"
-actions:
-  cancel: "Cancelar"
-  confirm: "Confirmar"
-  delete: "Apagar"
-  schedule_modal:
-    title: "Horários de Irrigação"
-    confirm_delete: "Remover este agendamento?"
-    none: "Nenhum"
-actions:
-  close: "Fechar"
+      type: "Tipo"
+      last_reading: "Última leitura"
+      actions: "Ações"
+      no_data: "Sem dados"
+      assign: "Atribuir a este campo"
+    status:
+      label: "Estado"
+      updated_at: "Atualizado"
+      states:
+        irrigando: "Irrigando"
+        parado: "Parado"
+        inativo: "Inativo"
+    card:
+      title: "Sensor %{name}"
+      temperature: "Temperatura"
+      moisture: "Humidade"
+      battery: "Bateria"
+      signal: "Sinal"
+      last_reading: "Última leitura"
+      ago: "atrás"
+      value: "Valor"
+      confirm_delete: "Apagar este sensor?"
+    row:
+      view_today_schedules: "Ver horários de hoje"
+      irrigation_history: "Histórico de Irrigações"
+      readings_history: "Histórico de Leituras"
+      schedule: "Agendar"
+      schedule_irrigation: "Agendar Irrigação"
+      schedule_for: "Configure o agendamento para %{name}"
+      weekdays: "Dias da Semana"
+      hour: "Hora"
+      minute: "Minuto"
+      duration: "Duração"
+    status:
+      states:
+        active: "Ativo"
+        inactive: "Inativo"
+    types:
+      temperatura: "Temperatura"
+      humidade: "Humidade"
+      irrigation: "Irrigação"
+    card:
+      confirm_delete: "Apagar este sensor?"
+  actions:
+    cancel: "Cancelar"
+    confirm: "Confirmar"
+    delete: "Apagar"
+    schedule_modal:
+      title: "Horários de Irrigação"
+      confirm_delete: "Remover este agendamento?"
+      none: "Nenhum"
+  actions:
+    close: "Fechar"
 
   irrigation_status:
     label: "Estado da Irrigação"
@@ -484,9 +473,9 @@ actions:
     actions: "Ações"
     add_new: "Adicionar Novo Utilizador"
     confirm_delete: "Tens a certeza que queres excluir este utilizador?"
-actions:
-  edit: "Editar"
-  delete: "Excluir"
+  actions:
+    edit: "Editar"
+    delete: "Excluir"
 
 profiles:
   edit:
