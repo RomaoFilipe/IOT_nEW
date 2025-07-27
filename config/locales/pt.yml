@@ -94,13 +94,13 @@ pt:
       description: Transformamos a agricultura com tecnologia IoT para um futuro mais eficiente e sustentável.
       copyright: © 2025 AgriloT Synergy. Todos os direitos reservados.
       sections:
-        platform:
-          title: Plataforma
-          links:
-            - Painel
-            - Campos
-            - Análises
-            - Definições
+      platform:
+        title: Plataforma
+        links:
+          - Painel
+          - Campos
+          - Análises
+          - Definições
         resources:
           title: Recursos
           links:
