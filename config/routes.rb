@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   scope "(:locale)", locale: /pt|en|es/ do
-    # 🔐 Devise (com controlador custom para registos se usares)
+    # 🔐 Devise (com controlador custom para registos, se usares)
     devise_for :users, controllers: {
       registrations: "users/registrations"
     }
@@ -99,6 +99,8 @@ Rails.application.routes.draw do
     end
 
     get "profile/:id", to: "profiles#show", as: "user_profile"
+
+    # Rota para alterar idioma
     put '/locale', to: 'settings#locale', as: :locale
   end
 
