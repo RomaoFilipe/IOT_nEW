@@ -117,6 +117,7 @@ en:
             - "Careers"
             - "Contact"
             - "Privacy"
+<<<<<<< HEAD
       copyright: "© 2025 AgriloT Synergy. All rights reserved."
 
   dashboard:
@@ -199,3 +200,10 @@ en:
       harvest_prediction: "Harvest Forecast"
       details: "Details"
       unknown: "Unknown"
+=======
+<<<<<<< Updated upstream
+      copyright: "© 2025 AgriloT Synergy. All rights reserved."
+=======
+      copyright: "© 2025 AgriloT Synergy. All rights reserved."
+>>>>>>> Stashed changes
+>>>>>>> 939f479 (Melhorias no navbar e traduções em EN)
