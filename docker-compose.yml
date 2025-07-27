@@ -27,32 +27,6 @@ services:
     depends_on:
       - db
 
-  sensor_simulator:
-    build:
-      context: .
-      dockerfile: Dockerfile.sensor
-    environment:
-      API_TOKEN: abc123supersecreto
-    restart: unless-stopped
-    depends_on:
-      - db
-      - redis
-
-  sensor_gateway:
-    build:
-      context: ./sensor_gateway
-      dockerfile: Dockerfile.gateway
-    env_file: .env
-    environment:
-      API_TOKEN: abc123supersecreto
-      API_URL: http://172.31.24.78:3000/api/sensors
-      MQTT_BROKER: mqtt
-      MQTT_PORT: 1883
-    depends_on:
-      - mqtt
-      - redis
-    restart: unless-stopped
-
   cron:
     build:
       context: .
