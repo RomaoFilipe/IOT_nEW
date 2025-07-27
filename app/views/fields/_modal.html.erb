@@ -1,66 +1,62 @@
 <div id="addFieldModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
   <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md transform transition-all scale-95">
     <div class="flex justify-between items-center border-b pb-3 mb-4">
-      <h2 class="text-xl font-semibold text-gray-800"><%= t("fields.modal.title") %></h2>
+      <h2 class="text-xl font-semibold text-gray-800">Adicionar Novo Campo</h2>
       <button onclick="toggleModal()" class="text-gray-500 hover:text-red-600 text-2xl leading-none">&times;</button>
     </div>
 
-    <p class="text-gray-500 text-sm mb-4"><%= t("fields.modal.description") %></p>
+    <p class="text-gray-500 text-sm mb-4">Preenche os dados necessários para criar um novo campo agrícola.</p>
 
     <%= form_with model: @field, url: fields_path, local: true do |f| %>
       <div>
-        <%= f.label :name, t("fields.modal.name"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :name, "Nome do Campo", class: "block text-sm font-medium text-gray-700" %>
         <%= f.text_field :name, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
       </div>
 
       <div>
-        <%= f.label :field_type, t("fields.modal.field_type"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :field_type, "Tipo de Cultura", class: "block text-sm font-medium text-gray-700" %>
         <%= f.text_field :field_type, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
       </div>
 
       <div>
-        <%= f.label :area, t("fields.modal.area"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :area, "Área (ha)", class: "block text-sm font-medium text-gray-700" %>
         <%= f.number_field :area, step: 0.1, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <%= f.label :latitude, t("fields.modal.latitude"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :latitude, "Latitude", class: "block text-sm font-medium text-gray-700" %>
           <%= f.text_field :latitude, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
         </div>
         <div>
-          <%= f.label :longitude, t("fields.modal.longitude"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :longitude, "Longitude", class: "block text-sm font-medium text-gray-700" %>
           <%= f.text_field :longitude, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
         </div>
       </div>
 
       <div class="mt-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.modal.boundary") %></label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Field Boundary</label>
         <button type="button" onclick="openBoundaryModal()" class="w-full border border-gray-300 px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50">
           <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M9.75 9.75L14.25 14.25"></path></svg>
-          <span><%= t("fields.modal.boundary_button") %></span>
+          <span>Define Field Boundary</span>
         </button>
       </div>
 
       <%= f.hidden_field :polygon_coordinates, id: "polygonCoordinates" %>
 
       <div>
-        <%= f.label :notes, t("fields.modal.notes"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :notes, "Anotações", class: "block text-sm font-medium text-gray-700" %>
         <%= f.text_area :notes, rows: 3, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
       </div>
 
       <div class="flex justify-end space-x-2 pt-4">
-        <button type="button" onclick="toggleModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
-          <%= t("actions.cancel") %>
-        </button>
-        <%= f.submit t("fields.modal.submit"), class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700" %>
+        <button type="button" onclick="toggleModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">Cancelar</button>
+        <%= f.submit "Criar Campo", class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700" %>
       </div>
     <% end %>
   </div>
-
   <%= render "fields/boundary_modal" %>
 </div>
-
 
 <script>
   let polygonMap;
