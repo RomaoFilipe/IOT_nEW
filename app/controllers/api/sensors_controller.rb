@@ -15,35 +15,37 @@ module Api
 
       sensor = Sensor.find_or_initialize_by(device_id: device_id)
 
-      if sensor.new_record?
-        sensor.name = device_id
-        sensor.sensor_type = sensor_type
-        sensor.type = case sensor_type.downcase
-                      when 'temperature', 'moisture'
-                        'TemperatureSensor'
-                      when 'irrigation'
-                        'IrrigationSensor'
-                      else
-                        'Sensor'
-                      end
-        sensor.status = "Active"
-        sensor.battery = rand(60..100)
-        sensor.signal = rand(60..100)
-        sensor.last_reading = Time.current
-        sensor.save!
-      else
-        expected_type = case sensor_type.downcase
-                        when 'temperature', 'moisture'
-                          'TemperatureSensor'
-                        when 'irrigation'
-                          'IrrigationSensor'
-                        else
-                          'Sensor'
-                        end
-        if sensor.type != expected_type
-          sensor.update(type: expected_type, sensor_type: sensor_type)
-        end
-      end
+if sensor.new_record?
+  sensor.name = device_id
+  sensor.sensor_type = sensor_type
+  sensor.type = case sensor_type.downcase
+                when 'temperature', 'moisture' then 'TemperatureSensor'
+                when 'irrigation' then 'IrrigationSensor'
+                else 'Sensor'
+                end
+  sensor.status = "Active"
+  sensor.battery = rand(60..100)
+  sensor.signal = rand(60..100)
+  sensor.last_reading = Time.current
+  sensor.field_id = params[:field_id] if params[:field_id].present? # ✅ AQUI
+  sensor.save!
+else
+  # atualiza tipo, se necessário
+  expected_type = case sensor_type.downcase
+                  when 'temperature', 'moisture' then 'TemperatureSensor'
+                  when 'irrigation' then 'IrrigationSensor'
+                  else 'Sensor'
+                  end
+  if sensor.type != expected_type
+    sensor.update(type: expected_type, sensor_type: sensor_type)
+  end
+
+  # também atribui ao campo, se ainda não tiver
+  if sensor.field_id.blank? && params[:field_id].present?
+    sensor.update(field_id: params[:field_id])
+  end
+end
+
 
       render json: {
         id: sensor.id,

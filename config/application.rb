@@ -21,5 +21,10 @@ module IoTAgriculturalPlatform
     # ✅ CONFIGURAÇÃO DO FUSO HORÁRIO
     config.time_zone = 'Lisbon'
     config.active_record.default_timezone = :local
+
+
+    config.i18n.available_locales = [:en, :pt, :es]
+    config.i18n.default_locale = :en
+
   end
 end

@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :set_locale
   helper SensorsHelper
 
   include Pundit
@@ -9,14 +10,9 @@ class ApplicationController < ActionController::Base
 
 
 def set_locale
-  if params[:locale].present?
-    I18n.locale = params[:locale]
-    session[:locale] = params[:locale]
-  elsif session[:locale].present?
-    I18n.locale = session[:locale]
-  else
-    I18n.locale = I18n.default_locale
-  end
+  locale = params[:locale] || session[:locale] || I18n.default_locale
+  I18n.locale = I18n.available_locales.include?(locale.to_sym) ? locale : I18n.default_locale
+  session[:locale] = I18n.locale
 end
 
 

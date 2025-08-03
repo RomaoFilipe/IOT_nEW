@@ -2,7 +2,7 @@ class SettingsController < ApplicationController
   before_action :set_user
 
   def index
-    # Apenas renderiza a view index.html.erb
+    # Renderiza a view index.html.erb
   end
 
   def update_profile
@@ -14,7 +14,6 @@ class SettingsController < ApplicationController
   end
 
   def update_notifications
-    # Exemplo simples de flags de notificações
     @user.update(
       notif_email: params[:notif_email].present?,
       notif_sms: params[:notif_sms].present?
@@ -30,19 +29,22 @@ class SettingsController < ApplicationController
     end
   end
 
-
+  # ✅ Atualiza o idioma via sessão e redireciona de volta
   def locale
-  if params[:locale].present? && I18n.available_locales.map(&:to_s).include?(params[:locale])
-    session[:locale] = params[:locale]
+    locale = params[:locale]
+
+    if I18n.available_locales.map(&:to_s).include?(locale)
+      session[:locale] = locale
+      I18n.locale = locale
+    end
+
+    redirect_back fallback_location: root_path(locale: I18n.locale)
   end
-  # Redireciona SEMPRE para a mesma página mas com o novo locale na URL
-  redirect_back fallback_location: root_path(locale: session[:locale] || I18n.default_locale)
-end
 
   private
 
   def set_user
-    @user = current_user # Adaptar ao teu sistema de autenticação
+    @user = current_user
   end
 
   def user_params

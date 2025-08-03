@@ -50,11 +50,13 @@ Rails.application.routes.draw do
           patch :toggle_status, on: :member
         end
       end
+
       resources :fields do
         resources :irrigation_schedules, only: [:create, :destroy] do
           collection { get :today }
         end
       end
+
       resources :agriculture_fields
       resources :aquaculture_tanks
       resources :aquaculture_seas
