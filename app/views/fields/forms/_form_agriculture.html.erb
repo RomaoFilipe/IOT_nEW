@@ -1,0 +1,56 @@
+<%= form_with model: field, local: true do |f| %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Nome -->
+    <div>
+      <%= f.label :name, "Nome do Campo", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :name, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+    </div>
+
+    <!-- Tipo de Plantação -->
+    <div>
+      <%= f.label :plantation_type, "Tipo de Plantação", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :plantation_type, placeholder: "Ex: Milho, Trigo...", class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+    </div>
+
+    <!-- Área -->
+    <div>
+      <%= f.label :area, "Área em hectares", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.number_field :area, step: 0.1, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+    </div>
+
+    <!-- Latitude -->
+    <div>
+      <%= f.label :latitude, "Latitude", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :latitude, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+    </div>
+
+    <!-- Longitude -->
+    <div>
+      <%= f.label :longitude, "Longitude", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :longitude, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+    </div>
+
+    <!-- Data de Plantação -->
+    <div>
+      <%= f.label :planting_date, "Data de Plantação", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.date_field :planting_date, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+    </div>
+
+    <!-- Previsão de Colheita -->
+    <div>
+      <%= f.label :harvest_date, "Previsão de Colheita", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.date_field :harvest_date, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+    </div>
+  </div>
+
+  <!-- Notas -->
+  <div class="mt-6">
+    <%= f.label :notes, "Notas", class: "block text-sm font-medium text-gray-700" %>
+    <%= f.text_area :notes, rows: 4, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+  </div>
+
+  <!-- Botão -->
+  <div class="mt-6 flex justify-end">
+    <%= f.submit "Guardar Alterações", class: "px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition" %>
+  </div>
+<% end %>

@@ -1,0 +1,65 @@
+<%= form_with model: field, url: field.persisted? ? field_path(field) : fields_path, method: field.persisted? ? :patch : :post, local: true, class: "space-y-6" do |f| %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Nome -->
+    <div>
+      <%= f.label :name, "Nome do Campo", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+
+    <!-- Volume do Tanque -->
+    <div>
+      <%= f.label :tank_volume, "Volume do Tanque (m³)", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.number_field :tank_volume, step: 0.1, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+
+    <!-- Espécie -->
+    <div>
+      <%= f.label :species, "Espécie Criada", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :species, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+
+    <!-- Densidade de Povoamento -->
+    <div>
+      <%= f.label :stocking_density, "Densidade de Povoamento (kg/m³)", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.number_field :stocking_density, step: 0.1, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+
+    <!-- Latitude -->
+    <div>
+      <%= f.label :latitude, "Latitude", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :latitude, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+
+    <!-- Longitude -->
+    <div>
+      <%= f.label :longitude, "Longitude", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :longitude, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+
+    <!-- Regime de Alimentação -->
+    <div class="md:col-span-2">
+      <%= f.label :feeding_regime, "Regime de Alimentação", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :feeding_regime, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+
+    <!-- Datas -->
+    <div>
+      <%= f.label :fish_placement_date, "Data de Colocação dos Peixes", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.date_field :fish_placement_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+    <div>
+      <%= f.label :estimated_harvest_date, "Previsão de Colheita", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.date_field :estimated_harvest_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+
+    <!-- Notas -->
+    <div class="md:col-span-2">
+      <%= f.label :notes, "Notas", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_area :notes, rows: 4, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    </div>
+  </div>
+
+  <div class="pt-4 flex justify-end">
+    <%= f.submit field.persisted? ? "Atualizar Campo" : "Criar Campo", class: "bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition" %>
+  </div>
+<% end %>

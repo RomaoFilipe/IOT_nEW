@@ -3,21 +3,30 @@
     <i class="lucide lucide-pencil w-6 h-6 text-blue-600"></i> Editar Campo
   </h1>
 
-  <%= render "form", field: @field %>
+  <% case @field.field_type %>
+  <% when "agriculture" %>
+    <%= render "fields/forms/form_agriculture", field: @field %>
+  <% when "aquaculture_tank" %>
+    <%= render "fields/forms/form_aquaculture_tank", field: @field %>
+  <% when "aquaculture_sea" %>
+    <%= render "fields/forms/form_aquaculture_sea", field: @field %>
+  <% else %>
+    <%= render "fields/forms/form_generic", field: @field %>
+  <% end %>
 </div>
 
-<!-- Mostrar/ocultar campos de aquacultura dinamicamente -->
+<!-- JS extra se necessário para campos dinâmicos (ex: regime alimentar visível apenas se...) -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const fieldTypeSelect = document.querySelector("[name='field[field_type]']");
-    const aquaFields = document.getElementById("aquaculture_fields");
-    if (!fieldTypeSelect || !aquaFields) return;
+    const tankFields = document.getElementById("aquaculture_fields");
 
-    function toggleAquaFields() {
-      aquaFields.style.display = fieldTypeSelect.value === "aquaculture_tank" ? "" : "none";
+    if (fieldTypeSelect && tankFields) {
+      const toggle = () => {
+        tankFields.style.display = fieldTypeSelect.value === "aquaculture_tank" ? "" : "none";
+      };
+      fieldTypeSelect.addEventListener("change", toggle);
+      toggle();
     }
-
-    fieldTypeSelect.addEventListener("change", toggleAquaFields);
-    toggleAquaFields();
   });
 </script>
