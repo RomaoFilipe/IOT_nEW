@@ -1,22 +1,20 @@
-<!-- app/views/fields/tabs/_iot_equipment.html.erb -->
 <div class="space-y-8">
 
-  <!-- Cabeçalho e botão -->
+  <!-- Cabeçalho com botão -->
   <div class="flex justify-between items-center">
-    <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-      <i class="lucide lucide-activity w-6 h-6 text-green-600"></i>
-      Equipamentos IoT - <%= field.name %>
+    <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+      <i class="fa-solid fa-microchip text-green-600"></i>
+      Equipamentos IoT Associados
     </h3>
-
-    <button onclick="toggleSensorModal()" class="bg-green-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-700 transition">
-      <i class="lucide lucide-plus-circle w-5 h-5"></i> Adicionar Equipamento
+    <button onclick="toggleSensorModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center gap-2">
+      <i class="fa-solid fa-plus-circle"></i> Adicionar Equipamento
     </button>
   </div>
 
-  <!-- Formulário (oculto por defeito) -->
+  <!-- Formulário oculto -->
   <%= render partial: "sensors/form", locals: { field: field } %>
 
-  <!-- Contadores ativos/inativos -->
+  <!-- Contadores -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="bg-white rounded-xl border p-4 shadow-sm flex items-center gap-4">
       <div class="text-green-600 text-3xl"><i class="lucide lucide-wifi"></i></div>
@@ -34,18 +32,18 @@
     </div>
   </div>
 
-  <!-- Tabela dos sensores -->
+  <!-- Tabela de sensores -->
   <% if field.sensors.any? %>
-    <div class="overflow-x-auto rounded-xl border border-gray-200 shadow">
-      <table class="min-w-full bg-white text-sm">
-        <thead class="bg-gray-100 text-gray-600 font-semibold text-left">
+    <div class="overflow-x-auto rounded-xl shadow border border-gray-200 bg-white">
+      <table class="min-w-full divide-y divide-gray-100 text-sm text-gray-800">
+        <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-semibold">
           <tr>
-            <th class="px-4 py-3">Nome</th>
-            <th class="px-4 py-3">Tipo</th>
-            <th class="px-4 py-3">Estado</th>
-            <th class="px-4 py-3">Bateria</th>
-            <th class="px-4 py-3">Sinal</th>
-            <th class="px-4 py-3">Última Leitura</th>
+            <th class="px-4 py-3 text-left">Nome</th>
+            <th class="px-4 py-3 text-left">Tipo</th>
+            <th class="px-4 py-3 text-left">Estado</th>
+            <th class="px-4 py-3 text-left">Bateria</th>
+            <th class="px-4 py-3 text-left">Sinal</th>
+            <th class="px-4 py-3 text-left">Última Leitura</th>
             <th class="px-4 py-3 text-center">Ações</th>
           </tr>
         </thead>
@@ -58,14 +56,26 @@
     <p class="text-gray-500 italic mt-6">Nenhum sensor atribuído a este campo ainda.</p>
   <% end %>
 
+  <!-- Separadores visuais por estado (opcional) -->
+  <% active_sensors = field.sensors.select { |s| s.status == "Active" } %>
+  <% inactive_sensors = field.sensors.select { |s| s.status != "Active" } %>
+
+  <% if active_sensors.any? %>
+    <h4 class="mt-8 mb-2 text-green-700 font-semibold">Sensores Ativos</h4>
+    <%= render partial: "sensors/row", collection: active_sensors, as: :sensor %>
+  <% end %>
+
+  <% if inactive_sensors.any? %>
+    <h4 class="mt-6 mb-2 text-red-600 font-semibold">Sensores Inativos</h4>
+    <%= render partial: "sensors/row", collection: inactive_sensors, as: :sensor %>
+  <% end %>
+
   <!-- Sensores não atribuídos -->
-  <div>
-    <%= render partial: "sensors/unassigned_sensors", locals: { field: field } %>
-  </div>
+  <%= render partial: "sensors/unassigned_sensors", locals: { field: field } %>
 
 </div>
 
-<!-- JavaScript -->
+<!-- JS -->
 <script>
   function toggleSensorModal() {
     document.getElementById('sensorModal')?.classList.toggle('hidden');
@@ -100,4 +110,5 @@
       });
   }
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
