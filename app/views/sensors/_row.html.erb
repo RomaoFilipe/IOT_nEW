@@ -50,39 +50,43 @@
     <%= sensor.last_reading&.strftime("%d/%m, %H:%M") || "—" %>
   </td>
 
-  <!-- Ações -->
-  <td class="px-4 py-3 text-center relative">
-    <div class="relative inline-block text-left">
-      <button @click="open = !open" class="inline-flex justify-center w-full px-2 py-1 text-sm font-medium text-gray-600 hover:text-gray-900">
-        <i class="fa-solid fa-ellipsis-vertical"></i>
-      </button>
+  <!-- AÇÕES COM DROPDOWN BONITO -->
+<td class="px-4 py-3 text-right relative" x-data="{ open: false }">
+  <button @click="open = !open" class="text-gray-500 hover:text-gray-700 px-2">
+    <i class="fa-solid fa-ellipsis-vertical"></i>
+  </button>
 
-      <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 z-20 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
-        <ul class="py-1 text-sm text-gray-700">
-          <li>
-            <%= link_to "Ver Leituras", readings_sensor_path(sensor), class: "block px-4 py-2 hover:bg-gray-100" %>
-          </li>
+  <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 z-20 mt-2 w-52 bg-white rounded-md border shadow-lg overflow-hidden">
+    <ul class="text-sm text-gray-700 divide-y">
+      <li>
+        <%= link_to readings_sensor_path(sensor), class: "flex items-center gap-2 px-4 py-2 hover:bg-gray-50" do %>
+          <i class="fa-solid fa-chart-line text-blue-500"></i> Ver Leituras
+        <% end %>
+      </li>
 
-          <% if sensor.sensor_type == "irrigation" %>
-            <li>
-              <button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal(); open = false;" class="w-full text-left px-4 py-2 hover:bg-gray-100">
-                Agendar Irrigação
-              </button>
-            </li>
-            <li>
-              <%= link_to "Histórico de Irrigações", irrigation_history_sensor_path(sensor), class: "block px-4 py-2 hover:bg-gray-100" %>
-            </li>
+      <% if sensor.sensor_type == "irrigation" %>
+        <li>
+          <button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal(); open = false;" class="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2">
+            <i class="fa-solid fa-calendar-days text-green-500"></i> Agendar Irrigação
+          </button>
+        </li>
+        <li>
+          <%= link_to irrigation_history_sensor_path(sensor), class: "flex items-center gap-2 px-4 py-2 hover:bg-gray-50" do %>
+            <i class="fa-solid fa-clock-rotate-left text-gray-500"></i> Histórico
           <% end %>
+        </li>
+      <% end %>
 
-          <li>
-            <%= button_to sensor_path(sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" }, class: "block w-full text-left px-4 py-2 text-red-600 hover:bg-red-100" do %>
-              Apagar Sensor
-            <% end %>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </td>
+      <li>
+        <%= button_to sensor_path(sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" },
+          class: "w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 flex items-center gap-2" do %>
+          <i class="fa-solid fa-trash"></i> Apagar
+        <% end %>
+      </li>
+    </ul>
+  </div>
+</td>
+
 </tr>
 
 
