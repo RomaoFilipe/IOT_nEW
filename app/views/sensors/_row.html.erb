@@ -1,24 +1,17 @@
-<tr class="text-sm hover:bg-gray-50 border-b">
+<tr class="text-sm hover:bg-gray-50 border-b" x-data="{ open: false }">
   <!-- Nome -->
   <td class="px-4 py-3 font-semibold text-gray-900 whitespace-nowrap">
     <div class="flex items-center gap-2">
+      <%# Ícone por tipo %>
       <% case sensor.sensor_type.downcase %>
-      <% when "temperatura" %>
-        <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M6 2a1 1 0 011 1v9.586A2 2 0 007 15a2 2 0 002 2 2 2 0 002-2 2 2 0 00-.586-1.414V3a1 1 0 112 0v10.586A4 4 0 0110 19a4 4 0 01-4-4 4 4 0 011-2.828V3a1 1 0 011-1z" />
-        </svg>
-      <% when "humidade" %>
-        <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M10 2C6.686 2 4 5.134 4 8.5c0 3.037 2.694 5.5 6 5.5s6-2.463 6-5.5C16 5.134 13.314 2 10 2z" />
-        </svg>
-      <% when "irrigation" %>
-        <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M12 2a1 1 0 00-1 1v3.586l-.293-.293a1 1 0 00-1.414 1.414L12 10.414l2.707-2.707a1 1 0 00-1.414-1.414L13 6.586V3a1 1 0 00-1-1z" />
-        </svg>
-      <% else %>
-        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M4 4a1 1 0 011-1h10a1 1 0 011 1v3H4V4zM4 8h12v8a1 1 0 01-1 1H5a1 1 0 01-1-1V8z" />
-        </svg>
+        <% when "temperatura" %>
+          <i class="fa-solid fa-temperature-three-quarters text-red-500"></i>
+        <% when "humidade" %>
+          <i class="fa-solid fa-droplet text-blue-500"></i>
+        <% when "irrigation" %>
+          <i class="fa-solid fa-water text-blue-700"></i>
+        <% else %>
+          <i class="fa-solid fa-microchip text-gray-400"></i>
       <% end %>
       <span><%= sensor.name %></span>
     </div>
@@ -37,106 +30,111 @@
   </td>
 
   <!-- Bateria -->
-  <td class="px-4 py-3">
-    <span class="flex items-center gap-1 text-gray-700">
+  <td class="px-4 py-3 text-gray-700">
+    <span class="flex items-center gap-1">
       <%= battery_icon(sensor.battery) %>
       <%= sensor.battery || 0 %>%
     </span>
   </td>
 
   <!-- Sinal -->
-  <td class="px-4 py-3">
-    <span class="flex items-center gap-1 text-gray-700">
+  <td class="px-4 py-3 text-gray-700">
+    <span class="flex items-center gap-1">
       <%= signal_icon(sensor.signal) %>
       <%= sensor.signal || 0 %>%
     </span>
   </td>
 
-  <!-- Última leitura -->
+  <!-- Última Leitura -->
   <td class="px-4 py-3 text-gray-600">
     <%= sensor.last_reading&.strftime("%d/%m, %H:%M") || "—" %>
   </td>
 
   <!-- Ações -->
-  <td class="px-4 py-3 whitespace-nowrap">
-    <div class="flex flex-col gap-2">
-      <div>
-        <%= form_with url: toggle_status_sensor_path(sensor), method: :patch, data: { turbo_stream: true }, class: "inline-block" do %>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <% disabled = sensor.status == "Inactive" && (sensor.last_reading.nil? || sensor.last_reading < 5.minutes.ago) %>
-            <input type="checkbox" name="active" onchange="this.form.submit()" class="sr-only peer" <%= 'checked' if sensor.status == "Active" %> <%= 'disabled' if disabled %>>
-            <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
-            <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-full transition-transform"></div>
-          </label>
-        <% end %>
-      </div>
+  <td class="px-4 py-3 text-center relative">
+    <div class="relative inline-block text-left">
+      <button @click="open = !open" class="inline-flex justify-center w-full px-2 py-1 text-sm font-medium text-gray-600 hover:text-gray-900">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+      </button>
 
-      <div class="flex flex-wrap gap-2">
-        <%= link_to "📋", today_field_irrigation_schedules_path(sensor.field), class: "text-sm text-blue-700 underline hover:text-blue-900" %>
-        <% if sensor.sensor_type == "irrigation" %>
-          <%= link_to "💧", irrigation_history_sensor_path(sensor), class: "text-blue-600 hover:text-blue-800 text-lg", title: "Histórico de Irrigações" %>
-          <button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal()" class="bg-white border border-blue-500 text-blue-600 px-3 py-1 rounded-md text-sm hover:bg-blue-50">
-            <i class="fa-solid fa-calendar-plus"></i> Schedule
-          </button>
+      <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 z-20 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
+        <ul class="py-1 text-sm text-gray-700">
+          <li>
+            <%= link_to "Ver Leituras", readings_sensor_path(sensor), class: "block px-4 py-2 hover:bg-gray-100" %>
+          </li>
 
-          <dialog id="scheduleModal-<%= sensor.id %>" class="rounded-xl p-0 w-full max-w-md shadow-xl">
-            <div class="p-6 bg-white rounded-xl">
-              <h3 class="text-lg font-semibold text-gray-800">🕒 Agendar Irrigação</h3>
-              <p class="text-sm text-gray-500 mb-4">Configure o agendamento para <%= sensor.name %></p>
+          <% if sensor.sensor_type == "irrigation" %>
+            <li>
+              <button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal(); open = false;" class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                Agendar Irrigação
+              </button>
+            </li>
+            <li>
+              <%= link_to "Histórico de Irrigações", irrigation_history_sensor_path(sensor), class: "block px-4 py-2 hover:bg-gray-100" %>
+            </li>
+          <% end %>
 
-              <%= form_with model: IrrigationSchedule.new, url: field_irrigation_schedules_path(sensor.field), method: :post, local: true do |f| %>
-                <%= f.hidden_field :sensor_id, value: sensor.id %>
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-1">Dias da Semana</label>
-                  <div class="flex gap-2 flex-wrap">
-                    <% Date::DAYNAMES.each_with_index do |day, i| %>
-                      <label class="w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-600 cursor-pointer">
-                        <%= check_box_tag "days[]", i, false, class: "hidden peer" %>
-                        <span class="peer-checked:bg-green-500 peer-checked:text-white w-full h-full flex items-center justify-center rounded-full"><%= day[0..2] %></span>
-                      </label>
-                    <% end %>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <%= f.label :hour, "Hora", class: "block text-sm font-medium mb-1" %>
-                    <%= f.number_field :hour, in: 0..23, class: "w-full px-3 py-2 border rounded focus:ring-green-500", placeholder: "HH" %>
-                  </div>
-                  <div>
-                    <%= f.label :minute, "Minuto", class: "block text-sm font-medium mb-1" %>
-                    <%= f.number_field :minute, in: 0..59, class: "w-full px-3 py-2 border rounded focus:ring-green-500", placeholder: "MM" %>
-                  </div>
-                </div>
-
-<div class="mt-4">
-  <%= f.label :duration_slider, "Duração", class: "block text-sm font-semibold text-gray-700 mb-1" %>
-  <%= range_field_tag "irrigation_schedule[duration_slider]", 2, min: 1, max: 40, step: 1,
-      id: "duration_slider_#{sensor.id}",
-      class: "w-full duration-slider",
-      oninput: "updateDurationDisplay(this.value, '#{sensor.id}')" %>
-  <p class="text-right text-sm text-green-600 duration-display" id="display_<%= sensor.id %>">1h 0m</p>
-</div>
-
-
-
-                <div class="flex justify-end gap-3 mt-6">
-                  <button type="button" onclick="document.getElementById('scheduleModal-<%= sensor.id %>').close()" class="px-4 py-2 text-sm border rounded-md hover:bg-gray-100">Cancelar</button>
-                  <%= f.submit "Confirmar", class: "px-4 py-2 text-sm text-white bg-green-600 rounded-md hover:bg-green-700" %>
-                </div>
-              <% end %>
-            </div>
-          </dialog>
-        <% else %>
-          <%= link_to "📊", readings_sensor_path(sensor), class: "text-blue-600 hover:text-blue-800 text-lg", title: "Histórico de Leituras" %>
-        <% end %>
-        <%= button_to sensor_path(sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" }, class: "text-red-600 hover:text-red-800 text-sm", title: "Remover sensor" do %>
-          🗑️
-        <% end %>
+          <li>
+            <%= button_to sensor_path(sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" }, class: "block w-full text-left px-4 py-2 text-red-600 hover:bg-red-100" do %>
+              Apagar Sensor
+            <% end %>
+          </li>
+        </ul>
       </div>
     </div>
   </td>
 </tr>
+
+
+<% if sensor.sensor_type == "irrigation" %>
+  <dialog id="scheduleModal-<%= sensor.id %>" class="rounded-xl p-0 w-full max-w-md shadow-xl backdrop:bg-black/30">
+    <div class="p-6 bg-white rounded-xl">
+      <h3 class="text-lg font-semibold text-gray-800">🕒 Agendar Irrigação</h3>
+      <p class="text-sm text-gray-500 mb-4">Configure o agendamento para <%= sensor.name %></p>
+
+      <%= form_with model: IrrigationSchedule.new, url: field_irrigation_schedules_path(sensor.field), method: :post, local: true do |f| %>
+        <%= f.hidden_field :sensor_id, value: sensor.id %>
+
+        <!-- Dias -->
+        <label class="block text-sm font-medium mb-1">Dias da Semana</label>
+        <div class="flex gap-2 flex-wrap">
+          <% Date::DAYNAMES.each_with_index do |day, i| %>
+            <label class="flex items-center gap-1 text-sm">
+              <%= check_box_tag "days[]", i, false, class: "text-green-600" %>
+              <%= day[0..2] %>
+            </label>
+          <% end %>
+        </div>
+
+        <!-- Hora e Minuto -->
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <div>
+            <%= f.label :hour, "Hora", class: "block text-sm mb-1" %>
+            <%= f.number_field :hour, in: 0..23, class: "w-full px-3 py-2 border rounded" %>
+          </div>
+          <div>
+            <%= f.label :minute, "Minuto", class: "block text-sm mb-1" %>
+            <%= f.number_field :minute, in: 0..59, class: "w-full px-3 py-2 border rounded" %>
+          </div>
+        </div>
+
+        <!-- Duração -->
+        <div class="mt-4">
+          <%= f.label :duration, "Duração (minutos)", class: "block text-sm mb-1" %>
+          <%= f.range_field :duration, in: 5..60, step: 5, class: "w-full", oninput: "document.getElementById('duration_<%= sensor.id %>').textContent = this.value + ' min'" %>
+          <div class="text-right text-sm text-green-600 mt-1" id="duration_<%= sensor.id %>">30 min</div>
+        </div>
+
+        <!-- Ações -->
+        <div class="flex justify-end gap-3 mt-6">
+          <button type="button" onclick="document.getElementById('scheduleModal-<%= sensor.id %>').close()" class="px-4 py-2 text-sm border rounded hover:bg-gray-100">Cancelar</button>
+          <%= f.submit "Confirmar", class: "px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700" %>
+        </div>
+      <% end %>
+    </div>
+  </dialog>
+<% end %>
+
 
 <script>
   function updateDurationDisplay(value, sensorId) {

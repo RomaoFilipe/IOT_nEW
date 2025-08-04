@@ -1,56 +1,81 @@
-<h3 class="text-xl font-bold text-gray-800 mb-6">📡 Equipamentos IoT Associados</h3>
+<!-- app/views/fields/tabs/_iot_equipment.html.erb -->
+<div class="space-y-8">
 
-<!-- Botão de adicionar sensor -->
-<div class="flex justify-end mb-6">
-  <button onclick="toggleSensorModal()" class="bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-800 transition">
-    <i class="fa-solid fa-plus-circle"></i>
-    <span>Adicionar Equipamento</span>
-  </button>
-</div>
+  <!-- Cabeçalho e botão -->
+  <div class="flex justify-between items-center">
+    <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+      <i class="lucide lucide-activity w-6 h-6 text-green-600"></i>
+      Equipamentos IoT - <%= field.name %>
+    </h3>
 
-<!-- Modal de Adição -->
-<%= render partial: "sensors/form", locals: { field: field } %>
-
-<!-- Tabela de sensores atribuídos -->
-<% if field.sensors.any? %>
-  <div class="overflow-x-auto rounded-xl shadow border border-gray-200">
-    <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
-      <thead class="bg-gray-100 text-gray-700 font-medium">
-        <tr>
-          <th class="px-4 py-3">Nome</th>
-          <th class="px-4 py-3">Tipo</th>
-          <th class="px-4 py-3">Estado</th>
-          <th class="px-4 py-3">Bateria</th>
-          <th class="px-4 py-3">Sinal</th>
-          <th class="px-4 py-3">Última Leitura</th>
-          <th class="px-4 py-3 text-center">Ações</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100">
-        <%= render partial: "sensors/row", collection: field.sensors, as: :sensor %>
-      </tbody>
-    </table>
+    <button onclick="toggleSensorModal()" class="bg-green-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-700 transition">
+      <i class="lucide lucide-plus-circle w-5 h-5"></i> Adicionar Equipamento
+    </button>
   </div>
-<% else %>
-  <p class="text-gray-500 italic mt-6">Nenhum sensor atribuído a este campo ainda.</p>
-<% end %>
 
-<!-- Sensores não atribuídos -->
-<div class="mt-8">
-  <%= render partial: "sensors/unassigned_sensors", locals: { field: field } %>
+  <!-- Formulário (oculto por defeito) -->
+  <%= render partial: "sensors/form", locals: { field: field } %>
+
+  <!-- Contadores ativos/inativos -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-xl border p-4 shadow-sm flex items-center gap-4">
+      <div class="text-green-600 text-3xl"><i class="lucide lucide-wifi"></i></div>
+      <div>
+        <p class="text-2xl font-bold text-gray-800"><%= field.sensors.where(status: "Active").count %></p>
+        <p class="text-sm text-gray-500">Sensores Ativos</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl border p-4 shadow-sm flex items-center gap-4">
+      <div class="text-red-600 text-3xl"><i class="lucide lucide-wifi-off"></i></div>
+      <div>
+        <p class="text-2xl font-bold text-gray-800"><%= field.sensors.where(status: "Inactive").count %></p>
+        <p class="text-sm text-gray-500">Sensores Inativos</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela dos sensores -->
+  <% if field.sensors.any? %>
+    <div class="overflow-x-auto rounded-xl border border-gray-200 shadow">
+      <table class="min-w-full bg-white text-sm">
+        <thead class="bg-gray-100 text-gray-600 font-semibold text-left">
+          <tr>
+            <th class="px-4 py-3">Nome</th>
+            <th class="px-4 py-3">Tipo</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3">Bateria</th>
+            <th class="px-4 py-3">Sinal</th>
+            <th class="px-4 py-3">Última Leitura</th>
+            <th class="px-4 py-3 text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <%= render partial: "sensors/row", collection: field.sensors, as: :sensor %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="text-gray-500 italic mt-6">Nenhum sensor atribuído a este campo ainda.</p>
+  <% end %>
+
+  <!-- Sensores não atribuídos -->
+  <div>
+    <%= render partial: "sensors/unassigned_sensors", locals: { field: field } %>
+  </div>
+
 </div>
 
-<!-- Scripts -->
+<!-- JavaScript -->
 <script>
   function toggleSensorModal() {
     document.getElementById('sensorModal')?.classList.toggle('hidden');
   }
 
   function checkDeviceId() {
-    const deviceId = document.getElementById("deviceIdInput").value;
+    const input = document.getElementById("deviceIdInput");
     const result = document.getElementById("deviceCheckResult");
 
-    if (!deviceId) {
+    if (!input.value) {
       result.innerText = "⚠️ Introduz um device_id.";
       result.className = "text-red-600 text-sm mt-2";
       return;
@@ -59,18 +84,17 @@
     result.innerText = "🔍 A verificar...";
     result.className = "text-gray-600 text-sm mt-2";
 
-    fetch(`/api/sensors/identify?device_id=${encodeURIComponent(deviceId)}`)
-      .then(response => response.json())
+    fetch(`/api/sensors/identify?device_id=${encodeURIComponent(input.value)}`)
+      .then(r => r.json())
       .then(data => {
         if (data.id) {
-          result.innerText = `✅ Sensor encontrado ou criado: ${data.name} (ID: ${data.id})`;
+          result.innerText = `✅ Sensor encontrado: ${data.name} (ID: ${data.id})`;
           result.className = "text-green-600 text-sm mt-2";
         } else {
           result.innerText = "❌ Sensor não encontrado.";
           result.className = "text-red-600 text-sm mt-2";
         }
-      })
-      .catch(err => {
+      }).catch(() => {
         result.innerText = "❌ Erro ao contactar o servidor.";
         result.className = "text-red-600 text-sm mt-2";
       });
