@@ -121,7 +121,14 @@
         <!-- Duração -->
         <div class="mt-4">
           <%= f.label :duration, "Duração (minutos)", class: "block text-sm mb-1" %>
-          <%= f.range_field :duration, in: 5..60, step: 5, class: "w-full", oninput: "document.getElementById('duration_<%= sensor.id %>').textContent = this.value + ' min'" %>
+<%= f.range_field :duration,
+  in: 5..60,
+  step: 5,
+  class: "w-full duration-slider",
+  id: "duration_slider_#{sensor.id}",
+  data: { sensor_id: sensor.id },
+  oninput: "document.getElementById('duration_#{sensor.id}').textContent = this.value + ' min'" %>
+
           <div class="text-right text-sm text-green-600 mt-1" id="duration_<%= sensor.id %>">30 min</div>
         </div>
 
@@ -138,17 +145,13 @@
 
 <script>
   function updateDurationDisplay(value, sensorId) {
-    const steps = parseInt(value);
-    const totalMinutes = steps * 30;
-    const h = Math.floor(totalMinutes / 60);
-    const m = totalMinutes % 60;
-    const label = document.getElementById(`display_${sensorId}`);
-    label.textContent = `${h}h${m > 0 ? ' ' + m + 'm' : ''}`;
+    const label = document.getElementById(`duration_${sensorId}`);
+    if (label) label.textContent = `${value} min`;
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".duration-slider").forEach(slider => {
-      const sensorId = slider.id.split("_").pop();
+      const sensorId = slider.dataset.sensorId;
       updateDurationDisplay(slider.value, sensorId);
       slider.addEventListener("input", () => {
         updateDurationDisplay(slider.value, sensorId);
@@ -156,3 +159,5 @@
     });
   });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
