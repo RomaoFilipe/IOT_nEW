@@ -1,6 +1,9 @@
 <%= turbo_frame_tag "overview-#{field.id}" do %>
 <div class="space-y-6 animate-fade-in" x-data="{ showNotes: false }">
 
+  <!-- Mapa -->
+  <div id="map-tank-<%= field.id %>" class="w-full h-60 rounded-xl shadow border"></div>
+
   <!-- Header + Botão Editar -->
   <div class="flex justify-between items-center">
     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -81,4 +84,22 @@
   </div>
 
 </div>
+
+<!-- Mapbox -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+
+    const map = new mapboxgl.Map({
+      container: 'map-tank-<%= field.id %>',
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: [<%= field.longitude %>, <%= field.latitude %>],
+      zoom: 12
+    });
+
+    new mapboxgl.Marker()
+      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+      .addTo(map);
+  });
+</script>
 <% end %>
