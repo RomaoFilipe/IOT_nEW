@@ -26,11 +26,28 @@
     </div>
 
     <!-- Tabs -->
-    <div class="flex flex-wrap gap-2 border-b pb-2 text-sm">
-      <button class="tab-button active" onclick="showTab('overview', <%= field_id %>)" id="tab-overview-<%= field_id %>">Overview</button>
-      <button class="tab-button" onclick="showTab('iot-equipment', <%= field_id %>)" id="tab-iot-equipment-<%= field_id %>">IoT Equipment</button>
-      <button class="tab-button" onclick="showTab('analytics', <%= field_id %>)" id="tab-analytics-<%= field_id %>">Analytics</button>
-    </div>
+<!-- Tabs estilizados -->
+<div class="flex bg-gray-50 rounded-lg p-1 w-full max-w-md mx-auto text-sm font-medium text-center text-gray-500 shadow-inner">
+  <button
+    id="tab-overview-<%= field_id %>"
+    onclick="showTab('overview', <%= field_id %>)"
+    class="w-full py-2.5 transition-all duration-200 ease-in-out rounded-lg text-sm font-semibold tab-button active bg-white shadow text-gray-900">
+    Overview
+  </button>
+  <button
+    id="tab-iot-equipment-<%= field_id %>"
+    onclick="showTab('iot-equipment', <%= field_id %>)"
+    class="w-full py-2.5 transition-all duration-200 ease-in-out rounded-lg tab-button hover:text-blue-600">
+    IoT Equipment
+  </button>
+  <button
+    id="tab-analytics-<%= field_id %>"
+    onclick="showTab('analytics', <%= field_id %>)"
+    class="w-full py-2.5 transition-all duration-200 ease-in-out rounded-lg tab-button hover:text-blue-600">
+    Analytics
+  </button>
+</div>
+
 
     <!-- Conteúdo das Tabs -->
     <div id="overview-<%= field_id %>" class="tab-content mt-4">
@@ -145,3 +162,24 @@ function addCropInput() {
   z-index: 1 !important;
 }
 </style>
+
+
+<script>
+  function showTab(tab, id) {
+    // Esconde todos os conteúdos
+    document.querySelectorAll(`#viewDetailsModal-${id} .tab-content`).forEach(el => el.classList.add("hidden"));
+    // Mostra o selecionado
+    document.getElementById(`${tab}-${id}`).classList.remove("hidden");
+
+    // Remove a classe ativa de todos os botões
+    document.querySelectorAll(`#viewDetailsModal-${id} .tab-button`).forEach(btn => {
+      btn.classList.remove("bg-white", "text-gray-900", "shadow");
+      btn.classList.add("hover:text-blue-600");
+    });
+
+    // Ativa o botão atual
+    const activeBtn = document.getElementById(`tab-${tab}-${id}`);
+    activeBtn.classList.add("bg-white", "text-gray-900", "shadow");
+    activeBtn.classList.remove("hover:text-blue-600");
+  }
+</script>
