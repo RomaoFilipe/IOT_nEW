@@ -2,9 +2,12 @@
 <div x-data="{ showNotes: false }" class="space-y-6 animate-fade-in">
 
   <!-- 🌍 Mapa do Local -->
-  <div class="bg-gray-100 p-4 rounded-lg shadow w-full h-60 flex items-center justify-center">
-    <i class="lucide lucide-map w-10 h-10 text-blue-600"></i>
-    <span class="ml-3 text-gray-600 text-sm">Mapa do campo (coordenadas: <%= field.latitude %>, <%= field.longitude %>)</span>
+  <div class="relative rounded-lg shadow-md overflow-hidden">
+    <div id="map-tank-<%= field.id %>" class="h-64 w-full rounded-lg"></div>
+    <button class="absolute top-3 right-3 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-4 py-2 text-sm rounded-lg shadow transition"
+            onclick="window.location.href='<%= edit_field_path(field) %>'">
+      <i class="lucide lucide-pencil w-4 h-4 inline-block mr-1"></i> Editar
+    </button>
   </div>
 
   <!-- 📦 Dados do Tanque e Localização -->
@@ -74,4 +77,25 @@
   </div>
 
 </div>
+
+<!-- MAPBOX JS -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+
+    const map = new mapboxgl.Map({
+      container: 'map-tank-<%= field.id %>',
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: [<%= field.longitude %>, <%= field.latitude %>],
+      zoom: 13
+    });
+
+    new mapboxgl.Marker()
+      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+      .addTo(map);
+  });
+</script>
 <% end %>
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
