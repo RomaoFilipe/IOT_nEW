@@ -1,21 +1,35 @@
-<div class="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-8">
-  <h1 class="text-3xl font-extrabold text-gray-800 mb-6 flex items-center gap-2">
-    <i class="lucide lucide-pencil w-6 h-6 text-blue-600"></i> Editar Campo
-  </h1>
+<div class="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-10 mt-6 md:mt-12">
+  <!-- Topo com ícone, título e tipo -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <i class="lucide lucide-pencil w-6 h-6 text-blue-600"></i>
+      <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">Editar Campo</h1>
+      <span class="ml-2 text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold capitalize">
+        <%= @field.field_type.humanize %>
+      </span>
+    </div>
 
-  <% case @field.field_type.to_s %>
-  <% when "agriculture" %>
-    <%= render "fields/forms/form_agriculture", field: @field %>
-  <% when "aquaculture_tank" %>
-    <%= render "fields/forms/form_aquaculture_tank", field: @field %>
-  <% when "aquaculture_sea" %>
-    <%= render "fields/forms/form_aquaculture_sea", field: @field %>
-  <% else %>
-    <%= render "fields/forms/form_generic", field: @field %>
-  <% end %>
+    <!-- Botão voltar -->
+    <%= link_to fields_path, class: "mt-4 md:mt-0 inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition" do %>
+      <i class="lucide lucide-arrow-left w-4 h-4 mr-1"></i> Voltar para lista
+    <% end %>
+  </div>
+
+  <div class="space-y-10">
+    <% case @field.field_type.to_s %>
+    <% when "agriculture" %>
+      <%= render "fields/forms/form_agriculture", field: @field %>
+    <% when "aquaculture_tank" %>
+      <%= render "fields/forms/form_aquaculture_tank", field: @field %>
+    <% when "aquaculture_sea" %>
+      <%= render "fields/forms/form_aquaculture_sea", field: @field %>
+    <% else %>
+      <%= render "fields/forms/form_generic", field: @field %>
+    <% end %>
+  </div>
 </div>
 
-<!-- JS extra se necessário para campos dinâmicos (ex: regime alimentar visível apenas se...) -->
+<!-- JS opcional para campos dinâmicos -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const fieldTypeSelect = document.querySelector("[name='field[field_type]']");
