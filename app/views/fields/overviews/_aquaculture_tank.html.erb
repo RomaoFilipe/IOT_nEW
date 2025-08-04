@@ -87,26 +87,19 @@
 
 <!-- Mapbox -->
 <script>
-  document.addEventListener("turbo:load", function () {
+  document.addEventListener("DOMContentLoaded", function () {
     mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
 
-    const containerId = 'map-tank-<%= field.id %>';
-    const lat = <%= field.latitude || 0 %>;
-    const lng = <%= field.longitude || 0 %>;
+    const map = new mapboxgl.Map({
+      container: 'map-tank-<%= field.id %>',
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: [<%= field.longitude %>, <%= field.latitude %>],
+      zoom: 12
+    });
 
-    setTimeout(() => {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-
-      const map = new mapboxgl.Map({
-        container: containerId,
-        style: 'mapbox://styles/mapbox/outdoors-v12',
-        center: [lng, lat],
-        zoom: 12
-      });
-
-      new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
-    }, 150);
+    new mapboxgl.Marker()
+      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+      .addTo(map);
   });
 </script>
 <% end %>

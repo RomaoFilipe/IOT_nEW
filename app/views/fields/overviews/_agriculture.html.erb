@@ -1,67 +1,88 @@
 <%= turbo_frame_tag "overview-#{field.id}" do %>
-<div x-data="{ showNotes: false }" x-init="$el.classList.add('animate-fade-in')" class="space-y-6 animate-fade-in">
+<div x-data="{ showNotes: false }" class="space-y-6 animate-fade-in">
 
-  <!-- Cabeçalho -->
-  <div class="flex justify-between items-center flex-wrap gap-2">
-    <div>
-      <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-        <i class="lucide lucide-wheat w-5 h-5 text-green-600"></i>
-        <%= field.name %>
-      </h2>
-      <span class="text-sm text-green-700 bg-green-100 px-2 py-1 rounded mt-1 inline-block">
-        Agricultura
-      </span>
-    </div>
+  <!-- Mapa do Campo -->
+<div id="map-agriculture-<%= field.id %>" class="w-full h-60 rounded-xl shadow border"></div>
 
+  <!-- Cabeçalho + Botão Editar -->
+  <div class="flex justify-between items-center">
+    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+      <i class="lucide lucide-wheat w-5 h-5 text-green-600"></i>
+      Agricultura: <%= field.name %>
+    </h2>
     <%= link_to edit_field_path(field), class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition hover:scale-105 duration-200" do %>
       <i class="lucide lucide-pencil w-4 h-4"></i> Editar
     <% end %>
   </div>
 
   <!-- Blocos de Informação -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Mapa -->
-    <div class="bg-green-50 rounded-lg h-40 flex items-center justify-center shadow-sm">
-      <i class="lucide lucide-map w-12 h-12 text-green-500"></i>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Detalhes da Cultura -->
+    <div class="bg-white border rounded-xl p-5 shadow-sm">
+      <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
+        <i class="lucide lucide-sprout w-4 h-4 text-green-500"></i> Detalhes da Cultura
+      </h3>
+      <div class="mt-3 space-y-1 text-sm">
+        <p><strong>Tipo de Plantação:</strong> <%= field.plantation_type || '-' %></p>
+        <p><strong>Área:</strong> <%= field.area || '-' %> ha</p>
+        <p><strong>Data de Plantação:</strong> <%= field.planting_date&.strftime('%d/%m/%Y') || '-' %></p>
+        <p><strong>Data de Colheita:</strong> <%= field.harvest_date&.strftime('%d/%m/%Y') || '-' %></p>
+        <p><strong>Irrigação:</strong> <%= field.irrigation_type || '-' %></p>
+      </div>
     </div>
 
-    <!-- Detalhes -->
-    <div class="space-y-2 text-sm">
-      <h3 class="font-semibold text-gray-700 mb-1">🌾 Dados da Cultura</h3>
-      <p><strong>Plantação:</strong> <%= field.plantation_type || field.field_type.humanize %></p>
-      <p><strong>Área:</strong> <%= field.area %> ha</p>
-      <p><strong>Data de Plantação:</strong> <%= field.planting_date&.strftime("%d/%m/%Y") || "-" %></p>
-      <p><strong>Data de Colheita:</strong> <%= field.harvest_date&.strftime("%d/%m/%Y") || "-" %></p>
-      <p><strong>Solo:</strong> <%= field.soil_type || "-" %> (<%= field.soil_quality || "Qualidade desconhecida" %>)</p>
-      <p><strong>Irrigação:</strong> <%= field.irrigation_type || "-" %></p>
+    <!-- Solo e Localização -->
+    <div class="bg-white border rounded-xl p-5 shadow-sm">
+      <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
+        <i class="lucide lucide-land-plot w-4 h-4 text-green-500"></i> Solo & Localização
+      </h3>
+      <div class="mt-3 space-y-1 text-sm">
+        <p><strong>Tipo de Solo:</strong> <%= field.soil_type || '-' %></p>
+        <p><strong>Qualidade do Solo:</strong> <%= field.soil_quality || 'Indefinido' %></p>
+        <p><strong>Latitude:</strong> <%= field.latitude %></p>
+        <p><strong>Longitude:</strong> <%= field.longitude %></p>
+      </div>
     </div>
   </div>
 
-  <!-- Leituras de Sensores -->
+  <!-- Monitoramento -->
   <h3 class="text-lg font-semibold text-gray-700 mt-4">📡 Monitoramento em Tempo Real</h3>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
     <% sensores = {
-      "Humidade" => [:moisture, "💧", "text-blue-500", "%"],
-      "Temperatura" => [:temperature, "🌡", "text-orange-500", "°C"],
-      "Estado da Cultura" => [:crop_health, "🌱", "text-green-600", ""]
+      "Humidade" => [:moisture, "💧", "text-blue-500", "%", 40..80],
+      "Temperatura" => [:temperature, "🌡", "text-orange-500", "°C", 10..40],
+      "Estado da Cultura" => [:crop_health, "🌱", "text-green-600", "", nil]
     } %>
 
-    <% sensores.each do |label, (atributo, icon, cor, unidade)| %>
+    <% sensores.each do |label, (attr, icon, cor, unidade, range)| %>
+      <% valor = attr == :crop_health ? nil : field.sensors.average(attr)&.round(1) %>
+      <% status = if attr == :crop_health
+        "Saudável"
+      else
+        valor && range&.cover?(valor) ? "Normal" : "Atenção"
+      end %>
+      <% badge_class = status == "Normal" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600" %>
+
       <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
         <span class="block <%= cor %> text-2xl"><%= icon %></span>
         <p class="text-gray-600 text-sm"><%= label %></p>
         <p class="font-bold text-lg text-gray-800 mt-2">
-          <% if atributo == :crop_health %>
+          <% if attr == :crop_health %>
             Saudável
           <% else %>
-            <%= field.sensors.average(atributo)&.round(1) || '-' %> <span class="text-sm text-gray-500"><%= unidade %></span>
+            <%= valor || '-' %> <span class="text-sm text-gray-500"><%= unidade %></span>
           <% end %>
         </p>
+        <% unless attr == :crop_health %>
+          <span class="inline-block mt-2 px-2 py-0.5 text-xs rounded-full <%= badge_class %> font-medium">
+            <%= status %>
+          </span>
+        <% end %>
       </div>
     <% end %>
 
     <% if irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation") %>
-      <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105" id="<%= dom_id(irrigation_sensor, :irrigation_status_block) %>">
+      <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition">
         <span class="block text-blue-600 text-2xl">💦</span>
         <p class="text-gray-600 text-sm">Irrigação</p>
         <%= render partial: "sensors/irrigation_status_block", locals: { sensor: irrigation_sensor } %>
@@ -74,7 +95,6 @@
     <button @click="showNotes = !showNotes" class="text-green-700 hover:underline text-sm font-medium mb-2 transition">
       <i class="lucide lucide-sticky-note w-4 h-4 inline-block mr-1"></i> Ver/Esconder Notas
     </button>
-
     <div x-show="showNotes" x-transition class="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg shadow-sm">
       <h3 class="font-semibold text-gray-700 mb-1">📝 Observações</h3>
       <p class="text-sm text-gray-600"><%= field.notes.presence || "Sem observações." %></p>
@@ -82,4 +102,27 @@
   </div>
 
 </div>
+
+<!-- MAPBOX JS -->
+<script>
+  document.addEventListener("turbo:load", function () {
+    mapboxgl.accessToken = 'pk...';
+
+    const map = new mapboxgl.Map({
+      container: 'map-agriculture-<%= field.id %>',
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: [<%= field.longitude %>, <%= field.latitude %>],
+      zoom: 12
+    });
+
+    new mapboxgl.Marker()
+      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+      .addTo(map);
+  });
+
+</script>
 <% end %>
+<% end %>
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
