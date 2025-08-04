@@ -1,56 +1,72 @@
-<%= form_with model: field, local: true do |f| %>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Nome -->
+<%= form_with model: field, local: true, class: "space-y-6" do |f| %>
+  <!-- Nome + Tipo de Plantação -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <%= f.label :name, "Nome do Campo", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.text_field :name, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Campo</label>
+      <%= f.text_field :name, placeholder: "Ex: Campo Norte", class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
     </div>
-
-    <!-- Tipo de Plantação -->
     <div>
-      <%= f.label :plantation_type, "Tipo de Plantação", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.text_field :plantation_type, placeholder: "Ex: Milho, Trigo...", class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Plantação</label>
+      <%= f.text_field :plantation_type, placeholder: "Ex: Milho, Trigo...", class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
     </div>
+  </div>
 
-    <!-- Área -->
+  <!-- Área + Solo -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <%= f.label :area, "Área em hectares", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.number_field :area, step: 0.1, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Área (ha)</label>
+      <%= f.number_field :area, step: :any, placeholder: "Ex: 2.5", class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
     </div>
-
-    <!-- Latitude -->
     <div>
-      <%= f.label :latitude, "Latitude", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.text_field :latitude, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Solo</label>
+      <%= f.text_field :soil_type, placeholder: "Argiloso, arenoso...", class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
     </div>
+  </div>
 
-    <!-- Longitude -->
+  <!-- Latitude + Longitude -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <%= f.label :longitude, "Longitude", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.text_field :longitude, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+      <%= f.text_field :latitude, placeholder: "-37.123456", class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
     </div>
-
-    <!-- Data de Plantação -->
     <div>
-      <%= f.label :planting_date, "Data de Plantação", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.date_field :planting_date, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+      <%= f.text_field :longitude, placeholder: "9.123456", class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
     </div>
+  </div>
 
-    <!-- Previsão de Colheita -->
+  <!-- Datas -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <%= f.label :harvest_date, "Previsão de Colheita", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.date_field :harvest_date, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Data de Plantação</label>
+      <%= f.date_field :planting_date, class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Previsão de Colheita</label>
+      <%= f.date_field :harvest_date, class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
+    </div>
+  </div>
+
+  <!-- Irrigação + Solo -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Irrigação</label>
+      <%= f.text_field :irrigation_type, placeholder: "Gotejamento, aspersão...", class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Qualidade do Solo</label>
+      <%= f.text_field :soil_quality, placeholder: "Boa, Média, Fraca...", class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
     </div>
   </div>
 
   <!-- Notas -->
-  <div class="mt-6">
-    <%= f.label :notes, "Notas", class: "block text-sm font-medium text-gray-700" %>
-    <%= f.text_area :notes, rows: 4, class: "mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500" %>
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+    <%= f.text_area :notes, rows: 4, placeholder: "Ex: Informações adicionais sobre o campo...", class: "w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-green-300 focus:border-green-500" %>
   </div>
 
   <!-- Botão -->
-  <div class="mt-6 flex justify-end">
-    <%= f.submit "Guardar Alterações", class: "px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition" %>
+  <div class="text-right pt-4">
+    <%= f.submit field.persisted? ? "Atualizar Campo" : "Criar Campo", class: "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-semibold transition" %>
   </div>
 <% end %>
