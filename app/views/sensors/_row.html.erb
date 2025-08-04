@@ -13,7 +13,9 @@
         <% else %>
           <i class="fa-solid fa-microchip text-gray-400"></i>
       <% end %>
-      <span><%= sensor.name %></span>
+      <span title="Última leitura: <%= sensor.last_reading&.strftime('%d/%m %H:%M') || '—' %>">
+        <%= sensor.name %>
+      </span>
     </div>
   </td>
 
@@ -22,7 +24,7 @@
 
   <!-- Estado -->
   <td class="px-4 py-3">
-    <% status_class = sensor.status == "Active" ? "text-green-600" : "text-red-600" %>
+    <% status_class = sensor.status == "Active" ? "text-green-600" : "text-red-600 animate-pulse" %>
     <span class="flex items-center gap-1 <%= status_class %>">
       <span class="w-2 h-2 rounded-full bg-current"></span>
       <%= sensor.status %>
@@ -33,7 +35,11 @@
   <td class="px-4 py-3 text-gray-700">
     <span class="flex items-center gap-1">
       <%= battery_icon(sensor.battery) %>
-      <%= sensor.battery || 0 %>%
+      <% if sensor.battery.to_i < 20 %>
+        <span class="text-red-600 font-semibold"><%= sensor.battery || 0 %>%</span>
+      <% else %>
+        <%= sensor.battery || 0 %>%
+      <% end %>
     </span>
   </td>
 
@@ -41,65 +47,74 @@
   <td class="px-4 py-3 text-gray-700">
     <span class="flex items-center gap-1">
       <%= signal_icon(sensor.signal) %>
-      <%= sensor.signal || 0 %>%
+      <% if sensor.signal.to_i == 0 %>
+        <span class="text-red-600 font-semibold">0%</span>
+      <% else %>
+        <%= sensor.signal || 0 %>%
+      <% end %>
     </span>
   </td>
 
   <!-- Última Leitura -->
   <td class="px-4 py-3 text-gray-600">
-    <%= sensor.last_reading&.strftime("%d/%m, %H:%M") || "—" %>
+    <%= sensor.last_reading&.strftime("%Y-%m-%d %H:%M") || "—" %>
   </td>
 
-  <!-- AÇÕES COM DROPDOWN BONITO -->
-<td class="px-4 py-3 text-right relative" x-data="{ open: false }">
-  <button @click="open = !open" class="text-gray-500 hover:text-gray-700 px-2">
-    <i class="fa-solid fa-ellipsis-vertical"></i>
-  </button>
+  <!-- Ações -->
+  <td class="px-4 py-3 text-right relative" x-data="{ open: false }">
+    <button @click="open = !open" class="text-gray-500 hover:text-gray-700 px-2">
+      <i class="fa-solid fa-ellipsis-vertical"></i>
+    </button>
 
-  <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 z-20 mt-2 w-52 bg-white rounded-md border shadow-lg overflow-hidden">
-    <ul class="text-sm text-gray-700 divide-y">
-      <li>
-        <%= link_to readings_sensor_path(sensor), class: "flex items-center gap-2 px-4 py-2 hover:bg-gray-50" do %>
-          <i class="fa-solid fa-chart-line text-blue-500"></i> Ver Leituras
-        <% end %>
-      </li>
-
-      <% if sensor.sensor_type == "irrigation" %>
+    <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 z-20 mt-2 w-52 bg-white rounded-md border shadow-lg overflow-hidden">
+      <ul class="text-sm text-gray-700 divide-y">
         <li>
-          <button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal(); open = false;" class="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2">
-            <i class="fa-solid fa-calendar-days text-green-500"></i> Agendar Irrigação
-          </button>
-        </li>
-        <li>
-          <%= link_to irrigation_history_sensor_path(sensor), class: "flex items-center gap-2 px-4 py-2 hover:bg-gray-50" do %>
-            <i class="fa-solid fa-clock-rotate-left text-gray-500"></i> Histórico
+          <%= link_to readings_sensor_path(sensor), class: "flex items-center gap-2 px-4 py-2 hover:bg-gray-50" do %>
+            <i class="fa-solid fa-chart-line text-blue-500"></i> Ver Leituras
           <% end %>
         </li>
-      <% end %>
 
-      <li>
-        <%= button_to sensor_path(sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" },
-          class: "w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 flex items-center gap-2" do %>
-          <i class="fa-solid fa-trash"></i> Apagar
+        <% if sensor.sensor_type == "irrigation" %>
+          <li>
+            <button onclick="document.getElementById('scheduleModal-<%= sensor.id %>').showModal(); open = false;" class="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2">
+              <i class="fa-solid fa-calendar-days text-green-500"></i> Agendar Irrigação
+            </button>
+          </li>
+          <li>
+            <%= link_to irrigation_history_sensor_path(sensor), class: "flex items-center gap-2 px-4 py-2 hover:bg-gray-50" do %>
+              <i class="fa-solid fa-clock-rotate-left text-gray-500"></i> Histórico
+            <% end %>
+          </li>
         <% end %>
-      </li>
-    </ul>
-  </div>
-</td>
 
+        <li>
+          <%= button_to simulate_api_sensor_path(sensor), method: :post, form: { data: { turbo: false } },
+            class: "w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2" do %>
+            <i class="fa-solid fa-flask text-yellow-500"></i> Simular Leitura
+          <% end %>
+        </li>
+
+        <li>
+          <%= button_to sensor_path(sensor), method: :delete, data: { turbo_confirm: "Apagar este sensor?" },
+            class: "w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 flex items-center gap-2" do %>
+            <i class="fa-solid fa-trash"></i> Apagar
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  </td>
 </tr>
 
-
+<%# Modal de Agendamento (só para irrigação) %>
 <% if sensor.sensor_type == "irrigation" %>
   <dialog id="scheduleModal-<%= sensor.id %>" class="rounded-xl p-0 w-full max-w-md shadow-xl backdrop:bg-black/30">
     <div class="p-6 bg-white rounded-xl">
       <h3 class="text-lg font-semibold text-gray-800">🕒 Agendar Irrigação</h3>
       <p class="text-sm text-gray-500 mb-4">Configure o agendamento para <%= sensor.name %></p>
 
-      <%= form_with model: IrrigationSchedule.new, url: field_irrigation_schedules_path(sensor.field), method: :post, local: true do |f| %>
+      <%= form_with model: IrrigationSchedule.new, url: field_irrigation_schedules_path(sensor.field), local: true do |f| %>
         <%= f.hidden_field :sensor_id, value: sensor.id %>
 
-        <!-- Dias -->
         <label class="block text-sm font-medium mb-1">Dias da Semana</label>
         <div class="flex gap-2 flex-wrap">
           <% Date::DAYNAMES.each_with_index do |day, i| %>
@@ -110,7 +125,6 @@
           <% end %>
         </div>
 
-        <!-- Hora e Minuto -->
         <div class="grid grid-cols-2 gap-4 mt-4">
           <div>
             <%= f.label :hour, "Hora", class: "block text-sm mb-1" %>
@@ -122,21 +136,18 @@
           </div>
         </div>
 
-        <!-- Duração -->
         <div class="mt-4">
           <%= f.label :duration, "Duração (minutos)", class: "block text-sm mb-1" %>
-<%= f.range_field :duration,
-  in: 5..60,
-  step: 5,
-  class: "w-full duration-slider",
-  id: "duration_slider_#{sensor.id}",
-  data: { sensor_id: sensor.id },
-  oninput: "document.getElementById('duration_#{sensor.id}').textContent = this.value + ' min'" %>
-
+          <%= f.range_field :duration,
+                in: 5..60,
+                step: 5,
+                class: "w-full duration-slider",
+                id: "duration_slider_#{sensor.id}",
+                data: { sensor_id: sensor.id },
+                oninput: "document.getElementById('duration_#{sensor.id}').textContent = this.value + ' min'" %>
           <div class="text-right text-sm text-green-600 mt-1" id="duration_<%= sensor.id %>">30 min</div>
         </div>
 
-        <!-- Ações -->
         <div class="flex justify-end gap-3 mt-6">
           <button type="button" onclick="document.getElementById('scheduleModal-<%= sensor.id %>').close()" class="px-4 py-2 text-sm border rounded hover:bg-gray-100">Cancelar</button>
           <%= f.submit "Confirmar", class: "px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700" %>
@@ -146,22 +157,17 @@
   </dialog>
 <% end %>
 
-
 <script>
-  function updateDurationDisplay(value, sensorId) {
-    const label = document.getElementById(`duration_${sensorId}`);
-    if (label) label.textContent = `${value} min`;
-  }
-
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".duration-slider").forEach(slider => {
       const sensorId = slider.dataset.sensorId;
-      updateDurationDisplay(slider.value, sensorId);
-      slider.addEventListener("input", () => {
-        updateDurationDisplay(slider.value, sensorId);
-      });
+      const label = document.getElementById(`duration_${sensorId}`);
+      if (label) {
+        label.textContent = `${slider.value} min`;
+        slider.addEventListener("input", () => {
+          label.textContent = `${slider.value} min`;
+        });
+      }
     });
   });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-

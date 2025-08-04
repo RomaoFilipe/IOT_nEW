@@ -45,6 +45,25 @@ class Sensor < ApplicationRecord
     self[:last_duration] || 60
   end
 
+def suggested_field
+  return nil if Field.none?
+
+  # 1. Por nome semelhante
+  similar_by_name = Field.where("name ILIKE ?", "%#{name}%").first
+  return similar_by_name if similar_by_name
+
+  # 2. Por proximidade (se o sensor tiver coordenadas no futuro)
+  if respond_to?(:latitude) && respond_to?(:longitude) && latitude.present? && longitude.present?
+    Field
+      .select("*, (point(latitude, longitude) <-> point(#{latitude}, #{longitude})) AS distance")
+      .order("distance ASC")
+      .first
+  else
+    nil
+  end
+end
+
+
   # WebSocket callback
   after_update_commit :broadcast_irrigation_status, if: :irrigation_status_changed?
 

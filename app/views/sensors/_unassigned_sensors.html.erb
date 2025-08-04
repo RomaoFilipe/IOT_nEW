@@ -1,28 +1,127 @@
 <% unassigned = Sensor.where(field_id: nil) %>
 <% if unassigned.any? %>
-  <h3 class="text-md font-semibold mt-6 mb-2 text-gray-800">Sensores Não Atribuídos</h3>
-  <table class="min-w-full border rounded-lg shadow-sm divide-y divide-gray-200">
-    <thead class="bg-gray-100">
-      <tr class="text-sm text-gray-700">
-        <th class="px-4 py-2 text-left">Nome</th>
-        <th class="px-4 py-2 text-left">Tipo</th>
-        <th class="px-4 py-2 text-left">Última leitura</th>
-        <th class="px-4 py-2 text-left">Ações</th>
-      </tr>
-    </thead>
-    <tbody class="bg-white divide-y divide-gray-100">
-      <% unassigned.each do |sensor| %>
+  <h3 class="text-lg font-bold mt-10 mb-4 text-gray-800 flex items-center gap-2">
+    <i class="fa-solid fa-plug-circle-exclamation text-yellow-500"></i>
+    Sensores Não Atribuídos
+  </h3>
+
+  <div class="overflow-x-auto border rounded-xl shadow-sm bg-white">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-semibold">
         <tr>
-          <td class="px-4 py-2"><%= sensor.name %></td>
-          <td class="px-4 py-2"><%= sensor.sensor_type %></td>
-          <td class="px-4 py-2"><%= sensor.last_reading&.strftime("%d/%m %H:%M") || "Sem dados" %></td>
-          <td class="px-4 py-2">
-            <%= button_to "Atribuir a este campo", assign_field_sensor_path(sensor), method: :patch,
-                params: { field_id: field.id },
-                class: "text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition" %>
-          </td>
+          <th class="px-4 py-3 text-left">Nome</th>
+          <th class="px-4 py-3 text-left">Tipo</th>
+          <th class="px-4 py-3 text-left">Bateria</th>
+          <th class="px-4 py-3 text-left">Sinal</th>
+          <th class="px-4 py-3 text-left">Última Leitura</th>
+          <th class="px-4 py-3 text-center">Ações</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% unassigned.each do |sensor| %>
+          <tr class="hover:bg-gray-50" x-data="{ open: false }">
+            <!-- Nome -->
+            <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                <% case sensor.sensor_type.downcase %>
+                  <% when "temperatura" %>
+                    <i class="fa-solid fa-temperature-three-quarters text-red-500"></i>
+                  <% when "humidade" %>
+                    <i class="fa-solid fa-droplet text-blue-500"></i>
+                  <% when "irrigation" %>
+                    <i class="fa-solid fa-water text-blue-700"></i>
+                  <% else %>
+                    <i class="fa-solid fa-microchip text-gray-400"></i>
+                <% end %>
+                <%= sensor.name %>
+              </div>
+
+              <%# Sugestão automática de campo %>
+              <% suggested = sensor.suggested_field %>
+              <% if suggested %>
+                <p class="text-xs text-gray-600 italic mt-1">
+                  Sugestão: <strong><%= suggested.name %></strong>
+                </p>
+                <%= button_to "Atribuir automaticamente", assign_field_sensor_path(sensor),
+                      method: :patch,
+                      params: { field_id: suggested.id },
+                      class: "mt-1 bg-green-600 text-white text-xs px-2 py-1 rounded hover:bg-green-700 transition" %>
+              <% end %>
+            </td>
+
+            <!-- Tipo -->
+            <td class="px-4 py-3 capitalize text-gray-700"><%= sensor.sensor_type %></td>
+
+            <!-- Bateria -->
+            <td class="px-4 py-3">
+              <span class="flex items-center gap-1">
+                <%= battery_icon(sensor.battery) %>
+                <% if sensor.battery.to_i < 20 %>
+                  <span class="text-red-600 font-semibold"><%= sensor.battery %>%</span>
+                <% else %>
+                  <%= sensor.battery || 0 %>%
+                <% end %>
+              </span>
+            </td>
+
+            <!-- Sinal -->
+            <td class="px-4 py-3">
+              <span class="flex items-center gap-1">
+                <%= signal_icon(sensor.signal) %>
+                <% if sensor.signal.to_i == 0 %>
+                  <span class="text-red-600 font-semibold">Sem sinal</span>
+                <% else %>
+                  <%= sensor.signal || 0 %>%
+                <% end %>
+              </span>
+            </td>
+
+            <!-- Última leitura -->
+            <td class="px-4 py-3 text-gray-600" title="Atualizado em <%= sensor.last_reading&.strftime('%d/%m/%Y %H:%M') || 'Nunca' %>">
+              <%= sensor.last_reading&.strftime("%Y-%m-%d %H:%M") || "Sem dados" %>
+            </td>
+
+            <!-- Ações -->
+            <td class="px-4 py-3 text-center relative">
+              <button @click="open = !open" class="text-gray-500 hover:text-gray-700 px-2">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </button>
+
+              <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 z-20 mt-2 w-52 bg-white rounded-md border shadow-lg overflow-hidden">
+                <ul class="text-sm text-gray-700 divide-y">
+                  <li>
+                    <%= button_to "Atribuir a este campo", assign_field_sensor_path(sensor),
+                        method: :patch,
+                        params: { field_id: field.id },
+                        class: "w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2" do %>
+                      <i class="fa-solid fa-link text-green-600"></i> Atribuir
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= link_to readings_sensor_path(sensor),
+                        class: "flex items-center gap-2 px-4 py-2 hover:bg-gray-50" do %>
+                      <i class="fa-solid fa-chart-line text-blue-500"></i> Ver Leituras
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= button_to simulate_api_sensor_path(sensor), method: :post, form: { data: { turbo: false } },
+                        class: "w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2" do %>
+                      <i class="fa-solid fa-flask text-yellow-500"></i> Simular Leitura
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= button_to sensor_path(sensor), method: :delete,
+                        data: { turbo_confirm: "Apagar este sensor?" },
+                        class: "w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 flex items-center gap-2" do %>
+                      <i class="fa-solid fa-trash"></i> Apagar
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 <% end %>
