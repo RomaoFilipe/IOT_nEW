@@ -1,74 +1,84 @@
 <%= turbo_frame_tag "overview-#{field.id}" do %>
-  <!-- Cabeçalho com botão Editar -->
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-      <i class="lucide lucide-wheat w-5 h-5 text-green-600"></i>
-      Detalhes da Agricultura
-    </h2>
+<div x-data="{ showNotes: false }" x-init="$el.classList.add('animate-fade-in')" class="space-y-6 animate-fade-in">
 
-    <%= link_to edit_field_path(field), class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition" do %>
-      <i class="lucide lucide-pencil w-4 h-4"></i>
-      Editar
+  <!-- Cabeçalho -->
+  <div class="flex justify-between items-center flex-wrap gap-2">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <i class="lucide lucide-wheat w-5 h-5 text-green-600"></i>
+        <%= field.name %>
+      </h2>
+      <span class="text-sm text-green-700 bg-green-100 px-2 py-1 rounded mt-1 inline-block">
+        Agricultura
+      </span>
+    </div>
+
+    <%= link_to edit_field_path(field), class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition hover:scale-105 duration-200" do %>
+      <i class="lucide lucide-pencil w-4 h-4"></i> Editar
     <% end %>
   </div>
 
-  <!-- Informações da Cultura -->
-  <div class="grid grid-cols-2 gap-6">
+  <!-- Blocos de Informação -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- Mapa -->
-    <div class="bg-green-50 rounded-lg h-40 flex items-center justify-center">
+    <div class="bg-green-50 rounded-lg h-40 flex items-center justify-center shadow-sm">
       <i class="lucide lucide-map w-12 h-12 text-green-500"></i>
     </div>
 
-    <!-- Dados principais -->
-    <div>
-      <h3 class="font-semibold mb-2">Informação da Cultura</h3>
-      <p><strong>Data de Plantação:</strong> <%= field.planting_date&.strftime("%Y-%m-%d") || "-" %></p>
-      <p><strong>Data de Colheita:</strong> <%= field.harvest_date&.strftime("%Y-%m-%d") || "-" %></p>
+    <!-- Detalhes -->
+    <div class="space-y-2">
+      <h3 class="font-semibold text-gray-700 mb-1">🌾 Dados da Cultura</h3>
+      <p><strong>Plantação:</strong> <%= field.plantation_type || field.field_type.humanize %></p>
       <p><strong>Área:</strong> <%= field.area %> ha</p>
-      <p><strong>Tipo de Cultura:</strong> <%= field.field_type.humanize %></p>
-      <p><strong>Qualidade do Solo:</strong> <%= field.soil_quality || "-" %></p>
-      <p><strong>Tipo de Solo:</strong> <%= field.soil_type || "-" %></p>
-      <p><strong>Tipo de Irrigação:</strong> <%= field.irrigation_type || "-" %></p>
-
-      <h3 class="font-semibold mt-4">Notas</h3>
-      <p class="text-sm text-gray-600"><%= field.notes || "Sem observações." %></p>
+      <p><strong>Data de Plantação:</strong> <%= field.planting_date&.strftime("%d/%m/%Y") || "-" %></p>
+      <p><strong>Data de Colheita:</strong> <%= field.harvest_date&.strftime("%d/%m/%Y") || "-" %></p>
+      <p><strong>Solo:</strong> <%= field.soil_type || "-" %> (<%= field.soil_quality || "Qualidade desconhecida" %>)</p>
+      <p><strong>Irrigação:</strong> <%= field.irrigation_type || "-" %></p>
     </div>
   </div>
 
-  <!-- Leituras Atuais -->
+  <!-- Leituras de Sensores -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-    <!-- Humidade -->
-    <div class="bg-green-100 p-4 rounded-lg text-center">
-      <span class="block text-blue-500 text-2xl">💧</span>
-      <p class="text-gray-600">Humidade</p>
-      <p class="font-bold text-lg">
-        <%= field.sensors.average(:moisture)&.round(1) || '-' %>%
-      </p>
-    </div>
+    <% sensores = {
+      "Humidade" => [:moisture, "💧", "text-blue-500", "%"],
+      "Temperatura" => [:temperature, "🌡", "text-orange-500", "°C"],
+      "Cultura" => [:crop_health, "🌱", "text-green-600", ""]
+    } %>
 
-    <!-- Temperatura -->
-    <div class="bg-green-100 p-4 rounded-lg text-center">
-      <span class="block text-orange-500 text-2xl">🌡</span>
-      <p class="text-gray-600">Temperatura</p>
-      <p class="font-bold text-lg">
-        <%= field.sensors.average(:temperature)&.round(1) || "-" %>°C
-      </p>
-    </div>
-
-    <!-- Estado da Colheita -->
-    <div class="bg-green-100 p-4 rounded-lg text-center">
-      <span class="block text-green-600 text-2xl">🌱</span>
-      <p class="text-gray-600">Estado da Cultura</p>
-      <p class="font-bold text-lg">Saudável</p>
-    </div>
+    <% sensores.each do |label, (atributo, icon, cor, unidade)| %>
+      <div class="bg-green-100 p-4 rounded-lg text-center shadow-sm transform transition duration-300 hover:scale-105">
+        <span class="block <%= cor %> text-2xl"><%= icon %></span>
+        <p class="text-gray-600"><%= label %></p>
+        <p class="font-bold text-lg">
+          <% if atributo == :crop_health %>
+            Saudável
+          <% else %>
+            <%= field.sensors.average(atributo)&.round(1) || '-' %> <%= unidade %>
+          <% end %>
+        </p>
+      </div>
+    <% end %>
 
     <% if irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation") %>
       <div class="bg-green-100 p-4 rounded-lg text-center" id="<%= dom_id(irrigation_sensor, :irrigation_status_block) %>">
         <span class="block text-blue-600 text-2xl">💦</span>
         <p class="text-gray-600">Irrigação</p>
-
         <%= render partial: "sensors/irrigation_status_block", locals: { sensor: irrigation_sensor } %>
       </div>
     <% end %>
   </div>
+
+  <!-- Notas -->
+  <div class="mt-6">
+    <button @click="showNotes = !showNotes" class="text-green-700 hover:underline text-sm font-medium mb-2 transition">
+      <i class="lucide lucide-sticky-note w-4 h-4 inline-block mr-1"></i> Ver/Esconder Notas
+    </button>
+
+    <div x-show="showNotes" x-transition class="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg shadow-sm">
+      <h3 class="font-semibold text-gray-700 mb-1">📝 Observações</h3>
+      <p class="text-sm text-gray-600"><%= field.notes.presence || "Sem observações." %></p>
+    </div>
+  </div>
+
+</div>
 <% end %>

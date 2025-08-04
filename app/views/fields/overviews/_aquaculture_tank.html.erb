@@ -1,79 +1,76 @@
 <%= turbo_frame_tag "overview-#{field.id}" do %>
-  <!-- Cabeçalho com botão Editar -->
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-      <i class="lucide lucide-info w-5 h-5 text-blue-600"></i>
-      Detalhes do Tanque
-    </h2>
+<div x-data="{ showNotes: false }" x-init="$el.classList.add('animate-fade-in')" class="space-y-6 animate-fade-in">
 
-    <%= link_to edit_field_path(field), class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition" do %>
-      <i class="lucide lucide-pencil w-4 h-4"></i>
-      Editar
+  <!-- Cabeçalho -->
+  <div class="flex justify-between items-center flex-wrap gap-2">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <i class="lucide lucide-info w-5 h-5 text-blue-600"></i>
+        Tanque: <%= field.name %>
+      </h2>
+      <span class="text-sm text-blue-700 bg-blue-100 px-2 py-1 rounded mt-1 inline-block transition-all duration-300">
+        Aquacultura em Tanque
+      </span>
+    </div>
+
+    <%= link_to edit_field_path(field), class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition-all duration-300 hover:scale-105" do %>
+      <i class="lucide lucide-pencil w-4 h-4"></i> Editar
     <% end %>
   </div>
 
-  <!-- Informações do Tanque -->
-  <div class="grid grid-cols-2 gap-6">
-    <!-- Mapa/Ilustração -->
-    <div class="bg-blue-50 rounded-lg h-40 flex items-center justify-center">
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
-        <path d="M15 5.764v15"/>
-        <path d="M9 3.236v15"/>
-      </svg>
+  <!-- Blocos Informativos -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+    <div class="bg-white border rounded-lg p-4 shadow-sm space-y-2">
+      <h3 class="font-semibold text-gray-700 mb-2">📊 Dados do Tanque</h3>
+      <p><strong>Espécie:</strong> <%= field.species || "-" %></p>
+      <p><strong>Volume:</strong> <%= field.tank_volume || "-" %> m³</p>
+      <p><strong>Densidade:</strong> <%= field.stocking_density || "-" %> kg/m³</p>
+      <p><strong>Regime Alimentar:</strong> <%= field.feeding_regime || "-" %></p>
     </div>
 
-    <!-- Dados do tanque -->
-    <div>
-      <h3 class="font-semibold mb-2">Aquaculture Tank Info</h3>
-      <p><strong>Species:</strong> <%= field.species || "-" %></p>
-      <p><strong>Tank Volume:</strong> <%= field.tank_volume || "-" %> m³</p>
-      <p><strong>Stocking Density:</strong> <%= field.stocking_density || "-" %> kg/m³</p>
-      <p><strong>Feeding Regime:</strong> <%= field.feeding_regime || "-" %></p>
-      <p><strong>Date of Fish Placement:</strong> <%= field.fish_placement_date&.strftime("%Y-%m-%d") || "-" %></p>
-      <p><strong>Estimated Harvest:</strong> <%= field.estimated_harvest_date&.strftime("%Y-%m-%d") || "-" %></p>
-
-      <h3 class="font-semibold mt-4">Notes</h3>
-      <p class="text-sm text-gray-600"><%= field.notes || "No notes yet." %></p>
+    <div class="bg-white border rounded-lg p-4 shadow-sm space-y-2">
+      <h3 class="font-semibold text-gray-700 mb-2">📅 Datas & Localização</h3>
+      <p><strong>Colocação:</strong> <%= field.fish_placement_date&.strftime("%d/%m/%Y") || "-" %></p>
+      <p><strong>Colheita:</strong> <%= field.estimated_harvest_date&.strftime("%d/%m/%Y") || "-" %></p>
+      <p><strong>Latitude:</strong> <%= field.latitude || "-" %></p>
+      <p><strong>Longitude:</strong> <%= field.longitude || "-" %></p>
     </div>
   </div>
 
-  <!-- Leituras dos Sensores -->
+  <!-- Leituras de Sensores -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-    <!-- pH -->
-    <div class="bg-blue-100 p-4 rounded-lg text-center">
-      <span class="block text-blue-500 text-2xl">🧪</span>
-      <p class="text-gray-600">pH</p>
-      <p class="font-bold text-lg">
-        <%= field.sensors.average(:ph)&.round(2) || '-' %>
-      </p>
-    </div>
+    <% sensores = {
+      "pH" => [:ph, "🧪", "text-blue-500", "pH"],
+      "Salinidade" => [:salinity, "🧂", "text-indigo-500", "ppt"],
+      "Oxigénio" => [:oxygen, "🫧", "text-cyan-500", "mg/L"],
+      "Temp. Água" => [:water_temperature, "🌡", "text-red-500", "°C"]
+    } %>
 
-    <!-- Salinidade -->
-    <div class="bg-blue-100 p-4 rounded-lg text-center">
-      <span class="block text-indigo-500 text-2xl">🧂</span>
-      <p class="text-gray-600">Salinity</p>
-      <p class="font-bold text-lg">
-        <%= field.sensors.average(:salinity)&.round(1) || '-' %> ppt
-      </p>
-    </div>
+    <% sensores.each do |label, (atributo, icon, cor, unidade)| %>
+      <div class="bg-blue-50 p-4 rounded-lg text-center shadow-sm transform transition duration-300 hover:scale-105"
+           x-data="{ tooltip: false }"
+           @mouseover="tooltip = true" @mouseleave="tooltip = false">
+        <span class="block <%= cor %> text-2xl"><%= icon %></span>
+        <p class="text-gray-600" x-show="!tooltip"><%= label %></p>
+        <p class="text-xs text-gray-400" x-show="tooltip">Sensor: <%= atributo %></p>
+        <p class="font-bold text-lg">
+          <%= field.sensors.average(atributo)&.round(2) || '-' %> <%= unidade %>
+        </p>
+      </div>
+    <% end %>
+  </div>
 
-    <!-- Oxigénio -->
-    <div class="bg-blue-100 p-4 rounded-lg text-center">
-      <span class="block text-cyan-500 text-2xl">🫧</span>
-      <p class="text-gray-600">Oxygen</p>
-      <p class="font-bold text-lg">
-        <%= field.sensors.average(:oxygen)&.round(1) || '-' %> mg/L
-      </p>
-    </div>
+  <!-- Notas -->
+  <div class="mt-6">
+    <button @click="showNotes = !showNotes" class="text-blue-600 hover:underline text-sm font-medium mb-2 transition">
+      <i class="lucide lucide-sticky-note w-4 h-4 inline-block mr-1"></i> Ver/Esconder Notas
+    </button>
 
-    <!-- Temperatura da água -->
-    <div class="bg-blue-100 p-4 rounded-lg text-center">
-      <span class="block text-red-500 text-2xl">🌡</span>
-      <p class="text-gray-600">Water Temp</p>
-      <p class="font-bold text-lg">
-        <%= field.sensors.average(:water_temperature)&.round(1) || '-' %>°C
-      </p>
+    <div x-show="showNotes" x-transition class="bg-gray-50 border-l-4 border-blue-400 p-4 rounded-lg shadow-sm">
+      <h3 class="font-semibold text-gray-700 mb-1">📝 Observações</h3>
+      <p class="text-sm text-gray-600"><%= field.notes.presence || "Sem observações no momento." %></p>
     </div>
   </div>
+</div>
 <% end %>
+
