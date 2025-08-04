@@ -1,11 +1,11 @@
 <%= turbo_frame_tag "overview-#{field.id}" do %>
 <div class="space-y-6 animate-fade-in" x-data="{ showNotes: false }">
 
-  <!-- Mapa -->
+  <!-- Mapa com Mapbox -->
   <div id="map-tank-<%= field.id %>" class="w-full h-60 rounded-xl shadow border"></div>
 
   <!-- Header + Botão Editar -->
-  <div class="flex justify-between items-center">
+  <div class="flex justify-between items-center mt-2">
     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
       <i class="lucide lucide-fish w-5 h-5 text-blue-600"></i>
       Tanque: <%= field.name %>
@@ -72,7 +72,7 @@
     <% end %>
   </div>
 
-  <!-- Notas (com toggle) -->
+  <!-- Notas -->
   <div class="mt-6">
     <button @click="showNotes = !showNotes" class="px-4 py-2 bg-gray-100 text-sm text-blue-600 font-medium rounded-lg hover:bg-gray-200 transition">
       Ver/Esconder Notas
@@ -85,24 +85,32 @@
 
 </div>
 
-<!-- Mapbox -->
+<!-- Script do Mapbox -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("turbo:load", function () {
     mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
 
-    const map = new mapboxgl.Map({
-      container: 'map-tank-<%= field.id %>',
-      style: 'mapbox://styles/mapbox/outdoors-v12',
-      center: [<%= field.longitude %>, <%= field.latitude %>],
-      zoom: 12
-    });
+    const containerId = 'map-tank-<%= field.id %>';
+    const lat = <%= field.latitude || 0 %>;
+    const lng = <%= field.longitude || 0 %>;
 
-    new mapboxgl.Marker()
-      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
-      .addTo(map);
+    setTimeout(() => {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const map = new mapboxgl.Map({
+        container: containerId,
+        style: 'mapbox://styles/mapbox/outdoors-v12',
+        center: [lng, lat],
+        zoom: 12
+      });
+
+      new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+    }, 150);
   });
 </script>
 <% end %>
+
 <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
