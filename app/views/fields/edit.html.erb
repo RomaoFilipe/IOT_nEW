@@ -3,7 +3,7 @@
     <i class="lucide lucide-pencil w-6 h-6 text-blue-600"></i> Editar Campo
   </h1>
 
-  <% case @field.field_type %>
+  <% case @field.field_type.to_s %>
   <% when "agriculture" %>
     <%= render "fields/forms/form_agriculture", field: @field %>
   <% when "aquaculture_tank" %>
