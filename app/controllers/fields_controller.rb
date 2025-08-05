@@ -3,7 +3,7 @@ class FieldsController < ApplicationController
 
 def index
   @fields = current_user.account.fields.select(
-    :id, :name, :latitude, :longitude, :area, :field_type, :updated_at, :polygon_coordinates, :notes,
+    :id, :name, :latitude, :longitude, :area, :field_type, :updated_at, :polygon_coordinates, :notes, :plantation_type,
     :species, :tank_volume, :stocking_density, :feeding_regime, :fish_placement_date, :estimated_harvest_date
   )
   @field = Field.new
@@ -80,7 +80,7 @@ end
 def field_params
   permitted = params.require(:field).permit(
     :name, :area, :latitude, :longitude, :notes, :polygon_coordinates,
-    :species, :tank_volume, :stocking_density, :feeding_regime, :fish_placement_date, :estimated_harvest_date
+    :species, :tank_volume, :stocking_density, :feeding_regime, :fish_placement_date, :estimated_harvest_date, :plantation_type
   )
 
   if permitted[:polygon_coordinates].present? && permitted[:polygon_coordinates].is_a?(String)
