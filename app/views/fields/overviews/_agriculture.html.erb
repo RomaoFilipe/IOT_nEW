@@ -103,25 +103,24 @@
 
 </div>
 
-<!-- MAPBOX JS -->
+
 <script>
-  document.addEventListener("turbo:load", function () {
-    mapboxgl.accessToken = 'pk...';
+  document.addEventListener("DOMContentLoaded", function () {
+    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
 
     const map = new mapboxgl.Map({
-      container: 'map-agriculture-<%= field.id %>',
+      container: 'map-tank-<%= field.id %>',
       style: 'mapbox://styles/mapbox/outdoors-v12',
       center: [<%= field.longitude %>, <%= field.latitude %>],
-      zoom: 12
+      zoom: 13
     });
 
     new mapboxgl.Marker()
       .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
       .addTo(map);
   });
-
 </script>
-<% end %>
+
 <% end %>
 <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
