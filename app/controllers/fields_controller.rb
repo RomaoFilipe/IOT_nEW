@@ -2,10 +2,12 @@ class FieldsController < ApplicationController
   before_action :authenticate_user!
 
 def index
-  @fields = current_user.account.fields.select(
-    :id, :name, :latitude, :longitude, :area, :field_type, :updated_at, :polygon_coordinates, :notes, :plantation_type,
-    :species, :tank_volume, :stocking_density, :feeding_regime, :fish_placement_date, :estimated_harvest_date
-  )
+    @fields = current_user.account.fields.select(
+      :id, :name, :latitude, :longitude, :area, :field_type, :updated_at,
+      :polygon_coordinates, :notes, :plantation_type, :planting_date,
+      :species, :tank_volume, :stocking_density, :feeding_regime,
+      :fish_placement_date, :estimated_harvest_date
+    )
   @field = Field.new
 end
 
