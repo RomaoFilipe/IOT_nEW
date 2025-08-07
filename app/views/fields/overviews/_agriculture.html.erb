@@ -81,13 +81,43 @@
       </div>
     <% end %>
 
-    <% if irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation") %>
-      <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition">
-        <span class="block text-blue-600 text-2xl">💦</span>
-        <p class="text-gray-600 text-sm">Irrigação</p>
-        <%= render partial: "sensors/irrigation_status_block", locals: { sensor: irrigation_sensor } %>
-      </div>
-    <% end %>
+
+    <% if (irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation")) %>
+  <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition" id="<%= dom_id(irrigation_sensor, :irrigation_status_block) %>">
+    <span class="block text-blue-600 text-2xl">💦</span>
+    <p class="text-gray-600 text-sm">Irrigação</p>
+    <%= render partial: "sensors/irrigation_status_block", locals: { sensor: irrigation_sensor } %>
+  </div>
+
+  <script>
+    document.addEventListener("turbo:load", () => {
+      const sensorId = "<%= irrigation_sensor.id %>";
+
+      if (!window.App || !window.App.cable) return;
+
+      window.App.cable.subscriptions.create(
+        { channel: "IrrigationChannel", sensor_id: sensorId },
+        {
+          connected() {
+            console.log(`🔌 Canal de irrigação conectado: sensor ${sensorId}`);
+          },
+          disconnected() {
+            console.log(`⛔ Canal de irrigação desconectado: sensor ${sensorId}`);
+          },
+          received(data) {
+            fetch(`/sensors/${sensorId}/status_info`)
+              .then(res => res.text())
+              .then(html => {
+                const container = document.getElementById(`sensor_${sensorId}_irrigation_status_block`);
+                if (container) container.innerHTML = html;
+              });
+          }
+        }
+      );
+    });
+  </script>
+<% end %>
+
   </div>
 
   <!-- Notas -->
@@ -109,7 +139,7 @@
     mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
 
     const map = new mapboxgl.Map({
-      container: 'map-tank-<%= field.id %>',
+      container: 'map-agriculture-<%= field.id %>',
       style: 'mapbox://styles/mapbox/outdoors-v12',
       center: [<%= field.longitude %>, <%= field.latitude %>],
       zoom: 13

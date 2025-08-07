@@ -1,0 +1,33 @@
+<turbo-frame id="schedules_for_sensor_<%= sensor.id %>">
+  <% if schedules.any? %>
+    <ul class="space-y-3">
+      <% schedules.each do |schedule| %>
+        <li class="flex items-start justify-between bg-white border-l-4 border-green-500 shadow-sm px-4 py-3 rounded-lg">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center h-10 w-10 rounded-full bg-green-100 text-green-600">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+              <p class="text-sm text-gray-700">
+                <span class="font-semibold text-green-700"><%= format('%02d:%02d', schedule.hour, schedule.minute) %></span>
+                — <%= schedule.duration / 60 %> min
+              </p>
+              <p class="text-xs text-gray-500">Sensor: <span class="font-medium"><%= schedule.sensor.name %></span></p>
+            </div>
+          </div>
+          <%= button_to field_irrigation_schedule_path(schedule.field, schedule),
+                method: :delete,
+                form: { data: { turbo_stream: true } },
+                class: "text-sm text-red-600 hover:underline self-center" do %>
+            <i class="fa-solid fa-trash"></i> Apagar
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="bg-yellow-50 text-yellow-800 px-4 py-3 rounded-lg shadow-sm flex items-center gap-3 text-sm">
+      <i class="fa-solid fa-circle-info text-yellow-500"></i>
+      Nenhum agendamento registado para este sensor.
+    </div>
+  <% end %>
+</turbo-frame>

@@ -87,6 +87,14 @@ class SensorsController < ApplicationController
     end
   end
 
+
+  def unassign_field
+    sensor = Sensor.find(params[:id])
+    sensor.update(field_id: nil)
+    redirect_back fallback_location: root_path, notice: "Sensor desassociado com sucesso."
+  end
+
+
   def irrigation_history
     @irrigation_logs = @sensor.irrigation_logs.order(executed_at: :desc)
     Rails.logger.debug "Irrigation logs count: #{@irrigation_logs.count}"

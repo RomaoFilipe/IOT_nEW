@@ -54,6 +54,7 @@ Rails.application.routes.draw do
       resources :fields do
         resources :irrigation_schedules, only: [:create, :destroy] do
           collection { get :today }
+          get :by_sensor 
         end
       end
 
@@ -71,11 +72,12 @@ Rails.application.routes.draw do
 
       # 🛰️ Sensores globais
       resources :sensors, only: [:create, :destroy, :update] do
-        post :simulate, on: :member
+        post :simulate, to: "api/sensors#simulate", as: :simulate_api
+        patch "/sensors/:id/toggle_status", to: "api/sensors#toggle_status", as: :toggle_status_api
+        patch :unassign_field, on: :member
         post :stop_irrigation, on: :member
         post :start_irrigation, on: :member
         post "readings", to: "sensor_readings#create", on: :member
-        patch :toggle_status, on: :member
         patch :assign_field, on: :member
         patch :update_status, on: :member
         get :readings, on: :member
@@ -83,6 +85,9 @@ Rails.application.routes.draw do
         get :status_info, on: :member
         collection { post :lookup }
       end
+
+      get "irrigation_schedules/by_sensor", to: "irrigation_schedules#by_sensor", as: :irrigation_by_sensor
+
 
       # 📅 Eventos e previsões
       get "/events/upcoming", to: "events#upcoming"
@@ -114,6 +119,7 @@ Rails.application.routes.draw do
       get "sensors/find_by_device_id", to: "sensors#find_by_device_id"
 
       resources :sensors, only: [] do
+        patch :toggle_status, on: :member
         post :simulate, on: :member
         post "readings", to: "sensor_readings#create", on: :member
       end

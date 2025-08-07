@@ -11,6 +11,7 @@
     </button>
   </div>
 
+
   <!-- Formulário de adição -->
   <%= render partial: "sensors/form", locals: { field: field } %>
 
@@ -19,14 +20,14 @@
     <div class="bg-white rounded-xl border p-4 shadow-sm flex items-center gap-4">
       <div class="text-green-600 text-3xl"><i class="lucide lucide-wifi"></i></div>
       <div>
-        <p class="text-2xl font-bold text-gray-800"><%= field.sensors.where(status: "Active").count %></p>
+        <p class="text-2xl font-bold text-gray-800"><% sensores_ativos = field.sensors.where(status: ["Active", "parado"]) %></p>
         <p class="text-sm text-gray-500">Sensores Ativos</p>
       </div>
     </div>
     <div class="bg-white rounded-xl border p-4 shadow-sm flex items-center gap-4">
       <div class="text-red-600 text-3xl"><i class="lucide lucide-wifi-off"></i></div>
       <div>
-        <p class="text-2xl font-bold text-gray-800"><%= field.sensors.where(status: "Inactive").count %></p>
+        <p class="text-2xl font-bold text-gray-800"><% sensores_inativos = field.sensors.where(status: "Inactive") %></p>
         <p class="text-sm text-gray-500">Sensores Inativos</p>
       </div>
     </div>
