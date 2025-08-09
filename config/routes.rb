@@ -123,7 +123,7 @@ Rails.application.routes.draw do
         post :simulate, on: :member
         post "readings", to: "sensor_readings#create", on: :member
       end
-
+      post "sensors/register", to: "sensors#register"
       resources :irrigation_logs, only: [:create]
     end
 
