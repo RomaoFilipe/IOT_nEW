@@ -1,20 +1,16 @@
-# app/controllers/api/sensors_controller.rb
 module Api
   class SensorsController < Api::BaseController
-    # Carregar @sensor apenas nas actions que precisam de :id
+    # Carregar @sensor apenas nas actions que realmente precisam de :id
     before_action :set_sensor, only: [:readings, :simulate, :update, :toggle_status, :status_info, :start_irrigation]
 
-    # Endpoints abertos (ou semi‑abertos) para o dispositivo
-    # identify/register ficam abertos para facilitar onboarding do dispositivo
+    # Endpoints abertos (ou semi-abertos) para o dispositivo
     before_action :authenticate_api_token!, except: [:identify, :register]
     before_action :authenticate_api!,       except: [:identify, :register]
 
     # GET /api/sensors/identify?device_id=...&sensor_type=irrigation&field_id=1
-    # ⚠️ Não impomos default "temperature" para evitar despromoções
     def identify
-      device_id   = params[:device_id].to_s.strip
-      incoming_st = params[:sensor_type].presence&.to_s&.downcase
-      field_id    = params[:field_id].presence
+      device_id   = params[:device_id]
+      sensor_type = params[:sensor_type] || "temperature"
 
       if device_id.blank?
         render json: { error: "Device ID em branco." }, status: :unprocessable_entity
@@ -25,60 +21,65 @@ module Api
 
       if sensor.new_record?
         sensor.name        = device_id
-        sensor.sensor_type = incoming_st || "sensor"
-        sensor.type        = map_type(sensor.sensor_type)
+        sensor.sensor_type = sensor_type
+        sensor.type = case sensor_type.downcase
+                      when 'temperature', 'moisture' then 'TemperatureSensor'
+                      when 'irrigation'              then 'IrrigationSensor'
+                      else 'Sensor'
+                      end
         sensor.status       = "Active"
         sensor.battery      = rand(60..100)
         sensor.signal       = rand(60..100)
         sensor.last_reading = Time.current
-        sensor.field_id     = field_id if field_id
+        sensor.field_id     = params[:field_id] if params[:field_id].present?
         sensor.save!
       else
-        # Só atualizamos o tipo se houver incoming_st;
-        # e nunca despromovemos de irrigation para temperature/moisture.
-        if incoming_st.present?
-          sensor.sensor_type = resolve_sensor_type(sensor.sensor_type, incoming_st)
-          sensor.type        = map_type(sensor.sensor_type)
+        expected_type = case sensor_type.downcase
+                        when 'temperature', 'moisture' then 'TemperatureSensor'
+                        when 'irrigation'              then 'IrrigationSensor'
+                        else 'Sensor'
+                        end
+        if sensor.type != expected_type
+          sensor.update(type: expected_type, sensor_type: sensor_type)
         end
-        sensor.field_id = field_id if field_id
-        sensor.save! if sensor.changed?
+
+        if sensor.field_id.blank? && params[:field_id].present?
+          sensor.update(field_id: params[:field_id])
+        end
       end
 
       render json: {
-        id:          sensor.id,
-        name:        sensor.name,
+        id: sensor.id,
+        name: sensor.name,
         sensor_type: sensor.sensor_type,
-        type:        sensor.type
+        type: sensor.type
       }
     end
 
-    # POST /api/sensors/register
+    # 👉 NOVO: POST /api/sensors/register
     # Body JSON: { device_id, name?, sensor_type?, field_id?, status? }
-    # Usa o mesmo relaxamento de auth que identify (except nos before_actions)
+    # Usa token (Authorization: Bearer XXX) se mantiveres os before_actions como acima
     def register
-      device_id   = params[:device_id].to_s.strip
-      incoming_st = params[:sensor_type].presence&.to_s&.downcase
-      field_id    = params[:field_id].presence
-
-      if device_id.blank?
+      if params[:device_id].blank?
         render json: { error: "device_id em falta" }, status: :unprocessable_entity
         return
       end
 
-      s = Sensor.find_or_initialize_by(device_id: device_id)
+      s = Sensor.find_or_initialize_by(device_id: params[:device_id])
 
-      # Mantém valores existentes quando não vêm no payload; nunca despromove.
-      s.name        = params[:name].presence || s.name || device_id
-      s.status      = params[:status].presence || s.status || "Active"
-      s.field_id    = field_id if field_id
+      # Mantém valores existentes quando não vêm no payload
+      s.name        = params[:name].presence        || s.name        || params[:device_id]
+      s.sensor_type = params[:sensor_type].presence || s.sensor_type || "temperature"
+      s.field_id    = params[:field_id].presence    || s.field_id
+      s.status      = params[:status].presence      || s.status      || "Active"
 
-      if incoming_st.present?
-        s.sensor_type = resolve_sensor_type(s.sensor_type, incoming_st)
-      else
-        s.sensor_type ||= "sensor"
-      end
-
-      s.type = map_type(s.sensor_type)
+      # Ajuste de STI (type) conforme sensor_type
+      expected_type = case s.sensor_type.to_s.downcase
+                      when 'temperature', 'moisture' then 'TemperatureSensor'
+                      when 'irrigation'              then 'IrrigationSensor'
+                      else 'Sensor'
+                      end
+      s.type = expected_type
 
       if s.save
         render json: { ok: true, id: s.id, device_id: s.device_id, sensor_type: s.sensor_type, field_id: s.field_id, type: s.type }, status: :created
@@ -98,11 +99,11 @@ module Api
 
     def simulate
       @sensor.update(
-        last_value:   "#{rand(10..90)}%",
-        battery:      rand(30..100),
-        signal:       rand(20..100),
+        last_value: "#{rand(10..90)}%",
+        battery: rand(30..100),
+        signal: rand(20..100),
         last_reading: Time.current,
-        status:       "Active"
+        status: "Active"
       )
       broadcast_reading_data(@sensor)
       render json: { status: "simulated", updated_at: @sensor.last_reading }
@@ -180,30 +181,13 @@ module Api
 
     private
 
-    # Prioridade: irrigation > temperature/moisture > sensor
-    def resolve_sensor_type(current, incoming)
-      cur = (current || "").downcase
-      inc = (incoming || "").downcase
-      return "irrigation" if inc == "irrigation"                      # sobe sempre para irrigation
-      return cur.present? ? cur : (inc.presence || "sensor")          # se já havia algo, mantém; senão usa incoming/generic
-    end
-
-    def map_type(sensor_type)
-      case sensor_type.to_s.downcase
-      when "irrigation"                 then "IrrigationSensor"
-      when "temperature", "moisture"    then "TemperatureSensor"
-      else                                    "Sensor"
-      end
-    end
-
-    # ⚠️ Unificado para usar o mesmo token que o Api::BaseController
     def authenticate_api_token!
-      token    = request.headers["Authorization"]&.split("Bearer ")&.last
-      expected = ENV.fetch("API_TOKEN", "")
-      if token.blank? || expected.blank?
-        render json: { error: "Token em falta" }, status: :unauthorized and return
+      token = request.headers["Authorization"]&.split("Bearer ")&.last
+      if token.blank? || ENV["SENSOR_API_TOKEN"].blank?
+        render json: { error: "Token em falta" }, status: :unauthorized
+        return
       end
-      unless ActiveSupport::SecurityUtils.secure_compare(token, expected)
+      unless ActiveSupport::SecurityUtils.secure_compare(token, ENV["SENSOR_API_TOKEN"])
         render json: { error: "Token inválido" }, status: :unauthorized
       end
     end
@@ -224,8 +208,8 @@ module Api
         sensor,
         {
           temperature: sensor.temperature,
-          moisture:    sensor.moisture,
-          battery:     sensor.battery
+          moisture: sensor.moisture,
+          battery: sensor.battery
         }
       )
     end
