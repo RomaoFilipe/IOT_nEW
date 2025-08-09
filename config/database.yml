@@ -1,20 +1,17 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: localhost
-  port: 5433
-  username: admin123
-  password: admin123
-  pool: 5
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+  prepared_statements: false
+  sslmode: require
+  url: <%= ENV["DATABASE_URL"] %>
 
 development:
   <<: *default
-  database: IOT_development
 
 test:
   <<: *default
-  database: IOT_test
+  url: <%= ENV["DATABASE_URL_TEST"] || ENV["DATABASE_URL"] %>
 
 production:
   <<: *default
-  database: IOT_production
