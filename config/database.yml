@@ -1,31 +1,29 @@
+# config/database.yml
 default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
-  variables:
-    statement_timeout: 10000
   sslmode: verify-full
   sslrootcert: <%= Rails.root.join("config/certs/supabase/prod-ca-2021.crt") %>
-  # Se estiveres a usar o Pooler do Supabase (porta 6543), define PGBOUNCER=1
   prepared_statements: <%= ENV["PGBOUNCER"] == "1" ? false : true %>
 
 development:
   <<: *default
-  host: <%= ENV.fetch("PGHOST", "db.zevycgeskisrcevlvgdb.supabase.co") %>
-  port: <%= ENV.fetch("PGPORT", 5432) %>
+  host: <%= ENV.fetch("PGHOST", "aws-0-eu-north-1.pooler.supabase.com") %>
+  port: <%= ENV.fetch("PGPORT", 6543) %>
   database: <%= ENV.fetch("PGDATABASE", "postgres") %>
-  username: <%= ENV.fetch("PGUSER", "postgres") %>
+  # ATENÇÃO: o utilizador no pooler inclui o project ref
+  username: <%= ENV.fetch("PGUSER", "postgres.zevycgeskisrcevlvgdb") %>
   password: <%= ENV.fetch("PGPASSWORD") %>
 
 test:
   <<: *default
-  host: <%= ENV.fetch("PGHOST", "db.zevycgeskisrcevlvgdb.supabase.co") %>
-  port: <%= ENV.fetch("PGPORT", 5432) %>
+  host: <%= ENV.fetch("PGHOST", "aws-0-eu-north-1.pooler.supabase.com") %>
+  port: <%= ENV.fetch("PGPORT", 6543) %>
   database: <%= ENV.fetch("PGDATABASE_TEST", "postgres") %>
-  username: <%= ENV.fetch("PGUSER", "postgres") %>
+  username: <%= ENV.fetch("PGUSER", "postgres.zevycgeskisrcevlvgdb") %>
   password: <%= ENV.fetch("PGPASSWORD") %>
 
 production:
   <<: *default
-  # Podes usar uma DATABASE_URL, mas estas opções SSL continuam válidas aqui
-  url: <%= ENV["DATABASE_URL"] %>
+  url: <%= ENV["DATABASE_URL"] %> # usa o URL do pooler na produção
