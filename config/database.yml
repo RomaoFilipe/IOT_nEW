@@ -2,16 +2,30 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
-  prepared_statements: false
-  sslmode: require
-  url: <%= ENV["DATABASE_URL"] %>
+  variables:
+    statement_timeout: 10000
+  sslmode: verify-full
+  sslrootcert: <%= Rails.root.join("config/certs/supabase/prod-ca-2021.crt") %>
+  # Se estiveres a usar o Pooler do Supabase (porta 6543), define PGBOUNCER=1
+  prepared_statements: <%= ENV["PGBOUNCER"] == "1" ? false : true %>
 
 development:
   <<: *default
+  host: <%= ENV.fetch("PGHOST", "db.zevycgeskisrcevlvgdb.supabase.co") %>
+  port: <%= ENV.fetch("PGPORT", 5432) %>
+  database: <%= ENV.fetch("PGDATABASE", "postgres") %>
+  username: <%= ENV.fetch("PGUSER", "postgres") %>
+  password: <%= ENV.fetch("PGPASSWORD") %>
 
 test:
   <<: *default
-  url: <%= ENV["DATABASE_URL_TEST"] || ENV["DATABASE_URL"] %>
+  host: <%= ENV.fetch("PGHOST", "db.zevycgeskisrcevlvgdb.supabase.co") %>
+  port: <%= ENV.fetch("PGPORT", 5432) %>
+  database: <%= ENV.fetch("PGDATABASE_TEST", "postgres") %>
+  username: <%= ENV.fetch("PGUSER", "postgres") %>
+  password: <%= ENV.fetch("PGPASSWORD") %>
 
 production:
   <<: *default
+  # Podes usar uma DATABASE_URL, mas estas opções SSL continuam válidas aqui
+  url: <%= ENV["DATABASE_URL"] %>
