@@ -10,7 +10,7 @@
       <i class="lucide lucide-wheat w-5 h-5 text-green-600"></i>
       Agricultura: <%= field.name %>
     </h2>
-<%= link_to edit_field_path(field, locale: I18n.locale), class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition hover:scale-105 duration-200" do %>
+    <%= link_to edit_field_path(field), class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition hover:scale-105 duration-200" do %>
       <i class="lucide lucide-pencil w-4 h-4"></i> Editar
     <% end %>
   </div>
