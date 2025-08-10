@@ -1,5 +1,6 @@
 # app/controllers/api/irrigation_logs_controller.rb
 class Api::IrrigationLogsController < ApplicationController
+skip_before_action :authenticate_user!
   skip_before_action :verify_authenticity_token
   before_action :authenticate_token!
 

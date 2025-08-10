@@ -1,53 +1,42 @@
+# app/controllers/application_controller.rb
 class ApplicationController < ActionController::Base
+  # CSRF
   protect_from_forgery with: :exception
-  before_action :configure_permitted_parameters, if: :devise_controller?
-  before_action :set_locale
-  helper SensorsHelper
 
-  include Pundit
+  # Devise: obriga login por padrão
+  before_action :authenticate_user!
 
+  # Pundit (use o módulo novo)
+  include Pundit::Authorization
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
+  # Para as views
+  helper_method :current_account
 
-def set_locale
-  locale = params[:locale] || session[:locale] || I18n.default_locale
-  I18n.locale = I18n.available_locales.include?(locale.to_sym) ? locale : I18n.default_locale
-  session[:locale] = I18n.locale
-end
-
-
-  def default_url_options
-    { locale: I18n.locale }
-  end
-
-  protected
-
-  def configure_permitted_parameters
-    permitted = [:name, :photo, :role, :company_nif]
-    devise_parameter_sanitizer.permit(:sign_up, keys: permitted)
-    devise_parameter_sanitizer.permit(:account_update, keys: permitted)
-  end
-
-  def after_sign_in_path_for(resource)
+  # ---- Navegação após login/logout (Devise)
+  def after_sign_in_path_for(_resource)
+    # Garante que a rota existe. Se não tiveres /home, troca por dashboard_path, por ex.
     home_path
   end
 
-  def after_sign_out_path_for(resource_or_scope)
+  def after_sign_out_path_for(_resource_or_scope)
     root_path
   end
 
+  # ---- Tratamento de autorização (Pundit)
   def user_not_authorized
-    redirect_to root_path, alert: 'Você não tem permissão para realizar esta ação.'
+    redirect_to(root_path, alert: "Você não tem permissão para realizar esta ação.")
   end
 
-
-def current_account
-  if session[:simulated_account_id]
-    Account.find(session[:simulated_account_id])
-  else
-    current_user.account
+  # ---- Conta atual (com “simulação” opcional)
+  def current_account
+    @current_account ||= begin
+      if session[:simulated_account_id].present?
+        Account.find_by(id: session[:simulated_account_id])
+      else
+        # current_user é de Devise; pode ser nil se removeres o before_action
+        current_user&.account
+      end
+    end
   end
-end
-helper_method :current_account
-
 end

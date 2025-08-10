@@ -56,3 +56,4 @@ mosquitto/data/
 mosquitto/log/
 
 /vendor/bundle
+/config/credentials/production.key

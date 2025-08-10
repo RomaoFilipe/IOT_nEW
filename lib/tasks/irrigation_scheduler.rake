@@ -2,7 +2,6 @@
 
 require_relative '../mqtt_publisher'
 require 'active_support/all'
-require 'dotenv/load'
 require 'pg'
 require 'active_record'
 
