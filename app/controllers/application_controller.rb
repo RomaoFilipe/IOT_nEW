@@ -13,6 +13,11 @@ class ApplicationController < ActionController::Base
   # Para as views
   helper_method :current_account
 
+    # ——— Locale nas URLs (evita passar locale: ... em todos os links)
+  def default_url_options
+    { locale: I18n.locale }.compact
+  end
+
   # ---- Navegação após login/logout (Devise)
   def after_sign_in_path_for(_resource)
     # Garante que a rota existe. Se não tiveres /home, troca por dashboard_path, por ex.
