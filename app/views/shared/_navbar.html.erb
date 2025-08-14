@@ -37,23 +37,17 @@
 
     <!-- Perfil e Idioma (Desktop) -->
     <div class="hidden md:flex items-center space-x-4">
-      <!-- Dropdown de Idioma -->
+      <!-- Dropdown de Idioma (GET para a mesma página com outro locale) -->
       <div class="relative" x-data="{ openLang: false }">
         <button @click="openLang = !openLang" class="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 transition">
           🌐 <%= t("languages.#{I18n.locale}") %>
           <i data-lucide="chevron-down" class="w-4 h-4"></i>
         </button>
-        <div x-show="openLang" @click.away="openLang = false" class="absolute right-0 mt-2 w-36 bg-white border rounded shadow-md z-50 py-2 text-sm">
-          <% ['pt', 'en', 'es'].each do |locale| %>
-            <%= form_with url: locale_path, method: :put, local: true do %>
-              <%= hidden_field_tag :locale, locale %>
-              <button type="submit" class="w-full px-4 py-2 text-left hover:bg-gray-100">
-                <%= case locale
-                    when 'pt' then '🇵🇹 Português'
-                    when 'en' then '🇬🇧 English'
-                    when 'es' then '🇪🇸 Español'
-                    end %>
-              </button>
+        <div x-show="openLang" @click.away="openLang = false" class="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md z-50 py-2 text-sm">
+          <% %w[pt en es].each do |loc| %>
+            <%= link_to url_for(locale: loc),
+                        class: "block w-full text-left px-4 py-2 hover:bg-gray-100" do %>
+              <%= { "pt" => "🇵🇹 Português", "en" => "🇬🇧 English", "es" => "🇪🇸 Español" }[loc] %>
             <% end %>
           <% end %>
         </div>
@@ -63,7 +57,8 @@
         <!-- Dropdown do Utilizador -->
         <div x-data="{ open: false }" class="relative">
           <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
-            <img src="<%= current_user.photo.url || image_path('placeholder-user.png') %>" alt="Avatar" class="w-9 h-9 rounded-full object-cover border" />
+            <img src="<%= current_user.photo&.url || image_path('placeholder-user.png') %>"
+                 alt="Avatar" class="w-9 h-9 rounded-full object-cover border" />
             <div class="text-left">
               <span class="text-gray-700 font-medium"><%= current_user.name %></span>
               <div class="text-xs text-gray-500">
@@ -115,6 +110,22 @@
   <!-- Menu Mobile -->
   <div x-show="mobileMenu" class="md:hidden mt-4 space-y-2">
     <%= link_to root_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.home') %><% end %>
+
+    <!-- Idiomas (Mobile) -->
+    <div class="border-t border-gray-200 pt-2">
+      <p class="px-4 text-xs uppercase tracking-wide text-gray-500 mb-1">Idioma</p>
+      <div class="px-2 pb-2">
+        <div class="grid grid-cols-3 gap-2">
+          <% %w[pt en es].each do |loc| %>
+            <%= link_to url_for(locale: loc),
+                        class: "text-center px-3 py-2 text-sm rounded-md border hover:bg-gray-50 #{I18n.locale.to_s == loc ? 'bg-gray-100 font-semibold' : 'bg-white'}" do %>
+              <%= { "pt" => "🇵🇹 PT", "en" => "🇬🇧 EN", "es" => "🇪🇸 ES" }[loc] %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
     <% if user_signed_in? %>
       <%= link_to dashboard_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.dashboard') %><% end %>
       <%= link_to fields_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" do %><%= t('navbar.fields') %><% end %>
@@ -141,11 +152,7 @@
       <%= link_to t('navbar.login'), new_user_session_path, class: "block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded" %>
       <%= link_to t('navbar.signup'), new_user_registration_path, class: "block px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800" %>
     <% end %>
-
-<%= render 'shared/language_dropdown' %>
-
-
-</div>
+  </div>
 </nav>
 
 <!-- Lucide Icons -->

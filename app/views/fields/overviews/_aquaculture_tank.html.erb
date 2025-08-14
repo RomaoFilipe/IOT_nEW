@@ -1,16 +1,26 @@
 <%= turbo_frame_tag "overview-#{field.id}" do %>
 <div class="space-y-6 animate-fade-in" x-data="{ showNotes: false }">
 
-  <!-- Mapa -->
-  <div id="map-tank-<%= field.id %>" class="w-full h-60 rounded-xl shadow border"></div>
+  <!-- 🌍 Mapa -->
+  <div class="relative rounded-xl shadow border overflow-hidden">
+    <div id="map-tank-<%= field.id %>" class="w-full h-60"></div>
 
-  <!-- Header + Botão Editar -->
+    <% unless field.latitude.present? && field.longitude.present? %>
+      <div class="absolute inset-0 grid place-items-center bg-white/70">
+        <span class="text-sm text-slate-600">Sem coordenadas para este tanque</span>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Cabeçalho + Botão Editar -->
   <div class="flex justify-between items-center">
     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
       <i class="lucide lucide-fish w-5 h-5 text-blue-600"></i>
       Tanque: <%= field.name %>
     </h2>
-<%= link_to edit_field_path(field, locale: I18n.locale), class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition hover:scale-105 duration-200" do %>
+
+    <%= link_to edit_field_path(field, locale: I18n.locale),
+        class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition hover:scale-105 duration-200" do %>
       <i class="lucide lucide-pencil w-4 h-4"></i> Editar
     <% end %>
   </div>
@@ -23,10 +33,10 @@
         <i class="lucide lucide-settings w-4 h-4 text-blue-500"></i> Dados do Tanque
       </h3>
       <div class="mt-3 space-y-1 text-sm">
-        <p><strong>Espécie:</strong> <%= field.species || '-' %></p>
-        <p><strong>Volume:</strong> <%= field.tank_volume || '-' %> m³</p>
-        <p><strong>Densidade:</strong> <%= field.stocking_density || '-' %> kg/m³</p>
-        <p><strong>Regime Alimentar:</strong> <%= field.feeding_regime || '-' %></p>
+        <p><strong>Espécie:</strong> <%= field.species.presence || '—' %></p>
+        <p><strong>Volume:</strong> <%= field.tank_volume.presence || '—' %> m³</p>
+        <p><strong>Densidade:</strong> <%= field.stocking_density.presence || '—' %> kg/m³</p>
+        <p><strong>Regime Alimentar:</strong> <%= field.feeding_regime.presence || '—' %></p>
       </div>
     </div>
 
@@ -36,34 +46,46 @@
         <i class="lucide lucide-map-pin w-4 h-4 text-blue-500"></i> Datas & Localização
       </h3>
       <div class="mt-3 space-y-1 text-sm">
-        <p><strong>Colocação:</strong> <%= field.fish_placement_date&.strftime('%d/%m/%Y') || '-' %></p>
-        <p><strong>Colheita:</strong> <%= field.estimated_harvest_date&.strftime('%d/%m/%Y') || '-' %></p>
-        <p><strong>Latitude:</strong> <%= field.latitude %></p>
-        <p><strong>Longitude:</strong> <%= field.longitude %></p>
+        <p><strong>Colocação:</strong> <%= field.fish_placement_date&.strftime('%d/%m/%Y') || '—' %></p>
+        <p><strong>Colheita:</strong> <%= field.estimated_harvest_date&.strftime('%d/%m/%Y') || '—' %></p>
+        <p><strong>Latitude:</strong> <%= field.latitude.presence || '—' %></p>
+        <p><strong>Longitude:</strong> <%= field.longitude.presence || '—' %></p>
       </div>
     </div>
   </div>
 
-  <!-- Monitoramento -->
-  <h3 class="text-lg font-semibold text-gray-700 mt-4">📡 Monitoramento em Tempo Real</h3>
+  <!-- 📡 Monitoramento -->
+  <h3 class="text-lg font-semibold text-gray-700 mt-2">📡 Monitoramento em Tempo Real</h3>
+
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     <% sensores = {
-      "pH" => [:ph, "💧", "pH", 6.5..8.5],
-      "Salinidade" => [:salinity, "🧂", "ppt", 30..38],
-      "Oxigénio" => [:oxygen, "🫧", "mg/L", 5..12],
-      "Temp. Água" => [:water_temperature, "🌡", "°C", 15..28]
+      "pH"           => { attr: :ph,                icon: "🧪", unidade: "pH",  range: (6.5..8.5) },
+      "Salinidade"   => { attr: :salinity,          icon: "🧂", unidade: "ppt", range: (30..38) },
+      "Oxigénio"     => { attr: :oxygen,            icon: "🫧", unidade: "mg/L",range: (5..12) },
+      "Temp. Água"   => { attr: :water_temperature, icon: "🌡", unidade: "°C",  range: (15..28) }
     } %>
 
-    <% sensores.each do |label, (attr, icon, unidade, range)| %>
-      <% valor = field.sensors.average(attr)&.round(1) %>
-      <% status = valor && range.cover?(valor) ? "Normal" : "Atenção" %>
-      <% badge_class = status == "Normal" ? "bg-blue-100 text-blue-600" : "bg-red-100 text-red-600" %>
+    <% sensores.each do |label, meta| %>
+      <% valor  = field.sensors.average(meta[:attr])&.to_f %>
+      <% status =
+          if valor.nil?
+            "Sem dados"
+          else
+            meta[:range]&.cover?(valor) ? "Normal" : "Atenção"
+          end %>
+      <% badge_class =
+          case status
+          when "Normal"    then "bg-blue-100 text-blue-700"
+          when "Atenção"   then "bg-red-100 text-red-600"
+          else                  "bg-gray-100 text-gray-600"
+          end %>
 
       <div class="bg-white border rounded-xl p-4 text-center shadow-sm transition hover:shadow-md">
-        <div class="text-2xl"><%= icon %></div>
+        <div class="text-2xl"><%= meta[:icon] %></div>
         <div class="text-gray-500 text-sm mt-1"><%= label %></div>
         <div class="text-2xl font-bold text-gray-800 mt-1">
-          <%= valor || '-' %> <span class="text-sm text-gray-500"><%= unidade %></span>
+          <%= valor ? valor.round(1) : '—' %>
+          <span class="text-sm text-gray-500"><%= meta[:unidade] %></span>
         </div>
         <span class="inline-block mt-2 px-2 py-0.5 text-xs rounded-full <%= badge_class %> font-medium">
           <%= status %>
@@ -72,9 +94,11 @@
     <% end %>
   </div>
 
-  <!-- Notas (com toggle) -->
+  <!-- 📝 Notas -->
   <div class="mt-6">
-    <button @click="showNotes = !showNotes" class="px-4 py-2 bg-gray-100 text-sm text-blue-600 font-medium rounded-lg hover:bg-gray-200 transition">
+    <button
+      @click="showNotes = !showNotes"
+      class="px-4 py-2 bg-gray-100 text-sm text-blue-600 font-medium rounded-lg hover:bg-gray-200 transition">
       Ver/Esconder Notas
     </button>
 
@@ -87,22 +111,37 @@
 
 <!-- Mapbox -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  function initTankMap_<%= field.id %>() {
+    const hasCoords = <%= (field.latitude.present? && field.longitude.present?).to_s %>;
+    if (!hasCoords) return;
+    if (!(window.mapboxgl && mapboxgl.Map)) return;
+
     mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
 
     const map = new mapboxgl.Map({
       container: 'map-tank-<%= field.id %>',
       style: 'mapbox://styles/mapbox/outdoors-v12',
-      center: [<%= field.longitude %>, <%= field.latitude %>],
-      zoom: 12
+      center: [<%= field.longitude || 0 %>, <%= field.latitude || 0 %>],
+      zoom: 12,
+      attributionControl: false
     });
 
-    new mapboxgl.Marker()
-      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
-      .addTo(map);
-  });
+    map.on('load', () => {
+      new mapboxgl.Marker({ color: '#2563eb' })
+        .setLngLat([<%= field.longitude || 0 %>, <%= field.latitude || 0 %>])
+        .addTo(map);
+
+      // Garante render correcto em modais/frames
+      setTimeout(() => map.resize(), 120);
+    });
+  }
+
+  document.addEventListener('turbo:load', initTankMap_<%= field.id %>);
+  document.addEventListener('DOMContentLoaded', initTankMap_<%= field.id %>);
 </script>
 <% end %>
+
+<!-- Se estes assets já estiverem no teu layout, remove estas linhas -->
 <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
 <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

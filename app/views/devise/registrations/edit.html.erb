@@ -1,80 +1,261 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= I18n.locale %>">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Editar Perfil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= t("devise.registrations.edit.title", default: "Edit Profile") %> | AgriloT Synergy</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="w-full max-w-2xl bg-white shadow-lg rounded-xl p-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.304.534 6.121 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Top bar: language + back -->
+  <div class="max-w-4xl mx-auto px-4 pt-6 flex items-center justify-between">
+    <%= link_to (defined?(home_path) ? home_path : root_path),
+                class: "inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
-      Editar Perfil
-    </h1>
+      <span><%= t("actions.back", default: "Back") %></span>
+    <% end %>
 
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, multipart: true }) do |f| %>
-      <%= render "devise/shared/error_messages", resource: resource %>
+    <div class="inline-flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-sm">
+      <span class="text-xs text-gray-500">🌐</span>
+      <% %w[pt en es].each do |loc| %>
+        <%= link_to t("languages.#{loc}", default: loc.upcase),
+                    url_for(locale: loc),
+                    class: "text-xs px-2 py-0.5 rounded hover:bg-gray-100 #{I18n.locale.to_s == loc ? 'font-semibold text-gray-900' : 'text-gray-600'}" %>
+      <% end %>
+    </div>
+  </div>
 
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <%= f.label :name, 'Nome', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.text_field :name, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200' %>
-        </div>
-        <div>
-          <%= f.label :email, 'Email', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.email_field :email, class: 'w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-green-200', autocomplete: "email" %>
-        </div>
-      </div>
-
-      <div class="mt-6">
-        <%= f.label :photo, 'Foto de Perfil', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-        <%= f.file_field :photo, class: 'w-full text-sm text-gray-600 border border-gray-300 rounded-md cursor-pointer bg-white p-2' %>
-        <% if resource.photo.present? %>
-          <div class="mt-3">
-            <%= image_tag resource.photo.url, class: 'w-16 h-16 rounded-full object-cover border' %>
+  <div class="w-full max-w-4xl mx-auto px-4 pb-12">
+    <!-- Card -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 md:p-10 mt-6">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.304.534 6.121 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900">
+              <%= t("devise.registrations.edit.title", default: "Edit Profile") %>
+            </h1>
+            <p class="text-sm text-gray-500"><%= t("devise.registrations.edit.subtitle", default: "Manage your personal information and password") %></p>
           </div>
+        </div>
+
+        <%# opcional: atalho para Dashboard/Settings %>
+        <%= link_to (defined?(settings_path) ? settings_path : (defined?(dashboard_path) ? dashboard_path : root_path)),
+                    class: "inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900" do %>
+          <span><%= t("navbar.settings", default: "Settings") %></span>
         <% end %>
       </div>
 
-      <div class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">Atualizar Palavra-passe</h2>
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <div>
-            <%= f.label :password, 'Nova Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-            <%= f.password_field :password, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
-            <% if @minimum_password_length %>
-              <p class="text-xs text-gray-500 italic"><%= @minimum_password_length %> caracteres no mínimo</p>
-            <% end %>
+      <!-- Flash -->
+      <% if flash[:notice].present? %>
+        <div class="mb-5 flex items-start gap-3 px-4 py-3 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+          <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+          </svg>
+          <span><%= flash[:notice] %></span>
+        </div>
+      <% end %>
+
+      <% if flash[:alert].present? %>
+        <div class="mb-5 flex items-start gap-3 px-4 py-3 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm">
+          <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M12 2a10 10 0 110 20 10 10 0 010-20z"/>
+          </svg>
+          <span><%= flash[:alert] %></span>
+        </div>
+      <% end %>
+
+      <%= form_for(resource,
+                   as: resource_name,
+                   url: registration_path(resource_name),
+                   html: { method: :put, multipart: true, class: "space-y-10" }) do |f| %>
+
+        <%= render "devise/shared/error_messages", resource: resource %>
+
+        <!-- Perfil -->
+        <section>
+          <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
+            <span>👤</span> <%= t("devise.registrations.edit.profile_section", default: "Profile information") %>
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= f.label :name, t("users.name", default: "Name"), class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.text_field :name,
+                    class: "w-full px-3 py-2 border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500",
+                    placeholder: t("users.full_name_placeholder", default: "Full Name") %>
+            </div>
+
+            <div>
+              <%= f.label :email, t("devise.shared.email", default: "Email"), class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.email_field :email,
+                    class: "w-full px-3 py-2 border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500",
+                    autocomplete: "email",
+                    placeholder: "name@example.com" %>
+            </div>
+
+            <div>
+              <%= f.label :company_nif, t("company.nif", default: "Company NIF"), class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.text_field :company_nif,
+                    inputmode: "numeric",
+                    class: "w-full px-3 py-2 border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500",
+                    placeholder: "501234567" %>
+              <p class="text-xs text-gray-500 mt-1"><%= t("company.nif_hint", default: "Required only for Admin or Manager") %></p>
+            </div>
+
+            <div>
+              <%= f.label :photo, t("users.photo", default: "Profile picture"), class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.file_field :photo,
+                    accept: "image/png,image/jpeg,image/jpg,image/webp",
+                    class: "w-full text-sm text-gray-700 border border-gray-300 rounded-md cursor-pointer bg-white p-2
+                            file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0
+                            file:text-sm file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100",
+                    onchange: "previewAvatar(event)" %>
+
+              <div class="mt-3 flex items-center gap-3">
+                <% if resource.photo.present? %>
+                  <%= image_tag resource.photo.url, id: "avatar-preview",
+                                class: "w-16 h-16 rounded-full object-cover border shadow-sm" %>
+                <% else %>
+                  <img id="avatar-preview" class="w-16 h-16 rounded-full object-cover border shadow-sm hidden" alt="preview">
+                <% end %>
+                <span class="text-xs text-gray-500"><%= t("users.photo_hint", default: "PNG, JPG or WEBP.") %></span>
+              </div>
+            </div>
           </div>
-          <div>
-            <%= f.label :password_confirmation, 'Confirmar Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-            <%= f.password_field :password_confirmation, class: 'w-full px-4 py-2 border rounded-md shadow-sm' %>
+        </section>
+
+        <!-- Password -->
+        <section>
+          <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
+            <span>🔐</span> <%= t("devise.registrations.edit.password_section", default: "Update password") %>
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= f.label :password, t("devise.shared.new_password", default: "New password"), class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <div class="relative">
+                <%= f.password_field :password,
+                      id: "new_password",
+                      class: "w-full pr-10 px-3 py-2 border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500" %>
+                <button type="button"
+                        onclick="togglePassword('new_password')"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        aria-label="<%= t('actions.show_password', default: 'Show password') %>">
+                  <svg id="eye-new_password" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z"/>
+                  </svg>
+                </button>
+              </div>
+              <% if @minimum_password_length %>
+                <p class="text-xs text-gray-500 mt-1">
+                  <%= @minimum_password_length %> <%= t("devise.shared.min_chars", default: "characters minimum") %>
+                </p>
+              <% end %>
+            </div>
+
+            <div>
+              <%= f.label :password_confirmation, t("devise.shared.password_confirmation", default: "Confirm password"), class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <div class="relative">
+                <%= f.password_field :password_confirmation,
+                      id: "password_confirmation",
+                      class: "w-full pr-10 px-3 py-2 border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500" %>
+                <button type="button"
+                        onclick="togglePassword('password_confirmation')"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        aria-label="<%= t('actions.show_password', default: 'Show password') %>">
+                  <svg id="eye-password_confirmation" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <%= f.label :current_password, t("devise.shared.current_password", default: "Current password"), class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <div class="relative">
+              <%= f.password_field :current_password,
+                    id: "current_password",
+                    autocomplete: "current-password",
+                    class: "w-full pr-10 px-3 py-2 border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500" %>
+              <button type="button"
+                      onclick="togglePassword('current_password')"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      aria-label="<%= t('actions.show_password', default: 'Show password') %>">
+                <svg id="eye-current_password" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z"/>
+                </svg>
+              </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-1"><%= t("devise.registrations.edit.current_password_hint", default: "Required to confirm any changes") %></p>
+          </div>
+        </section>
+
+        <!-- Ações -->
+        <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <%= f.submit t("devise.registrations.edit.update", default: "Save changes"),
+                       class: "inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-md font-semibold transition" %>
+
+          <div class="flex items-center gap-3 text-sm">
+            <%= link_to t("actions.cancel", default: "Cancel"),
+                        (defined?(settings_path) ? settings_path : (defined?(dashboard_path) ? dashboard_path : root_path)),
+                        class: "text-gray-600 hover:underline" %>
           </div>
         </div>
+      <% end %>
 
-        <div class="mt-4">
-          <%= f.label :current_password, 'Password Atual', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.password_field :current_password, class: 'w-full px-4 py-2 border rounded-md shadow-sm', autocomplete: "current-password" %>
-          <p class="text-xs text-gray-500 italic">Necessária para confirmar alterações</p>
-        </div>
+      <!-- Cancel account -->
+      <div class="mt-10 border-t pt-6">
+        <h3 class="text-base font-semibold text-red-600 mb-2"><%= t("devise.registrations.cancel_title", default: "Delete account") %></h3>
+        <p class="text-sm text-gray-600 mb-4"><%= t("devise.registrations.cancel_copy", default: "Unhappy? You can permanently delete your account.") %></p>
+        <%= button_to t("devise.registrations.cancel_btn", default: "Delete my account"),
+                      registration_path(resource_name),
+                      method: :delete,
+                      data: { turbo_confirm: t("devise.registrations.cancel_confirm", default: "Are you sure?") },
+                      class: "bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition" %>
       </div>
-
-      <div class="flex justify-between items-center mt-8">
-        <%= f.submit 'Atualizar Perfil', class: 'bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition' %>
-        <div class="flex items-center gap-3">
-          <%= link_to 'Voltar para Home', root_path, class: 'text-gray-600 hover:underline' %>
-        </div>
-      </div>
-    <% end %>
-
-    <div class="mt-10 border-t pt-6">
-      <h3 class="text-lg font-semibold text-red-600 mb-2">Cancelar Conta</h3>
-      <p class="text-sm text-gray-600 mb-4">Descontente? Podes eliminar a tua conta permanentemente.</p>
-      <%= button_to "Cancelar Conta", registration_path(resource_name), method: :delete, data: { turbo_confirm: "Tens a certeza?" }, class: "bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition" %>
     </div>
+
+    <p class="mt-6 text-xs text-center text-gray-400">© <%= Time.current.year %> AgriloT Synergy — <%= t("landing.footer.rights", default: "All rights reserved.") %></p>
   </div>
+
+  <script>
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      const icon = document.getElementById('eye-' + id);
+      if (!input || !icon) return;
+      const hidden = input.type === 'password';
+      input.type = hidden ? 'text' : 'password';
+      icon.innerHTML = hidden
+        ? '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 01-6 0"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" />'
+        : '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" />';
+    }
+
+    function previewAvatar(e) {
+      const file = e.target.files && e.target.files[0];
+      const img = document.getElementById('avatar-preview');
+      if (!img) return;
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          img.src = evt.target.result;
+          img.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
+
 </body>
 </html>

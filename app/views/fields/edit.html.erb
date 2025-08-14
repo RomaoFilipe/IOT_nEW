@@ -1,46 +1,178 @@
-<div class="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-10 mt-6 md:mt-12">
-  <!-- Topo com ícone, título e tipo -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-    <div class="flex items-center gap-3">
-      <i class="lucide lucide-pencil w-6 h-6 text-blue-600"></i>
-      <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">Editar Campo</h1>
-      <span class="ml-2 text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold capitalize">
-        <%= @field.field_type.humanize %>
-      </span>
+<%# app/views/fields/edit.html.erb %>
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-6">
+
+  <!-- Breadcrumb -->
+  <nav class="mb-4 text-sm text-slate-500">
+    <%= link_to "Campos", fields_path, class: "hover:text-slate-700" %>
+    <span class="mx-2">/</span>
+    <span class="text-slate-700 font-medium"><%= @field.name.presence || "Editar" %></span>
+  </nav>
+
+  <!-- Header -->
+  <header class="rounded-2xl bg-gradient-to-r from-emerald-50 to-blue-50 px-5 py-5 md:px-8 md:py-7 shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="min-w-0">
+        <div class="flex items-center gap-3">
+          <i class="lucide lucide-pencil w-6 h-6 text-emerald-700"></i>
+          <h1 class="truncate text-2xl md:text-3xl font-extrabold text-slate-900">
+            Editar Campo
+          </h1>
+          <span class="shrink-0 ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+            <i class="lucide lucide-leaf w-3.5 h-3.5"></i>
+            <%= @field.field_type.to_s.humanize %>
+          </span>
+          <% if @field.status.present? %>
+            <% ok = %w[active ativo running ok good].include?(@field.status.to_s.downcase) %>
+            <span class="shrink-0 ml-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ring-1
+                        <%= ok ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-700 ring-amber-200' %>">
+              <span class="text-[8px]">●</span> <%= @field.status %>
+            </span>
+          <% end %>
+        </div>
+        <p class="mt-2 text-sm text-slate-600">
+          Atualize os dados deste campo. As alterações entram em vigor de imediato após guardar.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <%= link_to fields_path,
+            class: "inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" do %>
+          <i class="lucide lucide-arrow-left w-4 h-4"></i> Voltar à lista
+        <% end %>
+        <%# Dica: se tiveres o modal de detalhes, podes expor um botão rápido %>
+        <button type="button"
+                onclick="document.getElementById('viewDetailsModal-<%= @field.id %>')?.classList.remove('hidden')"
+                class="hidden md:inline-flex items-center gap-2 rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-white hover:bg-slate-900">
+          <i class="lucide lucide-eye w-4 h-4"></i> Ver detalhes
+        </button>
+      </div>
     </div>
+  </header>
 
-    <!-- Botão voltar -->
-    <%= link_to fields_path, class: "mt-4 md:mt-0 inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition" do %>
-      <i class="lucide lucide-arrow-left w-4 h-4 mr-1"></i> Voltar para lista
-    <% end %>
-  </div>
+  <!-- Conteúdo -->
+  <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Formulário (mantém os teus parciais por tipo) -->
+    <section class="lg:col-span-2">
+      <div class="rounded-2xl bg-white p-5 md:p-6 shadow-xl border border-slate-100">
+        <% case @field.field_type.to_s %>
+        <% when "agriculture" %>
+          <%= render "fields/forms/form_agriculture", field: @field %>
+        <% when "aquaculture_tank" %>
+          <%= render "fields/forms/form_aquaculture_tank", field: @field %>
+        <% when "aquaculture_sea" %>
+          <%= render "fields/forms/form_aquaculture_sea", field: @field %>
+        <% else %>
+          <%= render "fields/forms/form_generic", field: @field %>
+        <% end %>
+      </div>
+    </section>
 
-  <div class="space-y-10">
-    <% case @field.field_type.to_s %>
-    <% when "agriculture" %>
-      <%= render "fields/forms/form_agriculture", field: @field %>
-    <% when "aquaculture_tank" %>
-      <%= render "fields/forms/form_aquaculture_tank", field: @field %>
-    <% when "aquaculture_sea" %>
-      <%= render "fields/forms/form_aquaculture_sea", field: @field %>
-    <% else %>
-      <%= render "fields/forms/form_generic", field: @field %>
-    <% end %>
+    <!-- Painel lateral: mini-mapa + resumo -->
+    <aside class="lg:col-span-1 space-y-6">
+      <!-- Mini-mapa -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2">
+            <i class="lucide lucide-map-pin w-4 h-4 text-emerald-600"></i> Localização
+          </h3>
+          <% if @field.latitude.present? && @field.longitude.present? %>
+            <span class="text-xs text-slate-500">Lat: <%= @field.latitude %> • Lng: <%= @field.longitude %></span>
+          <% end %>
+        </div>
+
+        <div class="h-48 rounded-xl border border-slate-200 overflow-hidden" id="edit-mini-map-<%= @field.id %>">
+          <% unless @field.latitude.present? && @field.longitude.present? %>
+            <div class="h-full w-full flex items-center justify-center text-slate-400 text-sm">
+              Sem coordenadas
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Resumo -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="mb-3 text-sm font-semibold text-slate-800 flex items-center gap-2">
+          <i class="lucide lucide-info w-4 h-4 text-emerald-600"></i> Resumo do Campo
+        </h3>
+        <dl class="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <dt class="text-slate-500">Nome</dt>
+            <dd class="font-medium text-slate-800"><%= @field.name %></dd>
+          </div>
+          <div>
+            <dt class="text-slate-500">Área</dt>
+            <dd class="font-medium text-slate-800"><%= @field.area || '—' %> ha</dd>
+          </div>
+          <div>
+            <dt class="text-slate-500">Tipo</dt>
+            <dd class="font-medium text-slate-800"><%= @field.field_type.to_s.humanize %></dd>
+          </div>
+          <div>
+            <dt class="text-slate-500">Sensores</dt>
+            <dd class="font-medium text-slate-800"><%= @field.sensors.count %></dd>
+          </div>
+          <div class="col-span-2">
+            <dt class="text-slate-500">Atualizado</dt>
+            <dd class="font-medium text-slate-800">
+              <%= l(@field.updated_at, format: "%d/%m/%Y %H:%M") rescue @field.updated_at %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Dicas -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="mb-2 text-sm font-semibold text-slate-800 flex items-center gap-2">
+          <i class="lucide lucide-lightbulb w-4 h-4 text-amber-500"></i> Dicas
+        </h3>
+        <ul class="space-y-1 text-sm text-slate-600">
+          <li>• Mantém as coordenadas corretas para o mapa e meteo.</li>
+          <li>• Liga sensores ao campo para análises ricas.</li>
+          <li>• Atualiza notas para histórico claro.</li>
+        </ul>
+      </div>
+    </aside>
   </div>
 </div>
 
-<!-- JS opcional para campos dinâmicos -->
+<!-- Lucide (ícones) -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    if (window.lucide) { try { lucide.createIcons(); } catch(e){} }
+
+    // Mostrar/ocultar campos específicos do tipo (se existirem no formulário)
     const fieldTypeSelect = document.querySelector("[name='field[field_type]']");
     const tankFields = document.getElementById("aquaculture_fields");
-
     if (fieldTypeSelect && tankFields) {
-      const toggle = () => {
-        tankFields.style.display = fieldTypeSelect.value === "aquaculture_tank" ? "" : "none";
-      };
-      fieldTypeSelect.addEventListener("change", toggle);
-      toggle();
+      const toggle = () => tankFields.style.display = fieldTypeSelect.value === "aquaculture_tank" ? "" : "none";
+      fieldTypeSelect.addEventListener("change", toggle); toggle();
     }
+  });
+</script>
+
+<!-- Mapbox (mini-mapa) -->
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    <% if @field.latitude.present? && @field.longitude.present? %>
+      if (window.mapboxgl) {
+        mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+        const map = new mapboxgl.Map({
+          container: 'edit-mini-map-<%= @field.id %>',
+          style: 'mapbox://styles/mapbox/outdoors-v12',
+          center: [<%= @field.longitude %>, <%= @field.latitude %>],
+          zoom: 12,
+          attributionControl: false
+        });
+        map.on('load', () => {
+          new mapboxgl.Marker({ color: '#059669' })
+            .setLngLat([<%= @field.longitude %>, <%= @field.latitude %>])
+            .addTo(map);
+          setTimeout(() => map.resize(), 150);
+        });
+      }
+    <% end %>
   });
 </script>

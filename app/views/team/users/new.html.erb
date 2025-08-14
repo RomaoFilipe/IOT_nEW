@@ -1,63 +1,321 @@
-<h1 class="text-2xl font-bold mb-6">➕ Novo Utilizador</h1>
+<!-- app/views/team/users/new.html.erb -->
 
-<div class="max-w-xl bg-white p-6 rounded-lg shadow space-y-6">
+<div class="min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-5xl">
 
-  <% if @user.errors.any? %>
-    <div class="bg-red-100 border border-red-300 text-red-700 rounded p-4">
-      <p class="font-semibold mb-2">⚠️ Erros ao criar utilizador:</p>
-      <ul class="list-disc list-inside text-sm">
-        <% @user.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+    <!-- Título (centrado) -->
+    <h1 class="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-slate-900">
+      <i class="lucide lucide-user-plus w-6 h-6 text-emerald-600"></i>
+      Novo Utilizador
+    </h1>
 
-  <%= form_with model: @user, url: team_users_path, local: true, class: "space-y-5" do |f| %>
+    <!-- Conteúdo (cartões) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- =========== FORM =========== -->
+      <div class="lg:col-span-2">
+        <div class="bg-white border border-slate-200 rounded-2xl shadow p-6">
 
-    <!-- Nome -->
-    <div>
-      <%= f.label :name, "Nome", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.text_field :name, required: true, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
-    </div>
+          <% if @user.errors.any? %>
+            <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg p-4">
+              <p class="font-semibold mb-2">⚠️ Erros ao criar utilizador:</p>
+              <ul class="list-disc list-inside text-sm space-y-0.5">
+                <% @user.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
 
-    <!-- Email -->
-    <div>
-      <%= f.label :email, "Email", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.email_field :email, required: true, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
-    </div>
+          <%= form_with model: @user, url: team_users_path, local: true,
+                        html: { multipart: true }, class: "space-y-6" do |f| %>
 
-    <!-- Função -->
-    <div>
-      <%= f.label :role, "Função", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.select :role, User.roles.except("owner").map { |r, _| [r.capitalize, r] }, {}, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-green-600 focus:border-green-600" %>
-    </div>
+            <!-- Foto + upload -->
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
+                <img id="avatarPreview" alt="Preview da foto" class="w-full h-full object-cover hidden" />
+                <span id="avatarFallback" class="text-slate-400 text-sm">Foto</span>
+              </div>
 
+              <div class="flex-1">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Foto de perfil (opcional)</label>
+                <%= f.file_field :photo,
+                      accept: "image/*",
+                      class: "w-full rounded-md border-slate-300 shadow-sm text-sm file:bg-emerald-50 file:text-emerald-700 file:font-semibold file:border-0 file:px-4 file:py-2 file:rounded file:cursor-pointer hover:file:bg-emerald-100" %>
+                <p class="text-xs text-slate-500 mt-1">PNG, JPG até ~5MB.</p>
+              </div>
+            </div>
 
-    <!-- Foto de perfil -->
-    <div>
-      <%= f.label :photo, "Foto de perfil (opcional)", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.file_field :photo, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm file:bg-green-50 file:text-green-700 file:font-semibold file:border-0 file:px-4 file:py-2 file:rounded file:cursor-pointer hover:file:bg-green-100" %>
-    </div>
+            <!-- Nome -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1" for="user_name">Nome</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+                  <i class="lucide lucide-user w-4 h-4"></i>
+                </div>
+                <%= f.text_field :name,
+                      placeholder: "Ex.: João Silva",
+                      class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
+                      required: true %>
+              </div>
+            </div>
 
-    <!-- Notificações -->
-    <div class="flex flex-col sm:flex-row gap-4">
-      <div class="flex items-center gap-2">
-        <%= f.check_box :notif_email, checked: true, class: "rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" %>
-        <%= f.label :notif_email, "Receber notificações por email", class: "text-sm text-gray-700" %>
+            <!-- Email -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1" for="user_email">Email</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+                  <i class="lucide lucide-mail w-4 h-4"></i>
+                </div>
+                <%= f.email_field :email,
+                      placeholder: "nome@empresa.com",
+                      autocomplete: "email",
+                      class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
+                      required: true %>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Será usado para login e notificações.</p>
+            </div>
+
+            <!-- Função -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1" for="user_role">Função</label>
+              <% role_options =
+                   if current_user.admin?
+                     User.roles.except("owner").map { |r, _| [r.capitalize, r] }
+                   else
+                     User.roles.except("owner", "admin").map { |r, _| [r.capitalize, r] }
+                   end %>
+              <%= f.select :role, role_options, {},
+                    class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
+                    id: "user_role" %>
+
+              <!-- dica dinâmica -->
+              <input type="text" id="roleHint"
+                     class="mt-2 w-full text-xs px-3 py-2 rounded-md bg-slate-50 border border-slate-200 text-slate-600"
+                     value="Acesso total: gerir conta, equipa, campos e configurações."
+                     readonly>
+            </div>
+
+            <!-- Password (opcional) -->
+            <div class="rounded-xl border border-slate-200 p-4">
+              <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-slate-700">Definir password agora (opcional)</p>
+                <label class="inline-flex items-center gap-2 text-sm">
+                  <input id="togglePwd" type="checkbox" class="toggle-switch">
+                  <span>Ativar</span>
+                </label>
+              </div>
+
+              <div id="pwdBlock" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 hidden">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password">Password</label>
+                  <%= f.password_field :password,
+                        placeholder: "Deixar vazio para enviar convite depois",
+                        class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
+                        id: "user_password" %>
+                  <div class="mt-2 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="pwdStrength" class="h-full w-0 bg-rose-500 transition-[width]"></div>
+                  </div>
+                  <p id="pwdStrengthLabel" class="mt-1 text-[11px] text-slate-500">Força: —</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password_confirmation">Confirmação</label>
+                  <%= f.password_field :password_confirmation,
+                        class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notificações -->
+            <div>
+              <p class="text-sm font-medium text-slate-700 mb-2">Notificações</p>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <label class="inline-flex items-center gap-3">
+                  <%= f.check_box :notif_email, checked: true, class: "toggle-switch" %>
+                  <span class="text-sm text-slate-700">Receber notificações por email</span>
+                </label>
+                <label class="inline-flex items-center gap-3">
+                  <%= f.check_box :notif_sms, class: "toggle-switch" %>
+                  <span class="text-sm text-slate-700">Receber notificações por SMS</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="flex justify-between items-center pt-2">
+              <%= link_to "← Voltar", team_users_path, class: "text-sm text-slate-600 hover:underline" %>
+              <button type="submit"
+                      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm">
+                <i class="lucide lucide-save w-4 h-4"></i>
+                Criar Utilizador
+              </button>
+            </div>
+
+          <% end %>
+        </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <%= f.check_box :notif_sms, class: "rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" %>
-        <%= f.label :notif_sms, "Receber notificações por SMS", class: "text-sm text-gray-700" %>
-      </div>
-    </div>
+      <!-- =========== PREVIEW / RESUMO =========== -->
+      <aside class="lg:col-span-1">
+        <div class="sticky top-6 space-y-6">
+          <!-- Cartão de preview -->
+          <div class="bg-white border border-slate-200 rounded-2xl shadow p-5">
+            <h3 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <i class="lucide lucide-id-card w-4 h-4 text-emerald-600"></i>
+              Preview do Utilizador
+            </h3>
 
-    <!-- Botão -->
-    <div class="flex justify-between items-center pt-4">
-      <%= link_to "← Voltar", team_users_path, class: "text-sm text-gray-600 hover:underline" %>
-      <%= f.submit "💾 Criar Utilizador", class: "bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-md text-sm transition" %>
-    </div>
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
+                <img id="previewThumb" class="w-full h-full object-cover hidden" />
+                <span id="previewInitials" class="text-slate-500 text-sm">—</span>
+              </div>
+              <div class="min-w-0">
+                <p id="previewName" class="text-slate-900 font-semibold truncate">—</p>
+                <p id="previewEmail" class="text-slate-500 text-sm truncate">—</p>
+              </div>
+            </div>
 
-  <% end %>
+            <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-lg bg-slate-50 p-2">
+                <p class="text-[11px] uppercase tracking-wide text-slate-500">Função</p>
+                <p id="previewRole" class="mt-0.5 font-medium text-slate-900">—</p>
+              </div>
+              <div class="rounded-lg bg-slate-50 p-2">
+                <p class="text-[11px] uppercase tracking-wide text-slate-500">Notificações</p>
+                <p id="previewNotifs" class="mt-0.5 font-medium text-slate-900">—</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dicas -->
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-sm text-emerald-800">
+            <p class="font-semibold mb-1">💡 Dica</p>
+            <p>Se não definir password agora, pode enviar um e-mail de definição de senha a partir do perfil do utilizador depois.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
 </div>
+
+<!-- Toggles CSS -->
+<style>
+  .toggle-switch {
+    appearance: none; -webkit-appearance: none;
+    position: relative; width: 42px; height: 24px;
+    background: #d1d5db; border-radius: 9999px; cursor: pointer; outline: none;
+    transition: background .2s ease;
+  }
+  .toggle-switch:checked { background: #10b981; }
+  .toggle-switch::before {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+    background: #fff; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    transition: transform .2s ease;
+  }
+  .toggle-switch:checked::before { transform: translateX(18px); }
+</style>
+
+<!-- Scripts: lucide, preview, role hints, password strength, live preview -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+
+  // Role hints
+  const ROLE_HINTS = {
+    admin:      "Acesso total: gerir conta, equipa, campos e configurações.",
+    manager:    "Gestão de equipa e campos. Sem gestão global de contas.",
+    technician: "Executa tarefas, vê sensores e registos. Sem gestão de equipa.",
+    viewer:     "Acesso de leitura: vê painéis, campos e relatórios."
+  };
+
+  const roleSelect = document.getElementById('user_role');
+  const roleHint   = document.getElementById('roleHint');
+  function updateRoleHint() {
+    const v = roleSelect?.value || '';
+    roleHint.value = ROLE_HINTS[v] || "—";
+    document.getElementById('previewRole').textContent = (v ? v.charAt(0).toUpperCase()+v.slice(1) : '—');
+  }
+  roleSelect?.addEventListener('change', updateRoleHint);
+  updateRoleHint();
+
+  // Avatar preview
+  const inputPhoto = document.getElementById('user_photo');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const avatarFallback = document.getElementById('avatarFallback');
+  const previewThumb = document.getElementById('previewThumb');
+  const previewInitials = document.getElementById('previewInitials');
+
+  inputPhoto?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      avatarPreview?.classList.add('hidden');
+      previewThumb?.classList.add('hidden');
+      avatarFallback?.classList.remove('hidden');
+      previewInitials.textContent = initialsFrom(document.getElementById('user_name')?.value);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      [avatarPreview, previewThumb].forEach(img => { if (img){ img.src = evt.target.result; img.classList.remove('hidden'); }});
+      avatarFallback?.classList.add('hidden');
+      previewInitials.textContent = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Password block toggle
+  const togglePwd = document.getElementById('togglePwd');
+  const pwdBlock  = document.getElementById('pwdBlock');
+  togglePwd?.addEventListener('change', () => {
+    if (!pwdBlock) return;
+    pwdBlock.classList.toggle('hidden', !togglePwd.checked);
+  });
+
+  // Password strength (simples)
+  const pwdInput = document.getElementById('user_password');
+  const bar = document.getElementById('pwdStrength');
+  const label = document.getElementById('pwdStrengthLabel');
+  function scorePwd(pwd){
+    if (!pwd) return 0;
+    let s = 0;
+    if (pwd.length >= 8) s+=25;
+    if (/[A-Z]/.test(pwd)) s+=20;
+    if (/[a-z]/.test(pwd)) s+=20;
+    if (/\d/.test(pwd)) s+=20;
+    if (/[^A-Za-z0-9]/.test(pwd)) s+=15;
+    return Math.min(s,100);
+  }
+  function renderStrength(){
+    const val = pwdInput?.value || '';
+    const s = scorePwd(val);
+    if (!bar || !label) return;
+    bar.style.width = s + '%';
+    bar.className = 'h-full transition-[width] ' + (s<40 ? 'bg-rose-500' : s<70 ? 'bg-amber-500' : 'bg-emerald-500');
+    label.textContent = 'Força: ' + (s<40 ? 'Fraca' : s<70 ? 'Média' : 'Forte');
+  }
+  pwdInput?.addEventListener('input', renderStrength);
+
+  // Live preview (nome/email/iniciais/notifs)
+  function initialsFrom(name){
+    if (!name) return '—';
+    const parts = name.trim().split(/\s+/);
+    return (parts[0]?.[0]||'').toUpperCase() + (parts[1]?.[0]||'').toUpperCase();
+  }
+  function updatePreview(){
+    const name  = document.getElementById('user_name')?.value || '';
+    const email = document.getElementById('user_email')?.value || '';
+    document.getElementById('previewName').textContent = name || '—';
+    document.getElementById('previewEmail').textContent = email || '—';
+    if (previewThumb?.classList.contains('hidden')) {
+      document.getElementById('previewInitials').textContent = initialsFrom(name);
+    }
+    const em = document.getElementById('user_notif_email')?.checked ? 'Email' : null;
+    const sms = document.getElementById('user_notif_sms')?.checked ? 'SMS' : null;
+    document.getElementById('previewNotifs').textContent = [em, sms].filter(Boolean).join(' + ') || 'Nenhuma';
+  }
+  ['user_name','user_email','user_notif_email','user_notif_sms'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('input', updatePreview);
+    document.getElementById(id)?.addEventListener('change', updatePreview);
+  });
+  updatePreview();
+</script>

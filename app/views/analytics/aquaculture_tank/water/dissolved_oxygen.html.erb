@@ -1,0 +1,18 @@
+<div class="bg-white rounded-2xl border border-gray-200 shadow p-4">
+  <h3 class="text-sm font-semibold text-gray-700 mb-2">🫧 Oxigénio dissolvido (Tanques)</h3>
+  <canvas id="<%= chart_id %>" data-chart="true" style="height:260px"></canvas>
+</div>
+<script>
+  window["renderChart_<%= chart_id %>"] = function() {
+    const ctx = document.getElementById("<%= chart_id %>").getContext("2d");
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: <%= raw(@tank_labels&.to_json || '[]') %>,
+        datasets: [{ label: "mg/L", data: <%= raw(@tank_do&.to_json || '[]') %>, fill: false }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  };
+  setTimeout(() => window["renderChart_<%= chart_id %>"]?.(), 30);
+</script>

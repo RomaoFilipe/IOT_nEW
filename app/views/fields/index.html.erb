@@ -1,115 +1,206 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="<%= I18n.locale %>">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fields Overview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= t("fields.index.title", default: "Fields Overview") %></title>
+
+  <!-- Tailwind + Mapbox -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet" />
+  <script defer src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
 
   <style>
-    .mini-map-container {
-      position: relative;
-      width: 100%;
-      height: 144px !important;
-    }
-
-    .mini-map-container > div {
-      width: 100%;
-      height: 100%;
-      border-radius: 0.5rem;
-    }
-
-    .mini-map-button {
-      position: absolute;
-      bottom: 0.5rem;
-      right: 0.5rem;
-      font-size: 0.75rem;
-      background: white;
-      color: #4B5563;
-      border: 1px solid #D1D5DB;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
+    /* Mini-map padrão (usado em cards da list_view) */
+    .mini-map-container{position:relative;width:100%;height:144px}
+    .mini-map-container>div{width:100%;height:100%;border-radius:.75rem}
+    .mini-map-button{position:absolute;bottom:.5rem;right:.5rem;font-size:.75rem;background:#fff;color:#374151;border:1px solid #d1d5db;padding:.25rem .5rem;border-radius:.375rem;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+    /* Esconde conteúdo até Alpine/tabs inicializarem (evita flash) */
+    [x-cloak]{display:none!important}
   </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-slate-50 text-slate-800">
 
-<div class="max-w-7xl mx-auto p-4 sm:p-6">
-  <!-- Header responsivo -->
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">Fields Overview</h1>
+<div class="max-w-7xl mx-auto p-4 sm:p-6 space-y-5" x-data="{ view: new URLSearchParams(location.search).get('view') || 'list' }" x-cloak>
+  <!-- Cabeçalho -->
+  <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-emerald-800 flex items-center gap-2">
+        <i class="lucide lucide-map-pin w-6 h-6"></i>
+        <%= t("fields.index.heading", default: "Fields Overview") %>
+      </h1>
+      <p class="text-sm text-slate-500 mt-1">
+        <%= t("fields.index.subtitle", default: "Manage your agricultural and aquaculture areas.") %>
+      </p>
+    </div>
 
-    <div class="flex flex-wrap gap-2">
-      <!-- Tabs -->
-      <div class="inline-flex h-10 items-center justify-center rounded-md bg-gray-200 text-gray-700">
-        <button id="listViewBtn" type="button" class="tab-btn px-4 py-2 text-sm font-medium rounded-md">List View</button>
-        <button id="mapViewBtn" type="button" class="tab-btn px-4 py-2 text-sm font-medium rounded-md">Map View</button>
-      </div>
+    <!-- Ações -->
+    <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+      <!-- Tabs (Lista / Mapa) -->
+      <nav class="inline-flex rounded-lg bg-slate-200 p-1" role="tablist" aria-label="View switch">
+        <button
+          :aria-selected="view==='list'" :class="view==='list' ? 'bg-white text-slate-900 shadow' : 'text-slate-700 hover:text-slate-900'"
+          class="px-4 py-2 text-sm font-medium rounded-md transition"
+          @click="view='list'; updateQuery('list')">
+          <i class="lucide lucide-list w-4 h-4 inline-block mr-1"></i> <%= t("common.list", default: "List View") %>
+        </button>
+        <button
+          :aria-selected="view==='map'" :class="view==='map' ? 'bg-white text-slate-900 shadow' : 'text-slate-700 hover:text-slate-900'"
+          class="px-4 py-2 text-sm font-medium rounded-md transition"
+          @click="view='map'; updateQuery('map'); initMainMapIfNeeded()">
+          <i class="lucide lucide-map w-4 h-4 inline-block mr-1"></i> <%= t("common.map", default: "Map View") %>
+        </button>
+      </nav>
 
-      <!-- Filter -->
-      <button class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100 w-full sm:w-auto">Filter</button>
+      <!-- (Placeholder) Filtro -->
+      <button type="button" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-white/60 bg-white flex items-center gap-2">
+        <i class="lucide lucide-filter w-4 h-4"></i>
+        <span><%= t("common.filter", default: "Filter") %></span>
+      </button>
 
       <!-- Add Field -->
-      <button onclick="toggleModal()" class="px-4 py-2 bg-green-600 text-white rounded-md w-full sm:w-auto">+ Add Field</button>
+      <button type="button" onclick="toggleModal()"
+              class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 shadow inline-flex items-center gap-2">
+        <i class="lucide lucide-plus w-4 h-4"></i>
+        <span><%= t("fields.actions.add", default: "Add Field") %></span>
+      </button>
     </div>
-  </div>
+  </header>
 
-  <!-- Partials -->
-  <%= render 'fields/list_view' %>
-  <%= render 'fields/map_view' %>
+  <!-- Métricas rápidas -->
+  <section class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <% total_fields = @fields.size %>
+    <% total_sensors = @fields.sum { |f| f.sensors.size } %>
+    <% active_sensors = @fields.sum { |f| f.sensors.select { |s| s.status.to_s.downcase == 'active' }.size } %>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <p class="text-xs font-medium text-slate-500"><%= t("fields.metrics.fields", default: "Fields") %></p>
+      <p class="text-2xl font-extrabold text-slate-900"><%= total_fields %></p>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <p class="text-xs font-medium text-slate-500"><%= t("fields.metrics.sensors", default: "Sensors") %></p>
+      <p class="text-2xl font-extrabold text-slate-900"><%= total_sensors %></p>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <p class="text-xs font-medium text-slate-500"><%= t("fields.metrics.active_sensors", default: "Active Sensors") %></p>
+      <p class="text-2xl font-extrabold text-emerald-700"><%= active_sensors %></p>
+    </div>
+  </section>
+
+  <!-- Views -->
+  <section>
+    <!-- LIST -->
+    <div id="listViewContainer" x-show="view==='list'">
+      <%= render 'fields/list_view' %>
+    </div>
+
+    <!-- MAP -->
+    <div id="mapViewContainer" x-show="view==='map'">
+      <%= render 'fields/map_view' %>
+    </div>
+  </section>
+
+  <!-- Modal: Add Field -->
   <%= render 'fields/modal' %>
 
+  <!-- Modais de detalhes para cada field -->
   <% @fields.each do |field| %>
     <%= render partial: 'fields/view_details', locals: { field: field } %>
   <% end %>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const listViewBtn = document.getElementById("listViewBtn");
-    const mapViewBtn = document.getElementById("mapViewBtn");
-    const listViewContainer = document.getElementById("listViewContainer");
-    const mapViewContainer = document.getElementById("mapViewContainer");
+  // ======= Utils =======
+  window.updateQuery = function(next){
+    const url = new URL(window.location);
+    url.searchParams.set('view', next);
+    window.history.replaceState({}, '', url);
+  };
 
-    listViewBtn.addEventListener("click", () => {
-      listViewContainer.classList.remove("hidden");
-      mapViewContainer.classList.add("hidden");
-      listViewBtn.classList.add("bg-white", "shadow-md");
-      mapViewBtn.classList.remove("bg-white", "shadow-md");
+  // ======= Mapbox =======
+  const MAPBOX_TOKEN = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+  mapboxgl.accessToken = MAPBOX_TOKEN;
+
+  // Inicializa o mapa principal (espera um container com id `fields-main-map` dentro de _map_view)
+  window.initMainMapIfNeeded = function(){
+    const container = document.getElementById('fields-main-map');
+    if (!container || container.dataset.initialized === '1') return;
+
+    const features = Array.from(document.querySelectorAll('[data-field-point="true"]')).map(el => {
+      return {
+        id: el.dataset.id,
+        name: el.dataset.name,
+        lat: parseFloat(el.dataset.lat),
+        lng: parseFloat(el.dataset.lng)
+      };
     });
 
-    mapViewBtn.addEventListener("click", () => {
-      listViewContainer.classList.add("hidden");
-      mapViewContainer.classList.remove("hidden");
-      mapViewBtn.classList.add("bg-white", "shadow-md");
-      listViewBtn.classList.remove("bg-white", "shadow-md");
-
-      if (!window.mapInitialized) {
-        initializeMapbox();
-        window.mapInitialized = true;
-      }
+    const map = new mapboxgl.Map({
+      container,
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: features.length ? [features[0].lng, features[0].lat] : [-8.613, 41.141],
+      zoom: features.length ? 10 : 5
     });
 
-    // Iniciar com lista visível
-    listViewBtn.click();
+    const bounds = new mapboxgl.LngLatBounds();
+    features.forEach(f => {
+      new mapboxgl.Marker().setLngLat([f.lng, f.lat]).setPopup(new mapboxgl.Popup().setText(f.name)).addTo(map);
+      bounds.extend([f.lng, f.lat]);
+    });
+    if (features.length > 1) map.fitBounds(bounds, { padding: 40 });
 
+    container.dataset.initialized = '1';
+  };
+
+  // Inicializa todos os mini-maps encontrados (espera elementos com data-lat/data-lng)
+  window.initializeMiniMaps = function(){
+    document.querySelectorAll('[data-mini-map="true"]').forEach(el => {
+      if (el.dataset.initialized === '1') return;
+      const lat = parseFloat(el.dataset.lat);
+      const lng = parseFloat(el.dataset.lng);
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      const map = new mapboxgl.Map({
+        container: el,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [lng, lat],
+        zoom: 12,
+        attributionControl: false
+      });
+      new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+
+      el.dataset.initialized = '1';
+    });
+  };
+
+  // ======= UI helpers =======
+  window.toggleModal = function(){
+    const modal = document.getElementById('addFieldModal');
+    if (modal) modal.classList.toggle('hidden');
+  };
+
+  window.toggleViewDetails = function(id){
+    document.querySelectorAll('[id^="viewDetailsModal-"]').forEach(m => m.classList.add('hidden'));
+    document.getElementById(`viewDetailsModal-${id}`)?.classList.toggle('hidden');
+  };
+
+  // ======= Boot =======
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+
+    // Seleciona tab inicial (list/map) conforme query
+    const current = new URLSearchParams(location.search).get('view');
+    if (current === 'map') {
+      document.querySelector('[aria-label="View switch"] button:last-child')?.click();
+    }
+
+    // Mini-maps na lista
     initializeMiniMaps();
   });
-
-  function toggleModal() {
-    const modal = document.getElementById("addFieldModal");
-    modal.classList.toggle("hidden");
-  }
-
-  function toggleViewDetails(id) {
-    document.querySelectorAll('[id^="viewDetailsModal-"]').forEach(modal => modal.classList.add("hidden"));
-    const target = document.getElementById(`viewDetailsModal-${id}`);
-    if (target) target.classList.toggle("hidden");
-  }
 </script>
 
+<!-- Alpine (para x-data/x-show do switch) -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>

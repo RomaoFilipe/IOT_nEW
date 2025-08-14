@@ -1,47 +1,159 @@
 <% content_for :title, "Editar Conta" %>
 
-<% if flash[:notice] %>
-  <div class="mb-4 px-4 py-3 bg-green-100 text-green-800 rounded shadow">
+<%# Flash messages %>
+<% if flash[:notice].present? %>
+  <div class="mb-4 px-4 py-3 bg-green-50 text-green-800 rounded-lg border border-green-200">
     ✅ <%= flash[:notice] %>
   </div>
-<% elsif flash[:alert] %>
-  <div class="mb-4 px-4 py-3 bg-red-100 text-red-800 rounded shadow">
+<% elsif flash[:alert].present? %>
+  <div class="mb-4 px-4 py-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
     ⚠️ <%= flash[:alert] %>
   </div>
 <% end %>
 
-<div class="max-w-3xl mx-auto p-6 bg-white shadow rounded-lg mt-6">
-  <h1 class="text-2xl font-bold text-gray-800 mb-6">✏️ Editar Conta</h1>
+<div class="max-w-4xl mx-auto mt-6 space-y-6">
 
-  <%= form_with(model: [:admin, @account], local: true, class: "space-y-6") do |form| %>
-    <div>
-      <%= form.label :name, "Nome da Empresa", class: "block text-sm font-medium text-gray-700" %>
-      <%= form.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+  <!-- Cabeçalho + Ações rápidas -->
+  <div class="bg-white shadow-sm rounded-xl p-5 border">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xl">✏️</span>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Editar Conta</h1>
+          <p class="text-sm text-slate-500">Atualiza as informações da empresa e o tipo de produção.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <%= link_to "← Voltar", admin_accounts_path, class: "px-3 py-2 text-sm rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50" %>
+      </div>
     </div>
 
-    <div>
-      <%= form.label :nif, "NIF", class: "block text-sm font-medium text-gray-700" %>
-      <%= form.text_field :nif, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+    <%# Resumo da conta %>
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="rounded-lg bg-slate-50 p-3 border border-slate-200">
+        <p class="text-[11px] uppercase tracking-wide text-slate-500">Criada em</p>
+        <p class="mt-0.5 font-semibold text-slate-900"><%= l(@account.created_at.to_date) %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-3 border border-slate-200">
+        <p class="text-[11px] uppercase tracking-wide text-slate-500">Atualizada</p>
+        <p class="mt-0.5 font-semibold text-slate-900"><%= l(@account.updated_at.to_date) %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-3 border border-slate-200">
+        <p class="text-[11px] uppercase tracking-wide text-slate-500">Campos</p>
+        <p class="mt-0.5 font-semibold text-slate-900"><%= @account.fields.count %></p>
+      </div>
     </div>
+  </div>
 
-<div>
-  <%= form.label :farm_type, "Tipo de Produção", class: "block text-sm font-medium text-gray-700" %>
+  <!-- Formulário -->
+  <div class="bg-white shadow-sm rounded-xl p-6 border">
+    <%# Erros do objeto %>
+    <% if @account.errors.any? %>
+      <div class="mb-5 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-700">
+        <p class="font-semibold mb-2">Não foi possível guardar. Corrige os erros abaixo:</p>
+        <ul class="list-disc list-inside text-sm">
+          <% @account.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-  <% if @account.fields.any? %>
-    <%= form.select :farm_type, Account.farm_types.keys.map { |t| [t.humanize, t] },
-          {}, class: "mt-1 block w-full bg-gray-100 text-gray-500 border-gray-300 rounded-md shadow-sm", disabled: true %>
-    <p class="text-sm text-red-500 mt-1">⚠ Não é possível alterar o tipo de produção porque existem campos registados.</p>
-  <% else %>
-    <%= form.select :farm_type, Account.farm_types.keys.map { |t| [t.humanize, t] },
-          {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
-  <% end %>
-</div>
+    <%= form_with(model: [:admin, @account], local: true, class: "space-y-6") do |form| %>
 
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <!-- Nome -->
+        <div>
+          <%= form.label :name, "Nome da Empresa", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :name, placeholder: "Ex.: Agro do Vale, Lda.",
+                class: "mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus-visible:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+        </div>
 
+        <!-- NIF -->
+        <div>
+          <%= form.label :nif, "NIF", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :nif, placeholder: "Ex.: 501234567",
+                class: "mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus-visible:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+        </div>
+      </div>
 
-    <div class="flex justify-between items-center pt-4"> <%= link_to "← Voltar", admin_accounts_path, 
-      class: "text-sm text-gray-600 hover:underline" %> <%= form.submit "Guardar Alterações", class: 
-      "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" %>
+      <!-- Tipo de Produção -->
+      <div>
+        <%= form.label :farm_type, "Tipo de Produção", class: "block text-sm font-medium text-slate-700 mb-1" %>
+
+        <% options = [
+             ["🌾 Agricultura", "agriculture"],
+             ["🌊 Aquacultura (Mar)", "aquaculture_sea"],
+             ["🪣 Aquacultura (Tanque)", "aquaculture_tank"]
+           ] %>
+
+        <% if @account.fields.any? %>
+          <%= form.select :farm_type, options,
+                {}, class: "mt-1 block w-full rounded-lg border-slate-300 bg-slate-100 text-slate-500 shadow-sm cursor-not-allowed",
+                disabled: true %>
+          <p class="mt-1 text-sm text-amber-600">
+            ⚠ Não é possível alterar o tipo de produção porque existem campos registados.
+          </p>
+        <% else %>
+          <%= form.select :farm_type, options,
+                {}, class: "mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus-visible:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+        <% end %>
+
+        <%# Badge de tipo atual %>
+        <% badge_text, badge_class =
+            case @account.farm_type
+            when "agriculture"
+              ["Agricultura", "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"]
+            when "aquaculture_sea"
+              ["Aquacultura (Mar)", "bg-sky-50 text-sky-700 ring-1 ring-sky-200"]
+            when "aquaculture_tank"
+              ["Aquacultura (Tanque)", "bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200"]
+            else
+              ["—", "bg-slate-50 text-slate-600 ring-1 ring-slate-200"]
+            end %>
+
+        <span class="inline-flex items-center gap-2 mt-2 px-2.5 py-1 rounded-full text-xs font-semibold <%= badge_class %>">
+          <span class="text-[10px]">●</span> <%= badge_text %>
+        </span>
+      </div>
+
+      <!-- Barra de ações -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t">
+        <%= link_to "← Voltar", admin_accounts_path,
+            class: "inline-flex items-center justify-center px-4 py-2 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50" %>
+
+        <%= form.submit "Guardar Alterações",
+            class: "inline-flex items-center justify-center px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Zona de Perigo -->
+  <div x-data="{ open: false }" class="bg-white shadow-sm rounded-xl p-6 border">
+    <h2 class="text-lg font-semibold text-rose-700 flex items-center gap-2">
+      <span>🗑️</span> Zona de Perigo
+    </h2>
+    <p class="text-sm text-slate-600 mt-1">
+      Apagar a conta remove o acesso de todos os utilizadores associados. Esta ação é irreversível.
+    </p>
+
+    <div class="mt-4">
+      <button @click="open = !open"
+              class="px-3 py-2 text-sm rounded-md border border-rose-300 text-rose-700 hover:bg-rose-50">
+        <template x-if="!open">Mostrar opções</template>
+        <template x-if="open">Esconder opções</template>
+      </button>
+
+      <div x-show="open" x-cloak class="mt-4 border rounded-lg p-4 bg-rose-50 border-rose-200">
+        <p class="text-sm text-rose-700 mb-3">Tens a certeza que queres apagar esta conta?</p>
+        <%= button_to "Apagar Conta",
+              admin_account_path(@account),
+              method: :delete,
+              data: { turbo_confirm: "Tens a certeza? Esta ação não pode ser anulada." },
+              class: "px-4 py-2 rounded-md bg-rose-600 text-white hover:bg-rose-700" %>
+      </div>
     </div>
-  <% end %>
+  </div>
+
 </div>

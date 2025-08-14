@@ -1,145 +1,142 @@
-<h3 class="text-md font-semibold text-gray-800 mb-3 flex items-center justify-between">
-  Estado dos Campos
-  <a href="#" class="text-sm text-blue-500 hover:underline font-medium">Ver Todos</a>
+<%# app/views/dashboard/_field_status.html.erb %>
+
+<h3 class="text-base sm:text-lg font-semibold text-slate-800 mb-4 flex items-center justify-between">
+  <span>🗺️ Estado dos Campos</span>
+  <%= link_to "Ver todos", fields_path, class: "text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium" %>
 </h3>
 
 <% if @fields.any? %>
-  <div 
+  <div
     x-data="{
-      active: <%= @fields.first.id %>,
-      fields: <%= raw @fields.map(&:id).to_json %>,
+      ids: <%= raw @fields.map(&:id).to_json %>,
       index: 0,
-      startRotation() {
-        if (this.fields.length <= 1) return;
-        setInterval(() => {
-          this.index = (this.index + 1) % this.fields.length;
-          this.active = this.fields[this.index];
-        }, 6000);
+      get activeId() { return this.ids[this.index] },
+      timer: null,
+      start() {
+        if (this.ids.length <= 1 || this.timer) return;
+        this.timer = setInterval(() => { this.index = (this.index + 1) % this.ids.length }, 6000);
       },
-      openDetails(id) {
-        const modal = document.getElementById(`viewDetailsModal-${id}`);
-        if (modal) {
-          modal.classList.remove('hidden');
-        }
-      }
+      stop() { if (this.timer) { clearInterval(this.timer); this.timer = null } },
+      go(id) { const i = this.ids.indexOf(id); if (i >= 0) this.index = i; },
     }"
-    x-init="startRotation()"
+    x-init="start()"
     class="space-y-4"
   >
-    <!-- Botões de seleção de campo -->
-    <div class="flex flex-wrap gap-2 justify-start">
+    <!-- Selector de campos -->
+    <div class="flex gap-2 overflow-x-auto pb-1">
       <% @fields.each do |field| %>
         <button
-          :class="active === <%= field.id %> ? 'bg-blue-100 text-blue-700 font-semibold' : 'bg-gray-100 text-gray-600 hover:text-gray-800'"
-          @click="active = <%= field.id %>; index = fields.indexOf(<%= field.id %>)"
-          class="px-3 py-1 text-xs rounded-lg transition"
+          @click="go(<%= field.id %>); stop(); start();"
+          :class="activeId === <%= field.id %>
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+          class="px-3 py-1.5 rounded-full text-xs font-medium transition whitespace-nowrap border border-transparent"
+          title="<%= field.name %>"
         >
           <%= field.name %>
         </button>
       <% end %>
     </div>
 
-    <!-- Cartão de estado do campo -->
-    <div class="bg-white rounded-xl border shadow p-4 max-w-xl mx-auto min-h-auto space-y-4">
+    <!-- Cartões -->
+    <div class="relative">
       <% @fields.each do |field| %>
-        <div 
-          id="field-card-<%= field.id %>"
-          x-show="active === <%= field.id %>" 
+        <%# --- métricas por campo --- %>
+        <% total      = field.sensors.count
+           active     = field.sensors.where(status: 'Active').count
+           pct_active = total.positive? ? ((active.to_f / total) * 100).round : 0
+           avg_moist  = field.sensors.average(:moisture)&.round
+           avg_temp   = field.sensors.average(:temperature)&.round(1)
+           avg_batt   = field.sensors.average(:battery)&.round
+           last_irrig = field.irrigation_schedules.order(created_at: :desc).limit(1).first&.created_at
+           status_class = %w[ativo active].include?(field.status.to_s.downcase) ?
+                           'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' :
+                           'bg-rose-50 text-rose-700 ring-1 ring-rose-200'
+        %>
+
+        <section
+          x-show="activeId === <%= field.id %>"
           x-cloak
-          x-transition:enter="transition ease-out duration-300"
-          x-transition:enter-start="opacity-0"
-          x-transition:enter-end="opacity-100"
-          x-transition:leave="transition ease-in duration-200"
-          x-transition:leave-start="opacity-100"
-          x-transition:leave-end="opacity-0"
-          class="space-y-4"
+          @mouseenter="stop()" @mouseleave="start()"
+          class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 sm:p-5 space-y-4"
         >
-          <!-- Nome e cultura -->
-          <div class="flex justify-between items-center flex-nowrap gap-2">
-            <div>
-              <p class="text-sm font-semibold text-blue-700"><%= field.name %></p>
-              <p class="text-base text-gray-800 font-semibold"><%= field.field_type %></p>
-              <p class="text-sm text-gray-500"><%= field.area %> ha</p>
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-sm text-emerald-700 font-semibold truncate"><%= field.name %></p>
+              <p class="text-base font-semibold text-slate-900 truncate"><%= field.field_type.to_s.humanize %></p>
+              <p class="text-xs text-slate-500">Área: <%= field.area %> ha</p>
             </div>
-            <span class="<%= field.status == 'Ativo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %> text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
+
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium <%= status_class %>">
+              <span class="text-[10px]">●</span>
               <%= field.status.presence || 'Desconhecido' %>
             </span>
           </div>
 
-          <!-- Progresso de sensores -->
-          <div class="space-y-2 text-sm text-gray-700">
-            <div>
-              <div class="flex justify-between">
-                <span class="flex items-center gap-1">📡 Sensores Ativos</span>
-                <span class="font-medium"><%= field.sensors.where(status: 'Active').count %></span>
+          <!-- Métricas -->
+          <div class="grid sm:grid-cols-3 gap-3">
+            <!-- Sensores ativos -->
+            <div class="col-span-1">
+              <div class="flex items-center justify-between text-xs text-slate-600">
+                <span>📡 Sensores ativos</span>
+                <span class="font-semibold text-slate-800"><%= active %>/<%= total %></span>
               </div>
-              <div class="w-full h-2 bg-gray-200 rounded-full">
-                <div class="h-2 bg-blue-600 rounded-full transition-all" style="width: <%= [field.sensors.where(status: 'Active').count * 20, 100].min %>%"></div>
+              <div class="w-full h-2 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                <div class="h-2 bg-emerald-500 rounded-full transition-[width] duration-500" style="width:<%= pct_active %>%"></div>
+              </div>
+            </div>
+
+            <!-- Humidade média -->
+            <div class="col-span-1">
+              <div class="flex items-center justify-between text-xs text-slate-600">
+                <span>💧 Humidade média</span>
+                <span class="font-semibold text-slate-800"><%= avg_moist || '—' %><%= avg_moist ? '%' : '' %></span>
+              </div>
+              <div class="w-full h-2 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                <div class="h-2 bg-sky-600 rounded-full transition-[width] duration-500" style="width:<%= (avg_moist || 0).clamp(0,100) %>%"></div>
+              </div>
+            </div>
+
+            <!-- Bateria média -->
+            <div class="col-span-1">
+              <div class="flex items-center justify-between text-xs text-slate-600">
+                <span>🔋 Bateria média</span>
+                <span class="font-semibold text-slate-800"><%= avg_batt || '—' %><%= avg_batt ? '%' : '' %></span>
+              </div>
+              <div class="w-full h-2 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                <div class="h-2 bg-violet-500 rounded-full transition-[width] duration-500" style="width:<%= (avg_batt || 0).clamp(0,100) %>%"></div>
               </div>
             </div>
           </div>
 
-          <!-- Dados diversos -->
-          <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
-            <div class="flex items-center gap-1">
-              🧪 <span><%= field.soil_type.presence || 'N/A' %></span>
+          <!-- Linha inferior -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            <div class="text-xs text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span>🗓️ Última irrigação: <%= last_irrig ? l(last_irrig, format: '%d/%m/%Y %H:%M') : 'Sem registo' %></span>
+              <span>📍 <%= field.latitude %>, <%= field.longitude %></span>
+              <% if avg_temp %><span>🌡️ <%= avg_temp %> °C</span><% end %>
             </div>
-            <div class="flex items-center gap-1">
-              💧 <span><%= field.irrigation_schedules.order(created_at: :desc).first&.created_at&.strftime('%d/%m/%Y') || 'Sem registo' %></span>
-            </div>
-            <div class="flex items-center gap-1 col-span-2">
-              🗺️ <span><%= field.latitude %>, <%= field.longitude %></span>
-            </div>
-          </div>
 
-          <!-- Colheita e botão -->
-          <div class="flex justify-between items-center pt-2 border-t mt-2 text-sm">
-            <div>
-              <p class="text-gray-500">Previsão de Colheita</p>
-              <p class="font-semibold text-gray-800">30/08/2023</p>
-            </div>
-            <button @click="openDetails(<%= field.id %>)" class="text-sm px-4 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100 transition">
-              Detalhes
+            <button
+              type="button"
+              @click="document.getElementById('viewDetailsModal-<%= field.id %>')?.classList.remove('hidden')"
+              class="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 transition"
+            >
+              <i class="lucide lucide-eye w-4 h-4"></i> Detalhes
             </button>
           </div>
-        </div>
+        </section>
       <% end %>
     </div>
   </div>
 
-  <!-- ✅ Renderização inline dos modais para funcionamento do botão Detalhes -->
+  <%# Modais de detalhes %>
   <% @fields.each do |field| %>
     <%= render partial: "fields/view_details", locals: { field: field } %>
   <% end %>
 <% else %>
-  <div class="p-4 bg-yellow-100 text-yellow-800 rounded-md">
-    🚨 Nenhum campo registado ainda. Por favor adicione um campo para visualizar o estado.
+  <div class="p-4 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
+    🚨 Nenhum campo registado ainda. Adicione um campo para visualizar o estado.
   </div>
 <% end %>
-
-<style>
-  .max-w-xl.mx-auto {
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .min-h-auto {
-    min-height: auto !important;
-  }
-
-  .space-y-4 {
-    gap: 1rem !important;
-  }
-
-  .flex.justify-between.items-center.flex-nowrap.gap-2 {
-    flex-wrap: nowrap !important;
-    gap: 0.5rem !important;
-  }
-
-  @media (min-width: 640px) {
-    .max-w-xl.mx-auto {
-      max-width: 700px;
-    }
-  }
-</style>

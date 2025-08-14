@@ -128,7 +128,8 @@ Rails.application.routes.draw do
     end
 
     # 🌍 Localização (idioma)
-    put '/locale', to: 'settings#locale', as: :locale
+
+get 'locale/:id', to: 'locales#update', as: :switch_locale
   end
 
   # 📡 WebSockets

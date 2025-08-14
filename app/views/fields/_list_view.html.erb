@@ -1,132 +1,140 @@
 <div id="listViewContainer">
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <% @fields.each do |field| %>
-      <div class="bg-white rounded-lg shadow overflow-hidden flex flex-col">
+      <% avg_moist = field.sensors.average(:moisture)&.round %>
+      <% avg_temp  = field.sensors.average(:temperature)&.round(1) %>
+      <% location_text =
+           if field.respond_to?(:formatted_location) && field.formatted_location.present?
+             field.formatted_location
+           elsif field.latitude.present? && field.longitude.present?
+             "#{format('%.5f', field.latitude)}, #{format('%.5f', field.longitude)}"
+           else
+             t("fields.location.none", default: "Sem localização")
+           end %>
+      <% status_label = field.status.presence || t("fields.status.unknown", default: "Desconhecido") %>
+      <% status_class =
+           case field.status.to_s.downcase
+           when "active", "ativo" then "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+           when "paused", "inativo", "inactive" then "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+           else "bg-slate-100 text-slate-700 ring-1 ring-slate-200"
+           end %>
+
+      <article class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
         <!-- MINI MAPA -->
-        <div class="bg-gray-100 h-36 relative">
+        <div class="relative mini-map-container">
           <% if field.latitude.present? && field.longitude.present? %>
-            <div class="mini-map-container">
-              <div id="mini-map-<%= field.id %>" class="w-full h-full rounded-md"></div>
-              <button class="mini-map-button" onclick="flyToField(<%= field.longitude %>, <%= field.latitude %>, <%= field.id %>)">
-                Ver no mapa completo
-              </button>
-            </div>
+            <div
+              id="mini-map-<%= field.id %>"
+              data-mini-map="true"
+              data-lat="<%= field.latitude %>"
+              data-lng="<%= field.longitude %>"
+              class="w-full h-full rounded-xl"
+            ></div>
+
+            <button
+              type="button"
+              class="mini-map-button inline-flex items-center gap-1"
+              onclick="flyToField(<%= field.longitude %>, <%= field.latitude %>, <%= field.id %>)">
+              <i class="lucide lucide-map w-3.5 h-3.5"></i>
+              <span class="text-xs font-medium">Ver no mapa</span>
+            </button>
           <% else %>
-            <div class="flex items-center justify-center h-full">
-              <svg xmlns="http://www.w3.org/2000/svg" class="text-gray-400" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
-                <path d="M15 5.764v15" />
-                <path d="M9 3.236v15" />
-              </svg>
+            <div class="flex items-center justify-center h-36 text-slate-400">
+              <i class="lucide lucide-map-pin w-8 h-8"></i>
             </div>
           <% end %>
         </div>
 
-        <!-- INFO DO CAMPO -->
-        <div class="p-4 flex-1 flex flex-col justify-between">
-          <div>
-            <h2 class="font-bold text-lg text-gray-800 mb-1"><%= field.name %></h2>
-            <p><strong>Crop:</strong> <%= field.field_type %></p>
-            <p><strong>Location:</strong> <%= field.formatted_location %></p>
-            <p><strong>Area:</strong> <%= field.area %> ha</p>
-
-            <div class="flex justify-between mt-2 text-sm text-gray-600">
-              <span>💧 <%= rand(40..80) %>%</span>
-              <span>🌡 <%= rand(20..30) %>°C</span>
+        <!-- INFO -->
+        <div class="p-4 flex-1 flex flex-col gap-3">
+          <header class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <h2 class="font-semibold text-slate-900 truncate"><%= field.name %></h2>
+              <p class="text-sm text-slate-600 truncate"><%= field.field_type.to_s.humanize %></p>
             </div>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium <%= status_class %>">
+              <span class="text-[10px]">●</span> <%= status_label %>
+            </span>
+          </header>
 
-            <p class="text-xs text-gray-500 mt-2">
-              Last updated: <%= time_ago_in_words(field.updated_at) %> ago
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <p class="text-slate-600"><span class="font-medium">📍</span> <%= location_text %></p>
+            <p class="text-slate-600"><span class="font-medium">📏</span> <%= field.area || '—' %> ha</p>
+            <p class="text-slate-600">
+              <span class="font-medium">💧</span>
+              <%= avg_moist ? "#{avg_moist}%" : '—' %>
+            </p>
+            <p class="text-slate-600">
+              <span class="font-medium">🌡</span>
+              <%= avg_temp ? "#{avg_temp}°C" : '—' %>
             </p>
           </div>
 
-          <div class="mt-4">
+          <p class="text-xs text-slate-500">
+            <%= t("common.last_updated", default: "Atualizado há") %> <%= time_ago_in_words(field.updated_at) %>
+          </p>
+
+          <div class="mt-1">
             <button
+              type="button"
               onclick="toggleViewDetails(<%= field.id %>)"
-              class="w-full text-center px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-md text-sm font-medium transition"
-            >
-              Ver Detalhes
+              class="w-full text-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-sm font-medium transition">
+              <i class="lucide lucide-eye w-4 h-4 inline-block -mt-0.5 mr-1"></i>
+              <%= t("fields.actions.view_details", default: "Ver detalhes") %>
             </button>
           </div>
         </div>
-      </div>
+      </article>
     <% end %>
   </div>
 </div>
 
 <!-- CSS Mini Mapa -->
 <style>
-  .mini-map-container {
-    position: relative;
-    width: 100%;
-    height: 144px !important;
+  .mini-map-container{position:relative;width:100%;height:160px}
+  .mini-map-button{
+    position:absolute;bottom:.5rem;right:.5rem;background:#fff;color:#374151;
+    border:1px solid #d1d5db;padding:.25rem .5rem;border-radius:.375rem;
+    box-shadow:0 1px 2px rgba(0,0,0,.08)
   }
-
-  .mini-map-container > div {
-    width: 100%;
-    height: 100%;
-    border-radius: 0.5rem;
-  }
-
-  .mini-map-button {
-    position: absolute;
-    bottom: 0.5rem;
-    right: 0.5rem;
-    font-size: 0.75rem;
-    background: white;
-    color: #4B5563;
-    border: 1px solid #D1D5DB;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
   .mini-map-container .mapboxgl-ctrl-logo,
-  .mini-map-container .mapboxgl-ctrl-attrib {
-    display: none !important;
-  }
+  .mini-map-container .mapboxgl-ctrl-attrib{display:none!important}
 </style>
 
-<!-- JS Mini Mapa -->
 <script>
-  function initializeMiniMaps() {
-    if (typeof mapboxgl === 'undefined') return;
-
-    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
-
-    const fields = <%= raw @fields.to_json %>;
-
-    fields.forEach(field => {
-      const miniMapDiv = document.getElementById(`mini-map-${field.id}`);
-      if (miniMapDiv && field.latitude && field.longitude) {
-        if (miniMapDiv.dataset.mapInitialized === "true") return;
-
-        const style = window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "mapbox://styles/mapbox/dark-v10"
-          : "mapbox://styles/mapbox/streets-v11";
-
-        const miniMap = new mapboxgl.Map({
-          container: miniMapDiv,
-          style: style,
-          center: [field.longitude, field.latitude],
-          zoom: 13,
-          interactive: false,
-          attributionControl: false
-        });
-
-        miniMap.on('load', () => {
-          new mapboxgl.Marker({ color: "blue" })
-            .setLngLat([field.longitude, field.latitude])
-            .addTo(miniMap);
-
-          setTimeout(() => miniMap.resize(), 200);
-          miniMapDiv.dataset.mapInitialized = "true";
-        });
-      }
-    });
-  }
-
+  // Chama o inicializador global definido no index (idêntico ao que já te dei).
   document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => initializeMiniMaps(), 200);
+    if (typeof initializeMiniMaps === "function") {
+      // pequeno atraso para garantir que os nós já estão no DOM
+      setTimeout(() => initializeMiniMaps(), 150);
+    }
   });
+
+  // Helper: abre o separador "Mapa", inicializa (se preciso) e faz flyTo.
+  // Nota: no _map_view, ao criares o mapa principal, faz:
+  //   window.mainFieldsMap = map;
+  window.flyToField = function(lng, lat, id){
+    try {
+      // muda para o separador Mapa
+      const mapTabBtn = document.querySelector('[aria-label="View switch"] button:last-child');
+      if (mapTabBtn) mapTabBtn.click();
+      if (typeof updateQuery === "function") updateQuery("map");
+      if (typeof initMainMapIfNeeded === "function") initMainMapIfNeeded();
+
+      // espera o mapa principal ficar pronto
+      const seek = () => {
+        const m = window.mainFieldsMap || window.__fieldsMainMap;
+        if (m && typeof m.flyTo === "function") {
+          m.flyTo({ center: [lng, lat], zoom: 13, essential: true });
+          const container = document.getElementById("fields-main-map");
+          if (container) container.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          setTimeout(seek, 200);
+        }
+      };
+      seek();
+    } catch (e) {
+      console.error("flyToField error:", e);
+    }
+  };
 </script>

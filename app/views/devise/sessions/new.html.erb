@@ -1,122 +1,202 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="<%= I18n.locale %>">
 <head>
   <meta charset="UTF-8">
-  <title>AgriloT Synergy - Login</title>
+  <title>AgriloT Synergy — <%= t("devise.sessions.new.title", default: "Sign in") %></title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
 
   <div class="min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
-    <!-- Header com logo e título -->
-    <div class="text-center mb-8">
-      <div class="flex justify-center mb-2">
-        <%= image_tag "logo_agrilot.png", class: "h-20 w-auto", alt: "AgriloT Synergy" %>
+
+    <!-- Top bar com seletor de idioma (não exige login) -->
+    <div class="w-full max-w-md mb-4">
+      <div class="flex justify-end">
+        <div class="inline-flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-sm">
+          <span class="text-xs text-gray-500">🌐</span>
+          <% %w[pt en es].each do |loc| %>
+            <%= link_to t("languages.#{loc}", default: loc.upcase),
+                        url_for(locale: loc),
+                        class: "text-xs px-2 py-0.5 rounded hover:bg-gray-100 #{I18n.locale.to_s == loc ? 'font-semibold text-gray-900' : 'text-gray-600'}" %>
+          <% end %>
+        </div>
       </div>
-      <h1 class="text-2xl font-bold text-gray-900">AgriloT Synergy</h1>
-      <p class="text-sm text-gray-500">Smart solutions for modern agriculture</p>
     </div>
 
-    <!-- Formulário -->
-    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+    <!-- Header com logo e título -->
+    <div class="text-center mb-6">
+      <div class="flex justify-center mb-2">
+        <%= image_tag "logo_agrilot.png", class: "h-16 w-auto", alt: "AgriloT Synergy" %>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-900">AgriloT Synergy</h1>
+      <p class="text-sm text-gray-500"><%= t("landing.tagline", default: "Smart solutions for modern agriculture") %></p>
+    </div>
 
-      <!-- Alerta de Erro -->
+    <!-- Card do formulário -->
+    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+
+      <!-- Flash messages -->
+      <% if flash[:notice].present? %>
+        <div class="mb-4 flex items-start gap-3 px-4 py-3 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+          <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+          </svg>
+          <span><%= flash[:notice] %></span>
+        </div>
+      <% end %>
+
       <% if flash[:alert].present? %>
-        <div id="login-alert" class="mb-5 flex items-start gap-3 px-4 py-3 rounded-md bg-red-100 border border-red-300 text-red-800 text-sm font-medium transition duration-300">
-          <svg class="w-5 h-5 mt-0.5 text-red-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93" />
+        <div id="login-alert" class="mb-4 flex items-start gap-3 px-4 py-3 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm">
+          <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M12 2a10 10 0 110 20 10 10 0 010-20z"/>
           </svg>
           <span><%= flash[:alert] %></span>
         </div>
       <% end %>
 
-      <h2 class="text-xl font-semibold text-gray-800 mb-1 text-center">Sign in</h2>
-      <p class="text-sm text-gray-500 text-center mb-6">Enter your credentials to access your account</p>
+      <h2 class="text-xl font-semibold text-gray-900 mb-1 text-center">
+        <%= t("devise.sessions.new.title", default: "Sign in") %>
+      </h2>
+      <p class="text-sm text-gray-500 text-center mb-6">
+        <%= t("devise.sessions.new.subtitle", default: "Enter your credentials to access your account") %>
+      </p>
 
-      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-5" }) do |f| %>
+      <%= form_for(resource,
+                   as: resource_name,
+                   url: session_path(resource_name),
+                   html: { class: "space-y-5" }) do |f| %>
+
+        <%= render "devise/shared/error_messages", resource: resource %>
 
         <!-- NIF da Empresa -->
         <div>
-          <%= f.label :company_nif, "NIF da Empresa", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.text_field :company_nif, placeholder: "501234567", class: "w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
+          <%= f.label :company_nif, t("company.nif", default: "Company NIF"),
+                      class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :company_nif,
+                placeholder: "501234567",
+                inputmode: "numeric",
+                class: "w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
         </div>
 
         <!-- Email -->
-        <div class="relative">
-          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2.25 2.25 0 002.22 0L21 8M5.25 6h13.5A2.25 2.25 0 0121 8.25v7.5A2.25 2.25 0 0118.75 18H5.25A2.25 2.25 0 013 15.75v-7.5A2.25 2.25 0 015.25 6z"/>
-            </svg>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="<%= "#{resource_name}_email" %>">
+            <%= t("devise.shared.email", default: "Email") %>
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2.25 2.25 0 002.22 0L21 8M5.25 6h13.5A2.25 2.25 0 0121 8.25v7.5A2.25 2.25 0 0118.75 18H5.25A2.25 2.25 0 013 15.75v-7.5A2.25 2.25 0 015.25 6z"/>
+              </svg>
+            </span>
+            <%= f.email_field :email,
+                  placeholder: "name@example.com",
+                  autocomplete: "email",
+                  class: "pl-10 w-full border border-gray-300 rounded-lg shadow-sm py-2 text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
           </div>
-          <%= f.email_field :email, placeholder: "name@example.com", autocomplete: "email", class: "pl-10 w-full border border-gray-300 rounded-md shadow-sm py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
         </div>
 
         <!-- Password -->
-        <div class="relative">
-          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5v-3a4.5 4.5 0 10-9 0v3M4.5 10.5h15v9a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5v-9z"/>
-            </svg>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="password">
+            <%= t("devise.shared.password", default: "Password") %>
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5v-3a4.5 4.5 0 10-9 0v3M4.5 10.5h15v9a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5v-9z"/>
+              </svg>
+            </span>
+            <%= f.password_field :password,
+                  id: "password",
+                  autocomplete: "current-password",
+                  placeholder: t("devise.shared.password", default: "Password"),
+                  class: "pl-10 pr-10 w-full border border-gray-300 rounded-lg shadow-sm py-2 text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+            <button type="button"
+                    onclick="togglePassword('password')"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    aria-label="<%= t('actions.show_password', default: 'Show password') %>">
+              <svg id="eye-password" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z"/>
+              </svg>
+            </button>
           </div>
-          <%= f.password_field :password, id: "password", autocomplete: "current-password", placeholder: "Password", class: "pl-10 pr-10 w-full border border-gray-300 rounded-md shadow-sm py-2 text-sm focus:ring-green-600 focus:border-green-600" %>
-          <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-            <svg id="eye-password" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z"/>
-            </svg>
-          </button>
         </div>
 
         <!-- Remember me -->
         <% if devise_mapping.rememberable? %>
           <div class="flex items-center">
-            <%= f.check_box :remember_me, class: "h-4 w-4 text-green-600 border-gray-300 rounded" %>
+            <%= f.check_box :remember_me, class: "h-4 w-4 text-emerald-600 border-gray-300 rounded" %>
             <%= f.label :remember_me, class: "ml-2 block text-sm text-gray-700" %>
           </div>
         <% end %>
 
         <!-- Submit -->
         <div>
-          <%= f.submit "Sign in", class: "w-full py-2 px-4 text-white bg-green-600 hover:bg-green-700 rounded-md text-sm font-semibold transition" %>
+          <%= f.submit t("devise.sessions.new.sign_in", default: "Sign in"),
+                class: "w-full py-2.5 px-4 text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm font-semibold transition" %>
         </div>
       <% end %>
 
-      <!-- Divider -->
+      <!-- Links Devise -->
+      <div class="mt-5 grid grid-cols-1 gap-2 text-sm">
+        <% if devise_mapping.registerable? %>
+          <div class="text-center">
+            <%= t("devise.shared.no_account", default: "Don’t have an account?") %>
+            <%= link_to t("devise.shared.sign_up", default: "Sign up"),
+                        new_registration_path(resource_name),
+                        class: "text-emerald-600 hover:underline font-medium" %>
+          </div>
+        <% end %>
+
+        <div class="flex items-center justify-between text-gray-600">
+          <% if devise_mapping.recoverable? %>
+            <%= link_to t("devise.shared.forgot_password", default: "Forgot your password?"),
+                        new_password_path(resource_name),
+                        class: "hover:underline" %>
+          <% end %>
+          <% if devise_mapping.confirmable? %>
+            <%= link_to t("devise.shared.confirmation_instructions", default: "Resend confirmation"),
+                        new_confirmation_path(resource_name),
+                        class: "hover:underline" %>
+          <% end %>
+          <% if devise_mapping.lockable? && resource_class.unlock_strategy_enabled?(:email) %>
+            <%= link_to t("devise.shared.unlock_instructions", default: "Resend unlock"),
+                        new_unlock_path(resource_name),
+                        class: "hover:underline" %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Divider OAuth (opcional) -->
       <div class="flex items-center my-6">
         <div class="flex-grow border-t border-gray-200"></div>
-        <span class="mx-4 text-sm text-gray-500">OR CONTINUE WITH</span>
+        <span class="mx-4 text-xs text-gray-400 tracking-wide"><%= t("devise.shared.or_continue_with", default: "OR CONTINUE WITH") %></span>
         <div class="flex-grow border-t border-gray-200"></div>
       </div>
 
-      <!-- OAuth Buttons -->
-      <div class="grid grid-cols-2 gap-4 mb-6">
-        <button class="w-full py-2 px-4 border border-gray-300 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 transition">Google</button>
-        <button class="w-full py-2 px-4 border border-gray-300 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 transition">Microsoft</button>
+      <div class="grid grid-cols-2 gap-3">
+        <button class="w-full py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Google</button>
+        <button class="w-full py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Microsoft</button>
       </div>
-
-      <!-- Signup -->
-      <p class="text-center text-sm text-gray-600">
-        Don’t have an account?
-        <%= link_to "Sign up", new_registration_path(resource_name), class: "text-green-600 hover:underline font-medium" %>
-      </p>
     </div>
 
     <!-- Rodapé -->
-    <p class="mt-10 text-sm text-gray-400 text-center">
-      © <%= Time.current.year %> AgriloT Synergy. All rights reserved.
+    <p class="mt-8 text-xs text-gray-400 text-center">
+      © <%= Time.current.year %> AgriloT Synergy — <%= t("landing.footer.rights", default: "All rights reserved.") %>
     </p>
   </div>
 
-  <!-- Toggle password e alerta -->
+  <!-- JS: toggle password + auto-hide alerta -->
   <script>
     function togglePassword(id) {
       const input = document.getElementById(id);
       const icon = document.getElementById('eye-' + id);
-      const isHidden = input.type === 'password';
-
-      input.type = isHidden ? 'text' : 'password';
-      icon.innerHTML = isHidden
+      const hidden = input.type === 'password';
+      input.type = hidden ? 'text' : 'password';
+      icon.innerHTML = hidden
         ? '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 01-6 0"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" />'
         : '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268 2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z" />';
     }
