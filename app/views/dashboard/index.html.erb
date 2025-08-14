@@ -1,54 +1,227 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= I18n.locale %>">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Farm Operations Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head>
-<body class="bg-gray-100">
+  <title><%= t("dashboard.title", default: "Dashboard") %> · AgriloT Synergy</title>
 
-<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-  <div class="flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-gray-900">Farm Dashboard</h1>
-    <p class="text-sm text-green-600 font-semibold">✔ All systems operational</p>
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: { 600: '#059669', 700: '#047857' } },
+          boxShadow: { soft: '0 8px 30px rgba(4,120,87,.10)', ring: '0 0 0 8px rgba(16,185,129,.08)' },
+          backdropBlur: { xs: '2px' }
+        }
+      }
+    }
+  </script>
+
+  <!-- Alpine (interações simples) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script defer src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="bg-gradient-to-b from-white via-emerald-50/30 to-white text-gray-800 antialiased selection:bg-emerald-200 selection:text-emerald-900">
+
+<div class="mx-auto max-w-7xl px-4 py-6 space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-emerald-900">
+        <i data-lucide="layout-dashboard" class="inline h-6 w-6 text-emerald-700"></i>
+        <%= t("dashboard.heading", default: "Farm Dashboard") %>
+      </h1>
+      <p class="text-gray-600 text-sm">
+        <%= t("dashboard.subtitle", default: "Overview de operações, sensores e tarefas.") %>
+      </p>
+    </div>
+    <div class="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-xs px-3 py-1 text-emerald-700 shadow-soft ring-1 ring-emerald-100">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+      <span class="text-xs font-semibold"><%= t("dashboard.system_ok", default: "All systems operational") %></span>
+    </div>
   </div>
 
-  <!-- Previsão + Status dos Sensores lado a lado -->
+  <% kpis = (@kpis || {}).with_indifferent_access %>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
+      <div class="flex items-center justify-between">
+        <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.fields", default: "Campos") %></span>
+        <i data-lucide="map-pin" class="h-5 w-5 text-emerald-700"></i>
+      </div>
+      <div class="mt-2 flex items-end justify-between">
+        <p class="text-3xl font-extrabold text-emerald-900"><%= kpis.fetch(:fields, 0) %></p>
+        <span class="text-xs text-gray-500"><%= t("dashboard.kpis.total", default: "Total") %></span>
+      </div>
+    </div>
+
+    <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
+      <div class="flex items-center justify-between">
+        <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.sensors", default: "Sensores") %></span>
+        <i data-lucide="radar" class="h-5 w-5 text-emerald-700"></i>
+      </div>
+      <div class="mt-2 flex items-end justify-between">
+        <p class="text-3xl font-extrabold text-emerald-900"><%= kpis.fetch(:sensors_total, 0) %></p>
+        <span class="text-xs text-gray-500">
+          <%= t("dashboard.kpis.online", default: "Online") %>:
+          <span class="font-semibold text-emerald-700"><%= kpis.fetch(:sensors_online, 0) %></span>
+        </span>
+      </div>
+    </div>
+
+    <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
+      <div class="flex items-center justify-between">
+        <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.irrigation", default: "Rega hoje") %></span>
+        <i data-lucide="droplets" class="h-5 w-5 text-emerald-700"></i>
+      </div>
+      <div class="mt-2 flex items-end justify-between">
+        <p class="text-3xl font-extrabold text-emerald-900"><%= kpis.fetch(:irrigations_today, 0) %></p>
+        <span class="text-xs text-gray-500"><%= t("dashboard.kpis.scheduled", default: "Agendadas") %></span>
+      </div>
+    </div>
+
+    <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
+      <div class="flex items-center justify-between">
+        <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.alerts", default: "Alertas") %></span>
+        <i data-lucide="bell-ring" class="h-5 w-5 text-emerald-700"></i>
+      </div>
+      <div class="mt-2 flex items-end justify-between">
+        <% alerts_open = kpis.fetch(:alerts_open, 0) %>
+        <p class="text-3xl font-extrabold <%= alerts_open > 0 ? 'text-red-600' : 'text-emerald-900' %>"><%= alerts_open %></p>
+        <span class="text-xs text-gray-500"><%= t("dashboard.kpis.open", default: "Abertos") %></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meteo + Estado de Irrigação -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="bg-white p-4 rounded-xl shadow-md h-full">
+    <!-- Meteo -->
+    <div class="relative overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <i data-lucide="cloud-sun" class="h-5 w-5 text-emerald-700"></i>
+          <%= t("dashboard.weather.title", default: "Previsão Meteorológica") %>
+        </h2>
+
+        <% if Array(@fields).any? %>
+          <div class="hidden sm:block">
+            <label for="fieldSelect" class="sr-only"><%= t("dashboard.weather.select_field", default: "Selecionar campo") %></label>
+            <select id="fieldSelect"
+                    class="text-sm rounded-lg border-gray-200 focus:ring-emerald-500 focus:border-emerald-500">
+              <% @fields.each do |f| %>
+                <option value="<%= f.id %>" data-lat="<%= f.latitude %>" data-lon="<%= f.longitude %>">
+                  <%= f.name %>
+                </option>
+              <% end %>
+            </select>
+          </div>
+        <% end %>
+      </div>
+
       <%= render "dashboard/weather_forecast" %>
     </div>
 
-    <div class="bg-white p-4 rounded-xl shadow-md h-full">
-      <% @fields.each_with_index do |field, index| %>
-        <% irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation")&.reload %>
-        <% next unless irrigation_sensor %>
+    <!-- Irrigação -->
+    <div class="relative overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <i data-lucide="activity" class="h-5 w-5 text-emerald-700"></i>
+          <%= t("dashboard.irrigation.title", default: "Estado de Irrigação") %>
+        </h2>
+      </div>
 
-        <%= render partial: 'dashboard/sensor_status', locals: { sensor: irrigation_sensor, field: field, index: index } %>
-      <% end %>
+      <div class="space-y-3 max-h-[28rem] overflow-y-auto pr-1">
+        <% fields = Array(@fields) %>
+        <% if fields.any? %>
+          <% fields.each_with_index do |field, index| %>
+            <% irrigation_sensor = field.sensors.detect { |s| s.sensor_type == "irrigation" } %>
+            <% next unless irrigation_sensor %>
+            <div class="rounded-xl ring-1 ring-gray-200 p-3 bg-white/70 hover:shadow-md transition">
+              <%= render partial: 'dashboard/sensor_status',
+                         locals: { sensor: irrigation_sensor, field: field, index: index } %>
+            </div>
+          <% end %>
+
+          <% if fields.none? { |f| f&.sensors&.any? { |s| s.sensor_type == "irrigation" } } %>
+            <p class="text-sm text-gray-500"><%= t("dashboard.irrigation.empty", default: "Sem sensores de irrigação associados aos campos.") %></p>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500">Sem campos associados à sua conta.</p>
+        <% end %>
+      </div>
     </div>
   </div>
 
-  <!-- Estado dos Campos + Upcoming Tasks lado a lado -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-    <div class="bg-white p-4 rounded-xl shadow-md h-full">
+  <!-- Estado dos Campos + Tarefas -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
+      <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
+        <i data-lucide="leaf" class="h-5 w-5 text-emerald-700"></i>
+        <%= t("dashboard.fields.title", default: "Estado dos Campos") %>
+      </h2>
       <%= render "dashboard/field_status" %>
     </div>
 
-    <div class="bg-white p-4 rounded-xl shadow-md h-full">
+    <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
+      <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
+        <i data-lucide="calendar-check" class="h-5 w-5 text-emerald-700"></i>
+        <%= t("dashboard.tasks.title", default: "Próximas Tarefas") %>
+      </h2>
       <%= render "dashboard/upcoming_tasks" %>
     </div>
   </div>
 
   <!-- Ações rápidas -->
-  <div>
+  <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
+    <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
+      <i data-lucide="zap" class="h-5 w-5 text-emerald-700"></i>
+      <%= t("dashboard.actions.title", default: "Ações Rápidas") %>
+    </h2>
     <%= render "dashboard/quick_actions" %>
   </div>
+
+  <!-- (Opcional) Feed de atividade -->
+  <% if defined?(SensorReading) %>
+    <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
+      <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
+        <i data-lucide="timeline" class="h-5 w-5 text-emerald-700"></i>
+        <%= t("dashboard.activity.title", default: "Atividade Recente") %>
+      </h2>
+      <ul class="divide-y divide-gray-100">
+        <% SensorReading.order(created_at: :desc).limit(10).each do |r| %>
+          <li class="py-2 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <i data-lucide="dot" class="h-4 w-4 text-emerald-600"></i>
+              <div class="text-sm">
+                <span class="font-medium text-gray-800"><%= r.sensor&.name || r.sensor&.device_id || "Sensor" %></span>
+                <span class="text-gray-500">· <%= r.created_at.strftime("%d/%m %H:%M") %></span>
+              </div>
+            </div>
+            <div class="text-xs text-gray-600">
+              <%= r.payload&.slice("temperature","moisture","ph","oxygen")&.map { |k,v| "#{k}: #{v}" }&.join(" · ") rescue nil %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
 </div>
 
+<!-- Scripts -->
 <script>
+  document.addEventListener("DOMContentLoaded", () => { lucide.createIcons(); });
+
   async function fetchWeatherForField(lat, lon) {
     try {
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,weathercode,precipitation,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
@@ -56,79 +229,73 @@
       const data = await res.json();
 
       const current = data.current_weather;
-      document.getElementById("current-temp").textContent = `${Math.round(current.temperature)}°C`;
-      document.getElementById("current-description").textContent = "Céu: " + weatherText(current.weathercode);
-      document.getElementById("wind-info").textContent = `${current.winddirection}° a ${current.windspeed} km/h`;
+      const $ = (id) => document.getElementById(id);
+      if ($("current-temp"))        $("current-temp").textContent = `${Math.round(current.temperature)}°C`;
+      if ($("current-description")) $("current-description").textContent = weatherText(current.weathercode);
+      if ($("wind-info"))           $("wind-info").textContent = `${current.winddirection}° · ${current.windspeed} km/h`;
 
-      const today = new Date().toISOString().slice(0, 10);
-      const todayIndexes = data.hourly.time.map((t, i) => t.startsWith(today) ? i : -1).filter(i => i >= 0);
-      const todayPrecip = todayIndexes.map(i => data.hourly.precipitation[i] || 0).reduce((a, b) => a + b, 0);
-      document.getElementById("precip-info").textContent = `${todayPrecip.toFixed(1)} mm`;
+      const today = new Date().toISOString().slice(0,10);
+      const todayIdx = data.hourly.time.map((t,i)=> t.startsWith(today) ? i : -1).filter(i=> i>=0);
+      const todayPrecip = todayIdx.map(i => data.hourly.precipitation[i] || 0).reduce((a,b)=>a+b,0);
+      if ($("precip-info")) $("precip-info").textContent = `${todayPrecip.toFixed(1)} mm`;
 
-      const container = document.getElementById("hourly-forecast");
-      container.innerHTML = "";
-      for (let i = 0; i < 24; i++) {
-        const hourLabel = new Date(data.hourly.time[i]).toLocaleTimeString("pt-PT", { hour: '2-digit', minute: '2-digit' });
-        container.innerHTML += `
-          <div class="bg-blue-50 rounded p-1 shadow-sm min-w-[3.5rem]">
-            <p class="font-semibold text-xs">${hourLabel}</p>
-            <p class="text-lg">${weatherIcon(data.hourly.weathercode[i])}</p>
-            <p class="text-gray-700 text-sm">${Math.round(data.hourly.temperature_2m[i])}°C</p>
-          </div>
-        `;
+      if ($("hourly-forecast")) {
+        const c = $("hourly-forecast");
+        c.innerHTML = "";
+        for (let i = 0; i < 24 && i < data.hourly.time.length; i++) {
+          const hourLabel = new Date(data.hourly.time[i]).toLocaleTimeString("<%= I18n.locale %>", { hour: '2-digit', minute: '2-digit' });
+          c.innerHTML += `
+            <div class="bg-blue-50 rounded p-1 shadow-sm min-w-[3.5rem] text-center">
+              <p class="font-semibold text-[10px]">${hourLabel}</p>
+              <p class="text-lg">${weatherIcon(data.hourly.weathercode[i])}</p>
+              <p class="text-gray-700 text-xs">${Math.round(data.hourly.temperature_2m[i])}°C</p>
+            </div>`;
+        }
       }
 
-      const dailyContainer = document.getElementById("daily-forecast");
-      dailyContainer.innerHTML = "";
-      for (let i = 0; i < data.daily.time.length; i++) {
-        const dia = new Date(data.daily.time[i]).toLocaleDateString('pt-PT', { weekday: 'short' });
-        const max = Math.round(data.daily.temperature_2m_max[i]);
-        const min = Math.round(data.daily.temperature_2m_min[i]);
-        const icon = weatherIcon(data.daily.weathercode[i]);
-        dailyContainer.innerHTML += `
-          <div class="bg-white rounded p-1 shadow text-center min-w-[3.5rem]">
-            <p class="font-bold text-xs">${dia}</p>
-            <p class="text-xl">${icon}</p>
-            <p class="text-xs text-gray-700">${max}° / ${min}°</p>
-          </div>
-        `;
+      if ($("daily-forecast")) {
+        const d = $("daily-forecast");
+        d.innerHTML = "";
+        for (let i = 0; i < data.daily.time.length; i++) {
+          const dia = new Date(data.daily.time[i]).toLocaleDateString('<%= I18n.locale %>', { weekday: 'short' });
+          const max = Math.round(data.daily.temperature_2m_max[i]);
+          const min = Math.round(data.daily.temperature_2m_min[i]);
+          const icon = weatherIcon(data.daily.weathercode[i]);
+          d.innerHTML += `
+            <div class="bg-white rounded p-2 shadow text-center min-w-[3.5rem]">
+              <p class="font-bold text-[11px] uppercase">${dia}</p>
+              <p class="text-xl">${icon}</p>
+              <p class="text-[11px] text-gray-700">${max}° / ${min}°</p>
+            </div>`;
+        }
       }
-
     } catch (err) {
       console.error("Erro ao obter meteo:", err);
     }
   }
 
   function weatherIcon(code) {
-    const map = {
-      0: "☀️", 1: "🌤", 2: "⛅", 3: "☁️", 45: "🌫", 48: "🌫",
-      51: "🌦", 53: "🌦", 55: "🌧", 61: "🌧", 63: "🌧", 65: "🌧",
-      66: "❄️", 67: "❄️", 71: "❄️", 73: "❄️", 75: "❄️",
-      95: "⛈", 96: "⛈", 99: "⛈"
-    };
+    const map = {0:"☀️",1:"🌤",2:"⛅",3:"☁️",45:"🌫",48:"🌫",51:"🌦",53:"🌦",55:"🌧",61:"🌧",63:"🌧",65:"🌧",66:"❄️",67:"❄️",71:"❄️",73:"❄️",75:"❄️",95:"⛈",96:"⛈",99:"⛈"};
     return map[code] || "❓";
   }
-
   function weatherText(code) {
     const map = {
-      0: "Céu limpo", 1: "Poucas nuvens", 2: "Nuvens dispersas", 3: "Céu nublado",
-      45: "Nevoeiro", 48: "Nevoeiro com geada", 51: "Chuviscos", 53: "Chuviscos",
-      55: "Chuviscos", 61: "Chuva fraca", 63: "Chuva", 65: "Chuva forte",
-      66: "Chuva gelada", 67: "Chuva gelada forte", 71: "Neve leve", 73: "Neve",
-      75: "Neve intensa", 95: "Trovoada", 96: "Trovoada com granizo", 99: "Tempestade severa"
+      0:"Céu limpo",1:"Poucas nuvens",2:"Nuvens dispersas",3:"Céu nublado",45:"Nevoeiro",48:"Nevoeiro com geada",
+      51:"Chuviscos",53:"Chuviscos",55:"Chuviscos",61:"Chuva fraca",63:"Chuva",65:"Chuva forte",
+      66:"Chuva gelada",67:"Chuva gelada forte",71:"Neve leve",73:"Neve",75:"Neve intensa",
+      95:"Trovoada",96:"Trovoada com granizo",99:"Tempestade severa"
     };
-    return map[code] || "Desconhecido";
+    return map[code] || "—";
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     const select = document.getElementById("fieldSelect");
-    const option = select?.selectedOptions?.[0];
-    if (option) {
-      fetchWeatherForField(option.dataset.lat, option.dataset.lon);
-
+    const firstOpt = select?.selectedOptions?.[0];
+    if (firstOpt) {
+      fetchWeatherForField(firstOpt.dataset.lat, firstOpt.dataset.lon);
       select.addEventListener("change", () => {
-        const selected = select.selectedOptions[0];
-        fetchWeatherForField(selected.dataset.lat, selected.dataset.lon);
+        const sel = select.selectedOptions[0];
+        fetchWeatherForField(sel.dataset.lat, sel.dataset.lon);
       });
     }
   });

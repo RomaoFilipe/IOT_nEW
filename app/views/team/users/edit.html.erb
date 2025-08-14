@@ -1,66 +1,220 @@
 <!-- app/views/team/users/edit.html.erb -->
 
-<h1 class="text-3xl font-bold mb-6 text-gray-800">✏️ Editar Utilizador</h1>
+<div class="min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-2xl">
 
-<%= form_with model: @user, url: team_user_path(@user), method: :patch, local: true, class: "space-y-6 max-w-xl bg-white p-6 rounded-lg shadow-md" do |f| %>
-  <!-- Nome -->
-  <div>
-    <%= f.label :name, "Nome", class: "block text-sm font-semibold text-gray-700" %>
-    <%= f.text_field :name, placeholder: "Ex: João Silva", class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
+    <!-- Título (centrado) -->
+    <h1 class="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-slate-900">
+      <i class="lucide lucide-user-cog w-6 h-6 text-emerald-600"></i>
+      ✏️ Editar Utilizador
+    </h1>
+
+    <!-- Cartão -->
+    <div class="bg-white p-6 rounded-2xl shadow border border-slate-200">
+
+      <% if @user.errors.any? %>
+        <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg p-4">
+          <p class="font-semibold mb-2">⚠️ Foram encontrados alguns erros:</p>
+          <ul class="list-disc list-inside text-sm space-y-0.5">
+            <% @user.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%= form_with model: @user,
+                    url: team_user_path(@user),
+                    method: :patch,
+                    local: true,
+                    html: { multipart: true },
+                    class: "space-y-6" do |f| %>
+
+        <!-- Avatar atual + Upload com preview -->
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
+            <% if @user.photo.present? %>
+              <img id="avatarPreview"
+                   src="<%= @user.photo.url %>"
+                   alt="Foto atual"
+                   class="w-full h-full object-cover" />
+            <% else %>
+              <img id="avatarPreview" alt="Preview da foto" class="w-full h-full object-cover hidden" />
+              <span id="avatarFallback" class="text-slate-400 text-sm">Sem foto</span>
+            <% end %>
+          </div>
+
+          <div class="flex-1">
+            <%= f.label :photo, "Foto (opcional)", class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= f.file_field :photo,
+                  accept: "image/*",
+                  class: "w-full rounded-md border-slate-300 shadow-sm text-sm file:bg-emerald-50 file:text-emerald-700 file:font-semibold file:border-0 file:px-4 file:py-2 file:rounded file:cursor-pointer hover:file:bg-emerald-100" %>
+            <p class="text-xs text-slate-500 mt-1">PNG/JPG até ~5MB.</p>
+          </div>
+        </div>
+
+        <!-- Nome -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1" for="user_name">Nome</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+              <i class="lucide lucide-user w-4 h-4"></i>
+            </div>
+            <%= f.text_field :name,
+                  placeholder: "Ex.: João Silva",
+                  class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1" for="user_email">Email</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+              <i class="lucide lucide-mail w-4 h-4"></i>
+            </div>
+            <%= f.email_field :email,
+                  placeholder: "exemplo@empresa.com",
+                  autocomplete: "email",
+                  class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">Utilizado para login e notificações.</p>
+        </div>
+
+        <!-- Password -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password">Nova Palavra-passe</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+                <i class="lucide lucide-lock w-4 h-4"></i>
+              </div>
+              <%= f.password_field :password,
+                    placeholder: "Deixar em branco para manter",
+                    class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password_confirmation">Confirmação</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+                <i class="lucide lucide-check w-4 h-4"></i>
+              </div>
+              <%= f.password_field :password_confirmation,
+                    class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Função -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1" for="user_role">Função</label>
+          <% role_options =
+               if current_user.admin?
+                 User.roles.except("owner").map { |r, _| [r.capitalize, r] }
+               else
+                 User.roles.except("owner", "admin").map { |r, _| [r.capitalize, r] }
+               end %>
+
+          <%= f.select :role,
+                role_options,
+                {},
+                class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
+                id: "user_role" %>
+
+          <div id="roleHint"
+               class="mt-2 rounded-md bg-slate-50 border border-slate-200 p-2 text-xs text-slate-600">
+            Selecione uma função para ver as permissões típicas.
+          </div>
+        </div>
+
+        <!-- Notificações -->
+        <div class="space-y-3">
+          <p class="text-sm font-medium text-slate-700">Notificações</p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <label class="inline-flex items-center gap-3">
+              <%= f.check_box :notif_email, class: "toggle-switch", checked: @user.notif_email %>
+              <span class="text-sm text-slate-700">Receber notificações por email</span>
+            </label>
+            <label class="inline-flex items-center gap-3">
+              <%= f.check_box :notif_sms, class: "toggle-switch", checked: @user.notif_sms %>
+              <span class="text-sm text-slate-700">Receber notificações por SMS</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="flex justify-between items-center pt-2">
+          <%= link_to "← Voltar para a Equipa", team_users_path, class: "text-sm text-slate-600 hover:underline" %>
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm">
+            <i class="lucide lucide-save w-4 h-4"></i>
+            💾 Atualizar Utilizador
+          </button>
+        </div>
+
+      <% end %>
+    </div>
   </div>
+</div>
 
-  <!-- Email -->
-  <div>
-    <%= f.label :email, "Email", class: "block text-sm font-semibold text-gray-700" %>
-    <%= f.email_field :email, placeholder: "exemplo@email.com", class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
-  </div>
+<!-- Estilos dos toggles -->
+<style>
+  .toggle-switch {
+    appearance: none; -webkit-appearance: none;
+    position: relative; width: 42px; height: 24px;
+    background: #d1d5db; border-radius: 9999px; outline: none; cursor: pointer;
+    transition: background .2s ease;
+  }
+  .toggle-switch:checked { background: #10b981; }
+  .toggle-switch::before {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+    background: #fff; border-radius: 9999px; transition: transform .2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  }
+  .toggle-switch:checked::before { transform: translateX(18px); }
+</style>
 
-  <!-- Nova Password -->
-  <div>
-    <%= f.label :password, "Nova Palavra-passe", class: "block text-sm font-semibold text-gray-700" %>
-    <%= f.password_field :password, placeholder: "Deixar em branco se não quiser alterar", class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
-  </div>
+<!-- Scripts (lucide + preview + hint) -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
 
-  <!-- Confirmação -->
-  <div>
-    <%= f.label :password_confirmation, "Confirmação", class: "block text-sm font-semibold text-gray-700" %>
-    <%= f.password_field :password_confirmation, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
-  </div>
+  // Preview da foto selecionada
+  const inputPhoto = document.getElementById('user_photo');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const avatarFallback = document.getElementById('avatarFallback');
 
-  <!-- Função -->
-  <div>
-    <%= f.label :role, "Função", class: "block text-sm font-semibold text-gray-700" %>
-    <%= f.select :role, User.roles.except("owner", "admin").keys.map { |r| [r.capitalize, r] }, {}, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500" %>
-  </div>
+  if (inputPhoto) {
+    inputPhoto.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) { avatarFallback?.classList.remove('hidden'); return; }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        if (avatarPreview) {
+          avatarPreview.src = evt.target.result;
+          avatarPreview.classList.remove('hidden');
+        }
+        avatarFallback?.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
-  <!-- Foto -->
-  <div>
-    <%= f.label :photo, "Foto (opcional)", class: "block text-sm font-semibold text-gray-700" %>
-    <%= f.file_field :photo, class: "mt-1 w-full rounded-md border-gray-300 shadow-sm" %>
+  // Dicas por função
+  const roleHint = document.getElementById('roleHint');
+  const roleSelect = document.getElementById('user_role');
+  const ROLE_HINTS = {
+    admin:      "Acesso total: gerir conta, equipa, campos e configurações.",
+    manager:    "Gestão de equipa e campos. Sem gestão global de contas.",
+    technician: "Executa tarefas, vê sensores e registos. Sem gestão de equipa.",
+    viewer:     "Acesso de leitura: vê painéis, campos e relatórios."
+  };
 
-    <% if @user.photo.present? %>
-      <div class="mt-3">
-        <p class="text-xs text-gray-500 mb-1">Foto atual:</p>
-        <img src="<%= @user.photo.url %>" class="w-20 h-20 rounded-full object-cover border" />
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Notificações -->
-  <div class="flex items-center gap-2">
-    <%= f.check_box :notif_email, class: "rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" %>
-    <%= f.label :notif_email, "Receber notificações por email", class: "text-sm text-gray-700" %>
-  </div>
-
-  <div class="flex items-center gap-2">
-    <%= f.check_box :notif_sms, class: "rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" %>
-    <%= f.label :notif_sms, "Receber notificações por SMS", class: "text-sm text-gray-700" %>
-  </div>
-
-  <!-- Submeter -->
-  <div class="pt-4">
-    <%= f.submit "💾 Atualizar Utilizador", class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-md transition duration-200" %>
-  </div>
-<% end %>
-
-<%= link_to "← Voltar para a Equipa", team_users_path, class: "inline-block mt-6 text-sm text-gray-600 hover:underline" %>
+  function updateRoleHint() {
+    const val = roleSelect?.value || '';
+    roleHint.textContent = ROLE_HINTS[val] || "Selecione uma função para ver as permissões típicas.";
+  }
+  roleSelect?.addEventListener('change', updateRoleHint);
+  updateRoleHint();
+</script>

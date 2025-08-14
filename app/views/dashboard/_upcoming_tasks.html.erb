@@ -1,128 +1,210 @@
-<h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-  🗓️ Eventos Planeados
-</h3>
+<%# app/views/dashboard/_upcoming_tasks.html.erb %>
 
-<%# Lista dos eventos, id para manipulação por JS %>
-<ul id="planned-events-list" class="space-y-3">
-  <% if @events.any? %>
-    <% @events.each do |event| %>
-      <li id="<%= dom_id(event[:type] == :task ? PlannedTask.new(id: event[:id]) : IrrigationSchedule.new(id: event[:id])) %>"
-          class="border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition">
-        <!-- Conteúdo do evento -->
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-          <div class="flex items-start gap-3">
-            <div class="mt-1 shrink-0">
-              <% if event[:type] == :task %>
-                <div class="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center text-xs text-gray-400">✓</div>
-              <% else %>
-                <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600">🚿</div>
+<div class="space-y-4">
+  <!-- Título -->
+  <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+    <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">📅</span>
+    Próximas Tarefas
+  </h3>
+
+  <!-- Subtítulo -->
+  <h4 class="text-base font-semibold text-slate-800 flex items-center gap-2">
+    <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-sky-100 text-sky-700">📆</span>
+    Eventos Planeados
+  </h4>
+
+  <!-- Lista -->
+  <ul id="planned-events-list" class="space-y-3">
+    <% if @events.present? %>
+      <% @events.each do |event| %>
+        <% dom_id_str = event[:type] == :task ? "planned_task_#{event[:id]}" : "irrigation_schedule_#{event[:id]}" %>
+        <% priority = (event[:priority] || "").to_s.downcase %>
+        <% priority_class =
+             case priority
+             when "high"   then "bg-red-50 text-red-700 ring-1 ring-red-200"
+             when "medium" then "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+             when "low"    then "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+             else                "bg-slate-50 text-slate-600 ring-1 ring-slate-200"
+             end %>
+        <% type_badge =
+             (event[:type] == :task ?
+               'bg-slate-100 text-slate-700 ring-1 ring-slate-200' :
+               'bg-sky-50 text-sky-700 ring-1 ring-sky-200') %>
+
+        <li id="<%= dom_id_str %>"
+            class="relative overflow-hidden rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition">
+          <!-- Acento lateral -->
+          <span class="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-emerald-400 via-sky-400 to-cyan-400"></span>
+
+          <div class="px-4 py-3 sm:px-5 sm:py-4">
+            <div class="flex items-start justify-between gap-3">
+              <p class="font-semibold text-sm sm:text-base text-slate-800 leading-snug">
+                <%= event[:title] %>
+              </p>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium <%= type_badge %>">
+                <%= event[:type] == :task ? "✓ Tarefa" : "🚿 Irrigação" %>
+              </span>
+            </div>
+
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 text-slate-700 ring-1 ring-slate-200">
+                🕒 <%= l(event[:time], format: "%d/%m/%Y %H:%M") %>
+              </span>
+
+              <% if event[:field].present? %>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-pink-50 text-pink-700 ring-1 ring-pink-200">
+                  📍 <%= event[:field] %>
+                </span>
+              <% end %>
+
+              <% if event[:type] == :task && event[:priority].present? %>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full <%= priority_class %> capitalize">
+                  ⚑ <%= event[:priority] %>
+                </span>
               <% end %>
             </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-semibold text-sm text-gray-800 break-words"><%= event[:title] %></p>
-              <div class="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500">
-                <span class="flex items-center gap-1">🕒 <%= l(event[:time], format: "%d/%m/%Y %H:%M") %></span>
-                <% if event[:type] == :task && event[:priority].present? %>
-                  <% priority_color = case event[:priority].downcase
-                    when "high" then "text-red-600"
-                    when "medium" then "text-yellow-600"
-                    else "text-green-600"
-                  end %>
-                  <span class="<%= priority_color %> font-semibold capitalize"><%= event[:priority] %></span>
-                <% end %>
-                <span><%= event[:field] %></span>
-              </div>
-            </div>
           </div>
-          <div class="sm:mt-1 sm:ml-2">
-            <%# Botões para cancelar eventos, se necessário %>
-          </div>
-        </div>
-      </li>
+        </li>
+      <% end %>
+    <% else %>
+      <p id="no-events-msg" class="text-sm text-slate-500 italic">
+        Nenhum evento planeado para hoje.
+      </p>
     <% end %>
-  <% else %>
-    <p id="no-events-msg" class="text-sm text-gray-500 italic">Nenhum evento planeado para hoje.</p>
-  <% end %>
-</ul>
+  </ul>
+</div>
 
+<!-- Polling JS (sem duplicar, atualiza/insere e mostra mensagem quando vazio) -->
 <script>
-  document.addEventListener("turbo:load", () => {
-    // Função para renderizar um evento em HTML
-    function renderEvent(event) {
-      const li = document.createElement("li");
-      const domId = event.type === 'task'
-        ? `planned_task_${event.id}`
-        : `irrigation_schedule_${event.id}`;
-      li.id = domId;
-      li.className = "border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition";
+  (() => {
+    const ROOT = "#planned-events-list";
+    const NO_MSG_ID = "no-events-msg";
+    const POLL_MS = 20000;
+    const LOCALE = document.documentElement.lang || "pt-PT";
 
-      li.innerHTML = `
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-          <div class="flex items-start gap-3">
-            <div class="mt-1 shrink-0">
-              ${event.type === 'task'
-                ? '<div class="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center text-xs text-gray-400">✓</div>'
-                : '<div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600">🚿</div>'
-              }
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-semibold text-sm text-gray-800 break-words">${event.title}</p>
-              <div class="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500">
-                <span class="flex items-center gap-1">🕒 ${new Date(event.time).toLocaleString('pt-PT', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
-                ${event.priority ? `<span class="font-semibold capitalize">${event.priority}</span>` : ''}
-                <span>${event.field}</span>
-              </div>
-            </div>
-          </div>
-          <div class="sm:mt-1 sm:ml-2">
-            <!-- Aqui podes adicionar botões para cancelar via JS se quiser -->
-          </div>
-        </div>
-      `;
-      return li;
+    function keyFor(e) {
+      return (e.type === "task" ? "planned_task_" : "irrigation_schedule_") + e.id;
     }
 
-    // Função para atualizar a lista de eventos com os dados recebidos
-    function updateEvents(events) {
-      const ul = document.getElementById("planned-events-list");
-      if (!ul) return;
-
-      // Remove a mensagem "Nenhum evento"
-      const noEventsMsg = document.getElementById("no-events-msg");
-      if (noEventsMsg) noEventsMsg.remove();
-
-      // Para evitar duplicação, cria um set dos ids já existentes
-      const existingIds = new Set();
-      ul.querySelectorAll("li").forEach(li => existingIds.add(li.id));
-
-      events.forEach(event => {
-        const domId = event.type === 'task'
-          ? `planned_task_${event.id}`
-          : `irrigation_schedule_${event.id}`;
-
-        if (!existingIds.has(domId)) {
-          const li = renderEvent(event);
-          ul.prepend(li); // adiciona no topo
-        }
+    function fmtWhen(iso) {
+      return new Date(iso).toLocaleString(LOCALE, {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit"
       });
     }
 
-    // Função de polling AJAX para buscar eventos
-    function pollEvents() {
-      fetch('/events/upcoming.json', { credentials: "same-origin" })
-        .then(response => response.json())
-        .then(data => {
-          updateEvents(data.events);
-        })
-        .catch(error => {
-          console.error("Erro ao buscar eventos:", error);
-        });
+    function priorityClass(p) {
+      const pr = (p || "").toLowerCase();
+      if (pr === "high")   return "bg-red-50 text-red-700 ring-1 ring-red-200";
+      if (pr === "medium") return "bg-amber-50 text-amber-700 ring-1 ring-amber-200";
+      if (pr === "low")    return "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200";
+      return "bg-slate-50 text-slate-600 ring-1 ring-slate-200";
     }
 
-    // Faz polling a cada 20 segundos
-    setInterval(pollEvents, 20000);
+    function typeBadge(type) {
+      return type === "task"
+        ? { cls: "bg-slate-100 text-slate-700 ring-1 ring-slate-200", text: "✓ Tarefa" }
+        : { cls: "bg-sky-50 text-sky-700 ring-1 ring-sky-200", text: "🚿 Irrigação" };
+    }
 
-    // Faz a primeira busca ao carregar a página
-    pollEvents();
-  });
+    function renderEventHTML(e) {
+      const badge = typeBadge(e.type);
+      const prCls = priorityClass(e.priority);
+      return `
+        <span class="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-emerald-400 via-sky-400 to-cyan-400"></span>
+        <div class="px-4 py-3 sm:px-5 sm:py-4">
+          <div class="flex items-start justify-between gap-3">
+            <p class="font-semibold text-sm sm:text-base text-slate-800 leading-snug">${e.title}</p>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${badge.cls}">
+              ${badge.text}
+            </span>
+          </div>
+          <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 text-slate-700 ring-1 ring-slate-200">
+              🕒 ${fmtWhen(e.time)}
+            </span>
+            ${e.field ? `
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-pink-50 text-pink-700 ring-1 ring-pink-200">
+                📍 ${e.field}
+              </span>` : ``}
+            ${(e.type === "task" && e.priority) ? `
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${prCls} capitalize">
+                ⚑ ${e.priority}
+              </span>` : ``}
+          </div>
+        </div>
+      `;
+    }
+
+    function upsertEvent(e) {
+      const ul = document.querySelector(ROOT);
+      if (!ul) return;
+
+      // remover mensagem vazio se existir
+      const emptyMsg = document.getElementById(NO_MSG_ID);
+      if (emptyMsg) emptyMsg.remove();
+
+      const id = keyFor(e);
+      let li = document.getElementById(id);
+
+      if (!li) {
+        li = document.createElement("li");
+        li.id = id;
+        li.className = "relative overflow-hidden rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition";
+        li.innerHTML = renderEventHTML(e);
+        ul.prepend(li);
+      } else {
+        li.innerHTML = renderEventHTML(e);
+      }
+    }
+
+    function syncList(events) {
+      const ul = document.querySelector(ROOT);
+      if (!ul) return;
+
+      const keep = new Set(events.map(keyFor));
+
+      // remover itens que já não existem
+      ul.querySelectorAll("li[id]").forEach(li => {
+        if (!keep.has(li.id)) li.remove();
+      });
+
+      // inserir/atualizar itens
+      events.forEach(upsertEvent);
+
+      // se ficou vazio, mostrar mensagem
+      if (ul.querySelectorAll("li").length === 0) {
+        if (!document.getElementById(NO_MSG_ID)) {
+          const p = document.createElement("p");
+          p.id = NO_MSG_ID;
+          p.className = "text-sm text-slate-500 italic";
+          p.textContent = "Nenhum evento planeado para hoje.";
+          ul.parentElement.appendChild(p);
+        }
+      }
+    }
+
+    async function poll() {
+      try {
+        const res = await fetch("/events/upcoming.json", {
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        syncList(data.events || []);
+      } catch (err) {
+        console.error("Erro ao buscar eventos:", err);
+      }
+    }
+
+    const start = () => {
+      poll();
+      window.__upcomingTasksTimer && clearInterval(window.__upcomingTasksTimer);
+      window.__upcomingTasksTimer = setInterval(poll, <%= (ENV["UPCOMING_POLL_MS"] || 20000).to_i %>);
+    };
+
+    document.addEventListener("turbo:load", start, { once: true });
+    document.readyState !== "loading" && start();
+  })();
 </script>

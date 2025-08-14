@@ -1,185 +1,167 @@
-<% if defined?(field) && field.present? %>
-  <% field_id = field.id %>
-<% else %>
-  <% field_id = "dynamic" %>
-<% end %>
+<%# ---------- Field-safe id ---------- %>
+<% field_id = (defined?(field) && field.present?) ? field.id : "dynamic" %>
 
-<div id="viewDetailsModal-<%= field_id %>" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 px-2">
-  <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-4xl relative max-h-[95vh] overflow-y-auto">
+<div id="viewDetailsModal-<%= field_id %>"
+     class="fixed inset-0 z-50 hidden"
+     aria-modal="true" role="dialog" aria-labelledby="fd-title-<%= field_id %>">
 
-    <!-- Modal Header -->
-    <div class="flex justify-between items-center border-b pb-3 sticky top-0 bg-white z-10">
-      <h2 class="text-xl font-semibold flex items-center space-x-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map">
-          <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
-          <path d="M15 5.764v15"/>
-          <path d="M9 3.236v15"/>
-        </svg>
-        <span id="modalFieldName"><%= field.name %></span>
-      </h2>
-      <button onclick="document.getElementById('viewDetailsModal-<%= field.id %>').classList.add('hidden')" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+  <!-- overlay -->
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeFieldModal('<%= field_id %>')"></div>
+
+  <!-- card -->
+  <div class="relative mx-auto my-6 w-[min(92vw,1000px)] max-h-[92vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
+    <!-- header -->
+    <div class="sticky top-0 z-10 flex items-center justify-between gap-3 border-b bg-white/90 px-5 py-4 backdrop-blur">
+      <div class="min-w-0">
+        <h2 id="fd-title-<%= field_id %>" class="flex items-center gap-2 text-lg sm:text-xl font-semibold text-slate-900 truncate">
+          <i class="lucide lucide-map w-5 h-5 text-emerald-600"></i>
+          <span id="modalFieldName" class="truncate"><%= field&.name || "Field" %></span>
+        </h2>
+        <%# status chip %>
+        <% status_text = field&.status.presence || 'Desconhecido' %>
+        <% good = %w[ativo active running ok good].include?(status_text.to_s.downcase) %>
+        <span class="mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1
+                     <%= good ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-700 ring-amber-200' %>">
+          <span class="text-[10px]">●</span> <%= status_text %>
+        </span>
+      </div>
+
+      <button type="button"
+              class="shrink-0 rounded-full p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+              aria-label="Close"
+              onclick="closeFieldModal('<%= field_id %>')">
+        <i class="lucide lucide-x w-5 h-5"></i>
+      </button>
     </div>
 
-    <!-- Status -->
-    <div class="flex items-center mt-2 mb-4 text-sm text-green-700 bg-green-100 px-3 py-1 rounded-lg w-max">
-      ✅ Good - Detailed information and analytics for this field
+    <!-- tabs -->
+    <div class="px-5 pt-4">
+      <div class="mx-auto w-full max-w-md rounded-xl bg-slate-50 p-1 text-sm font-medium shadow-inner">
+        <div class="grid grid-cols-3 gap-1">
+          <button id="tab-overview-<%= field_id %>"
+                  class="tab-button active"
+                  onclick="showFieldTab('<%= field_id %>', 'overview')">
+            Overview
+          </button>
+          <button id="tab-iot-equipment-<%= field_id %>"
+                  class="tab-button"
+                  onclick="showFieldTab('<%= field_id %>', 'iot-equipment')">
+            IoT Equipment
+          </button>
+          <button id="tab-analytics-<%= field_id %>"
+                  class="tab-button"
+                  onclick="showFieldTab('<%= field_id %>', 'analytics')">
+            Analytics
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Tabs -->
-<!-- Tabs estilizados -->
-<div class="flex bg-gray-50 rounded-lg p-1 w-full max-w-md mx-auto text-sm font-medium text-center text-gray-500 shadow-inner">
-  <button
-    id="tab-overview-<%= field_id %>"
-    onclick="showTab('overview', <%= field_id %>)"
-    class="w-full py-2.5 transition-all duration-200 ease-in-out rounded-lg text-sm font-semibold tab-button active bg-white shadow text-gray-900">
-    Overview
-  </button>
-  <button
-    id="tab-iot-equipment-<%= field_id %>"
-    onclick="showTab('iot-equipment', <%= field_id %>)"
-    class="w-full py-2.5 transition-all duration-200 ease-in-out rounded-lg tab-button hover:text-blue-600">
-    IoT Equipment
-  </button>
-  <button
-    id="tab-analytics-<%= field_id %>"
-    onclick="showTab('analytics', <%= field_id %>)"
-    class="w-full py-2.5 transition-all duration-200 ease-in-out rounded-lg tab-button hover:text-blue-600">
-    Analytics
-  </button>
-</div>
+    <!-- content -->
+    <div class="px-5 pb-5">
+      <div id="overview-<%= field_id %>" class="tab-content mt-5">
+        <%= render partial: "fields/overviews/#{field.field_type}", locals: { field: field } %>
+      </div>
 
+      <div id="iot-equipment-<%= field_id %>" class="tab-content mt-5 hidden">
+        <%= render partial: "fields/tabs/iot_equipment", locals: { field: field } %>
+      </div>
 
-    <!-- Conteúdo das Tabs -->
-    <div id="overview-<%= field_id %>" class="tab-content mt-4">
-<%= render partial: "fields/overviews/#{field.field_type}", locals: { field: field } %>
+      <div id="analytics-<%= field_id %>" class="tab-content mt-5 hidden">
+        <%= render partial: "fields/tabs/analytics", locals: { field: field } %>
+      </div>
+
+      <!-- actions -->
+      <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+        <button class="btn-secondary">Schedule Task</button>
+        <button class="btn-secondary">View History</button>
+        <button class="btn-primary">Generate Report</button>
+      </div>
+
+      <!-- danger zone -->
+      <div class="mt-6">
+        <%= button_to field_path(field),
+              method: :delete,
+              data: { turbo_confirm: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada." },
+              class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-md bg-rose-600 px-4 py-2 font-medium text-white shadow hover:bg-rose-700" do %>
+          <i class="lucide lucide-trash-2 w-4 h-4"></i> Eliminar Campo
+        <% end %>
+      </div>
     </div>
-
-    <div id="iot-equipment-<%= field_id %>" class="tab-content hidden mt-4">
-      <%= render partial: "fields/tabs/iot_equipment", locals: { field: field } %>
-    </div>
-
-    <div id="analytics-<%= field_id %>" class="tab-content hidden mt-4">
-      <%= render partial: "fields/tabs/analytics", locals: { field: field } %>
-    </div>
-
-    <!-- Ações Gerais -->
-    <div class="flex flex-col sm:flex-row sm:justify-end gap-2 mt-6">
-      <button class="bg-gray-600 text-white px-4 py-2 rounded-md">Schedule Task</button>
-      <button class="bg-gray-600 text-white px-4 py-2 rounded-md">View History</button>
-      <button class="bg-green-600 text-white px-4 py-2 rounded-md">Generate Report</button>
-    </div>
-
-    <!-- Eliminar Campo -->
-    <div class="mt-6">
-      <%= button_to field_path(field), method: :delete, data: { turbo_confirm: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada." }, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md w-full sm:w-auto" do %>
-        Eliminar Campo
-      <% end %>
-    </div>
-
   </div>
 </div>
 
+<%# ---------------- Styles (scoped utilities) ---------------- %>
 <style>
-.tab-button {
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  background-color: #f3f4f6;
-  color: #1f2937;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-.tab-button.active {
-  background-color: white;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-</style>
-
-
-<script>
-function showTab(tab, id) {
-  document.querySelectorAll(`#viewDetailsModal-${id} .tab-content`).forEach(tabEl => tabEl.classList.add("hidden"));
-  document.getElementById(`${tab}-${id}`).classList.remove("hidden");
-  document.querySelectorAll(`#viewDetailsModal-${id} .tab-button`).forEach(btn => btn.classList.remove("active"));
-  document.getElementById(`tab-${tab}-${id}`).classList.add("active");
-}
-
-function toggleAddSensorForm() {
-  const form = document.getElementById("addSensorForm");
-  if (form) form.classList.toggle("hidden");
-}
-
-function addCropInput() {
-  const container = document.getElementById("cropInputs");
-  const html = `
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-      <div><input type="text" name="crop_yield[crop_type][]" placeholder="Cultura" class="block w-full rounded-md border-gray-300 shadow-sm" /></div>
-      <div><input type="number" name="crop_yield[amount][]" step="0.1" class="block w-full rounded-md border-gray-300 shadow-sm" /></div>
-      <div>
-        <select name="crop_yield[month][]" class="block w-full rounded-md border-gray-300 shadow-sm">
-          <option value="">Selecionar mês</option>
-          ${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"].map(m => `<option value="${m}">${m}</option>`).join("")}
-        </select>
-      </div>
-    </div>
-  `;
-  container.insertAdjacentHTML("beforeend", html);
-}
-</script>
-
-<script>
-  document.addEventListener("turbo:frame-load", function(event) {
-    if (event.target.id === "field_details_modal") {
-      const modal = document.getElementById("viewDetailsModal")
-      if (modal) modal.classList.remove("hidden")
-    }
-  })
-</script>
-
-<style>
-.tab-button {
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  background-color: #f3f4f6;
-  color: #1f2937;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-.tab-button.active {
-  background-color: white;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-#viewDetailsModal .mapboxgl-control-container,
-#viewDetailsModal .mapboxgl-canvas-container,
-#viewDetailsModal .mapboxgl-marker,
-#viewDetailsModal .mapboxgl-popup {
-  z-index: 0 !important;
-}
-.modal .mapboxgl-control-container,
-.modal .mapboxgl-popup,
-.modal .mapboxgl-marker {
-  z-index: 1 !important;
-}
-</style>
-
-
-<script>
-  function showTab(tab, id) {
-    // Esconde todos os conteúdos
-    document.querySelectorAll(`#viewDetailsModal-${id} .tab-content`).forEach(el => el.classList.add("hidden"));
-    // Mostra o selecionado
-    document.getElementById(`${tab}-${id}`).classList.remove("hidden");
-
-    // Remove a classe ativa de todos os botões
-    document.querySelectorAll(`#viewDetailsModal-${id} .tab-button`).forEach(btn => {
-      btn.classList.remove("bg-white", "text-gray-900", "shadow");
-      btn.classList.add("hover:text-blue-600");
-    });
-
-    // Ativa o botão atual
-    const activeBtn = document.getElementById(`tab-${tab}-${id}`);
-    activeBtn.classList.add("bg-white", "text-gray-900", "shadow");
-    activeBtn.classList.remove("hover:text-blue-600");
+  .tab-button{
+    @apply w-full rounded-lg px-3 py-2.5 text-center transition
+           text-slate-700 hover:text-emerald-700;
   }
+  .tab-button.active{
+    @apply bg-white shadow text-slate-900 font-semibold;
+  }
+  .btn-primary{
+    @apply rounded-md bg-emerald-600 px-4 py-2 text-white font-medium shadow hover:bg-emerald-700;
+  }
+  .btn-secondary{
+    @apply rounded-md bg-slate-700 px-4 py-2 text-white font-medium shadow hover:bg-slate-800;
+  }
+  /* corrige z-index de elementos Mapbox dentro do modal */
+  [id^="viewDetailsModal-"] .mapboxgl-control-container,
+  [id^="viewDetailsModal-"] .mapboxgl-canvas-container,
+  [id^="viewDetailsModal-"] .mapboxgl-marker,
+  [id^="viewDetailsModal-"] .mapboxgl-popup{ z-index: 0 !important; }
+</style>
+
+<%# ---------------- Scripts ---------------- %>
+<script>
+  // Abre/fecha modal
+  function closeFieldModal(id){
+    const m = document.getElementById(`viewDetailsModal-${id}`);
+    if (m) m.classList.add('hidden');
+  }
+  function openFieldModal(id){
+    const m = document.getElementById(`viewDetailsModal-${id}`);
+    if (!m) return;
+    m.classList.remove('hidden');
+
+    // abre sempre na primeira tab
+    showFieldTab(id, 'overview');
+  }
+
+  // Tabs
+  function showFieldTab(id, tab){
+    const root = document.getElementById(`viewDetailsModal-${id}`);
+    if (!root) return;
+
+    // toggle contents
+    root.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    const current = root.querySelector(`#${tab}-${id}`);
+    if (current) current.classList.remove('hidden');
+
+    // toggle buttons
+    root.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    const btn = root.querySelector(`#tab-${tab}-${id}`);
+    if (btn) btn.classList.add('active');
+
+    // se houver mapas nesta tab, faz resize
+    setTimeout(() => {
+      if (window.mapboxgl) {
+        // tenta ajustar todos os mapas visíveis dentro da tab
+        current?.querySelectorAll('.mapboxgl-canvas').forEach(() => {
+          // alguns projetos guardam o mapa em window, outros no elemento;
+          // o resize global cobre o caso mais comum.
+          if (window.mainMap) { try { window.mainMap.resize(); } catch(_){} }
+          if (window.mainFieldsMap) { try { window.mainFieldsMap.resize(); } catch(_){} }
+        });
+      }
+    }, 100);
+  }
+
+  // Fechar com ESC
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('[id^="viewDetailsModal-"]').forEach(m => m.classList.add('hidden'));
+    }
+  });
 </script>

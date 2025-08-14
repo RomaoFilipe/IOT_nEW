@@ -1,133 +1,172 @@
-<<%= tag.meta name: "sensor-id", content: sensor.id %>
+<%# == Sensor Irrigation Status Card
+    locals: sensor, field
+%>
+<% temp_sensor = field.sensors.find { |s| s.sensor_type == "temperature" } %>
 
-<div class="border p-4 rounded-xl shadow bg-gray-50">
-  <h4 class="text-md font-semibold text-gray-700 mb-3">📍 <%= field.name %></h4>
+<div id="irr-card-<%= sensor.id %>"
+     class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-3"
+     data-sensor-id="<%= sensor.id %>">
 
-  <!-- Estado da Irrigação + Barra -->
-  <div class="irrigation-status mb-2">
-    <div class="flex justify-between items-center text-sm font-medium text-gray-600 mb-1">
-      <span>💦  Estado da Irrigação: <%= sensor.status.capitalize %></span>
-      <span class="irrigation-progress-text text-gray-700">Faltam: 0h 0m 0s</span>
+  <div class="flex items-center justify-between">
+    <h4 class="text-sm sm:text-base font-semibold text-slate-800 flex items-center gap-2">
+      📍 <%= field.name %>
+    </h4>
+
+    <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full
+                 <%= sensor.status.to_s == 'active' ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
+                                                     : 'bg-slate-50 text-slate-600 ring-1 ring-slate-200' %>">
+      💦 <span class="irr-status"><%= sensor.status.to_s.capitalize %></span>
+    </span>
+  </div>
+
+  <!-- Barra de progresso -->
+  <div class="space-y-1">
+    <div class="flex items-center justify-between text-xs font-medium text-slate-600">
+      <span>Progresso da irrigação</span>
+      <span class="irr-remaining text-slate-700">Faltam: —</span>
     </div>
-
-    <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-      <div class="irrigation-progress-bar bg-green-500 h-full transition-all duration-500 ease-linear"
-           style="width: 0%;"></div>
+    <div class="w-full bg-slate-200/70 rounded-full h-2 overflow-hidden">
+      <div class="irr-bar h-2 w-0 transition-[width] duration-500 ease-linear
+                  <%= sensor.status.to_s == 'active' ? 'bg-emerald-500' : 'bg-slate-400' %>">
+      </div>
     </div>
   </div>
 
-  <!-- Outros sensores -->
-  <% temp_sensor = field.sensors.find { |s| s.sensor_type == "temperature" } %>
-  <% sensor_id = sensor.id %>
-
-  <!-- Humidade -->
-  <div class="mt-3">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <span>💧</span>
-        <p class="text-sm font-medium text-gray-600">Humidade do Solo</p>
+  <!-- Métricas rápidas -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+    <!-- Humidade -->
+    <div>
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-slate-600 flex items-center gap-1">💧 Humidade</p>
+        <span class="text-sm font-semibold text-slate-800">
+          <span id="moisture-<%= sensor.id %>"><%= temp_sensor&.moisture || "N/A" %></span> %
+        </span>
       </div>
-      <span class="text-blue-600 text-sm font-medium">
-        <span id="moisture-<%= sensor_id %>"><%= temp_sensor&.moisture || "N/A" %></span> %
-      </span>
-    </div>
-    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= temp_sensor&.moisture.to_i %>%"></div>
-    </div>
-  </div>
-
-  <!-- Temperatura -->
-  <div class="mt-3">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <span>🌡️</span>
-        <p class="text-sm font-medium text-gray-600">Temperatura</p>
+      <div class="w-full bg-slate-200 rounded-full h-2 mt-1">
+        <div class="bg-sky-600 h-2 rounded-full"
+             style="width: <%= [temp_sensor&.moisture.to_i, 0].max.clamp(0,100) %>%"></div>
       </div>
-      <span class="text-blue-600 text-sm font-medium">
-        <span id="temperature-<%= sensor_id %>"><%= temp_sensor&.temperature || "N/A" %></span> °C
-      </span>
     </div>
-    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= temp_sensor&.temperature.to_i %>%"></div>
-    </div>
-  </div>
 
-  <!-- Bateria -->
-  <div class="mt-3">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <span>🔋</span>
-        <p class="text-sm font-medium text-gray-600">Bateria</p>
+    <!-- Temperatura -->
+    <div>
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-slate-600 flex items-center gap-1">🌡️ Temperatura</p>
+        <span class="text-sm font-semibold text-slate-800">
+          <span id="temperature-<%= sensor.id %>"><%= temp_sensor&.temperature || "N/A" %></span> °C
+        </span>
       </div>
-      <span class="text-blue-600 text-sm font-medium">
-        <span id="battery-<%= sensor_id %>"><%= temp_sensor&.battery || 0 %></span> %
-      </span>
+      <div class="w-full bg-slate-200 rounded-full h-2 mt-1">
+        <div class="bg-orange-500 h-2 rounded-full"
+             style="width: <%= [temp_sensor&.temperature.to_i, 0].max.clamp(0,100) %>%"></div>
+      </div>
     </div>
-    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= temp_sensor&.battery.to_i %>%"></div>
+
+    <!-- Bateria -->
+    <div>
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-slate-600 flex items-center gap-1">🔋 Bateria</p>
+        <span class="text-sm font-semibold text-slate-800">
+          <span id="battery-<%= sensor.id %>"><%= temp_sensor&.battery || 0 %></span> %
+        </span>
+      </div>
+      <div class="w-full bg-slate-200 rounded-full h-2 mt-1">
+        <div class="bg-violet-500 h-2 rounded-full"
+             style="width: <%= [temp_sensor&.battery.to_i, 0].max.clamp(0,100) %>%"></div>
+      </div>
     </div>
   </div>
 </div>
-
-<!-- Botões de navegação entre sensores -->
-<div class="flex justify-between items-center mt-4">
-  <button id="prevSlide" class="text-gray-600 hover:text-gray-900">&laquo; Anterior</button>
-  <button id="nextSlide" class="text-gray-600 hover:text-gray-900">Próximo &raquo;</button>
-</div>
-
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const sensorId = document.querySelector("meta[name='sensor-id']")?.content;
-    if (!sensorId) return;
+(function setupIrrCard() {
+  const root = document.getElementById("irr-card-<%= sensor.id %>");
+  if (!root) return;
 
-    let remainingTime = 0;
-    let totalTime = 0;
+  const sensorId = root.dataset.sensorId;
+  const bar       = root.querySelector(".irr-bar");
+  const remainEl  = root.querySelector(".irr-remaining");
+  const statusEl  = root.querySelector(".irr-status");
 
-    const progressBar = document.querySelector(".irrigation-progress-bar");
-    const progressText = document.querySelector(".irrigation-progress-text");
+  let total = 0;
+  let remaining = 0;
+  let tickTimer, pollTimer;
 
-    function formatTime(seconds) {
-      const m = Math.floor(seconds / 60);
-      const h = Math.floor(m / 60);
-      const min = m % 60;
-      const s = seconds % 60;
-      return `${h}h ${min}m ${s}s`;
-    }
+  const fmt = (sec) => {
+    sec = Math.max(0, Math.floor(sec || 0));
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return `${h}h ${m}m ${s}s`;
+  };
 
-    function updateUI() {
-      const percent = totalTime > 0 ? (remainingTime / totalTime) * 100 : 0;
-      progressBar.style.width = `${percent}%`;
-      progressText.textContent = `Faltam: ${formatTime(remainingTime)}`;
-    }
+  const paint = () => {
+    const donePct = total > 0 ? ((total - remaining) / total) * 100 : 0;
+    bar.style.width = `${Math.max(0, Math.min(100, donePct))}%`;
+    remainEl.textContent = remaining > 0 ? `Faltam: ${fmt(remaining)}` : "Concluída";
+  };
 
-    async function checkStatus() {
-      try {
-        const response = await fetch(`/sensors/${sensorId}/irrigation_status`);
-        const data = await response.json();
-        remainingTime = data.remaining_time;
-        totalTime = data.total_time;
+  const setStateColor = (status) => {
+    bar.classList.remove("bg-emerald-500", "bg-slate-400", "bg-rose-500");
+    if (status === "active")      bar.classList.add("bg-emerald-500");
+    else if (status === "paused") bar.classList.add("bg-rose-500");
+    else                          bar.classList.add("bg-slate-400");
+  };
 
-        if (remainingTime > 0) {
-          updateUI();
-        } else {
-          progressBar.style.width = `0%`;
-          progressText.textContent = "Irrigação concluída";
-        }
-      } catch (e) {
-        console.error("Erro ao buscar status:", e);
+  const poll = async () => {
+    try {
+      const res = await fetch(`/sensors/${sensorId}/irrigation_status`, {
+        credentials: "same-origin",
+        headers: { "Accept": "application/json" }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      // Espera-se { remaining_time, total_time, status, moisture, temperature, battery }
+      total     = Number(data.total_time   || 0);
+      remaining = Number(data.remaining_time || 0);
+
+      if (data.status) {
+        statusEl.textContent = String(data.status).charAt(0).toUpperCase() + String(data.status).slice(1);
+        setStateColor(String(data.status));
       }
-    }
 
-    setInterval(() => {
-      if (remainingTime > 0) remainingTime--;
-      updateUI();
+      if (data.moisture != null) {
+        const el = document.getElementById(`moisture-${sensorId}`);
+        if (el) el.textContent = Math.round(Number(data.moisture));
+      }
+      if (data.temperature != null) {
+        const el = document.getElementById(`temperature-${sensorId}`);
+        if (el) el.textContent = Number(data.temperature).toFixed(1);
+      }
+      if (data.battery != null) {
+        const el = document.getElementById(`battery-${sensorId}`);
+        if (el) el.textContent = Math.round(Number(data.battery));
+      }
+
+      paint();
+    } catch (e) {
+      console.error("Erro ao obter estado de irrigação:", e);
+    }
+  };
+
+  const start = () => {
+    // decrementa 1s localmente para suavidade
+    tickTimer = setInterval(() => {
+      if (remaining > 0) { remaining--; paint(); }
     }, 1000);
 
-    setInterval(() => {
-      checkStatus();
-    }, 5000);
+    // atualiza do servidor
+    poll();
+    pollTimer = setInterval(poll, 5000);
+  };
 
-    checkStatus();
-  });
+  const stop = () => {
+    clearInterval(tickTimer);
+    clearInterval(pollTimer);
+  };
+
+  document.addEventListener("turbo:before-cache", stop, { once: true });
+  start();
+})();
 </script>

@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_05_072640) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_13_114137) do
+  create_schema "auth"
+  create_schema "extensions"
+  create_schema "graphql"
+  create_schema "graphql_public"
+  create_schema "pgbouncer"
+  create_schema "realtime"
+  create_schema "storage"
+  create_schema "vault"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_graphql"
+  enable_extension "pg_stat_statements"
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
+  enable_extension "supabase_vault"
+  enable_extension "uuid-ossp"
 
   create_table "accounts", force: :cascade do |t|
     t.string "name", null: false
@@ -132,6 +146,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_05_072640) do
     t.date "fish_placement_date"
     t.date "estimated_harvest_date"
     t.string "plantation_type"
+    t.string "production_kind"
     t.index ["account_id"], name: "index_fields_on_account_id"
   end
 

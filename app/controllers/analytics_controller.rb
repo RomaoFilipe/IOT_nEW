@@ -1,68 +1,80 @@
+# app/controllers/analytics_controller.rb
 class AnalyticsController < ApplicationController
-  MESES_PT = %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez]
+  MESES_PT = %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez].freeze
 
   def index
-    @fields = Field.all
+    # Campos só com o que é preciso para a UI
+    @fields = Field.select(:id, :name, :production_kind)
+
+    # -------- Filtros vindos da query --------
+    @selected_culture = params[:culture].presence
+    @start_date = safe_parse_date(params[:start_date])
+    @end_date   = safe_parse_date(params[:end_date])
+
+    # Tipo efetivo (por campo, ou por parâmetro, ou default)
+    @effective_kind =
+      if params[:field_id].present?
+        f = @fields.find { |x| x.id.to_s == params[:field_id].to_s }
+        f&.production_kind.presence || params[:production_kind].presence || "agriculture"
+      else
+        params[:production_kind].presence || "agriculture"
+      end
+
+    # Culturas disponíveis (para o dropdown)
     @available_cultures = CropYield.distinct.pluck(:crop_type).compact.sort
 
-    # Filtros recebidos
-    selected_culture = params[:culture]
-
-    # Filtro de data início
-    if params[:start_date].present?
-      begin
-        start_date = Date.parse(params[:start_date])
-      rescue ArgumentError
-        start_date = nil
-      end
-    else
-      start_date = nil
-    end
-
-    # Filtro de data fim
-    if params[:end_date].present?
-      begin
-        end_date = Date.parse(params[:end_date])
-      rescue ArgumentError
-        end_date = nil
-      end
-    else
-      end_date = nil
-    end
-
-    # Dados Base
+    # -------- Scopes base por campo (quando existir) --------
     if params[:field_id].present?
-      @selected_field = Field.find(params[:field_id])
-      yields = @selected_field.crop_yields
-      @soil_data = @selected_field.soil_readings
-      @financial_data = @selected_field.financials
-      @sensor_readings = SensorReading.where(sensor: @selected_field.sensors)
+      @selected_field  = Field.find_by(id: params[:field_id])
+      yields_scope     = @selected_field ? @selected_field.crop_yields : CropYield.none
+      @soil_data       = @selected_field ? @selected_field.soil_readings : SoilReading.none
+      @financial_data  = @selected_field ? @selected_field.financials    : Financial.none
+      @sensor_readings = @selected_field ? SensorReading.where(sensor: @selected_field.sensors) : SensorReading.none
     else
-      yields = CropYield.all
-      @soil_data = SoilReading.all
-      @financial_data = Financial.all
+      yields_scope     = CropYield.all
+      @soil_data       = SoilReading.all
+      @financial_data  = Financial.all
       @sensor_readings = SensorReading.all
     end
 
-    # Aplicar filtros
-    yields = yields.where(crop_type: selected_culture) if selected_culture.present?
+    # Cultura (apenas faz sentido para Agricultura)
+    yields_scope = yields_scope.where(crop_type: @selected_culture) if @selected_culture.present?
 
-    if start_date.present?
-      yields = yields.where("created_at >= ?", start_date)
-      @soil_data = @soil_data.where("measured_at >= ?", start_date)
-      @financial_data = @financial_data.where("recorded_at >= ?", start_date)
-      @sensor_readings = @sensor_readings.where("read_at >= ?", start_date)
+    # Datas
+    if @start_date
+      yields_scope     = yields_scope.where("created_at >= ?", @start_date)
+      @soil_data       = @soil_data.where("measured_at >= ?", @start_date)
+      @financial_data  = @financial_data.where("recorded_at >= ?", @start_date)
+      @sensor_readings = @sensor_readings.where("read_at >= ?", @start_date)
+    end
+    if @end_date
+      yields_scope     = yields_scope.where("created_at <= ?", @end_date)
+      @soil_data       = @soil_data.where("measured_at <= ?", @end_date)
+      @financial_data  = @financial_data.where("recorded_at <= ?", @end_date)
+      @sensor_readings = @sensor_readings.where("read_at <= ?", @end_date)
     end
 
-    if end_date.present?
-      yields = yields.where("created_at <= ?", end_date)
-      @soil_data = @soil_data.where("measured_at <= ?", end_date)
-      @financial_data = @financial_data.where("recorded_at <= ?", end_date)
-      @sensor_readings = @sensor_readings.where("read_at <= ?", end_date)
+    # -------- Datasets por tipo de produção --------
+    case @effective_kind
+    when "agriculture"
+      build_agriculture_datasets!(yields_scope)
+    when "aquaculture_sea"
+      build_aquaculture_sea_datasets!
+    when "aquaculture_tank"
+      build_aquaculture_tank_datasets!
+    else
+      # fallback: sem erros, só não renderiza gráficos
     end
+  end
 
+  private
+
+  # =====================
+  # Agricultura (mantém a tua lógica original)
+  # =====================
+  def build_agriculture_datasets!(yields)
     # 📊 Produção por Cultura e Mês
-    grouped = yields.group_by { |r| MESES_PT.include?(r.month) ? r.month : r.month.capitalize }
+    grouped = yields.group_by { |r| MESES_PT.include?(r.month) ? r.month : r.month.to_s.capitalize }
     crop_types = yields.pluck(:crop_type).compact.uniq
     labels_ordenadas = grouped.keys.sort_by { |m| MESES_PT.index(m) || 99 }
 
@@ -70,26 +82,20 @@ class AnalyticsController < ApplicationController
       labels: labels_ordenadas,
       datasets: crop_types.map do |type|
         {
-          label: type.capitalize,
+          label: type.to_s.capitalize,
           data: labels_ordenadas.map { |m| grouped[m].select { |r| r.crop_type == type }.sum(&:amount) },
           backgroundColor: "##{SecureRandom.hex(3)}"
         }
       end
     }
 
-    # 🌡️ Temperatura média diária e mensal
-    @daily_temperature = @soil_data.group_by { |r| r.measured_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:temperature).compact.sum / records.size.to_f }
-
-    @monthly_temperature = @soil_data.group_by { |r| r.measured_at.strftime("%b") }
-      .transform_values { |records| records.map(&:temperature).compact.sum / records.size.to_f }
+    # 🌡️ Temperatura média diária e mensal (SOLO)
+    @daily_temperature = avg_by_hour(@soil_data, :measured_at) { |rec| rec.temperature }
+    @monthly_temperature = avg_by_month(@soil_data, :measured_at) { |rec| rec.temperature }
 
     # 💧 Humidade do Solo
-    @daily_moisture = @soil_data.group_by { |r| r.measured_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |v| v.sum(&:moisture).to_f / v.size }
-
-    @monthly_moisture = @soil_data.group_by { |r| r.measured_at.strftime("%b") }
-      .transform_values { |v| v.sum(&:moisture).to_f / v.size }
+    @daily_moisture = avg_by_hour(@soil_data, :measured_at) { |rec| rec.moisture }
+    @monthly_moisture = avg_by_month(@soil_data, :measured_at) { |rec| rec.moisture }
 
     # 💰 Despesas por Categoria
     @expense_distribution = @financial_data.group(:expense_category).sum(:expenses)
@@ -98,104 +104,157 @@ class AnalyticsController < ApplicationController
     @irrigation_expenses_by_month = @financial_data
       .where(expense_category: "irrigação")
       .group_by { |f| f.recorded_at.strftime("%b") }
-      .transform_values { |records| records.sum(&:expenses) }
+      .transform_values { |recs| recs.sum(&:expenses) }
 
     # 🧪 Outros recursos (fertilizante, energia, etc.)
     @non_irrigation_expenses = @financial_data
-      .where.not(expense_category: 'irrigação')
-      .group(:expense_category)
-      .sum(:expenses)
+      .where.not(expense_category: "irrigação")
+      .group(:expense_category).sum(:expenses)
 
     # 💧 Eficiência da Irrigação (€/tonelada)
-    @crop_yield_by_month = yields.group_by { |r| r.month }.transform_values { |records| records.sum(&:amount) }
-
+    @crop_yield_by_month = yields.group_by(&:month).transform_values { |recs| recs.sum(&:amount) }
     @irrigation_efficiency_by_month = {}
     @crop_yield_by_month.each do |month, total_yield|
       irrigation_expense = @irrigation_expenses_by_month[month] || 0
-      efficiency = total_yield > 0 ? (irrigation_expense / total_yield.to_f).round(2) : 0
-      @irrigation_efficiency_by_month[month] = efficiency
+      eff = total_yield.to_f.positive? ? (irrigation_expense / total_yield.to_f).round(2) : 0
+      @irrigation_efficiency_by_month[month] = eff
     end
 
     # 📊 Comparação entre campos
     @field_comparison_data = Field.all.map do |field|
-      field_yield = field.crop_yields.sum(:amount)
-      field_total_expenses = field.financials.sum(:expenses)
-      field_irrigation_expenses = field.financials.where(expense_category: 'irrigação').sum(:expenses)
-
       {
         field_name: field.name,
-        production: field_yield.round(2),
-        total_expenses: field_total_expenses.round(2),
-        irrigation_expenses: field_irrigation_expenses.round(2)
+        production: field.crop_yields.sum(:amount).to_f.round(2),
+        total_expenses: field.financials.sum(:expenses).to_f.round(2),
+        irrigation_expenses: field.financials.where(expense_category: "irrigação").sum(:expenses).to_f.round(2)
       }
     end
 
     # 📈 Produção acumulada ao longo da época
     @cumulative_production_by_month = {}
-    monthly_production = yields.group_by { |r| r.month }.transform_values { |records| records.sum(&:amount) }
-
-    accumulated = 0.0
+    monthly_production = yields.group_by(&:month).transform_values { |recs| recs.sum(&:amount).to_f }
+    acc = 0.0
     MESES_PT.each do |mes|
-      month_value = monthly_production[mes] || 0
-      accumulated += month_value
-      @cumulative_production_by_month[mes] = accumulated.round(2)
+      acc += (monthly_production[mes] || 0.0)
+      @cumulative_production_by_month[mes] = acc.round(2)
     end
 
-    # 💰 Rentabilidade por Cultura (Lucro = Receita - Despesas)
+    # 💰 Rentabilidade por Cultura (estimativa)
     @profit_by_crop_type = {}
     crop_types.each do |type|
-      production_amount = yields.where(crop_type: type).sum(:amount)
-      estimated_revenue = production_amount * 200
-      total_expenses = @financial_data.sum(:expenses)
-      expenses_per_crop = total_expenses / crop_types.size
+      production_amount = yields.where(crop_type: type).sum(:amount).to_f
+      estimated_revenue = production_amount * 200 # <— ajusta à tua realidade
+      total_expenses    = @financial_data.sum(:expenses).to_f
+      expenses_per_crop = crop_types.size.positive? ? (total_expenses / crop_types.size) : 0
       profit = estimated_revenue - expenses_per_crop
-
-      @profit_by_crop_type[type.capitalize] = profit.round(2)
+      @profit_by_crop_type[type.to_s.capitalize] = profit.round(2)
     end
 
     # 📏 Custos por hectare (€/ha)
     @cost_per_hectare_by_field = {}
-    Field.all.each do |field|
-      total_expenses = field.financials.sum(:expenses)
-      area_ha = field.area > 0 ? field.area : 1
-      cost_per_ha = total_expenses / area_ha
-      @cost_per_hectare_by_field[field.name] = cost_per_ha.round(2)
+    Field.find_each do |field|
+      total_expenses = field.financials.sum(:expenses).to_f
+      area_ha = field.area.to_f.positive? ? field.area.to_f : 1.0
+      @cost_per_hectare_by_field[field.name] = (total_expenses / area_ha).round(2)
     end
 
-    # ✅ 🚀 CAMPOS NOVOS — para os gráficos de SensorReadings
+    # ✅ Sensores agregados (ambiente geral)
+    @daily_light_intensity = avg_by_hour(@sensor_readings, :read_at) { |r| r.light_intensity }
+    @daily_wind_speed      = avg_by_hour(@sensor_readings, :read_at) { |r| r.wind_speed }
+    @daily_wind_direction  = avg_by_hour(@sensor_readings, :read_at) { |r| r.wind_direction }
+    @daily_air_temperature = avg_by_hour(@sensor_readings, :read_at) { |r| r.air_temperature }
+    @daily_air_humidity    = avg_by_hour(@sensor_readings, :read_at) { |r| r.air_humidity }
+    @daily_soil_ph         = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_ph }
+    @daily_soil_ec         = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_ec }
+    @daily_soil_nitrogen   = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_nitrogen }
+    @daily_soil_potassium  = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_potassium }
+    @daily_soil_phosphorus = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_phosphorus }
 
-    @daily_light_intensity = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:light_intensity).compact.sum / records.size.to_f }
-
-    @daily_wind_speed = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:wind_speed).compact.sum / records.size.to_f }
-
-    @daily_wind_direction = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:wind_direction).compact.sum / records.size.to_f }
-
-    @daily_air_temperature = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:air_temperature).compact.sum / records.size.to_f }
-
-    @daily_air_humidity = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:air_humidity).compact.sum / records.size.to_f }
-
-    @daily_soil_ph = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:soil_ph).compact.sum / records.size.to_f }
-
-    @daily_soil_ec = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:soil_ec).compact.sum / records.size.to_f }
-
-    @daily_soil_nitrogen = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:soil_nitrogen).compact.sum / records.size.to_f }
-
-    @daily_soil_potassium = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:soil_potassium).compact.sum / records.size.to_f }
-
-    @daily_soil_phosphorus = @sensor_readings.group_by { |r| r.read_at.strftime("%Y-%m-%d %H:00") }
-      .transform_values { |records| records.map(&:soil_phosphorus).compact.sum / records.size.to_f }
-
-    @latest_uptime = @sensor_readings.order(read_at: :desc).limit(1).pluck(:uptime).first
-
+    @latest_uptime      = @sensor_readings.order(read_at: :desc).limit(1).pluck(:uptime).first
     @latest_error_count = @sensor_readings.order(read_at: :desc).limit(1).pluck(:error_count).first
+  end
+
+  # =====================
+  # Aquacultura (Mar)
+  # =====================
+  def build_aquaculture_sea_datasets!
+    # Se o utilizador escolheu um campo, respeitamos também o ambiente "sea"
+    readings = @sensor_readings
+    readings = readings.where(environment: "sea") if readings.klass.column_names.include?("environment") rescue readings
+
+    ordered = readings.order(:read_at)
+    @sea_labels      = ordered.pluck(:read_at).map { |t| t.strftime("%d/%m %Hh") }
+    @sea_water_temp  = ordered.pluck(:water_temperature).compact
+    @sea_salinity    = ordered.pluck(:salinity).compact if column?(readings, :salinity)
+    @sea_ph          = ordered.pluck(:ph).compact       if column?(readings, :ph)
+    @sea_turbidity   = ordered.pluck(:turbidity).compact if column?(readings, :turbidity)
+
+    # Biomassa & mortalidade (se existirem colunas; senão ficam vazios)
+    @sea_biomass_growth = ordered.pluck(:biomass_kg).compact if column?(readings, :biomass_kg)
+    @sea_mortality      = ordered.pluck(:mortality_rate).compact if column?(readings, :mortality_rate)
+
+    # Operações
+    @sea_uptime      = ordered.limit(1).pluck(:uptime).first
+    @sea_alerts      = ordered.limit(1).pluck(:alerts).first if column?(readings, :alerts)
+    @sea_energy_costs = monthly_sum(@financial_data, "energia") # reusa as tuas financeiras por categoria
+  end
+
+  # =====================
+  # Aquacultura (Tanques)
+  # =====================
+  def build_aquaculture_tank_datasets!
+    readings = @sensor_readings
+    readings = readings.where(environment: "tank") if readings.klass.column_names.include?("environment") rescue readings
+
+    ordered = readings.order(:read_at)
+    @tank_labels = ordered.pluck(:read_at).map { |t| t.strftime("%d/%m %Hh") }
+    @tank_do     = ordered.pluck(:dissolved_oxygen).compact if column?(readings, :dissolved_oxygen)
+    @tank_ammonia = ordered.pluck(:ammonia).compact          if column?(readings, :ammonia)
+    @tank_temp    = ordered.pluck(:water_temperature).compact if column?(readings, :water_temperature)
+    @tank_ph      = ordered.pluck(:ph).compact                if column?(readings, :ph)
+
+    @tank_biomass_growth = ordered.pluck(:biomass_kg).compact if column?(readings, :biomass_kg)
+    @tank_fcr            = ordered.pluck(:fcr).compact        if column?(readings, :fcr)
+
+    @tank_uptime      = ordered.limit(1).pluck(:uptime).first
+    @tank_errors      = ordered.limit(1).pluck(:error_count).first
+    @tank_energy_costs = monthly_sum(@financial_data, "energia")
+  end
+
+  # =====================
+  # Helpers genéricos
+  # =====================
+  def safe_parse_date(str)
+    return nil if str.blank?
+    Date.parse(str) rescue nil
+  end
+
+  def avg_by_hour(relation, time_column)
+    relation.group_by { |r| r.public_send(time_column).strftime("%Y-%m-%d %H:00") }
+            .transform_values do |records|
+              vals = records.map { |rec| yield(rec) }.compact
+              vals.any? ? (vals.sum.to_f / vals.size) : nil
+            end.compact
+  end
+
+  def avg_by_month(relation, time_column)
+    relation.group_by { |r| r.public_send(time_column).strftime("%b") }
+            .transform_values do |records|
+              vals = records.map { |rec| yield(rec) }.compact
+              vals.any? ? (vals.sum.to_f / vals.size) : nil
+            end.compact
+  end
+
+  def monthly_sum(financials, category)
+    financials.where(expense_category: category)
+              .group_by { |f| f.recorded_at.strftime("%b") }
+              .transform_values { |recs| recs.sum(&:expenses).to_f }
+  end
+
+  # evita rebentar se a coluna não existir nesta instância
+  def column?(relation, name)
+    relation.klass.column_names.include?(name.to_s)
+  rescue
+    false
   end
 end
