@@ -1,11 +1,18 @@
+<%# locals: title:, icon:, value:, subtitle:, note: nil, danger_when_positive: false %>
 <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
   <div class="flex items-center justify-between">
     <span class="text-gray-600 text-sm font-medium"><%= title %></span>
-    <%# ícone Lucide passado por prop 'icon' %>
     <i data-lucide="<%= icon %>" class="h-5 w-5 text-emerald-700"></i>
   </div>
+
   <div class="mt-2 flex items-end justify-between">
-    <p class="text-3xl font-extrabold text-emerald-900"><%= value.to_i %></p>
-    <span class="text-xs text-gray-500"><%= subtitle %></span>
+    <% color = danger_when_positive && value.to_i > 0 ? 'text-red-600' : 'text-emerald-900' %>
+    <p class="text-3xl font-extrabold <%= color %>"><%= value %></p>
+    <span class="text-xs text-gray-500">
+      <%= subtitle %>
+      <% if local_assigns[:note].present? %>
+        · <span class="font-semibold text-emerald-700"><%= note %></span>
+      <% end %>
+    </span>
   </div>
 </div>
