@@ -1,5 +1,4 @@
-<%# app/views/dashboard/_weather_forecast.html.erb %>
-<%# Locais/variáveis auxiliares %>
+
 <% widget_id = local_assigns[:widget_id] || "wx-#{SecureRandom.hex(4)}" %>
 <% fields = Array(@fields).compact %>
 <% first_with_coords = fields.find { |f| f.latitude.present? && f.longitude.present? } %>

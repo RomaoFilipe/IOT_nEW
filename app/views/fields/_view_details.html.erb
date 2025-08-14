@@ -1,4 +1,4 @@
-<%# ---------- Field-safe id ---------- %>
+
 <% field_id = (defined?(field) && field.present?) ? field.id : "dynamic" %>
 
 <div id="viewDetailsModal-<%= field_id %>"
@@ -17,7 +17,7 @@
           <i class="lucide lucide-map w-5 h-5 text-emerald-600"></i>
           <span id="modalFieldName" class="truncate"><%= field&.name || "Field" %></span>
         </h2>
-        <%# status chip %>
+        
         <% status_text = field&.status.presence || 'Desconhecido' %>
         <% good = %w[ativo active running ok good].include?(status_text.to_s.downcase) %>
         <span class="mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1
@@ -91,7 +91,6 @@
   </div>
 </div>
 
-<%# ---------------- Styles (scoped utilities) ---------------- %>
 <style>
   .tab-button{
     @apply w-full rounded-lg px-3 py-2.5 text-center transition
@@ -106,14 +105,12 @@
   .btn-secondary{
     @apply rounded-md bg-slate-700 px-4 py-2 text-white font-medium shadow hover:bg-slate-800;
   }
-  /* corrige z-index de elementos Mapbox dentro do modal */
   [id^="viewDetailsModal-"] .mapboxgl-control-container,
   [id^="viewDetailsModal-"] .mapboxgl-canvas-container,
   [id^="viewDetailsModal-"] .mapboxgl-marker,
   [id^="viewDetailsModal-"] .mapboxgl-popup{ z-index: 0 !important; }
 </style>
 
-<%# ---------------- Scripts ---------------- %>
 <script>
   // Abre/fecha modal
   function closeFieldModal(id){

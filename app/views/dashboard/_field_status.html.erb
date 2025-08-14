@@ -1,4 +1,4 @@
-<%# app/views/dashboard/_field_status.html.erb %>
+
 
 <h3 class="text-base sm:text-lg font-semibold text-slate-800 mb-4 flex items-center justify-between">
   <span>🗺️ Estado dos Campos</span>
@@ -58,8 +58,7 @@
           x-show="activeId === <%= field.id %>"
           x-cloak
           @mouseenter="stop()" @mouseleave="start()"
-          class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 sm:p-5 space-y-4"
-        >
+          class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 sm:p-5 space-y-4">
           <!-- Header -->
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
@@ -131,7 +130,6 @@
     </div>
   </div>
 
-  <%# Modais de detalhes %>
   <% @fields.each do |field| %>
     <%= render partial: "fields/view_details", locals: { field: field } %>
   <% end %>
