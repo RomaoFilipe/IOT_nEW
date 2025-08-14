@@ -19,9 +19,8 @@
     }
   </script>
 
-  <!-- Alpine (interações simples) -->
+  <!-- Alpine (opcional) -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
   <!-- Lucide Icons -->
   <script defer src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -53,53 +52,38 @@
   <% kpis = (@kpis || {}).with_indifferent_access %>
 
   <!-- KPIs -->
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-  <!-- Campos -->
-  <%= render "kpi_card",
-      title: t("dashboard.kpis.fields", default: "Campos"),
-      icon: "map-pin",
-      value: @kpis[:fields],
-      subtitle: t("dashboard.kpis.total", default: "Total") %>
+    <!-- Campos -->
+    <%= render "kpi_card",
+        title: t("dashboard.kpis.fields", default: "Campos"),
+        icon: "map-pin",
+        value: kpis[:fields],
+        subtitle: t("dashboard.kpis.total", default: "Total") %>
 
-  <!-- Sensores -->
-  <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
-    <div class="flex items-center justify-between">
-      <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.sensors", default: "Sensores") %></span>
-      <i data-lucide="radar" class="h-5 w-5 text-emerald-700"></i>
-    </div>
-    <div class="mt-2 flex items-end justify-between">
-      <p class="text-3xl font-extrabold text-emerald-900"><%= @kpis[:sensors_total] %></p>
-      <span class="text-xs text-gray-500">
-        <%= t("dashboard.kpis.online", default: "Online") %>:
-        <span class="font-semibold text-emerald-700"><%= @kpis[:sensors_online] %></span>
-      </span>
-    </div>
+    <!-- Sensores -->
+    <%= render "kpi_card",
+        title: t("dashboard.kpis.sensors", default: "Sensores"),
+        icon: "radar",
+        value: kpis[:sensors_total],
+        subtitle: "#{t('dashboard.kpis.online', default: 'Online')}: #{kpis[:sensors_online].to_i}" %>
+
+    <!-- Rega Hoje -->
+    <%= render "kpi_card",
+        title: t("dashboard.kpis.irrigation", default: "Rega hoje"),
+        icon: "droplets",
+        value: kpis[:irrigations_today],
+        subtitle: t("dashboard.kpis.scheduled", default: "Agendadas") %>
+
+    <!-- Alertas (perigoso quando > 0) -->
+    <%= render "kpi_card",
+        title: t("dashboard.kpis.alerts", default: "Alertas"),
+        icon: "bell-ring",
+        value: kpis[:alerts_open],
+        subtitle: t("dashboard.kpis.open", default: "Abertos"),
+        danger_when_positive: true %>
+
   </div>
-
-  <!-- Rega Hoje -->
-  <%= render "kpi_card",
-      title: t("dashboard.kpis.irrigation", default: "Rega hoje"),
-      icon: "droplets",
-      value: @kpis[:irrigations_today],
-      subtitle: t("dashboard.kpis.scheduled", default: "Agendadas") %>
-
-  <!-- Alertas -->
-  <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
-    <div class="flex items-center justify-between">
-      <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.alerts", default: "Alertas") %></span>
-      <i data-lucide="bell-ring" class="h-5 w-5 text-emerald-700"></i>
-    </div>
-    <div class="mt-2 flex items-end justify-between">
-      <p class="text-3xl font-extrabold <%= @kpis[:alerts_open].to_i > 0 ? 'text-red-600' : 'text-emerald-900' %>">
-        <%= @kpis[:alerts_open] %>
-      </p>
-      <span class="text-xs text-gray-500"><%= t("dashboard.kpis.open", default: "Abertos") %></span>
-    </div>
-  </div>
-
-</div>
-
 
   <!-- Meteo + Estado de Irrigação -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -154,7 +138,7 @@
             <p class="text-sm text-gray-500"><%= t("dashboard.irrigation.empty", default: "Sem sensores de irrigação associados aos campos.") %></p>
           <% end %>
         <% else %>
-          <p class="text-sm text-gray-500">Sem campos associados à sua conta.</p>
+          <p class="text-sm text-gray-500"><%= t("dashboard.fields.empty", default: "Sem campos associados à sua conta.") %></p>
         <% end %>
       </div>
     </div>
@@ -188,47 +172,47 @@
     <%= render "dashboard/quick_actions" %>
   </div>
 
-<!-- (Opcional) Feed de atividade -->
-<% if defined?(SensorReading) %>
-  <% sensor_readings = SensorReading
-    .joins(sensor: :field)
-    .where(fields: { account_id: current_user.account_id })
-    .order(created_at: :desc)
-    .limit(10) %>
+  <!-- Feed de atividade (opcional) -->
+  <% if defined?(SensorReading) %>
+    <% sensor_readings = SensorReading
+      .joins(sensor: :field)
+      .where(fields: { account_id: current_user.account_id })
+      .order(created_at: :desc)
+      .limit(10) %>
 
-  <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
-    <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
-      <i data-lucide="timeline" class="h-5 w-5 text-emerald-700"></i>
-      <%= t("dashboard.activity.title", default: "Atividade Recente") %>
-    </h2>
-    <% if sensor_readings.any? %>
-      <ul class="divide-y divide-gray-100">
-        <% sensor_readings.each do |r| %>
-          <li class="py-2 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <i data-lucide="dot" class="h-4 w-4 text-emerald-600"></i>
-              <div class="text-sm">
-                <span class="font-medium text-gray-800"><%= r.sensor&.name || r.sensor&.device_id || "Sensor" %></span>
-                <span class="text-gray-500">· <%= r.created_at.strftime("%d/%m %H:%M") %></span>
+    <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
+      <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
+        <i data-lucide="timeline" class="h-5 w-5 text-emerald-700"></i>
+        <%= t("dashboard.activity.title", default: "Atividade Recente") %>
+      </h2>
+      <% if sensor_readings.any? %>
+        <ul class="divide-y divide-gray-100">
+          <% sensor_readings.each do |r| %>
+            <li class="py-2 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <i data-lucide="dot" class="h-4 w-4 text-emerald-600"></i>
+                <div class="text-sm">
+                  <span class="font-medium text-gray-800"><%= r.sensor&.name || r.sensor&.device_id || "Sensor" %></span>
+                  <span class="text-gray-500">· <%= r.created_at.strftime("%d/%m %H:%M") %></span>
+                </div>
               </div>
-            </div>
-            <div class="text-xs text-gray-600">
-              <%= r.payload&.slice("temperature","moisture","ph","oxygen")&.map { |k,v| "#{k}: #{v}" }&.join(" · ") rescue nil %>
-            </div>
-          </li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p class="text-sm text-gray-500"><%= t("dashboard.activity.empty", default: "Sem atividade recente.") %></p>
-    <% end %>
-  </div>
-<% end %>
-
+              <div class="text-xs text-gray-600">
+                <%= r.payload&.slice("temperature","moisture","ph","oxygen")&.map { |k,v| "#{k}: #{v}" }&.join(" · ") rescue nil %>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-sm text-gray-500"><%= t("dashboard.activity.empty", default: "Sem atividade recente.") %></p>
+      <% end %>
+    </div>
+  <% end %>
 
 </div>
 
 <!-- Scripts -->
 <script>
+  // criar ícones Lucide
   document.addEventListener("DOMContentLoaded", () => { lucide.createIcons(); });
 
   async function fetchWeatherForField(lat, lon) {
@@ -297,6 +281,7 @@
     return map[code] || "—";
   }
 
+  // carregar previsão do 1.º campo automaticamente
   document.addEventListener("DOMContentLoaded", () => {
     const select = document.getElementById("fieldSelect");
     const firstOpt = select?.selectedOptions?.[0];

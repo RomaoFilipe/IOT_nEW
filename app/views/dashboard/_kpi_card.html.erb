@@ -1,11 +1,19 @@
 <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
   <div class="flex items-center justify-between">
-    <span class="text-gray-600 text-sm font-medium"><%= title %></span>
-    <%# ícone Lucide passado por prop 'icon' %>
-    <i data-lucide="<%= icon %>" class="h-5 w-5 text-emerald-700"></i>
+    <span class="text-gray-600 text-sm font-medium"><%= local_assigns.fetch(:title, "") %></span>
+    <i data-lucide="<%= local_assigns.fetch(:icon, 'activity') %>" class="h-5 w-5 text-emerald-700"></i>
   </div>
+
   <div class="mt-2 flex items-end justify-between">
-    <p class="text-3xl font-extrabold text-emerald-900"><%= value.to_i %></p>
-    <span class="text-xs text-gray-500"><%= subtitle %></span>
+    <% 
+      # valores seguros por defeito
+      _value = local_assigns.fetch(:value, 0).to_i
+      _subtitle = local_assigns.fetch(:subtitle, "")
+      _danger = local_assigns.fetch(:danger_when_positive, false)
+
+      color = _danger && _value > 0 ? 'text-red-600' : 'text-emerald-900'
+    %>
+    <p class="text-3xl font-extrabold <%= color %>"><%= _value %></p>
+    <span class="text-xs text-gray-500"><%= _subtitle %></span>
   </div>
 </div>

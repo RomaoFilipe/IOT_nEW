@@ -1,4 +1,11 @@
-<div class="rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-6 shadow-soft space-y-6 text-gray-800">
+<%# app/views/dashboard/_weather_forecast.html.erb %>
+<%# Locais/variáveis auxiliares %>
+<% widget_id = local_assigns[:widget_id] || "wx-#{SecureRandom.hex(4)}" %>
+<% fields = Array(@fields).compact %>
+<% first_with_coords = fields.find { |f| f.latitude.present? && f.longitude.present? } %>
+
+<div id="<%= widget_id %>"
+     class="rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-6 shadow-soft space-y-6 text-gray-800">
 
   <!-- Cabeçalho -->
   <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -7,23 +14,23 @@
       <%= t("dashboard.weather.title", default: "Weather Conditions") %>
     </h3>
 
-    <% if @fields.present? %>
+    <% if fields.present? %>
       <div class="flex items-center gap-2 text-sm">
-        <label for="fieldSelect" class="font-medium text-gray-600">
+        <label for="<%= "#{widget_id}-select" %>" class="font-medium text-gray-600">
           <%= t("dashboard.weather.select_field", default: "Field") %>:
         </label>
-        <select
-          id="fieldSelect"
-          name="field_id"
-          class="rounded-lg border-gray-200 bg-white/80 shadow-sm px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500"
-        >
-          <% @fields.each do |field| %>
+        <select id="<%= "#{widget_id}-select" %>"
+                name="field_id"
+                class="rounded-lg border-gray-200 bg-white/80 shadow-sm px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+          <% fields.each do |field| %>
+            <% lat = field.latitude.presence %>
+            <% lon = field.longitude.presence %>
             <option
               value="<%= field.id %>"
-              data-lat="<%= field.latitude %>"
-              data-lon="<%= field.longitude %>"
-              <%= "selected" if params[:field_id].to_s == field.id.to_s %>>
-              <%= field.name %>
+              data-lat="<%= lat %>"
+              data-lon="<%= lon %>"
+              <%= "selected" if (params[:field_id].to_s == field.id.to_s) %>>
+              <%= field.name %><%= " • (sem coordenadas)" unless lat && lon %>
             </option>
           <% end %>
         </select>
@@ -34,8 +41,8 @@
   <!-- Now / resumo -->
   <div class="flex flex-wrap items-center justify-between gap-6">
     <div>
-      <p id="current-temp" class="text-5xl font-extrabold tracking-tight text-emerald-900">--°C</p>
-      <p id="current-description" class="text-sm text-gray-500">
+      <p id="<%= "#{widget_id}-current-temp" %>" class="text-5xl font-extrabold tracking-tight text-emerald-900">--°C</p>
+      <p id="<%= "#{widget_id}-current-desc" %>" class="text-sm text-gray-500">
         <%= t("dashboard.weather.loading", default: "Loading...") %>
       </p>
     </div>
@@ -43,11 +50,11 @@
     <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
       <p class="text-gray-600">
         <span class="font-semibold">💨 <%= t("dashboard.weather.wind", default: "Wind") %>:</span>
-        <span id="wind-info">--</span>
+        <span id="<%= "#{widget_id}-wind" %>">--</span>
       </p>
       <p class="text-gray-600">
         <span class="font-semibold">🌧️ <%= t("dashboard.weather.precip", default: "Precipitation") %>:</span>
-        <span id="precip-info">-- mm</span>
+        <span id="<%= "#{widget_id}-precip" %>">-- mm</span>
       </p>
     </div>
   </div>
@@ -57,9 +64,12 @@
     <h4 class="text-sm font-semibold text-gray-700 mb-2">
       <%= t("dashboard.weather.next_days", default: "Next Days") %>
     </h4>
-    <div id="daily-forecast"
+    <div id="<%= "#{widget_id}-daily" %>"
          class="flex gap-2 overflow-x-auto pb-2 scroll-smooth">
-      <!-- JS preenche -->
+      <!-- Skeleton inicial -->
+      <% 5.times do %>
+        <div class="w-16 h-20 rounded bg-gray-100 animate-pulse"></div>
+      <% end %>
     </div>
   </div>
 
@@ -70,9 +80,167 @@
     <h4 class="text-sm font-semibold text-gray-700 mb-2">
       <%= t("dashboard.weather.next_24h", default: "Next 24 Hours") %>
     </h4>
-    <div id="hourly-forecast"
+    <div id="<%= "#{widget_id}-hourly" %>"
          class="flex gap-2 overflow-x-auto pb-1 text-center text-sm scroll-smooth">
-      <!-- JS preenche -->
+      <!-- Skeleton inicial -->
+      <% 8.times do %>
+        <div class="min-w-[3.5rem] h-16 rounded bg-gray-100 animate-pulse"></div>
+      <% end %>
     </div>
   </div>
+
+  <!-- Mensagens -->
+  <p id="<%= "#{widget_id}-msg" %>" class="hidden text-xs text-red-600"></p>
 </div>
+
+<script>
+(() => {
+  // --- helpers isolados por widget ---
+  const WID = "<%= widget_id %>";
+  const $id = (suf) => document.getElementById(`${WID}-${suf}`);
+  const root = document.getElementById(WID);
+  if (!root) return;
+
+  const els = {
+    select: document.getElementById(`${WID}-select`),
+    temp:   $id("current-temp"),
+    desc:   $id("current-desc"),
+    wind:   $id("wind"),
+    precip: $id("precip"),
+    daily:  $id("daily"),
+    hourly: $id("hourly"),
+    msg:    $id("msg"),
+  };
+
+  function weatherIcon(code) {
+    const map = {0:"☀️",1:"🌤",2:"⛅",3:"☁️",45:"🌫",48:"🌫",51:"🌦",53:"🌦",55:"🌧",61:"🌧",63:"🌧",65:"🌧",66:"❄️",67:"❄️",71:"❄️",73:"❄️",75:"❄️",95:"⛈",96:"⛈",99:"⛈"};
+    return map[code] || "❓";
+  }
+  function weatherText(code) {
+    const map = {
+      0:"<%= j t('weather.codes.clear', default: 'Céu limpo') %>",
+      1:"<%= j t('weather.codes.few', default: 'Poucas nuvens') %>",
+      2:"<%= j t('weather.codes.scattered', default: 'Nuvens dispersas') %>",
+      3:"<%= j t('weather.codes.overcast', default: 'Céu nublado') %>",
+      45:"<%= j t('weather.codes.fog', default: 'Nevoeiro') %>",
+      48:"<%= j t('weather.codes.rime_fog', default: 'Nevoeiro com geada') %>",
+      51:"<%= j t('weather.codes.drizzle', default: 'Chuviscos') %>",
+      53:"<%= j t('weather.codes.drizzle', default: 'Chuviscos') %>",
+      55:"<%= j t('weather.codes.drizzle', default: 'Chuviscos') %>",
+      61:"<%= j t('weather.codes.rain_light', default: 'Chuva fraca') %>",
+      63:"<%= j t('weather.codes.rain', default: 'Chuva') %>",
+      65:"<%= j t('weather.codes.rain_heavy', default: 'Chuva forte') %>",
+      66:"<%= j t('weather.codes.freezing_rain', default: 'Chuva gelada') %>",
+      67:"<%= j t('weather.codes.freezing_rain_heavy', default: 'Chuva gelada forte') %>",
+      71:"<%= j t('weather.codes.snow_light', default: 'Neve leve') %>",
+      73:"<%= j t('weather.codes.snow', default: 'Neve') %>",
+      75:"<%= j t('weather.codes.snow_heavy', default: 'Neve intensa') %>",
+      95:"<%= j t('weather.codes.thunder', default: 'Trovoada') %>",
+      96:"<%= j t('weather.codes.thunder_hail', default: 'Trovoada com granizo') %>",
+      99:"<%= j t('weather.codes.severe_storm', default: 'Tempestade severa') %>"
+    };
+    return map[code] || "—";
+  }
+
+  async function fetchWeather(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,weathercode,precipitation,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function render(data) {
+    const cur = data.current_weather;
+    if (els.temp)  els.temp.textContent  = `${Math.round(cur.temperature)}°C`;
+    if (els.desc)  els.desc.textContent  = weatherText(cur.weathercode);
+    if (els.wind)  els.wind.textContent  = `${cur.winddirection}° · ${cur.windspeed} km/h`;
+
+    // precipitação diária agregada de hoje
+    const today = new Date().toISOString().slice(0,10);
+    const idxs = data.hourly.time.map((t,i)=> t.startsWith(today) ? i : -1).filter(i=> i>=0);
+    const precip = idxs.reduce((a,i)=> a + (data.hourly.precipitation[i] || 0), 0);
+    if (els.precip) els.precip.textContent = `${precip.toFixed(1)} mm`;
+
+    // hourly
+    if (els.hourly) {
+      els.hourly.innerHTML = "";
+      for (let i = 0; i < 24 && i < data.hourly.time.length; i++) {
+        const ts   = new Date(data.hourly.time[i]);
+        const lbl  = ts.toLocaleTimeString("<%= I18n.locale %>", { hour: '2-digit', minute: '2-digit' });
+        const icon = weatherIcon(data.hourly.weathercode[i]);
+        const t    = Math.round(data.hourly.temperature_2m[i]);
+        els.hourly.insertAdjacentHTML("beforeend", `
+          <div class="bg-blue-50 rounded p-1 shadow-sm min-w-[3.5rem] text-center">
+            <p class="font-semibold text-[10px]">${lbl}</p>
+            <p class="text-lg">${icon}</p>
+            <p class="text-gray-700 text-xs">${t}°C</p>
+          </div>`);
+      }
+    }
+
+    // daily
+    if (els.daily) {
+      els.daily.innerHTML = "";
+      for (let i = 0; i < data.daily.time.length; i++) {
+        const d    = new Date(data.daily.time[i]);
+        const day  = d.toLocaleDateString("<%= I18n.locale %>", { weekday: 'short' });
+        const max  = Math.round(data.daily.temperature_2m_max[i]);
+        const min  = Math.round(data.daily.temperature_2m_min[i]);
+        const icon = weatherIcon(data.daily.weathercode[i]);
+        els.daily.insertAdjacentHTML("beforeend", `
+          <div class="bg-white rounded p-2 shadow text-center min-w-[3.5rem]">
+            <p class="font-bold text-[11px] uppercase">${day}</p>
+            <p class="text-xl">${icon}</p>
+            <p class="text-[11px] text-gray-700">${max}° / ${min}°</p>
+          </div>`);
+      }
+    }
+  }
+
+  async function loadFor(lat, lon) {
+    if (!lat || !lon) {
+      if (els.msg) {
+        els.msg.textContent = "<%= j t('dashboard.weather.missing_coords', default: 'Campo sem coordenadas. Selecione outro.') %>";
+        els.msg.classList.remove("hidden");
+      }
+      return;
+    } else {
+      els.msg && els.msg.classList.add("hidden");
+    }
+    try {
+      if (els.desc) els.desc.textContent = "<%= j t('dashboard.weather.loading', default: 'Loading...') %>";
+      const data = await fetchWeather(lat, lon);
+      render(data);
+    } catch (e) {
+      if (els.msg) {
+        els.msg.textContent = "<%= j t('dashboard.weather.error', default: 'Erro ao obter meteorologia.') %>";
+        els.msg.classList.remove("hidden");
+      }
+      console.error(e);
+    }
+  }
+
+  // inicialização
+  const initialOption =
+    els.select?.selectedOptions?.[0] ||
+    (els.select?.options?.length ? els.select.options[0] : null);
+
+  // Se não há dropdown, tenta 1º campo com coords
+  let initLat = initialOption?.dataset?.lat || "<%= first_with_coords&.latitude %>";
+  let initLon = initialOption?.dataset?.lon || "<%= first_with_coords&.longitude %>";
+
+  if (initLat && initLon) loadFor(initLat, initLon);
+
+  if (els.select) {
+    els.select.addEventListener("change", () => {
+      const opt = els.select.selectedOptions[0];
+      loadFor(opt.dataset.lat, opt.dataset.lon);
+    });
+  }
+
+  // Recria ícones Lucide deste widget (caso ainda não tenham sido “upgraded”)
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    window.lucide.createIcons({ icons: window.lucide.icons, attrs: {}, nameAttr: "data-lucide", contents: {} ,});
+  }
+})();
+</script>
