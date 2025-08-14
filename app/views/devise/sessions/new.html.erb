@@ -69,22 +69,6 @@
   <div class="blob blob-2 animate-drift-slow" style="animation-delay: -6s;"></div>
   <div class="grain"></div>
 
-  <!-- topo: logo + idiomas -->
-  <header class="relative z-10">
-    <div class="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
-      <%= link_to root_path, class: "flex items-center gap-2" do %>
-        <%= image_tag "logo_agrilot.png", class: "h-7 w-auto", alt: "AgriloT Synergy" %>
-        <span class="sr-only">AgriloT Synergy</span>
-      <% end %>
-
-      <nav class="flex items-center gap-1 bg-white/70 backdrop-blur-sm border border-white/60 rounded-full px-1.5 py-1 shadow-soft">
-        <% { "pt" => "Português", "en" => "English", "es" => "Español" }.each do |loc, label| %>
-          <%= link_to label, url_for(locale: loc),
-              class: "text-[11px] px-2 py-1 rounded-full transition #{I18n.locale.to_s == loc ? 'bg-white text-emerald-800 font-semibold' : 'text-gray-700 hover:bg-white/70'}" %>
-        <% end %>
-      </nav>
-    </div>
-  </header>
 
   <!-- conteúdo -->
   <main class="relative z-10">
