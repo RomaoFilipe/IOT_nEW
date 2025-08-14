@@ -16,12 +16,14 @@
           animation: {
             'fade-up': 'fadeUp .6s ease-out both',
             'drift-slow': 'drift 28s ease-in-out infinite',
-            'shine': 'shine 7s linear infinite'
+            'shine': 'shine 7s linear infinite',
+            'pulse-soft': 'pulseSoft 2.6s ease-in-out infinite'
           },
           keyframes: {
             fadeUp: { '0%':{opacity:0,transform:'translateY(10px)'}, '100%':{opacity:1,transform:'translateY(0)'} },
             drift:  { '0%':{transform:'translate(0,0) scale(1)'}, '50%':{transform:'translate(25px,-15px) scale(1.03)'}, '100%':{transform:'translate(0,0) scale(1)'} },
-            shine:  { '0%':{transform:'translateX(-100%)'}, '100%':{transform:'translateX(100%)'} }
+            shine:  { '0%':{transform:'translateX(-100%)'}, '100%':{transform:'translateX(100%)'} },
+            pulseSoft: { '0%,100%':{opacity:.85}, '50%':{opacity:1} }
           }
         }
       }
@@ -29,190 +31,239 @@
   </script>
 
   <style>
-    /* Fundo: gradiente diagonal + highlight a passar (bem subtil) */
+    /* Fundo: gradiente + brilho subtil */
     .bg-auth {
-      background:
-        linear-gradient(135deg, #f9fefc 0%, #eef9f4 55%, #fbfffd 100%);
-      position: relative;
-      overflow: hidden;
+      background: linear-gradient(135deg, #f9fefc 0%, #eef9f4 55%, #fbfffd 100%);
+      position: relative; overflow: hidden;
     }
     .bg-auth::before {
-      /* brilho suave que percorre na diagonal */
-      content:"";
-      position:absolute; inset:0;
-      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.5) 40%, transparent 80%);
-      transform: translateX(-100%);
-      animation: shine 14s linear infinite;
-      pointer-events:none;
+      content:""; position:absolute; inset:0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.45) 40%, transparent 80%);
+      transform: translateX(-100%); animation: shine 14s linear infinite; pointer-events:none;
     }
-    /* Blobs muito leves (sem “chapado”) */
-    .blob {
-      filter: blur(40px);
-      opacity: .18;
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-    }
+    /* Blobs leves */
+    .blob { filter: blur(40px); opacity:.16; position:absolute; border-radius:50%; pointer-events:none; }
     .blob-1 { width: 36rem; height: 36rem; left: -10rem; top: -8rem; background: #6ee7b7; }
     .blob-2 { width: 30rem; height: 30rem; right: -8rem; bottom: -10rem; background: #a7f3d0; }
-    /* Grão muito discreto para dar “material” */
-    .grain {
-      position:absolute; inset:0; pointer-events:none; opacity:.035; mix-blend-mode:multiply;
+    /* Grão muito discreto */
+    .grain { position:absolute; inset:0; pointer-events:none; opacity:.035; mix-blend-mode:multiply;
       background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity=".25"/></svg>');
     }
+    /* Cursor do typewriter */
+    .tw-caret { display:inline-block; width:1px; height:1.15em; background:#065f46; margin-left:.12rem; vertical-align:-.12em; animation: blink 1s steps(2, start) infinite; }
+    @keyframes blink { to { opacity: 0; } }
   </style>
 </head>
 
 <body class="min-h-screen bg-auth text-gray-800 selection:bg-emerald-200 selection:text-emerald-900">
   <!-- elementos de fundo -->
   <div class="blob blob-1 animate-drift-slow"></div>
-  <div class="blob blob-2 animate-drift-slow" style="animation-delay: -6s;"></div>
+  <div class="blob blob-2 animate-drift-slow" style="animation-delay:-6s"></div>
   <div class="grain"></div>
 
-  <!-- topo: logo + idiomas -->
-  <header class="relative z-10">
-    <div class="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
-    
-    </div>
-  </header>
+  <!-- Page wrapper: evita “buraco” no fundo -->
+  <div class="relative z-10 min-h-screen flex flex-col">
+    <!-- topo (podes pôr logo/idiomas aqui) -->
+    <header class="mx-auto w-full max-w-7xl px-4 py-4 flex items-center justify-between">
+      <span class="sr-only">AgriloT Synergy</span>
+    </header>
 
-  <!-- conteúdo -->
-  <main class="relative z-10">
-    <div class="mx-auto max-w-7xl px-4">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+    <!-- conteúdo -->
+    <main class="flex-1">
+      <div class="mx-auto max-w-7xl px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 
-        <!-- Lado esquerdo: títulos coerentes -->
-        <section class="hidden lg:block pl-2">
-          <h1 class="text-4xl font-extrabold text-emerald-900 tracking-tight animate-fade-up">
-            AgriloT Synergy
-          </h1>
-          <p class="mt-2 text-gray-700 animate-fade-up" style="animation-delay:.05s">
-            <%= t("landing.tagline", default: "Soluções inteligentes para agricultura moderna") %>
-          </p>
+          <!-- Lado esquerdo -->
+          <section class="hidden lg:block pl-2">
+            <h1 class="text-4xl font-extrabold text-emerald-900 tracking-tight animate-fade-up">
+              AgriloT Synergy
+            </h1>
 
-          <div class="mt-6 space-y-3">
-            <div class="flex items-center gap-2 text-sm text-gray-800 animate-fade-up" style="animation-delay:.1s">
-              <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
-              <span><%= t("login.points.kpis", default: "KPIs e operações em tempo real") %></span>
-            </div>
-            <div class="flex items-center gap-2 text-sm text-gray-800 animate-fade-up" style="animation-delay:.15s">
-              <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
-              <span><%= t("login.points.irrigation", default: "Automação de rega e alertas") %></span>
-            </div>
-            <div class="flex items-center gap-2 text-sm text-gray-800 animate-fade-up" style="animation-delay:.2s">
-              <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
-              <span><%= t("login.points.iot", default: "Integração direta com MQTT/IoT") %></span>
-            </div>
-          </div>
-        </section>
+            <!-- Subtítulo dinâmico (typewriter) -->
+            <p class="mt-2 text-gray-700 animate-fade-up" style="animation-delay:.05s">
+              <span id="tw-static"><%= t("landing.tagline", default:"Soluções inteligentes para agricultura moderna") %></span>
+              <span id="tw-dynamic" class="font-medium text-emerald-900"></span>
+              <span class="tw-caret"></span>
+            </p>
 
-        <!-- Cartão de login (glass + micro animações) -->
-        <section class="w-full max-w-md mx-auto">
-          <div class="bg-white/80 backdrop-blur-md border border-white/60 shadow-soft rounded-2xl p-6 md:p-8 animate-fade-up">
-
-            <% if flash[:notice].present? %>
-              <div class="mb-4 flex items-start gap-3 px-4 py-3 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
-                <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
-                </svg>
-                <span><%= flash[:notice] %></span>
+            <!-- Bullet points com micro animações sequenciais -->
+            <div class="mt-6 space-y-3">
+              <div class="flex items-center gap-2 text-sm text-gray-800 animate-fade-up" style="animation-delay:.12s">
+                <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse-soft"></span>
+                <span><%= t("login.points.kpis", default: "KPIs e operações em tempo real") %></span>
               </div>
-            <% end %>
-
-            <% if flash[:alert].present? %>
-              <div id="login-alert" class="mb-4 flex items-start gap-3 px-4 py-3 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm">
-                <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M12 2a10 10 0 110 20 10 10 0 010-20z"/>
-                </svg>
-                <span><%= flash[:alert] %></span>
+              <div class="flex items-center gap-2 text-sm text-gray-800 animate-fade-up" style="animation-delay:.18s">
+                <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse-soft"></span>
+                <span><%= t("login.points.irrigation", default: "Automação de rega e alertas") %></span>
               </div>
-            <% end %>
-
-            <div class="text-center mb-6">
-              <h2 class="text-xl font-semibold text-gray-900"><%= t("devise.sessions.new.title", default: "Entrar") %></h2>
-              <p class="text-sm text-gray-600"><%= t("devise.sessions.new.subtitle", default: "Introduza as suas credenciais para aceder à conta") %></p>
+              <div class="flex items-center gap-2 text-sm text-gray-800 animate-fade-up" style="animation-delay:.24s">
+                <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse-soft"></span>
+                <span><%= t("login.points.iot", default: "Integração direta com MQTT/IoT") %></span>
+              </div>
             </div>
+          </section>
 
-            <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class:"space-y-5" }) do |f| %>
-              <%= render "devise/shared/error_messages", resource: resource %>
+          <!-- Cartão de login -->
+          <section class="w-full max-w-md mx-auto">
+            <div class="bg-white/80 backdrop-blur-md border border-white/60 shadow-soft rounded-2xl p-6 md:p-8 animate-fade-up">
 
-              <!-- NIF da Empresa -->
-              <div>
-                <%= f.label :company_nif, t("company.nif", default:"NIF da Empresa"), class:"block text-sm font-medium text-gray-700 mb-1" %>
-                <%= f.text_field :company_nif, placeholder:"501234567", inputmode:"numeric",
-                  class:"w-full border border-gray-300 rounded-lg shadow-inner px-3 py-2 text-sm focus:ring-emerald-600 focus:border-emerald-600 transition" %>
+              <% if flash[:notice].present? %>
+                <div class="mb-4 flex items-start gap-3 px-4 py-3 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+                  <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                  </svg>
+                  <span><%= flash[:notice] %></span>
+                </div>
+              <% end %>
+
+              <% if flash[:alert].present? %>
+                <div id="login-alert" class="mb-4 flex items-start gap-3 px-4 py-3 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm">
+                  <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M12 2a10 10 0 110 20 10 10 0 010-20z"/>
+                  </svg>
+                  <span><%= flash[:alert] %></span>
+                </div>
+              <% end %>
+
+              <div class="text-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-900"><%= t("devise.sessions.new.title", default: "Entrar") %></h2>
+                <p class="text-sm text-gray-600"><%= t("devise.sessions.new.subtitle", default: "Introduza as suas credenciais para aceder à conta") %></p>
               </div>
 
-              <!-- Email -->
-              <div>
-                <%= f.label :email, t("devise.shared.email", default:"Email"), class:"block text-sm font-medium text-gray-700 mb-1" %>
-                <%= f.email_field :email, placeholder:"nome@exemplo.com", autocomplete:"email",
-                  class:"w-full border border-gray-300 rounded-lg shadow-inner px-3 py-2 text-sm focus:ring-emerald-600 focus:border-emerald-600 transition" %>
-              </div>
+              <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class:"space-y-5" }) do |f| %>
+                <%= render "devise/shared/error_messages", resource: resource %>
 
-              <!-- Palavra‑passe -->
-              <div>
-                <%= f.label :password, t("devise.shared.password", default:"Palavra‑passe"), class:"block text-sm font-medium text-gray-700 mb-1" %>
-                <div class="relative">
-                  <%= f.password_field :password, id:"password", autocomplete:"current-password",
-                        placeholder:t("devise.shared.password", default:"Palavra‑passe"),
-                        class:"w-full border border-gray-300 rounded-lg shadow-inner pl-3 pr-10 py-2 text-sm focus:ring-emerald-600 focus:border-emerald-600 transition" %>
-                  <button type="button" onclick="togglePassword('password')"
-                          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                          aria-label="<%= t('actions.show_password', default:'Mostrar palavra‑passe') %>">
-                    <svg id="eye-password" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268-2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z"/>
-                    </svg>
-                  </button>
+                <!-- NIF da Empresa -->
+                <div>
+                  <%= f.label :company_nif, t("company.nif", default:"NIF da Empresa"), class:"block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.text_field :company_nif, placeholder:"501234567", inputmode:"numeric" ,
+                    class:"w-full border border-gray-300 rounded-lg shadow-inner px-3 py-2 text-sm focus:ring-emerald-600 focus:border-emerald-600 transition" %>
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <%= f.label :email, t("devise.shared.email", default:"Email"), class:"block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.email_field :email, placeholder:"nome@exemplo.com", autocomplete:"email",
+                    class:"w-full border border-gray-300 rounded-lg shadow-inner px-3 py-2 text-sm focus:ring-emerald-600 focus:border-emerald-600 transition" %>
+                </div>
+
+                <!-- Palavra‑passe -->
+                <div>
+                  <%= f.label :password, t("devise.shared.password", default:"Palavra‑passe"), class:"block text-sm font-medium text-gray-700 mb-1" %>
+                  <div class="relative">
+                    <%= f.password_field :password, id:"password", autocomplete:"current-password",
+                          placeholder:t("devise.shared.password", default:"Palavra‑passe"),
+                          class:"w-full border border-gray-300 rounded-lg shadow-inner pl-3 pr-10 py-2 text-sm focus:ring-emerald-600 focus:border-emerald-600 transition" %>
+                    <button type="button" onclick="togglePassword('password')"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            aria-label="<%= t('actions.show_password', default:'Mostrar palavra‑passe') %>">
+                      <svg id="eye-password" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5.25 12 5.25c4.478 0 8.268-2.693 9.542 6.75-1.274 4.057-5.064 6.75-9.542 6.75-4.477 0-8.268-2.693-9.542-6.75z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <% if devise_mapping.rememberable? %>
+                  <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <%= f.check_box :remember_me, class:"h-4 w-4 text-emerald-600 border-gray-300 rounded" %>
+                    <%= f.label :remember_me, class:"cursor-pointer" %>
+                  </label>
+                <% end %>
+
+                <!-- Submeter -->
+                <%= f.submit t("devise.sessions.new.sign_in", default:"Entrar"),
+                      class:"w-full py-2.5 px-4 text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" %>
+              <% end %>
+
+              <!-- Links -->
+              <div class="mt-5 grid grid-cols-1 gap-2 text-sm text-gray-600">
+                <% if devise_mapping.recoverable? %>
+                  <%= link_to t("devise.shared.forgot_password", default:"Esqueceu-se da palavra‑passe?"),
+                              new_password_path(resource_name), class:"hover:underline" %>
+                <% end %>
+                <div class="flex items-center justify-between">
+                  <% if devise_mapping.confirmable? %>
+                    <%= link_to t("devise.shared.confirmation_instructions", default:"Reenviar confirmação"),
+                                new_confirmation_path(resource_name), class:"hover:underline" %>
+                  <% end %>
+                  <% if devise_mapping.registerable? %>
+                    <span>
+                      <%= t("devise.shared.no_account", default:"Não tem conta?") %>
+                      <%= link_to t("devise.shared.sign_up", default:"Registar"),
+                                  new_registration_path(resource_name),
+                                  class:"text-emerald-700 hover:underline font-medium" %>
+                    </span>
+                  <% end %>
                 </div>
               </div>
-
-              <% if devise_mapping.rememberable? %>
-                <label class="flex items-center gap-2 text-sm text-gray-700">
-                  <%= f.check_box :remember_me, class:"h-4 w-4 text-emerald-600 border-gray-300 rounded" %>
-                  <%= f.label :remember_me, class:"cursor-pointer" %>
-                </label>
-              <% end %>
-
-              <!-- Submeter -->
-              <%= f.submit t("devise.sessions.new.sign_in", default:"Entrar"),
-                    class:"w-full py-2.5 px-4 text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" %>
-            <% end %>
-
-            <!-- Links -->
-            <div class="mt-5 grid grid-cols-1 gap-2 text-sm text-gray-600">
-              <% if devise_mapping.recoverable? %>
-                <%= link_to t("devise.shared.forgot_password", default:"Esqueceu-se da palavra‑passe?"),
-                            new_password_path(resource_name), class:"hover:underline" %>
-              <% end %>
-              <div class="flex items-center justify-between">
-                <% if devise_mapping.confirmable? %>
-                  <%= link_to t("devise.shared.confirmation_instructions", default:"Reenviar confirmação"),
-                              new_confirmation_path(resource_name), class:"hover:underline" %>
-                <% end %>
-                <% if devise_mapping.registerable? %>
-                  <span>
-                    <%= t("devise.shared.no_account", default:"Não tem conta?") %>
-                    <%= link_to t("devise.shared.sign_up", default:"Registar"),
-                                new_registration_path(resource_name),
-                                class:"text-emerald-700 hover:underline font-medium" %>
-                  </span>
-                <% end %>
-              </div>
             </div>
-          </div>
 
-          <p class="mt-6 text-center text-xs text-gray-500">
-            © <%= Time.current.year %> AgriloT Synergy · <%= t("landing.footer.rights", default:"Todos os direitos reservados.") %>
-          </p>
-        </section>
+            <!-- Rodapé curto e sem espaço morto -->
+            <p class="mt-4 text-center text-xs text-gray-500">
+              © <%= Time.current.year %> AgriloT Synergy · <%= t("landing.footer.rights", default:"Todos os direitos reservados.") %>
+            </p>
+          </section>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <!-- JS: mostrar/ocultar palavra‑passe + esconder alerta -->
+    <!-- Rodapé global opcional (links pequenos). Remove se não precisares. -->
+    <footer class="px-4 py-3">
+      <div class="mx-auto max-w-7xl">
+        <div class="text-[11px] text-gray-500/80">
+          <%= link_to t("legal.privacy", default:"Privacidade"), "#", class:"hover:underline mr-3" %>
+          <%= link_to t("legal.terms", default:"Termos"), "#", class:"hover:underline" %>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- JS: typewriter + mostrar/ocultar password + auto-hide alert -->
   <script>
+    // alternância de frases no subtítulo
+    const phrases = [
+      "<%= j t('landing.tagline', default:'Soluções inteligentes para agricultura moderna') %>",
+      "<%= j t('login.points.kpis', default:'KPIs e operações em tempo real') %>",
+      "<%= j t('login.points.irrigation', default:'Automação de rega e alertas') %>",
+      "<%= j t('login.points.iot', default:'Integração direta com MQTT/IoT') %>"
+    ];
+
+    (function typewriter() {
+      const staticSpan  = document.getElementById('tw-static');
+      const dynamicSpan = document.getElementById('tw-dynamic');
+      if (!staticSpan || !dynamicSpan) return;
+
+      let index = 1; // começa na 2.ª frase (a 1.ª já está no static)
+      let pos   = 0;
+      let typing = true;
+
+      function tick() {
+        const full = phrases[index];
+        if (typing) {
+          pos++;
+          dynamicSpan.textContent = " " + full.slice(0, pos);
+          if (pos >= full.length) { typing = false; setTimeout(tick, 1400); return; }
+          setTimeout(tick, 22);
+        } else {
+          pos--;
+          dynamicSpan.textContent = " " + full.slice(0, pos);
+          if (pos <= 0) {
+            typing = true;
+            index = (index + 1) % phrases.length;
+            // quando a frase voltar à original, mete-a no static e limpa dynamic
+            staticSpan.textContent = phrases[(index - 1 + phrases.length) % phrases.length];
+            dynamicSpan.textContent = "";
+            setTimeout(tick, 300);
+            return;
+          }
+          setTimeout(tick, 14);
+        }
+      }
+      setTimeout(tick, 900);
+    })();
+
     function togglePassword(id){
       const input = document.getElementById(id);
       const icon  = document.getElementById('eye-' + id);
@@ -221,9 +272,15 @@
       input.type = hidden ? 'text' : 'password';
       icon.setAttribute('opacity', hidden ? '0.85' : '1');
     }
+
     document.addEventListener('DOMContentLoaded', ()=>{
       const box = document.getElementById('login-alert');
-      if(box){ setTimeout(()=>{ box.classList.add('opacity-0','translate-y-2','transition'); setTimeout(()=>box.remove(),300); }, 4000); }
+      if(box){
+        setTimeout(()=>{
+          box.classList.add('opacity-0','translate-y-2','transition');
+          setTimeout(()=> box.remove(), 300);
+        }, 4000);
+      }
     });
   </script>
 </body>
