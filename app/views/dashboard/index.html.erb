@@ -90,24 +90,6 @@
     <!-- Meteo -->
     <div class="relative overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <i data-lucide="cloud-sun" class="h-5 w-5 text-emerald-700"></i>
-          <%= t("dashboard.weather.title", default: "Previsão Meteorológica") %>
-        </h2>
-
-        <% if Array(@fields).any? %>
-          <div class="hidden sm:block">
-            <label for="fieldSelect" class="sr-only"><%= t("dashboard.weather.select_field", default: "Selecionar campo") %></label>
-            <select id="fieldSelect"
-                    class="text-sm rounded-lg border-gray-200 focus:ring-emerald-500 focus:border-emerald-500">
-              <% @fields.each do |f| %>
-                <option value="<%= f.id %>" data-lat="<%= f.latitude %>" data-lon="<%= f.longitude %>">
-                  <%= f.name %>
-                </option>
-              <% end %>
-            </select>
-          </div>
-        <% end %>
       </div>
 
       <%= render "dashboard/weather_forecast" %>
