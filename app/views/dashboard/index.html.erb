@@ -188,15 +188,22 @@
     <%= render "dashboard/quick_actions" %>
   </div>
 
-  <!-- (Opcional) Feed de atividade -->
-  <% if defined?(SensorReading) %>
-    <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
-      <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
-        <i data-lucide="timeline" class="h-5 w-5 text-emerald-700"></i>
-        <%= t("dashboard.activity.title", default: "Atividade Recente") %>
-      </h2>
+<!-- (Opcional) Feed de atividade -->
+<% if defined?(SensorReading) %>
+  <% sensor_readings = SensorReading
+    .joins(sensor: :field)
+    .where(fields: { account_id: current_user.account_id })
+    .order(created_at: :desc)
+    .limit(10) %>
+
+  <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
+    <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
+      <i data-lucide="timeline" class="h-5 w-5 text-emerald-700"></i>
+      <%= t("dashboard.activity.title", default: "Atividade Recente") %>
+    </h2>
+    <% if sensor_readings.any? %>
       <ul class="divide-y divide-gray-100">
-        <% SensorReading.order(created_at: :desc).limit(10).each do |r| %>
+        <% sensor_readings.each do |r| %>
           <li class="py-2 flex items-center justify-between">
             <div class="flex items-center gap-3">
               <i data-lucide="dot" class="h-4 w-4 text-emerald-600"></i>
@@ -211,8 +218,12 @@
           </li>
         <% end %>
       </ul>
-    </div>
-  <% end %>
+    <% else %>
+      <p class="text-sm text-gray-500"><%= t("dashboard.activity.empty", default: "Sem atividade recente.") %></p>
+    <% end %>
+  </div>
+<% end %>
+
 
 </div>
 
