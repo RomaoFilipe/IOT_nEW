@@ -53,55 +53,53 @@
   <% kpis = (@kpis || {}).with_indifferent_access %>
 
   <!-- KPIs -->
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
-      <div class="flex items-center justify-between">
-        <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.fields", default: "Campos") %></span>
-        <i data-lucide="map-pin" class="h-5 w-5 text-emerald-700"></i>
-      </div>
-      <div class="mt-2 flex items-end justify-between">
-        <p class="text-3xl font-extrabold text-emerald-900"><%= kpis.fetch(:fields, 0) %></p>
-        <span class="text-xs text-gray-500"><%= t("dashboard.kpis.total", default: "Total") %></span>
-      </div>
-    </div>
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-    <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
-      <div class="flex items-center justify-between">
-        <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.sensors", default: "Sensores") %></span>
-        <i data-lucide="radar" class="h-5 w-5 text-emerald-700"></i>
-      </div>
-      <div class="mt-2 flex items-end justify-between">
-        <p class="text-3xl font-extrabold text-emerald-900"><%= kpis.fetch(:sensors_total, 0) %></p>
-        <span class="text-xs text-gray-500">
-          <%= t("dashboard.kpis.online", default: "Online") %>:
-          <span class="font-semibold text-emerald-700"><%= kpis.fetch(:sensors_online, 0) %></span>
-        </span>
-      </div>
-    </div>
+  <!-- Campos -->
+  <%= render "kpi_card",
+      title: t("dashboard.kpis.fields", default: "Campos"),
+      icon: "map-pin",
+      value: @kpis[:fields],
+      subtitle: t("dashboard.kpis.total", default: "Total") %>
 
-    <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
-      <div class="flex items-center justify-between">
-        <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.irrigation", default: "Rega hoje") %></span>
-        <i data-lucide="droplets" class="h-5 w-5 text-emerald-700"></i>
-      </div>
-      <div class="mt-2 flex items-end justify-between">
-        <p class="text-3xl font-extrabold text-emerald-900"><%= kpis.fetch(:irrigations_today, 0) %></p>
-        <span class="text-xs text-gray-500"><%= t("dashboard.kpis.scheduled", default: "Agendadas") %></span>
-      </div>
+  <!-- Sensores -->
+  <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
+    <div class="flex items-center justify-between">
+      <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.sensors", default: "Sensores") %></span>
+      <i data-lucide="radar" class="h-5 w-5 text-emerald-700"></i>
     </div>
-
-    <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
-      <div class="flex items-center justify-between">
-        <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.alerts", default: "Alertas") %></span>
-        <i data-lucide="bell-ring" class="h-5 w-5 text-emerald-700"></i>
-      </div>
-      <div class="mt-2 flex items-end justify-between">
-        <% alerts_open = kpis.fetch(:alerts_open, 0) %>
-        <p class="text-3xl font-extrabold <%= alerts_open > 0 ? 'text-red-600' : 'text-emerald-900' %>"><%= alerts_open %></p>
-        <span class="text-xs text-gray-500"><%= t("dashboard.kpis.open", default: "Abertos") %></span>
-      </div>
+    <div class="mt-2 flex items-end justify-between">
+      <p class="text-3xl font-extrabold text-emerald-900"><%= @kpis[:sensors_total] %></p>
+      <span class="text-xs text-gray-500">
+        <%= t("dashboard.kpis.online", default: "Online") %>:
+        <span class="font-semibold text-emerald-700"><%= @kpis[:sensors_online] %></span>
+      </span>
     </div>
   </div>
+
+  <!-- Rega Hoje -->
+  <%= render "kpi_card",
+      title: t("dashboard.kpis.irrigation", default: "Rega hoje"),
+      icon: "droplets",
+      value: @kpis[:irrigations_today],
+      subtitle: t("dashboard.kpis.scheduled", default: "Agendadas") %>
+
+  <!-- Alertas -->
+  <div class="group rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-5 shadow-soft hover:shadow-lg transition">
+    <div class="flex items-center justify-between">
+      <span class="text-gray-600 text-sm font-medium"><%= t("dashboard.kpis.alerts", default: "Alertas") %></span>
+      <i data-lucide="bell-ring" class="h-5 w-5 text-emerald-700"></i>
+    </div>
+    <div class="mt-2 flex items-end justify-between">
+      <p class="text-3xl font-extrabold <%= @kpis[:alerts_open].to_i > 0 ? 'text-red-600' : 'text-emerald-900' %>">
+        <%= @kpis[:alerts_open] %>
+      </p>
+      <span class="text-xs text-gray-500"><%= t("dashboard.kpis.open", default: "Abertos") %></span>
+    </div>
+  </div>
+
+</div>
+
 
   <!-- Meteo + Estado de Irrigação -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
