@@ -1,23 +1,24 @@
-<!-- ApexCharts CDN -->
+<!-- app/views/analytics/index.html.erb -->
+
+<!-- ApexCharts (CDN) -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-<div x-data="analyticsUI()" x-init="init()" class="space-y-6">
+<div x-data="analyticsAjax()" x-init="start()" class="space-y-6">
+
   <!-- Topbar -->
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-3">
       <h1 class="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-      <span class="text-xs text-gray-500">Última atualização:
-        <span x-text="lastUpdate"></span>
-      </span>
+      <span class="text-xs text-gray-500">Última atualização: <span x-text="lastUpdate"></span></span>
       <span class="ml-2 inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
         Em tempo real
       </span>
     </div>
 
     <div class="flex items-center gap-2">
-      <!-- Período (só UI; os teus filtros reais já existem via params) -->
-      <select class="rounded-lg border-gray-300 text-sm px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500"
-              @change="reloadWithRange($event.target.value)">
+      <!-- Período: aqui só UI; os filtros “reais” são tratados pelo controller via params -->
+      <select @change="setPeriod($event.target.value)"
+              class="rounded-lg border-gray-300 text-sm px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
         <option value="">Últimos 30 dias</option>
         <option value="7d">Últimos 7 dias</option>
         <option value="quarter">Trimestre</option>
@@ -31,21 +32,19 @@
         Auto-refresh
       </button>
 
-      <!-- Export (usa os teus endpoints/export futuro) -->
+      <!-- Export -->
       <div class="relative">
         <button @click="openExport = !openExport" class="px-3 py-2 rounded-lg border bg-white text-sm">Exportar</button>
         <div x-show="openExport" @click.outside="openExport=false"
              class="absolute right-0 mt-2 w-36 rounded-lg border bg-white shadow">
-          <%= link_to "CSV", analytics_export_path(format: :csv, params: request.query_parameters),
-                class: "block px-3 py-2 text-sm hover:bg-gray-50" %>
-          <%= link_to "PDF", analytics_export_path(format: :pdf, params: request.query_parameters),
-                class: "block px-3 py-2 text-sm hover:bg-gray-50" %>
+          <a :href="exportUrl('csv')" class="block px-3 py-2 text-sm hover:bg-gray-50">CSV</a>
+          <a :href="exportUrl('pdf')" class="block px-3 py-2 text-sm hover:bg-gray-50">PDF</a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Tabs por domínio (usam params -> o teu controller calcula @effective_kind) -->
+  <!-- Tabs por domínio -->
   <div class="flex items-center justify-between">
     <div class="bg-white border rounded-xl p-1 flex gap-1 shadow-sm">
       <%= link_to analytics_path(request.query_parameters.merge(production_kind: "agriculture")),
@@ -64,12 +63,9 @@
 
     <div class="text-sm text-gray-500">
       <% case @effective_kind
-         when "agriculture" %>
-        Vista: Agricultura
-      <% when "aquaculture_sea" %>
-        Vista: Zona Marítima
-      <% else %>
-        Vista: Tanque
+         when "agriculture" %>Vista: Agricultura
+      <% when "aquaculture_sea" %>Vista: Zona Marítima
+      <% else %>Vista: Tanque
       <% end %>
     </div>
   </div>
@@ -77,162 +73,75 @@
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <!-- Coluna principal -->
     <div class="lg:col-span-9 space-y-6">
-      <!-- ====================== KPIs ====================== -->
+      <!-- KPIs -->
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <%# KPI 1: Total (produção/captura) %>
-        <% total_capture =
-             if @effective_kind == "agriculture"
-               sum_vals(@cumulative_production_by_month)
-             elsif @effective_kind == "aquaculture_sea"
-               sum_vals(@sea_biomass_growth)
-             else
-               sum_vals(@tank_biomass_growth)
-             end %>
-        <%= render partial: "kpi_card",
-              locals: { icon: "📦", title: (@effective_kind=='agriculture' ? "Produção Total" : "Captura Total"),
-                        value: total_capture.present? ? number_with_delimiter(total_capture.round(0)) + " ton" : "—",
-                        badge: "+", badge_value: nil, color: (@effective_kind=='aquaculture_tank' ? "cyan" : @effective_kind=='aquaculture_sea' ? "blue" : "emerald") } %>
+        <%= render partial: "kpi_card", locals: {
+          icon: "📦", title: (@effective_kind=='agriculture' ? "Produção Total" : "Captura Total"),
+          value: "<span id='kpi-total'>—</span>".html_safe, badge: nil, badge_value: nil,
+          color: (@effective_kind=='aquaculture_tank' ? "cyan" : @effective_kind=='aquaculture_sea' ? "blue" : "emerald")
+        } %>
 
-        <%# KPI 2: Eficiência (agro: humidade média / sea&tank: DO/eficiência simplificada) %>
-        <% eff =
-             if @effective_kind == "agriculture"
-               vals = @monthly_moisture&.values
-               vals.present? ? (vals.sum.to_f / vals.size).round(1) : nil
-             elsif @effective_kind == "aquaculture_sea"
-               nil # se tiveres eficiência da frota, podes usar aqui
-             else
-               nil
-             end %>
-        <%= render partial: "kpi_card",
-              locals: { icon: "⚡", title: "Eficiência",
-                        value: eff ? "#{eff}%" : "—", badge: nil, badge_value: nil, color: "emerald" } %>
+        <%= render partial: "kpi_card", locals: {
+          icon: "⚡", title: "Eficiência",
+          value: "<span id='kpi-eff'>—</span>".html_safe, badge: nil, badge_value: nil, color: "emerald"
+        } %>
 
-        <%# KPI 3: Custos (energia / despesas) %>
-        <% costs =
-             if @effective_kind == "agriculture"
-               @financial_data&.sum(:expenses).to_f
-             elsif @effective_kind == "aquaculture_sea"
-               sum_vals(@sea_energy_costs)
-             else
-               sum_vals(@tank_energy_costs)
-             end %>
-        <%= render partial: "kpi_card",
-              locals: { icon: "💶", title: "Custos Operacionais",
-                        value: costs.zero? ? "—" : money_eur(costs),
-                        badge: nil, badge_value: nil, color: "slate" } %>
+        <%= render partial: "kpi_card", locals: {
+          icon: "💶", title: "Custos Operacionais",
+          value: "<span id='kpi-costs'>—</span>".html_safe, badge: nil, badge_value: nil, color: "slate"
+        } %>
 
-        <%# KPI 4: Qualidade da água (score estimado) %>
-        <% quality_score =
-             if @effective_kind == "aquaculture_sea"
-               water_quality_score(ph: last_val(@sea_ph), turbidity: last_val(@sea_turbidity))
-             elsif @effective_kind == "aquaculture_tank"
-               water_quality_score(ph: last_val(@tank_ph))
-             else
-               nil
-             end %>
-        <%= render partial: "kpi_card",
-              locals: { icon: "💧", title: "Qualidade da Água",
-                        value: quality_score ? "#{quality_score}%" : "—",
-                        badge: nil, badge_value: nil, color: "indigo" } %>
+        <%= render partial: "kpi_card", locals: {
+          icon: "💧", title: "Qualidade da Água",
+          value: "<span id='kpi-quality'>—</span>".html_safe, badge: nil, badge_value: nil, color: "indigo"
+        } %>
       </div>
 
-      <!-- ====================== Gráficos Topo ====================== -->
+      <!-- Gráficos topo -->
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <div class="bg-white rounded-xl border shadow-sm p-4">
-          <h3 class="font-semibold text-gray-800">
-            <%= @effective_kind == "agriculture" ? "Produção ao Longo do Tempo" : "Captura ao Longo do Tempo" %>
+          <h3 class="font-semibold text-gray-800" id="title-line">
+            <%= @effective_kind == "agriculture" ? "Produção ao Longo do Tempo" : "Métrica ao Longo do Tempo" %>
           </h3>
-          <div id="chart-line" class="h-64"
-               data-kind="<%= @effective_kind %>"
-               data-line-labels="<%= (@effective_kind=='agriculture' ? AnalyticsController::MESES_PT : @sea_labels || @tank_labels).to_json %>"
-               data-line-series="<%= if @effective_kind=='agriculture'
-                                        month_series_hash_to_array(@cumulative_production_by_month, AnalyticsController::MESES_PT).to_json
-                                      elsif @effective_kind=='aquaculture_sea'
-                                        (@sea_water_temp || []).to_json
-                                      else
-                                        (@tank_temp || []).to_json
-                                      end %>">
-          </div>
+          <div id="chart-line" class="h-64"></div>
         </div>
 
         <div class="bg-white rounded-xl border shadow-sm p-4">
-          <h3 class="font-semibold text-gray-800">
-            <%= @effective_kind == "agriculture" ? "Despesas por Categoria" : (@effective_kind=='aquaculture_sea' ? "Captura por Zona Marítima" : "Produção por Tanque") %>
+          <h3 class="font-semibold text-gray-800" id="title-bars">
+            <%= @effective_kind == "agriculture" ? "Despesas por Categoria" : (@effective_kind=='aquaculture_sea' ? "Captura por Zona" : "Produção por Tanque") %>
           </h3>
-          <div id="chart-bars" class="h-64"
-               data-kind="<%= @effective_kind %>"
-               data-bars-labels="<%= if @effective_kind=='agriculture'
-                                       @expense_distribution&.keys&.to_json
-                                     elsif @effective_kind=='aquaculture_sea'
-                                       %w[Zona\ A Zona\ B Zona\ C Zona\ D].to_json
-                                     else
-                                       %w[Tanque\ 1 Tanque\ 2 Tanque\ 3 Tanque\ 4].to_json
-                                     end %>"
-               data-bars-series="<%= if @effective_kind=='agriculture'
-                                       @expense_distribution&.values&.map(&:to_f)&.to_json
-                                     elsif @effective_kind=='aquaculture_sea'
-                                       # se tiveres série real por zona, substitui este mock seguro
-                                       (@sea_salinity&.first(4) || []).to_json
-                                     else
-                                       (@tank_biomass_growth&.first(4) || []).to_json
-                                     end %>">
-          </div>
+          <div id="chart-bars" class="h-64"></div>
         </div>
       </div>
 
-      <!-- ====================== Gráficos Base ====================== -->
+      <!-- Gráficos base -->
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <div class="bg-white rounded-xl border shadow-sm p-4">
-          <h3 class="font-semibold text-gray-800">
-            <%= @effective_kind == "agriculture" ? "Distribuição de Despesas (fora irrigação)" : "Distribuição por Espécie" %>
+          <h3 class="font-semibold text-gray-800" id="title-donut">
+            <%= @effective_kind == "agriculture" ? "Distribuição de Despesas (sem irrigação)" : "Distribuição por Espécie" %>
           </h3>
-          <div id="chart-donut" class="h-64"
-               data-kind="<%= @effective_kind %>"
-               data-donut-labels="<%= if @effective_kind=='agriculture'
-                                       @non_irrigation_expenses&.keys&.to_json
-                                     else
-                                       # substitui por espécies reais se tiveres
-                                       %w[Espécie\ A Espécie\ B Espécie\ C Outros].to_json
-                                     end %>"
-               data-donut-series="<%= if @effective_kind=='agriculture'
-                                       @non_irrigation_expenses&.values&.map(&:to_f)&.to_json
-                                     else
-                                       [40,35,15,10].to_json
-                                     end %>">
-          </div>
+          <div id="chart-donut" class="h-64"></div>
           <div id="chart-donut-legend" class="mt-3 text-xs text-gray-500"></div>
         </div>
 
         <div class="bg-white rounded-xl border shadow-sm p-4">
           <div class="flex items-center justify-between">
-            <h3 class="font-semibold text-gray-800">
-              <%= @effective_kind == "agriculture" ? "Eficiência de Irrigação" : "Eficiência da Frota" %>
-            </h3>
-            <span class="text-xs rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5" x-text="gaugeBadge"></span>
+            <h3 class="font-semibold text-gray-800">Indicador de Performance</h3>
+            <span class="text-xs rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5" x-text="gaugeBadge">—</span>
           </div>
-          <div id="chart-gauge" class="h-64"
-               data-gauge-value="<%= if @effective_kind=='agriculture'
-                                      # converte custo/ton (menor é melhor) num score 0–100
-                                      v = last_val(@irrigation_efficiency_by_month&.values)
-                                      v.present? ? [[(100 - (v.to_f * 3)).round, 5].max, 100].min : nil
-                                    elsif @effective_kind=='aquaculture_sea'
-                                      last_val(@sea_biomass_growth) ? 84 : nil
-                                    else
-                                      last_val(@tank_fcr) ? (100 - (last_val(@tank_fcr).to_f * 10)).round : 80
-                                    end %>">
-          </div>
+          <div id="chart-gauge" class="h-64"></div>
           <p class="mt-2 text-center text-xl font-bold" id="gauge-val">—</p>
           <p class="text-center text-xs text-gray-500">Performance atual</p>
         </div>
       </div>
     </div>
 
-    <!-- ====================== Sidebar AI Insights ====================== -->
+    <!-- Sidebar AI Insights -->
     <aside class="lg:col-span-3">
       <div class="bg-white rounded-xl border shadow-sm p-4">
         <div class="flex items-center justify-between">
           <h3 class="font-semibold text-gray-800">AI Insights</h3>
-          <button @click="refreshNow()" class="text-sm px-2 py-1 rounded-lg border bg-white hover:bg-gray-50">Refresh</button>
+          <button @click="fetchData()" class="text-sm px-2 py-1 rounded-lg border bg-white hover:bg-gray-50">Refresh</button>
         </div>
         <ul class="mt-3 space-y-3">
           <template x-for="it in insights" :key="it.title">
@@ -256,42 +165,41 @@
   </div>
 </div>
 
-<%= render partial: "kpi_card", locals: {
-  icon: "📦",
-  title: (@effective_kind=='agriculture' ? "Produção Total" : "Captura Total"),
-  value: total_capture.present? ? number_with_delimiter(total_capture.round(0)) + " ton" : "—",
-  badge: "+",
-  badge_value: nil,
-  color: (@effective_kind=='aquaculture_tank' ? "cyan" : @effective_kind=='aquaculture_sea' ? "blue" : "emerald")
-} %>
-
-
 <script>
-  function analyticsUI(){
+  function analyticsAjax(){
     return {
-      auto: false, timers: [], openExport: false,
-      lastUpdate: new Date().toLocaleTimeString(),
-      insights: [], gaugeBadge: '—',
+      // estado
+      domain: '<%= @effective_kind %>',
+      params: new URLSearchParams(<%= request.query_parameters.to_json.html_safe %>),
+      auto: false, tmr: null, openExport: false,
+      lastUpdate: '-', gaugeBadge: '—',
+      insights: [
+        { title: 'Otimização de Alimentação', priority: 'HIGH', confidence: 92, text: 'Reduzir ~8% sem perder crescimento.' },
+        { title: 'Área/Zona Promissora',      priority: 'MEDIUM', confidence: 86, text: 'Condições apontam +20–25%.' },
+        { title: 'Risco Sanitário',           priority: 'HIGH', confidence: 88, text: 'Planear prevenção e monitorização.' },
+        { title: 'Eficiência Energética',     priority: 'LOW',  confidence: 76, text: 'Ajustes podem cortar ~15% consumo.' }
+      ],
 
-      init(){
-        this.lastUpdate = new Date().toLocaleTimeString();
-        this.buildInsights();
-        this.renderCharts();
-      },
+      start(){ this.fetchData(); },
 
       toggleAuto(){
         this.auto = !this.auto;
-        this.timers.forEach(t => clearInterval(t)); this.timers = [];
-        if (this.auto) this.timers.push(setInterval(()=>location.reload(), 15000));
+        if (this.tmr) { clearInterval(this.tmr); this.tmr = null; }
+        if (this.auto) this.tmr = setInterval(() => this.fetchData(), 15000);
       },
 
-      reloadWithRange(range){
+      setPeriod(v){
         const url = new URL(window.location.href);
-        if (range) url.searchParams.set('period', range); else url.searchParams.delete('period');
-        window.location = url.toString();
+        if (v) url.searchParams.set('period', v); else url.searchParams.delete('period');
+        window.location = url.toString(); // deixamos o controller decidir o range
       },
 
-      refreshNow(){ location.reload(); },
+      exportUrl(fmt){
+        const url = new URL(window.location.origin + '/analytics/export.' + fmt);
+        this.params.forEach((v,k)=> url.searchParams.set(k,v));
+        url.searchParams.set('production_kind', this.domain);
+        return url.toString();
+      },
 
       badge(p){
         return p === 'HIGH'   ? 'bg-rose-50 text-rose-700'
@@ -299,76 +207,86 @@
                                : 'bg-slate-50 text-slate-700';
       },
 
-      buildInsights(){
-        // heurísticas simples baseadas nos elementos presentes no DOM (últimos valores)
-        const qualityEl = document.querySelector('#chart-gauge');
-        const gValAttr  = qualityEl?.dataset?.gaugeValue;
-        const g = gValAttr ? parseFloat(gValAttr) : null;
+      async fetchData(){
+        // fixa o domínio atual
+        this.params.set('production_kind', this.domain);
+        const url = `/analytics/data.json?${this.params.toString()}`;
 
-        this.insights = [
-          { title: 'Otimização de Alimentação', priority: 'HIGH', confidence: 92,
-            text: 'Reduzir a taxa em ~8% pode manter crescimento e cortar custos.' },
-          { title: 'Área/Zona Promissora', priority: 'MEDIUM', confidence: 87,
-            text: 'Histórico e condições atuais sugerem +20–25% de produção.' },
-          { title: 'Risco de Pragas/Doença', priority: 'HIGH', confidence: 89,
-            text: 'Condições ambientais favorecem aparecimento. Planear prevenção.' },
-          { title: 'Eficiência Energética', priority: 'LOW', confidence: 76,
-            text: 'Ajustes de aeração/irrigação podem reduzir ~15% de consumo.' }
-        ];
+        const res = await fetch(url, { headers: { 'Accept':'application/json' }});
+        if (!res.ok) return;
+        const j = await res.json();
 
-        if(g !== null){
-          this.gaugeBadge = (g >= 90) ? 'Excelente' : (g >= 75 ? 'Bom' : 'Atenção');
-        }
+        // KPIs
+        document.getElementById('kpi-total').innerText   = j.kpis.total ?? '—';
+        document.getElementById('kpi-eff').innerText     = (j.kpis.efficiency_pct != null) ? `${j.kpis.efficiency_pct}%` : '—';
+        document.getElementById('kpi-costs').innerText   = (j.kpis.costs_eur != null) ? new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(j.kpis.costs_eur) : '—';
+        document.getElementById('kpi-quality').innerText = (j.kpis.water_quality_pct != null) ? `${j.kpis.water_quality_pct}%` : '—';
+
+        // Titles dinâmicos (consoante o domínio)
+        document.getElementById('title-line').innerText  =
+          (j.domain === 'agriculture') ? 'Produção ao Longo do Tempo' : 'Métrica ao Longo do Tempo';
+        document.getElementById('title-bars').innerText  =
+          (j.domain === 'aquaculture_sea') ? 'Captura por Zona' : (j.domain === 'aquaculture_tank' ? 'Produção por Tanque' : 'Despesas por Categoria');
+        document.getElementById('title-donut').innerText =
+          (j.domain === 'agriculture') ? 'Distribuição de Despesas (sem irrigação)' : 'Distribuição por Espécie';
+
+        this.lastUpdate = new Date(j.updated_at).toLocaleTimeString();
+
+        // desenhar gráficos
+        this.drawCharts(j);
       },
 
-      renderCharts(){
+      clearChart(el){ if (el) el.innerHTML = ''; },
+
+      drawCharts(j){
+        // CLEAN containers (evita duplicações)
+        this.clearChart(document.querySelector('#chart-line'));
+        this.clearChart(document.querySelector('#chart-bars'));
+        this.clearChart(document.querySelector('#chart-donut'));
+        this.clearChart(document.querySelector('#chart-gauge'));
+
         // LINE
-        const lineEl = document.querySelector('#chart-line');
-        const lineLabels = JSON.parse(lineEl.dataset.lineLabels || '[]');
-        const lineSeries = JSON.parse(lineEl.dataset.lineSeries || '[]');
-        new ApexCharts(lineEl, {
+        new ApexCharts(document.querySelector('#chart-line'), {
           chart: { type: 'line', height: 260, toolbar: { show:false } },
-          series: [{ name: 'Valor', data: lineSeries }],
-          xaxis: { categories: lineLabels },
+          series: j.charts.line.series,
+          xaxis: { categories: j.charts.line.categories },
           stroke: { width: 3, curve: 'smooth' },
           dataLabels: { enabled:false }
         }).render();
 
         // BARS
-        const barEl = document.querySelector('#chart-bars');
-        const barLabels = JSON.parse(barEl.dataset.barsLabels || '[]');
-        const barSeries = JSON.parse(barEl.dataset.barsSeries || '[]');
-        new ApexCharts(barEl, {
+        new ApexCharts(document.querySelector('#chart-bars'), {
           chart: { type: 'bar', height: 260, toolbar: { show:false } },
-          series: [{ name: 'Valor', data: barSeries }],
-          xaxis: { categories: barLabels },
+          series: j.charts.bars.series,
+          xaxis: { categories: j.charts.bars.categories },
           plotOptions: { bar: { borderRadius: 4, columnWidth: '45%' } },
           dataLabels: { enabled:false }
         }).render();
 
         // DONUT
-        const donutEl = document.querySelector('#chart-donut');
-        const donutLabels = JSON.parse(donutEl.dataset.donutLabels || '[]');
-        const donutSeries = JSON.parse(donutEl.dataset.donutSeries || '[]');
-        const donut = new ApexCharts(donutEl, {
+        const donut = new ApexCharts(document.querySelector('#chart-donut'), {
           chart: { type: 'donut', height: 260 },
-          labels: donutLabels, series: donutSeries, legend: { show:false }
+          labels: j.charts.donut.labels,
+          series: j.charts.donut.data,
+          legend: { show:false }
         });
         donut.render().then(()=>{
-          const el = document.querySelector('#chart-donut-legend');
-          if(el){ el.innerHTML = donutLabels.map((l,i)=> `<span class="mr-3">${l}: <b>${(donutSeries[i]||0)}</b></span>`).join(''); }
+          const el = document.getElementById('chart-donut-legend');
+          if (el) el.innerHTML = j.charts.donut.labels.map((l,i)=> `<span class="mr-3">${l}: <b>${(j.charts.donut.data[i]||0)}</b></span>`).join('');
         });
 
         // GAUGE
-        const gaugeEl = document.querySelector('#chart-gauge');
-        const gv = parseFloat(gaugeEl.dataset.gaugeValue || 'NaN');
-        const gval = isNaN(gv) ? 0 : Math.max(0, Math.min(100, gv));
-        new ApexCharts(gaugeEl, {
+        const gv = j.charts.gauge.value ?? 0;
+        const gval = Math.max(0, Math.min(100, gv));
+        new ApexCharts(document.querySelector('#chart-gauge'), {
           chart: { type:'radialBar', height:260, toolbar:{show:false} },
           series: [gval],
           plotOptions:{ radialBar:{ hollow:{ size:'60%' }, dataLabels:{ show:false } } }
         }).render();
-        document.getElementById('gauge-val').innerText = isNaN(gv) ? '—' : `${gval}%`;
+        document.getElementById('gauge-val').innerText = (j.charts.gauge.value == null) ? '—' : `${gval}%`;
+
+        // Badge do gauge
+        this.gaugeBadge = (gval >= 90) ? 'Excelente' : (gval >= 75 ? 'Bom' : 'Atenção');
       }
     }
   }

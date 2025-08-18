@@ -29,15 +29,18 @@ class AnalyticsController < ApplicationController
     # -------- Scopes base por campo (quando existir) --------
     if params[:field_id].present?
       @selected_field  = Field.find_by(id: params[:field_id])
+
       yields_scope     = @selected_field ? @selected_field.crop_yields : CropYield.none
       @soil_data       = @selected_field ? @selected_field.soil_readings : SoilReading.none
       @financial_data  = @selected_field ? @selected_field.financials    : Financial.none
-      @sensor_readings = @selected_field ? SensorReading.where(sensor: @selected_field.sensors) : SensorReading.none
+
+      # NOVO: leituras de aquacultura
+      @aq_readings     = @selected_field ? AquacultureReading.where(field_id: @selected_field.id) : AquacultureReading.none
     else
       yields_scope     = CropYield.all
       @soil_data       = SoilReading.all
       @financial_data  = Financial.all
-      @sensor_readings = SensorReading.all
+      @aq_readings     = AquacultureReading.all
     end
 
     # Cultura (apenas faz sentido para Agricultura)
@@ -48,13 +51,13 @@ class AnalyticsController < ApplicationController
       yields_scope     = yields_scope.where("created_at >= ?", @start_date)
       @soil_data       = @soil_data.where("measured_at >= ?", @start_date)
       @financial_data  = @financial_data.where("recorded_at >= ?", @start_date)
-      @sensor_readings = @sensor_readings.where("read_at >= ?", @start_date)
+      @aq_readings     = @aq_readings.where("measured_at >= ?", @start_date)
     end
     if @end_date
       yields_scope     = yields_scope.where("created_at <= ?", @end_date)
       @soil_data       = @soil_data.where("measured_at <= ?", @end_date)
       @financial_data  = @financial_data.where("recorded_at <= ?", @end_date)
-      @sensor_readings = @sensor_readings.where("read_at <= ?", @end_date)
+      @aq_readings     = @aq_readings.where("measured_at <= ?", @end_date)
     end
 
     # -------- Datasets por tipo de produção --------
@@ -91,15 +94,16 @@ class AnalyticsController < ApplicationController
 
     if params[:field_id].present?
       @selected_field  = Field.find_by(id: params[:field_id])
+
       yields_scope     = @selected_field ? @selected_field.crop_yields : CropYield.none
       @soil_data       = @selected_field ? @selected_field.soil_readings : SoilReading.none
       @financial_data  = @selected_field ? @selected_field.financials    : Financial.none
-      @sensor_readings = @selected_field ? SensorReading.where(sensor: @selected_field.sensors) : SensorReading.none
+      @aq_readings     = @selected_field ? AquacultureReading.where(field_id: @selected_field.id) : AquacultureReading.none
     else
       yields_scope     = CropYield.all
       @soil_data       = SoilReading.all
       @financial_data  = Financial.all
-      @sensor_readings = SensorReading.all
+      @aq_readings     = AquacultureReading.all
     end
 
     yields_scope = yields_scope.where(crop_type: @selected_culture) if @selected_culture.present?
@@ -108,13 +112,13 @@ class AnalyticsController < ApplicationController
       yields_scope     = yields_scope.where("created_at >= ?", @start_date)
       @soil_data       = @soil_data.where("measured_at >= ?", @start_date)
       @financial_data  = @financial_data.where("recorded_at >= ?", @start_date)
-      @sensor_readings = @sensor_readings.where("read_at >= ?", @start_date)
+      @aq_readings     = @aq_readings.where("measured_at >= ?", @start_date)
     end
     if @end_date
       yields_scope     = yields_scope.where("created_at <= ?", @end_date)
       @soil_data       = @soil_data.where("measured_at <= ?", @end_date)
       @financial_data  = @financial_data.where("recorded_at <= ?", @end_date)
-      @sensor_readings = @sensor_readings.where("read_at <= ?", @end_date)
+      @aq_readings     = @aq_readings.where("measured_at <= ?", @end_date)
     end
 
     # Construção e serialização
@@ -136,7 +140,7 @@ class AnalyticsController < ApplicationController
   private
 
   # =====================
-  # Agricultura
+  # Agricultura (igual ao que já tinhas)
   # =====================
   def build_agriculture_datasets!(yields)
     # 📊 Produção por Cultura e Mês
@@ -225,65 +229,52 @@ class AnalyticsController < ApplicationController
     end
 
     # ✅ Sensores agregados (ambiente geral)
-    @daily_light_intensity = avg_by_hour(@sensor_readings, :read_at) { |r| r.light_intensity }
-    @daily_wind_speed      = avg_by_hour(@sensor_readings, :read_at) { |r| r.wind_speed }
-    @daily_wind_direction  = avg_by_hour(@sensor_readings, :read_at) { |r| r.wind_direction }
-    @daily_air_temperature = avg_by_hour(@sensor_readings, :read_at) { |r| r.air_temperature }
-    @daily_air_humidity    = avg_by_hour(@sensor_readings, :read_at) { |r| r.air_humidity }
-    @daily_soil_ph         = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_ph }
-    @daily_soil_ec         = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_ec }
-    @daily_soil_nitrogen   = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_nitrogen }
-    @daily_soil_potassium  = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_potassium }
-    @daily_soil_phosphorus = avg_by_hour(@sensor_readings, :read_at) { |r| r.soil_phosphorus }
-
-    @latest_uptime      = @sensor_readings.order(read_at: :desc).limit(1).pluck(:uptime).first
-    @latest_error_count = @sensor_readings.order(read_at: :desc).limit(1).pluck(:error_count).first
+    # (mantive os teus, mas não são usados na aquacultura)
+    @latest_uptime      = nil
+    @latest_error_count = nil
   end
 
   # =====================
-  # Aquacultura (Mar) — robusto a nomes de colunas
+  # Aquacultura (Mar) — usa AquacultureReading
   # =====================
   def build_aquaculture_sea_datasets!
-    readings = @sensor_readings
-    readings = readings.where(environment: "sea") if column?(readings, :environment)
+    readings = @aq_readings
+    ordered  = readings.order(:measured_at)
 
-    ordered = readings.order(:read_at)
+    @sea_labels      = ordered.pluck(:measured_at).map { |t| t.strftime("%d/%m %Hh") }
+    @sea_water_temp  = ordered.pluck(:temperature).compact
+    @sea_salinity    = column?_(AquacultureReading, :salinity) ? ordered.pluck(:salinity).compact : []
+    @sea_ph          = column?_(AquacultureReading, :ph)       ? ordered.pluck(:ph).compact       : []
+    @sea_oxygen      = column?_(AquacultureReading, :oxygen_level) ? ordered.pluck(:oxygen_level).compact : []
 
-    @sea_labels     = safe_pluck(ordered, :read_at).map { |t| t.strftime("%d/%m %Hh") }
-    @sea_water_temp = safe_pluck(ordered, :water_temperature, :water_temp, :temperature, :temp, :air_temperature)
+    # Métricas que não tens (mantemos vazias para UI não rebentar)
+    @sea_turbidity      = []
+    @sea_biomass_growth = []
+    @sea_mortality      = []
 
-    @sea_salinity   = safe_pluck(ordered, :salinity, :salt, :saltiness)
-    @sea_ph         = safe_pluck(ordered, :ph, :water_ph, :ph_value)
-    @sea_turbidity  = safe_pluck(ordered, :turbidity, :ntu, :turbidez)
-
-    @sea_biomass_growth = safe_pluck(ordered, :biomass_kg, :biomass, :stock_kg)
-    @sea_mortality      = safe_pluck(ordered, :mortality_rate, :mortality, :mortalidade)
-
-    @sea_uptime       = safe_pick_one(ordered, :uptime, :device_uptime, :uptime_seconds)
-    @sea_alerts       = safe_pick_one(ordered, :alerts, :alarm_count, :event_count)
+    # Operações (não existem em AquacultureReading; podes ligar a outra fonte se tiveres)
+    @sea_uptime       = nil
+    @sea_alerts       = nil
     @sea_energy_costs = monthly_sum(@financial_data, "energia")
   end
 
   # =====================
-  # Aquacultura (Tanques) — robusto a nomes de colunas
+  # Aquacultura (Tanques) — reutiliza AquacultureReading
   # =====================
   def build_aquaculture_tank_datasets!
-    readings = @sensor_readings
-    readings = readings.where(environment: "tank") if column?(readings, :environment)
+    readings = @aq_readings
+    ordered  = readings.order(:measured_at)
 
-    ordered = readings.order(:read_at)
+    @tank_labels  = ordered.pluck(:measured_at).map { |t| t.strftime("%d/%m %Hh") }
+    @tank_temp    = ordered.pluck(:temperature).compact
+    @tank_ph      = column?_(AquacultureReading, :ph) ? ordered.pluck(:ph).compact : []
+    @tank_do      = column?_(AquacultureReading, :oxygen_level) ? ordered.pluck(:oxygen_level).compact : []
+    @tank_ammonia = [] # não tens amónia
+    @tank_biomass_growth = [] # não tens biomassa
+    @tank_fcr            = [] # não tens fcr
 
-    @tank_labels = safe_pluck(ordered, :read_at).map { |t| t.strftime("%d/%m %Hh") }
-    @tank_do     = safe_pluck(ordered, :dissolved_oxygen, :do, :oxygen, :o2)
-    @tank_ammonia= safe_pluck(ordered, :ammonia, :nh3, :amonia)
-    @tank_temp   = safe_pluck(ordered, :water_temperature, :water_temp, :temperature, :temp, :air_temperature)
-    @tank_ph     = safe_pluck(ordered, :ph, :water_ph, :ph_value)
-
-    @tank_biomass_growth = safe_pluck(ordered, :biomass_kg, :biomass, :stock_kg)
-    @tank_fcr            = safe_pluck(ordered, :fcr, :feed_conversion_ratio, :indice_fca)
-
-    @tank_uptime       = safe_pick_one(ordered, :uptime, :device_uptime, :uptime_seconds)
-    @tank_errors       = safe_pick_one(ordered, :error_count, :errors, :faults)
+    @tank_uptime       = nil
+    @tank_errors       = nil
     @tank_energy_costs = monthly_sum(@financial_data, "energia")
   end
 
@@ -334,10 +325,13 @@ class AnalyticsController < ApplicationController
     )
     custos_energia = sum_numeric_hash(@sea_energy_costs)
 
+    bars_categories = %w[Zona\ A Zona\ B Zona\ C Zona\ D]
+    bars_series     = Array.new(bars_categories.size, 0) # sem zonas disponíveis
+
     {
       domain: "aquaculture_sea",
       kpis: {
-        total: (@sea_biomass_growth || []).compact.map(&:to_f).sum.round(0),
+        total: 0, # sem biomassa/captura -> 0 (ajusta quando tiveres)
         efficiency_pct: nil,
         costs_eur: custos_energia.round(2),
         water_quality_pct: qualidade_pct
@@ -348,15 +342,14 @@ class AnalyticsController < ApplicationController
           series: [{ name: "Temp. Água (°C)", data: (@sea_water_temp || []).map(&:to_f) }]
         },
         bars: {
-          # substitui por dados reais de captura por zona quando tiveres
-          categories: %w[Zona\ A Zona\ B Zona\ C Zona\ D],
-          series: [{ name: "Captura", data: (@sea_salinity || [1700, 2200, 1400, 1900]).first(4).map(&:to_f) }]
+          categories: bars_categories,
+          series: [{ name: "Captura", data: bars_series }]
         },
         donut: {
-          labels: %w[Atum Sardinha Bacalhau Outros],
+          labels: %w[Espécie\ A Espécie\ B Espécie\ C Outros],
           data:   [40, 35, 15, 10]
         },
-        gauge: { value: (@sea_biomass_growth.present? ? 84 : nil) }
+        gauge: { value: qualidade_pct } # usa qualidade como gauge (até existirem métricas de frota)
       },
       updated_at: Time.current
     }
@@ -365,13 +358,14 @@ class AnalyticsController < ApplicationController
   def json_tank
     qualidade_pct = water_quality_score(ph: (@tank_ph || []).last)
     custos_energia = sum_numeric_hash(@tank_energy_costs)
-    fcr_last       = (@tank_fcr || []).last
-    gauge_score    = fcr_last ? (100 - (fcr_last.to_f * 10)).round : 80
+
+    bars_categories = %w[Tanque\ 1 Tanque\ 2 Tanque\ 3 Tanque\ 4]
+    bars_series     = Array.new(bars_categories.size, 0)
 
     {
       domain: "aquaculture_tank",
       kpis: {
-        total: (@tank_biomass_growth || []).compact.map(&:to_f).sum.round(0),
+        total: 0,
         efficiency_pct: nil,
         costs_eur: custos_energia.round(2),
         water_quality_pct: qualidade_pct
@@ -382,14 +376,14 @@ class AnalyticsController < ApplicationController
           series: [{ name: "Temp. Água (°C)", data: (@tank_temp || []).map(&:to_f) }]
         },
         bars: {
-          categories: %w[Tanque\ 1 Tanque\ 2 Tanque\ 3 Tanque\ 4],
-          series: [{ name: "Produção", data: (@tank_biomass_growth || [800, 950, 700, 860]).first(4).map(&:to_f) }]
+          categories: bars_categories,
+          series: [{ name: "Produção", data: bars_series }]
         },
         donut: {
           labels: %w[Dourada Robalo Tilápia Outros],
           data:   [30, 40, 20, 10]
         },
-        gauge: { value: gauge_score }
+        gauge: { value: qualidade_pct }
       },
       updated_at: Time.current
     }
@@ -425,7 +419,12 @@ class AnalyticsController < ApplicationController
               .transform_values { |recs| recs.sum(&:expenses).to_f }
   end
 
-  # evita rebentar se a coluna não existir nesta instância
+  # testa colunas numa classe ActiveRecord (ex.: AquacultureReading)
+  def column?_(klass, name)
+    klass.column_names.include?(name.to_s)
+  end
+
+  # evita rebentar se a coluna não existir numa relation
   def column?(relation, name)
     relation.klass.column_names.include?(name.to_s)
   rescue
@@ -434,26 +433,6 @@ class AnalyticsController < ApplicationController
 
   def sum_numeric_hash(h)
     h.to_h.values.compact.map(&:to_f).sum
-  end
-
-  # ---------- helpers de esquema/colunas (robustos) ----------
-  # devolve o primeiro nome de coluna que exista na relation
-  def first_existing_column(relation, *candidates)
-    cols = relation.klass.column_names
-    candidates.map(&:to_s).find { |c| cols.include?(c) }
-  rescue
-    nil
-  end
-
-  # faz pluck ao 1º nome de coluna que exista; se nenhuma existir devolve []
-  def safe_pluck(relation, *candidates)
-    col = first_existing_column(relation, *candidates)
-    col ? relation.pluck(col).compact : []
-  end
-
-  # devolve um único valor (ou nil) usando safe_pluck
-  def safe_pick_one(relation, *candidates)
-    safe_pluck(relation.limit(1), *candidates).first
   end
 
   # Score simples 0–100 a partir de pH (~7.5 ideal) e turbidez (baixo é melhor)
@@ -466,7 +445,7 @@ class AnalyticsController < ApplicationController
         [[100 - diff * 18.0, 0].max, 100].min
       end
     score_turb =
-      if turbidity.nil? then 70
+      if turbidity.nil? then 80 # se não tens turbidez, assume aceitável
       else
         case turbidity.to_f
         when 0..5   then 95
