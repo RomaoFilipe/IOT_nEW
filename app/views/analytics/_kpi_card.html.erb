@@ -1,0 +1,14 @@
+<%# locals: icon:, title:, value:, badge: ('+'|'-'|nil), badge_value: Float|Nil, color: 'emerald'|'blue'|'cyan'|'indigo'|'slate' %>
+<div class="bg-white rounded-xl border shadow-sm p-4">
+  <div class="flex items-start justify-between">
+    <div class="text-2xl"><%= icon %></div>
+    <% if badge_value.present? %>
+      <% pos = badge != '-' %>
+      <span class="text-[10px] px-2 py-0.5 rounded-full <%= pos ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' %>">
+        <%= pos ? '↑' : '↓' %> <%= badge_value.to_f.round(1) %>%
+      </span>
+    <% end %>
+  </div>
+  <p class="mt-2 text-xs text-gray-500">Este período</p>
+  <p class="text-2xl font-bold text-gray-900"><%= value.presence || "—" %></p>
+</div>

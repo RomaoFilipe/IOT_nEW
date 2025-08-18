@@ -94,10 +94,8 @@ Rails.application.routes.draw do
       get "/dashboard/upcoming_events", to: "dashboard#upcoming_events", as: :dashboard_upcoming_events
 
       # 📈 Exportações Analytics
-      get 'analytics/export_csv', to: 'analytics#export_csv', as: 'export_analytics_csv'
-      get 'analytics/export_field_comparison_csv', to: 'analytics#export_field_comparison_csv', as: 'export_field_comparison_csv'
-      get 'analytics/export_irrigation_efficiency_csv', to: 'analytics#export_irrigation_efficiency_csv', as: 'export_irrigation_efficiency_csv'
-
+      get  "analytics/data",     to: "analytics#data"      # JSON para os gráficos/KPIs
+      get  "analytics/export",   to: "analytics#export"    # CSV/PDF (stub)
       # ⚙️ Configurações pessoais
       resource :settings, only: [:index] do
         patch :update_profile
