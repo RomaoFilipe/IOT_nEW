@@ -3,7 +3,7 @@ class AnalyticsController < ApplicationController
   MESES_PT = %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez].freeze
 
   # -------------------------------------------------------------------
-  # UI principal (server-render). Mantém a tua lógica original.
+  # UI principal (server-render)
   # -------------------------------------------------------------------
   def index
     # Campos só com o que é preciso para a UI
@@ -71,12 +71,11 @@ class AnalyticsController < ApplicationController
   end
 
   # -------------------------------------------------------------------
-  # Endpoint JSON para dashboards/auto-refresh
+  # Endpoint JSON (para AJAX/auto-refresh)
   # GET /analytics/data.json
-  # Aceita os MESMOS parâmetros da index (production_kind, field_id, start_date, end_date, culture, ...)
   # -------------------------------------------------------------------
   def data
-    # Reutiliza a mesma preparação de filtros/escopos da index
+    # Preparação igual à index
     @fields = Field.select(:id, :name, :production_kind)
     @selected_culture = params[:culture].presence
     @start_date = safe_parse_date(params[:start_date])
@@ -118,7 +117,7 @@ class AnalyticsController < ApplicationController
       @sensor_readings = @sensor_readings.where("read_at <= ?", @end_date)
     end
 
-    # Construção dos datasets e serialização JSON
+    # Construção e serialização
     case @effective_kind
     when "agriculture"
       build_agriculture_datasets!(yields_scope)
@@ -157,11 +156,11 @@ class AnalyticsController < ApplicationController
     }
 
     # 🌡️ Temperatura média diária e mensal (SOLO)
-    @daily_temperature = avg_by_hour(@soil_data, :measured_at) { |rec| rec.temperature }
+    @daily_temperature   = avg_by_hour(@soil_data, :measured_at) { |rec| rec.temperature }
     @monthly_temperature = avg_by_month(@soil_data, :measured_at) { |rec| rec.temperature }
 
     # 💧 Humidade do Solo
-    @daily_moisture = avg_by_hour(@soil_data, :measured_at) { |rec| rec.moisture }
+    @daily_moisture   = avg_by_hour(@soil_data, :measured_at) { |rec| rec.moisture }
     @monthly_moisture = avg_by_month(@soil_data, :measured_at) { |rec| rec.moisture }
 
     # 💰 Despesas por Categoria
@@ -210,7 +209,7 @@ class AnalyticsController < ApplicationController
     @profit_by_crop_type = {}
     crop_types.each do |type|
       production_amount = yields.where(crop_type: type).sum(:amount).to_f
-      estimated_revenue = production_amount * 200 # <— ajusta à tua realidade
+      estimated_revenue = production_amount * 200 # ajustar à realidade
       total_expenses    = @financial_data.sum(:expenses).to_f
       expenses_per_crop = crop_types.size.positive? ? (total_expenses / crop_types.size) : 0
       profit = estimated_revenue - expenses_per_crop
@@ -242,48 +241,49 @@ class AnalyticsController < ApplicationController
   end
 
   # =====================
-  # Aquacultura (Mar)
+  # Aquacultura (Mar) — robusto a nomes de colunas
   # =====================
   def build_aquaculture_sea_datasets!
     readings = @sensor_readings
-    readings = readings.where(environment: "sea") if readings.klass.column_names.include?("environment") rescue readings
+    readings = readings.where(environment: "sea") if column?(readings, :environment)
 
     ordered = readings.order(:read_at)
-    @sea_labels      = ordered.pluck(:read_at).map { |t| t.strftime("%d/%m %Hh") }
-    @sea_water_temp  = ordered.pluck(:water_temperature).compact
-    @sea_salinity    = ordered.pluck(:salinity).compact if column?(readings, :salinity)
-    @sea_ph          = ordered.pluck(:ph).compact       if column?(readings, :ph)
-    @sea_turbidity   = ordered.pluck(:turbidity).compact if column?(readings, :turbidity)
 
-    # Biomassa & mortalidade (se existirem colunas; senão ficam vazios)
-    @sea_biomass_growth = ordered.pluck(:biomass_kg).compact if column?(readings, :biomass_kg)
-    @sea_mortality      = ordered.pluck(:mortality_rate).compact if column?(readings, :mortality_rate)
+    @sea_labels     = safe_pluck(ordered, :read_at).map { |t| t.strftime("%d/%m %Hh") }
+    @sea_water_temp = safe_pluck(ordered, :water_temperature, :water_temp, :temperature, :temp, :air_temperature)
 
-    # Operações
-    @sea_uptime       = ordered.limit(1).pluck(:uptime).first
-    @sea_alerts       = ordered.limit(1).pluck(:alerts).first if column?(readings, :alerts)
+    @sea_salinity   = safe_pluck(ordered, :salinity, :salt, :saltiness)
+    @sea_ph         = safe_pluck(ordered, :ph, :water_ph, :ph_value)
+    @sea_turbidity  = safe_pluck(ordered, :turbidity, :ntu, :turbidez)
+
+    @sea_biomass_growth = safe_pluck(ordered, :biomass_kg, :biomass, :stock_kg)
+    @sea_mortality      = safe_pluck(ordered, :mortality_rate, :mortality, :mortalidade)
+
+    @sea_uptime       = safe_pick_one(ordered, :uptime, :device_uptime, :uptime_seconds)
+    @sea_alerts       = safe_pick_one(ordered, :alerts, :alarm_count, :event_count)
     @sea_energy_costs = monthly_sum(@financial_data, "energia")
   end
 
   # =====================
-  # Aquacultura (Tanques)
+  # Aquacultura (Tanques) — robusto a nomes de colunas
   # =====================
   def build_aquaculture_tank_datasets!
     readings = @sensor_readings
-    readings = readings.where(environment: "tank") if readings.klass.column_names.include?("environment") rescue readings
+    readings = readings.where(environment: "tank") if column?(readings, :environment)
 
     ordered = readings.order(:read_at)
-    @tank_labels  = ordered.pluck(:read_at).map { |t| t.strftime("%d/%m %Hh") }
-    @tank_do      = ordered.pluck(:dissolved_oxygen).compact if column?(readings, :dissolved_oxygen)
-    @tank_ammonia = ordered.pluck(:ammonia).compact          if column?(readings, :ammonia)
-    @tank_temp    = ordered.pluck(:water_temperature).compact if column?(readings, :water_temperature)
-    @tank_ph      = ordered.pluck(:ph).compact                if column?(readings, :ph)
 
-    @tank_biomass_growth = ordered.pluck(:biomass_kg).compact if column?(readings, :biomass_kg)
-    @tank_fcr            = ordered.pluck(:fcr).compact        if column?(readings, :fcr)
+    @tank_labels = safe_pluck(ordered, :read_at).map { |t| t.strftime("%d/%m %Hh") }
+    @tank_do     = safe_pluck(ordered, :dissolved_oxygen, :do, :oxygen, :o2)
+    @tank_ammonia= safe_pluck(ordered, :ammonia, :nh3, :amonia)
+    @tank_temp   = safe_pluck(ordered, :water_temperature, :water_temp, :temperature, :temp, :air_temperature)
+    @tank_ph     = safe_pluck(ordered, :ph, :water_ph, :ph_value)
 
-    @tank_uptime       = ordered.limit(1).pluck(:uptime).first
-    @tank_errors       = ordered.limit(1).pluck(:error_count).first
+    @tank_biomass_growth = safe_pluck(ordered, :biomass_kg, :biomass, :stock_kg)
+    @tank_fcr            = safe_pluck(ordered, :fcr, :feed_conversion_ratio, :indice_fca)
+
+    @tank_uptime       = safe_pick_one(ordered, :uptime, :device_uptime, :uptime_seconds)
+    @tank_errors       = safe_pick_one(ordered, :error_count, :errors, :faults)
     @tank_energy_costs = monthly_sum(@financial_data, "energia")
   end
 
@@ -396,7 +396,7 @@ class AnalyticsController < ApplicationController
   end
 
   # -------------------------------------------------------------------
-  # Helpers genéricos (auto-contidos neste controller)
+  # Helpers genéricos
   # -------------------------------------------------------------------
   def safe_parse_date(str)
     return nil if str.blank?
@@ -434,6 +434,26 @@ class AnalyticsController < ApplicationController
 
   def sum_numeric_hash(h)
     h.to_h.values.compact.map(&:to_f).sum
+  end
+
+  # ---------- helpers de esquema/colunas (robustos) ----------
+  # devolve o primeiro nome de coluna que exista na relation
+  def first_existing_column(relation, *candidates)
+    cols = relation.klass.column_names
+    candidates.map(&:to_s).find { |c| cols.include?(c) }
+  rescue
+    nil
+  end
+
+  # faz pluck ao 1º nome de coluna que exista; se nenhuma existir devolve []
+  def safe_pluck(relation, *candidates)
+    col = first_existing_column(relation, *candidates)
+    col ? relation.pluck(col).compact : []
+  end
+
+  # devolve um único valor (ou nil) usando safe_pluck
+  def safe_pick_one(relation, *candidates)
+    safe_pluck(relation.limit(1), *candidates).first
   end
 
   # Score simples 0–100 a partir de pH (~7.5 ideal) e turbidez (baixo é melhor)
