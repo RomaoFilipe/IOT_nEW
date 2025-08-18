@@ -420,7 +420,7 @@ class AnalyticsController < ApplicationController
   end
 
   # testa colunas numa classe ActiveRecord (ex.: AquacultureReading)
-  def column?_(klass, name)
+  def has_column?(klass, name)
     klass.column_names.include?(name.to_s)
   end
 
