@@ -1,4 +1,11 @@
-<%# locals: icon:, title:, value:, badge: ('+'|'-'|nil), badge_value: Float|Nil, color: 'emerald'|'blue'|'cyan'|'indigo'|'slate' %>
+<%# locals esperados: icon:, title:, value:, badge:, badge_value:, color: %>
+<% icon        = local_assigns.fetch(:icon, "ℹ️") %>
+<% title       = local_assigns.fetch(:title, "KPI") %>
+<% value       = local_assigns.fetch(:value, "—") %>
+<% badge       = local_assigns.fetch(:badge, nil) %>          <%# '+' | '-' | nil %>
+<% badge_value = local_assigns.fetch(:badge_value, nil) %>    <%# Float | Nil %>
+<% color       = local_assigns.fetch(:color, "slate") %>
+
 <div class="bg-white rounded-xl border shadow-sm p-4">
   <div class="flex items-start justify-between">
     <div class="text-2xl"><%= icon %></div>

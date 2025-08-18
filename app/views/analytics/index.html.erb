@@ -256,7 +256,15 @@
   </div>
 </div>
 
-<%= render partial: "analytics/kpi_card" %>
+<%= render partial: "kpi_card", locals: {
+  icon: "📦",
+  title: (@effective_kind=='agriculture' ? "Produção Total" : "Captura Total"),
+  value: total_capture.present? ? number_with_delimiter(total_capture.round(0)) + " ton" : "—",
+  badge: "+",
+  badge_value: nil,
+  color: (@effective_kind=='aquaculture_tank' ? "cyan" : @effective_kind=='aquaculture_sea' ? "blue" : "emerald")
+} %>
+
 
 <script>
   function analyticsUI(){
