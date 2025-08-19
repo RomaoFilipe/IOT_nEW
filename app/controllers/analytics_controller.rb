@@ -229,7 +229,6 @@ class AnalyticsController < ApplicationController
     end
 
     # ✅ Sensores agregados (ambiente geral)
-    # (mantive os teus, mas não são usados na aquacultura)
     @latest_uptime      = nil
     @latest_error_count = nil
   end
@@ -243,9 +242,9 @@ class AnalyticsController < ApplicationController
 
     @sea_labels      = ordered.pluck(:measured_at).map { |t| t.strftime("%d/%m %Hh") }
     @sea_water_temp  = ordered.pluck(:temperature).compact
-    @sea_salinity    = column?_(AquacultureReading, :salinity) ? ordered.pluck(:salinity).compact : []
-    @sea_ph          = column?_(AquacultureReading, :ph)       ? ordered.pluck(:ph).compact       : []
-    @sea_oxygen      = column?_(AquacultureReading, :oxygen_level) ? ordered.pluck(:oxygen_level).compact : []
+    @sea_salinity    = has_column?(AquacultureReading, :salinity)      ? ordered.pluck(:salinity).compact       : []
+    @sea_ph          = has_column?(AquacultureReading, :ph)            ? ordered.pluck(:ph).compact             : []
+    @sea_oxygen      = has_column?(AquacultureReading, :oxygen_level)  ? ordered.pluck(:oxygen_level).compact   : []
 
     # Métricas que não tens (mantemos vazias para UI não rebentar)
     @sea_turbidity      = []
@@ -267,8 +266,8 @@ class AnalyticsController < ApplicationController
 
     @tank_labels  = ordered.pluck(:measured_at).map { |t| t.strftime("%d/%m %Hh") }
     @tank_temp    = ordered.pluck(:temperature).compact
-    @tank_ph      = column?_(AquacultureReading, :ph) ? ordered.pluck(:ph).compact : []
-    @tank_do      = column?_(AquacultureReading, :oxygen_level) ? ordered.pluck(:oxygen_level).compact : []
+    @tank_ph      = has_column?(AquacultureReading, :ph)            ? ordered.pluck(:ph).compact             : []
+    @tank_do      = has_column?(AquacultureReading, :oxygen_level)  ? ordered.pluck(:oxygen_level).compact   : []
     @tank_ammonia = [] # não tens amónia
     @tank_biomass_growth = [] # não tens biomassa
     @tank_fcr            = [] # não tens fcr
@@ -422,6 +421,8 @@ class AnalyticsController < ApplicationController
   # testa colunas numa classe ActiveRecord (ex.: AquacultureReading)
   def has_column?(klass, name)
     klass.column_names.include?(name.to_s)
+  rescue
+    false
   end
 
   # evita rebentar se a coluna não existir numa relation

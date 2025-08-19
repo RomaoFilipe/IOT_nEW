@@ -1,0 +1,82 @@
+/* === Layout base === */
+:root{
+  --bg:#f8fafc; --card:#fff; --muted:#6b7280; --text:#111827;
+  --border:#e5e7eb; --shadow:0 1px 2px rgba(16,24,40,.04);
+  --emerald:#10b981; --emerald-50:#ecfdf5; --emerald-700:#047857;
+  --rose-50:#fff1f2; --rose-700:#be123c;
+  --amber-50:#fffbeb; --amber-700:#b45309;
+  --slate-50:#f8fafc; --slate-700:#334155;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);}
+
+/* container central (máx. 1280px) */
+.page-bg{background:var(--bg); min-height:100vh; padding:24px 0;}
+.container-narrow{max-width:1280px; margin:0 auto; padding:0 16px;}
+
+/* grelhas utilitárias (sem Tailwind) */
+.grid{display:grid; gap:1.5rem;}
+.grid-cols-1{grid-template-columns:1fr;}
+.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr));}
+@media (min-width: 640px){ .sm\:grid-cols-2{grid-template-columns:repeat(2,1fr);} }
+@media (min-width: 1024px){
+  .lg\:grid-cols-4{grid-template-columns:repeat(4,1fr);}
+  .xl\:grid-cols-12{grid-template-columns:repeat(12,1fr);}
+  .xl\:grid-cols-2{grid-template-columns:repeat(2,1fr);}
+  .xl\:col-span-9{grid-column:span 9 / span 9;}
+  .xl\:col-span-3{grid-column:span 3 / span 3;}
+}
+
+/* espaçamentos utilitários */
+.mb-6{margin-bottom:1.5rem;}
+.mt-2{margin-top:.5rem;}
+.mt-3{margin-top:.75rem;}
+.py-8{padding-top:2rem; padding-bottom:2rem;}
+.text-center{text-align:center}
+
+/* tipografia */
+.text-2xl{font-size:1.5rem; line-height:2rem;}
+.text-xl{font-size:1.25rem; line-height:1.75rem;}
+.text-sm{font-size:.875rem;}
+.text-xs{font-size:.75rem;}
+.font-semibold{font-weight:600;}
+.font-bold{font-weight:700;}
+.text-gray-900{color:var(--text);}
+.text-gray-600{color:#4b5563;}
+.text-gray-500{color:#6b7280;}
+.text-gray-400{color:#9ca3af;}
+
+/* componentes */
+.card{
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; box-shadow:var(--shadow);
+}
+.card-pad{padding:16px;}
+.card-title{font-weight:600; color:var(--text); margin-bottom:8px;}
+.flex{display:flex;} .items-center{align-items:center;} .justify-between{justify-content:space-between;}
+.gap-2{gap:.5rem;} .gap-3{gap:.75rem;}
+
+/* tabs */
+.tab-btn{
+  display:inline-block; padding:10px 14px; border-radius:10px;
+  font-weight:600; color:#374151; border:1px solid var(--border); background:#fff;
+}
+.tab-btn:hover{background:#f9fafb;}
+.tab-btn--active{background:var(--emerald); color:#fff; border-color:var(--emerald);}
+
+/* botões/badges */
+.btn{padding:6px 10px; font-size:13px; border:1px solid var(--border); border-radius:8px; background:#fff;}
+.btn:hover{background:#f9fafb;}
+.badge{font-size:11px; padding:2px 8px; border-radius:999px; background:var(--emerald-50); color:var(--emerald-700);}
+
+/* chips “tempo real” */
+.chip-rt{margin-left:.5rem; display:inline-flex; align-items:center; border-radius:999px;
+  background:var(--emerald-50); color:var(--emerald-700); font-size:11px; font-weight:600; padding:2px 8px;}
+
+/* altura consistente para os gráficos */
+.chart-h{height:260px;}
+
+/* helpers AI badges */
+.ai-badge-high{background:var(--rose-50); color:var(--rose-700); font-size:10px; padding:2px 8px; border-radius:999px;}
+.ai-badge-med{background:var(--amber-50); color:var(--amber-700); font-size:10px; padding:2px 8px; border-radius:999px;}
+.ai-badge-low{background:var(--slate-50); color:var(--slate-700); font-size:10px; padding:2px 8px; border-radius:999px;}

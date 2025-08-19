@@ -1,293 +1,354 @@
 <!-- app/views/analytics/index.html.erb -->
-
-<!-- ApexCharts (CDN) -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-<div x-data="analyticsAjax()" x-init="start()" class="space-y-6">
+<style>
+/* ===== CSS EMBUTIDO (compacto) ===== */
+:root{
+  --bg:#f7fafc; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
+  --shadow:0 1px 2px rgba(16,24,40,.04); --brand:#10b981;
+}
+*{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
 
-  <!-- Topbar -->
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <h1 class="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-      <span class="text-xs text-gray-500">Última atualização: <span x-text="lastUpdate"></span></span>
-      <span class="ml-2 inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-        Em tempo real
-      </span>
+/* Container compacto (máx. 1100px) */
+.page{max-width:1100px;margin:0 auto;padding:16px}
+
+/* Utilitários simples */
+.grid{display:grid;gap:14px}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-12{grid-template-columns:repeat(12,1fr)}
+.col-9{grid-column:span 9}
+.col-3{grid-column:span 3}
+@media (max-width:1024px){.grid-12{grid-template-columns:1fr}.col-9,.col-3{grid-column:span 1}}
+.h-center{display:flex;align-items:center;justify-content:space-between}
+.m-0{margin:0}
+.mt-6{margin-top:16px}
+.mt-3{margin-top:10px}
+.txt-xs{font-size:12px;color:var(--muted)}
+.txt-sm{font-size:13px;color:var(--muted)}
+.txt-lg{font-size:20px;font-weight:600}
+.btn{border:1px solid var(--border);background:#fff;border-radius:10px;padding:8px 12px;font-weight:600}
+.btn--on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700}
+.badge--rt{background:#ecfdf5;color:#047857}
+.badge--high{background:#fff1f2;color:#be123c}
+.badge--med{background:#fffbeb;color:#b45309}
+.badge--low{background:#eef2ff;color:#3730a3}
+
+/* Cartão */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow)}
+.pad{padding:14px}
+.title{font-weight:700;margin:0 0 8px}
+
+/* KPI compacto */
+.kpi{display:flex;gap:10px;align-items:center}
+.kpi-ic{font-size:18px}
+.kpi-val{font-size:22px;font-weight:700}
+.kpi-sub{font-size:11px;color:var(--muted)}
+
+/* Gráficos – altura menor para não “esticar” a página */
+.chart{height:220px}
+
+/* Tabs */
+.tabs{display:flex;gap:8px}
+.tab{border:1px solid var(--border);padding:8px 10px;border-radius:10px;font-weight:700;background:#fff}
+.tab--active{background:var(--brand);color:#fff;border-color:var(--brand)}
+/* Lista Insights */
+.ins-list{display:grid;gap:10px}
+.ins{background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px}
+.ins h4{margin:0 0 2px;font-size:14px}
+.ins p{margin:2px 0;font-size:12px;color:var(--muted)}
+/* Footer */
+.foot{padding:24px 0;text-align:center;color:#9ca3af;font-size:12px}
+</style>
+
+<div class="page">
+  <!-- Cabeçalho -->
+  <div class="card pad h-center">
+    <div class="h-center" style="gap:10px">
+      <h1 class="txt-lg m-0">Analytics Dashboard</h1>
+      <span class="txt-xs">Última atualização: <span id="lastUpdate">—:—:—</span></span>
+      <span class="badge badge--rt">Em tempo real</span>
     </div>
-
-    <div class="flex items-center gap-2">
-      <!-- Período: aqui só UI; os filtros “reais” são tratados pelo controller via params -->
-      <select @change="setPeriod($event.target.value)"
-              class="rounded-lg border-gray-300 text-sm px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+    <div class="h-center" style="gap:8px">
+      <select id="selectPeriod" class="btn">
         <option value="">Últimos 30 dias</option>
         <option value="7d">Últimos 7 dias</option>
         <option value="quarter">Trimestre</option>
         <option value="year">Ano</option>
       </select>
-
-      <!-- Auto-refresh -->
-      <button @click="toggleAuto()"
-              :class="auto ? 'bg-emerald-600 text-white' : 'bg-white text-gray-700'"
-              class="px-3 py-2 rounded-lg border text-sm">
-        Auto-refresh
-      </button>
-
-      <!-- Export -->
-      <div class="relative">
-        <button @click="openExport = !openExport" class="px-3 py-2 rounded-lg border bg-white text-sm">Exportar</button>
-        <div x-show="openExport" @click.outside="openExport=false"
-             class="absolute right-0 mt-2 w-36 rounded-lg border bg-white shadow">
-          <a :href="exportUrl('csv')" class="block px-3 py-2 text-sm hover:bg-gray-50">CSV</a>
-          <a :href="exportUrl('pdf')" class="block px-3 py-2 text-sm hover:bg-gray-50">PDF</a>
+      <button id="btnAuto" class="btn">Auto‑refresh</button>
+      <div style="position:relative">
+        <button id="btnExport" class="btn">Exportar</button>
+        <div id="exportMenu" style="display:none;position:absolute;right:0;top:40px;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 8px 18px rgba(0,0,0,.08)">
+          <a id="linkCsv"  style="display:block;padding:8px 12px;font-size:13px">CSV</a>
+          <a id="linkPdf"  style="display:block;padding:8px 12px;font-size:13px">PDF</a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Tabs por domínio -->
-  <div class="flex items-center justify-between">
-    <div class="bg-white border rounded-xl p-1 flex gap-1 shadow-sm">
-      <%= link_to analytics_path(request.query_parameters.merge(production_kind: "agriculture")),
-            class: "px-4 py-2 rounded-lg font-medium #{ @effective_kind=='agriculture' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-50' }" do %>
-        🌾 Agricultura
-      <% end %>
-      <%= link_to analytics_path(request.query_parameters.merge(production_kind: "aquaculture_sea")),
-            class: "px-4 py-2 rounded-lg font-medium #{ @effective_kind=='aquaculture_sea' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50' }" do %>
-        🌊 Sea
-      <% end %>
-      <%= link_to analytics_path(request.query_parameters.merge(production_kind: "aquaculture_tank")),
-            class: "px-4 py-2 rounded-lg font-medium #{ @effective_kind=='aquaculture_tank' ? 'bg-cyan-600 text-white' : 'text-gray-700 hover:bg-gray-50' }" do %>
-        🐟 Tank
-      <% end %>
+  <!-- Tabs -->
+  <div class="card pad mt-6 h-center">
+    <div class="tabs">
+      <%= link_to "🌾 Agricultura",
+          analytics_path(request.query_parameters.merge(production_kind: "agriculture")),
+          class: "tab #{ @effective_kind=='agriculture' ? 'tab--active' : '' }" %>
+      <%= link_to "🌊 Sea",
+          analytics_path(request.query_parameters.merge(production_kind: "aquaculture_sea")),
+          class: "tab #{ @effective_kind=='aquaculture_sea' ? 'tab--active' : '' }" %>
+      <%= link_to "🐟 Tank",
+          analytics_path(request.query_parameters.merge(production_kind: "aquaculture_tank")),
+          class: "tab #{ @effective_kind=='aquaculture_tank' ? 'tab--active' : '' }" %>
     </div>
-
-    <div class="text-sm text-gray-500">
+    <span class="txt-sm">
       <% case @effective_kind
-         when "agriculture" %>Vista: Agricultura
-      <% when "aquaculture_sea" %>Vista: Zona Marítima
+        when "agriculture" then %>Vista: Agricultura
+      <% when "aquaculture_sea" then %>Vista: Zona Marítima
       <% else %>Vista: Tanque
       <% end %>
+    </span>
+  </div>
+
+  <!-- KPIs (sem partial, para não duplicar nada) -->
+  <div class="grid grid-4 mt-6">
+    <div class="card pad">
+      <div class="kpi">
+        <div class="kpi-ic">📦</div>
+        <div>
+          <div class="kpi-val" id="kpi-total">—</div>
+          <div class="kpi-sub"><%= @effective_kind=='agriculture' ? "Produção Total" : "Captura Total" %></div>
+        </div>
+      </div>
+    </div>
+    <div class="card pad">
+      <div class="kpi">
+        <div class="kpi-ic">⚡</div>
+        <div>
+          <div class="kpi-val" id="kpi-eff">—</div>
+          <div class="kpi-sub">Eficiência</div>
+        </div>
+      </div>
+    </div>
+    <div class="card pad">
+      <div class="kpi">
+        <div class="kpi-ic">💶</div>
+        <div>
+          <div class="kpi-val" id="kpi-costs">—</div>
+          <div class="kpi-sub">Custos Operacionais</div>
+        </div>
+      </div>
+    </div>
+    <div class="card pad">
+      <div class="kpi">
+        <div class="kpi-ic">💧</div>
+        <div>
+          <div class="kpi-val" id="kpi-quality">—</div>
+          <div class="kpi-sub">Qualidade da Água</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <!-- Coluna principal -->
-    <div class="lg:col-span-9 space-y-6">
-      <!-- KPIs -->
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <%= render partial: "kpi_card", locals: {
-          icon: "📦", title: (@effective_kind=='agriculture' ? "Produção Total" : "Captura Total"),
-          value: "<span id='kpi-total'>—</span>".html_safe, badge: nil, badge_value: nil,
-          color: (@effective_kind=='aquaculture_tank' ? "cyan" : @effective_kind=='aquaculture_sea' ? "blue" : "emerald")
-        } %>
-
-        <%= render partial: "kpi_card", locals: {
-          icon: "⚡", title: "Eficiência",
-          value: "<span id='kpi-eff'>—</span>".html_safe, badge: nil, badge_value: nil, color: "emerald"
-        } %>
-
-        <%= render partial: "kpi_card", locals: {
-          icon: "💶", title: "Custos Operacionais",
-          value: "<span id='kpi-costs'>—</span>".html_safe, badge: nil, badge_value: nil, color: "slate"
-        } %>
-
-        <%= render partial: "kpi_card", locals: {
-          icon: "💧", title: "Qualidade da Água",
-          value: "<span id='kpi-quality'>—</span>".html_safe, badge: nil, badge_value: nil, color: "indigo"
-        } %>
+  <!-- Corpo (gráficos + insights) -->
+  <div class="grid grid-12 mt-6">
+    <!-- Gráficos -->
+    <div class="col-9 grid grid-2">
+      <div class="card pad">
+        <h3 class="title" id="title-line"><%= @effective_kind=="agriculture" ? "Produção ao Longo do Tempo" : "Métrica ao Longo do Tempo" %></h3>
+        <div id="chart-line" class="chart"></div>
       </div>
 
-      <!-- Gráficos topo -->
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div class="bg-white rounded-xl border shadow-sm p-4">
-          <h3 class="font-semibold text-gray-800" id="title-line">
-            <%= @effective_kind == "agriculture" ? "Produção ao Longo do Tempo" : "Métrica ao Longo do Tempo" %>
-          </h3>
-          <div id="chart-line" class="h-64"></div>
-        </div>
-
-        <div class="bg-white rounded-xl border shadow-sm p-4">
-          <h3 class="font-semibold text-gray-800" id="title-bars">
-            <%= @effective_kind == "agriculture" ? "Despesas por Categoria" : (@effective_kind=='aquaculture_sea' ? "Captura por Zona" : "Produção por Tanque") %>
-          </h3>
-          <div id="chart-bars" class="h-64"></div>
-        </div>
+      <div class="card pad">
+        <h3 class="title" id="title-bars"><%= @effective_kind=="agriculture" ? "Despesas por Categoria" : (@effective_kind=="aquaculture_sea" ? "Captura por Zona" : "Produção por Tanque") %></h3>
+        <div id="chart-bars" class="chart"></div>
       </div>
 
-      <!-- Gráficos base -->
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div class="bg-white rounded-xl border shadow-sm p-4">
-          <h3 class="font-semibold text-gray-800" id="title-donut">
-            <%= @effective_kind == "agriculture" ? "Distribuição de Despesas (sem irrigação)" : "Distribuição por Espécie" %>
-          </h3>
-          <div id="chart-donut" class="h-64"></div>
-          <div id="chart-donut-legend" class="mt-3 text-xs text-gray-500"></div>
-        </div>
+      <div class="card pad">
+        <h3 class="title" id="title-donut"><%= @effective_kind=="agriculture" ? "Distribuição de Despesas (sem irrigação)" : "Distribuição por Espécie" %></h3>
+        <div id="chart-donut" class="chart"></div>
+        <div id="chart-donut-legend" class="mt-3 txt-xs"></div>
+      </div>
 
-        <div class="bg-white rounded-xl border shadow-sm p-4">
-          <div class="flex items-center justify-between">
-            <h3 class="font-semibold text-gray-800">Indicador de Performance</h3>
-            <span class="text-xs rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5" x-text="gaugeBadge">—</span>
-          </div>
-          <div id="chart-gauge" class="h-64"></div>
-          <p class="mt-2 text-center text-xl font-bold" id="gauge-val">—</p>
-          <p class="text-center text-xs text-gray-500">Performance atual</p>
+      <div class="card pad">
+        <div class="h-center">
+          <h3 class="title m-0">Indicador de Performance</h3>
+          <span id="gaugeBadge" class="badge badge--low">—</span>
         </div>
+        <div id="chart-gauge" class="chart"></div>
+        <p class="m-0 txt-lg" style="text-align:center" id="gauge-val">—</p>
+        <p class="m-0 txt-xs" style="text-align:center">Performance atual</p>
       </div>
     </div>
 
-    <!-- Sidebar AI Insights -->
-    <aside class="lg:col-span-3">
-      <div class="bg-white rounded-xl border shadow-sm p-4">
-        <div class="flex items-center justify-between">
-          <h3 class="font-semibold text-gray-800">AI Insights</h3>
-          <button @click="fetchData()" class="text-sm px-2 py-1 rounded-lg border bg-white hover:bg-gray-50">Refresh</button>
+    <!-- Sidebar Insights -->
+    <aside class="col-3">
+      <div class="card pad">
+        <div class="h-center">
+          <div>
+            <div class="txt-lg">AI</div>
+            <div class="txt-sm" style="margin-top:-4px">Insights</div>
+          </div>
+          <button id="btnRefresh" class="btn btn--on">Refresh</button>
         </div>
-        <ul class="mt-3 space-y-3">
-          <template x-for="it in insights" :key="it.title">
-            <li class="p-3 rounded-lg border">
-              <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-gray-800" x-text="it.title"></p>
-                <span class="text-[10px] px-2 py-0.5 rounded-full"
-                      :class="badge(it.priority)"
-                      x-text="it.priority"></span>
-              </div>
-              <p class="text-xs text-gray-600 mt-1" x-text="it.text"></p>
-              <p class="text-[10px] text-gray-400 mt-1" x-text="`${it.confidence}% confiança`"></p>
-            </li>
-          </template>
-        </ul>
-        <button class="mt-4 w-full text-sm px-3 py-2 rounded-lg border bg-white hover:bg-gray-50">
-          Ver Todos os Insights
-        </button>
+
+        <div class="ins-list mt-6">
+          <div class="ins">
+            <div class="h-center">
+              <h4>Otimização de Alimentação</h4>
+              <span class="badge badge--high">HIGH</span>
+            </div>
+            <p>Reduzir a taxa em ~8% pode manter crescimento.</p>
+            <p class="txt-xs">92% confiança</p>
+          </div>
+
+          <div class="ins">
+            <div class="h-center">
+              <h4>Área/Zona Promissora</h4>
+              <span class="badge badge--med">MEDIUM</span>
+            </div>
+            <p>Condições apontam +20–25% de produção.</p>
+            <p class="txt-xs">86% confiança</p>
+          </div>
+
+          <div class="ins">
+            <div class="h-center">
+              <h4>Risco Sanitário</h4>
+              <span class="badge badge--high">HIGH</span>
+            </div>
+            <p>Planear prevenção e monitorização.</p>
+            <p class="txt-xs">88% confiança</p>
+          </div>
+
+          <div class="ins">
+            <div class="h-center">
+              <h4>Eficiência Energética</h4>
+              <span class="badge badge--low">LOW</span>
+            </div>
+            <p>Ajustes podem reduzir ~15% do consumo.</p>
+            <p class="txt-xs">76% confiança</p>
+          </div>
+
+          <button class="btn" style="width:100%">Ver Todos os Insights</button>
+        </div>
       </div>
     </aside>
   </div>
+
+  <div class="foot">© 2025 AgriloT Synergy — Todos os direitos reservados.</div>
 </div>
 
 <script>
-  function analyticsAjax(){
-    return {
-      // estado
-      domain: '<%= @effective_kind %>',
-      params: new URLSearchParams(<%= request.query_parameters.to_json.html_safe %>),
-      auto: false, tmr: null, openExport: false,
-      lastUpdate: '-', gaugeBadge: '—',
-      insights: [
-        { title: 'Otimização de Alimentação', priority: 'HIGH', confidence: 92, text: 'Reduzir ~8% sem perder crescimento.' },
-        { title: 'Área/Zona Promissora',      priority: 'MEDIUM', confidence: 86, text: 'Condições apontam +20–25%.' },
-        { title: 'Risco Sanitário',           priority: 'HIGH', confidence: 88, text: 'Planear prevenção e monitorização.' },
-        { title: 'Eficiência Energética',     priority: 'LOW',  confidence: 76, text: 'Ajustes podem cortar ~15% consumo.' }
-      ],
+(function(){
+  const domain = '<%= @effective_kind %>';
+  const params = new URLSearchParams(<%= request.query_parameters.to_json.html_safe %>);
 
-      start(){ this.fetchData(); },
+  let auto = false, tmr = null;
+  const $ = s => document.querySelector(s);
 
-      toggleAuto(){
-        this.auto = !this.auto;
-        if (this.tmr) { clearInterval(this.tmr); this.tmr = null; }
-        if (this.auto) this.tmr = setInterval(() => this.fetchData(), 15000);
-      },
-
-      setPeriod(v){
-        const url = new URL(window.location.href);
-        if (v) url.searchParams.set('period', v); else url.searchParams.delete('period');
-        window.location = url.toString(); // deixamos o controller decidir o range
-      },
-
-      exportUrl(fmt){
-        const url = new URL(window.location.origin + '/analytics/export.' + fmt);
-        this.params.forEach((v,k)=> url.searchParams.set(k,v));
-        url.searchParams.set('production_kind', this.domain);
-        return url.toString();
-      },
-
-      badge(p){
-        return p === 'HIGH'   ? 'bg-rose-50 text-rose-700'
-             : p === 'MEDIUM' ? 'bg-amber-50 text-amber-700'
-                               : 'bg-slate-50 text-slate-700';
-      },
-
-      async fetchData(){
-        // fixa o domínio atual
-        this.params.set('production_kind', this.domain);
-        const url = `/analytics/data.json?${this.params.toString()}`;
-
-        const res = await fetch(url, { headers: { 'Accept':'application/json' }});
-        if (!res.ok) return;
-        const j = await res.json();
-
-        // KPIs
-        document.getElementById('kpi-total').innerText   = j.kpis.total ?? '—';
-        document.getElementById('kpi-eff').innerText     = (j.kpis.efficiency_pct != null) ? `${j.kpis.efficiency_pct}%` : '—';
-        document.getElementById('kpi-costs').innerText   = (j.kpis.costs_eur != null) ? new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(j.kpis.costs_eur) : '—';
-        document.getElementById('kpi-quality').innerText = (j.kpis.water_quality_pct != null) ? `${j.kpis.water_quality_pct}%` : '—';
-
-        // Titles dinâmicos (consoante o domínio)
-        document.getElementById('title-line').innerText  =
-          (j.domain === 'agriculture') ? 'Produção ao Longo do Tempo' : 'Métrica ao Longo do Tempo';
-        document.getElementById('title-bars').innerText  =
-          (j.domain === 'aquaculture_sea') ? 'Captura por Zona' : (j.domain === 'aquaculture_tank' ? 'Produção por Tanque' : 'Despesas por Categoria');
-        document.getElementById('title-donut').innerText =
-          (j.domain === 'agriculture') ? 'Distribuição de Despesas (sem irrigação)' : 'Distribuição por Espécie';
-
-        this.lastUpdate = new Date(j.updated_at).toLocaleTimeString();
-
-        // desenhar gráficos
-        this.drawCharts(j);
-      },
-
-      clearChart(el){ if (el) el.innerHTML = ''; },
-
-      drawCharts(j){
-        // CLEAN containers (evita duplicações)
-        this.clearChart(document.querySelector('#chart-line'));
-        this.clearChart(document.querySelector('#chart-bars'));
-        this.clearChart(document.querySelector('#chart-donut'));
-        this.clearChart(document.querySelector('#chart-gauge'));
-
-        // LINE
-        new ApexCharts(document.querySelector('#chart-line'), {
-          chart: { type: 'line', height: 260, toolbar: { show:false } },
-          series: j.charts.line.series,
-          xaxis: { categories: j.charts.line.categories },
-          stroke: { width: 3, curve: 'smooth' },
-          dataLabels: { enabled:false }
-        }).render();
-
-        // BARS
-        new ApexCharts(document.querySelector('#chart-bars'), {
-          chart: { type: 'bar', height: 260, toolbar: { show:false } },
-          series: j.charts.bars.series,
-          xaxis: { categories: j.charts.bars.categories },
-          plotOptions: { bar: { borderRadius: 4, columnWidth: '45%' } },
-          dataLabels: { enabled:false }
-        }).render();
-
-        // DONUT
-        const donut = new ApexCharts(document.querySelector('#chart-donut'), {
-          chart: { type: 'donut', height: 260 },
-          labels: j.charts.donut.labels,
-          series: j.charts.donut.data,
-          legend: { show:false }
-        });
-        donut.render().then(()=>{
-          const el = document.getElementById('chart-donut-legend');
-          if (el) el.innerHTML = j.charts.donut.labels.map((l,i)=> `<span class="mr-3">${l}: <b>${(j.charts.donut.data[i]||0)}</b></span>`).join('');
-        });
-
-        // GAUGE
-        const gv = j.charts.gauge.value ?? 0;
-        const gval = Math.max(0, Math.min(100, gv));
-        new ApexCharts(document.querySelector('#chart-gauge'), {
-          chart: { type:'radialBar', height:260, toolbar:{show:false} },
-          series: [gval],
-          plotOptions:{ radialBar:{ hollow:{ size:'60%' }, dataLabels:{ show:false } } }
-        }).render();
-        document.getElementById('gauge-val').innerText = (j.charts.gauge.value == null) ? '—' : `${gval}%`;
-
-        // Badge do gauge
-        this.gaugeBadge = (gval >= 90) ? 'Excelente' : (gval >= 75 ? 'Bom' : 'Atenção');
-      }
-    }
+  function setKpis(k){
+    $('#kpi-total').textContent   = k.total ?? '—';
+    $('#kpi-eff').textContent     = k.efficiency_pct!=null ? `${k.efficiency_pct}%` : '—';
+    $('#kpi-costs').textContent   = k.costs_eur!=null ? new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(k.costs_eur) : '—';
+    $('#kpi-quality').textContent = k.water_quality_pct!=null ? `${k.water_quality_pct}%` : '—';
   }
+
+  function clear(el){ if(el) el.innerHTML=''; }
+
+  function draw(ch){
+    clear($('#chart-line')); clear($('#chart-bars')); clear($('#chart-donut')); clear($('#chart-gauge'));
+
+    new ApexCharts($('#chart-line'), {
+      chart:{type:'line',height:220,toolbar:{show:false}},
+      series: ch.line.series,
+      xaxis:{categories:ch.line.categories},
+      stroke:{width:3,curve:'smooth'},
+      dataLabels:{enabled:false}
+    }).render();
+
+    new ApexCharts($('#chart-bars'), {
+      chart:{type:'bar',height:220,toolbar:{show:false}},
+      series: ch.bars.series,
+      xaxis:{categories:ch.bars.categories},
+      plotOptions:{bar:{borderRadius:4,columnWidth:'45%'}},
+      dataLabels:{enabled:false}
+    }).render();
+
+    const donut = new ApexCharts($('#chart-donut'), {
+      chart:{type:'donut',height:220},
+      labels: ch.donut.labels,
+      series: ch.donut.data,
+      legend:{show:false}
+    });
+    donut.render().then(()=>{
+      const el = $('#chart-donut-legend');
+      if(el) el.innerHTML = ch.donut.labels.map((l,i)=> `<span style="margin-right:12px">${l}: <b>${(ch.donut.data[i]||0)}</b></span>`).join('');
+    });
+
+    const raw = ch.gauge.value ?? 0;
+    const n = Math.max(0, Math.min(100, raw));
+    new ApexCharts($('#chart-gauge'), {
+      chart:{type:'radialBar',height:220,toolbar:{show:false}},
+      series:[n],
+      plotOptions:{radialBar:{hollow:{size:'60%'},dataLabels:{show:false}}}
+    }).render();
+    $('#gauge-val').textContent = ch.gauge.value==null ? '—' : `${n}%`;
+    const badge = $('#gaugeBadge');
+    badge.textContent = n>=90 ? 'Excelente' : (n>=75 ? 'Bom' : 'Atenção');
+    badge.className = 'badge ' + (n>=90 ? 'badge--rt' : (n>=75 ? 'badge--med' : 'badge--low'));
+  }
+
+  async function fetchData(){
+    params.set('production_kind', domain);
+    const url = `/analytics/data.json?${params.toString()}`;
+    const res = await fetch(url, {headers:{'Accept':'application/json'}});
+    if(!res.ok) return;
+    const j = await res.json();
+
+    // Títulos por domínio
+    $('#title-line').textContent = j.domain==='agriculture' ? 'Produção ao Longo do Tempo' : 'Métrica ao Longo do Tempo';
+    $('#title-bars').textContent = (j.domain==='aquaculture_sea') ? 'Captura por Zona' : (j.domain==='aquaculture_tank' ? 'Produção por Tanque' : 'Despesas por Categoria');
+    $('#title-donut').textContent= j.domain==='agriculture' ? 'Distribuição de Despesas (sem irrigação)' : 'Distribuição por Espécie';
+
+    setKpis(j.kpis);
+    draw(j.charts);
+    $('#lastUpdate').textContent = new Date(j.updated_at).toLocaleTimeString('pt-PT');
+  }
+
+  // UI
+  $('#btnRefresh')?.addEventListener('click', fetchData);
+  $('#btnAuto')?.addEventListener('click', ()=>{
+    auto = !auto;
+    const b = $('#btnAuto');
+    b.classList.toggle('btn--on', auto);
+    if(tmr){ clearInterval(tmr); tmr=null; }
+    if(auto) tmr = setInterval(fetchData, 15000);
+  });
+
+  // Export
+  $('#btnExport')?.addEventListener('click', ()=>{
+    const m = $('#exportMenu'); m.style.display = (m.style.display==='block'?'none':'block');
+    const base = new URL(window.location.origin + '/analytics/export');
+    params.forEach((v,k)=> base.searchParams.set(k,v));
+    base.searchParams.set('production_kind', domain);
+    $('#linkCsv').href = base.toString()+'.csv';
+    $('#linkPdf').href = base.toString()+'.pdf';
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('#btnExport') && !e.target.closest('#exportMenu')){
+      const m = $('#exportMenu'); if(m) m.style.display='none';
+    }
+  });
+
+  // Período → recarrega com query param
+  $('#selectPeriod')?.addEventListener('change', (e)=>{
+    const url = new URL(window.location.href);
+    if(e.target.value) url.searchParams.set('period', e.target.value); else url.searchParams.delete('period');
+    window.location = url.toString();
+  });
+
+  // Arranque
+  fetchData();
+})();
 </script>
