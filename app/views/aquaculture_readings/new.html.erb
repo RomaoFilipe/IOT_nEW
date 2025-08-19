@@ -1,0 +1,40 @@
+<!-- app/views/aquaculture_readings/new.html.erb -->
+<div class="page">
+  <div class="card pad">
+    <h2 class="title">Nova leitura (Aquacultura)</h2>
+    <%= form_with model: @reading do |f| %>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label>Campo</label>
+          <%= f.collection_select :field_id, @fields, :id, :name, {}, class: "btn", style:"width:100%" %>
+        </div>
+        <div>
+          <label>Data/Hora</label>
+          <%= f.datetime_local_field :measured_at, class:"btn", style:"width:100%" %>
+        </div>
+        <div>
+          <label>Temperatura (°C)</label>
+          <%= f.number_field :temperature, step: :any, class:"btn", style:"width:100%" %>
+        </div>
+        <div>
+          <label>pH</label>
+          <%= f.number_field :ph, step: :any, class:"btn", style:"width:100%" %>
+        </div>
+        <div>
+          <label>Salinidade (ppt)</label>
+          <%= f.number_field :salinity, step: :any, class:"btn", style:"width:100%" %>
+        </div>
+        <div>
+          <label>Oxigénio dissolvido (mg/L)</label>
+          <%= f.number_field :oxygen_level, step: :any, class:"btn", style:"width:100%" %>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <%= hidden_field_tag :production_kind, params[:production_kind] %>
+        <%= f.submit "Guardar", class:"btn btn--on" %>
+        <%= link_to "Cancelar", analytics_path(production_kind: params[:production_kind] || "aquaculture_sea"), class:"btn" %>
+      </div>
+    <% end %>
+  </div>
+</div>

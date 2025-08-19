@@ -1,0 +1,35 @@
+<!-- app/views/sensor_readings/new.html.erb -->
+<div class="page">
+  <div class="card pad">
+    <h2 class="title">Nova leitura (Sensor geral)</h2>
+    <%= form_with model: @reading do |f| %>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div>
+          <label>Sensor</label>
+          <%= f.collection_select :sensor_id, @sensors, :id, :name, {}, class:"btn", style:"width:100%" %>
+        </div>
+        <div>
+          <label>Data/Hora</label>
+          <%= f.datetime_local_field :read_at, class:"btn", style:"width:100%" %>
+        </div>
+
+        <div><label>Temperatura Solo/Ar (°C)</label><%= f.number_field :temperature, step: :any, class:"btn", style:"width:100%" %></div>
+        <div><label>Humidade Solo (%)</label><%= f.number_field :moisture, step: :any, class:"btn", style:"width:100%" %></div>
+        <div><label>pH Solo</label><%= f.number_field :soil_ph, step: :any, class:"btn", style:"width:100%" %></div>
+        <div><label>EC Solo</label><%= f.number_field :soil_ec, step: :any, class:"btn", style:"width:100%" %></div>
+        <div><label>N (ppm)</label><%= f.number_field :soil_nitrogen, step: :any, class:"btn", style:"width:100%" %></div>
+        <div><label>K (ppm)</label><%= f.number_field :soil_potassium, step: :any, class:"btn", style:"width:100%" %></div>
+        <div><label>P (ppm)</label><%= f.number_field :soil_phosphorus, step: :any, class:"btn", style:"width:100%" %></div>
+        <div><label>Luz</label><%= f.number_field :light_intensity, step: :any, class:"btn", style:"width:100%" %></div>
+        <div><label>Vento (m/s)</label><%= f.number_field :wind_speed, step: :any, class:"btn", style:"width:100%" %></div>
+        <div><label>Direção Vento (°)</label><%= f.number_field :wind_direction, step: :any, class:"btn", style:"width:100%" %></div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <%= hidden_field_tag :production_kind, params[:production_kind] %>
+        <%= f.submit "Guardar", class:"btn btn--on" %>
+        <%= link_to "Cancelar", analytics_path(production_kind: params[:production_kind] || "agriculture"), class:"btn" %>
+      </div>
+    <% end %>
+  </div>
+</div>
