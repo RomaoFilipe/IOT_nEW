@@ -1,0 +1,12 @@
+<!-- app/views/admin/production_facts/_form.html.erb -->
+<%= form_with model: [:admin, @fact], class: "space-y-4" do |f| %>
+  <div class="grid grid-cols-2 gap-4">
+    <div><%= f.label :period_start %><%= f.date_field :period_start, class:"input" %></div>
+    <div><%= f.label :period_end %><%= f.date_field :period_end, class:"input" %></div>
+    <div><%= f.label :target_output_kg, "Meta (kg)" %><%= f.number_field :target_output_kg, step: 0.01, class:"input" %></div>
+    <div><%= f.label :realized_output_kg, "Produção (kg)" %><%= f.number_field :realized_output_kg, step: 0.01, class:"input" %></div>
+    <div><%= f.label :costs_eur, "Custos (€)" %><%= f.number_field :costs_eur, step: 0.01, class:"input" %></div>
+    <div><%= f.label :efficiency_pct, "Eficiência (%)" %><%= f.number_field :efficiency_pct, step: 0.01, class:"input" %></div>
+  </div>
+  <%= f.submit "Guardar", class:"btn btn--on" %>
+<% end %>

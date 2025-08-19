@@ -1,34 +1,40 @@
-require 'sidekiq/web'
+# config/routes.rb
+require "sidekiq/web"
 
 Rails.application.routes.draw do
   scope "(:locale)", locale: /pt|en|es/ do
+    # 🔐 Autenticação
+    devise_for :users, controllers: { registrations: "users/registrations" }
 
-    # 🔐 Autenticação com Devise
-    devise_for :users, controllers: {
-      registrations: "users/registrations"
-    }
-
-    # 🏠 Página pública (Landing Page)
+    # 🏠 Público
     root to: "home#index"
-    get "/home", to: "home#index", as: :home
+    get  "/home", to: "home/index#show", as: :home   # opcional: mantém "home#index" se preferires
+    get  "/home", to: "home#index"                   # (mantém compatibilidade com o teu)
 
     # 🔒 Área autenticada
     authenticate :user do
-
       # 🌍 Navegação principal
       get "dashboard", to: "dashboard#index", as: :dashboard
-      get "/analytics", to: "analytics#index", as: :analytics
-      get "/settings", to: "settings#index", as: :settings
+      get "/settings", to: "settings#index",  as: :settings
+
+      # 📈 Analytics (RESTful + endpoints que já usas)
+      resource :analytics, only: [:index] do
+        get :data     # /analytics/data
+        get :export   # /analytics/export
+      end
 
       # 👑 OWNER - Gestão de contas
       namespace :admin do
         resources :accounts do
-          member { post :simulate }
+          member     { post :simulate }
           collection { delete :stop_simulation }
         end
+
+        # ➕ Edição dos KPIs/valores de negócio
+        resources :production_facts
       end
 
-      # 👥 Gestão de equipa (ADMIN/MANAGER)
+      # 👥 Equipa (ADMIN/MANAGER)
       namespace :team do
         resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
           post :impersonate, on: :member
@@ -39,22 +45,20 @@ Rails.application.routes.draw do
 
       # 👤 Utilizadores (geral)
       resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
-        get :entrar_como, on: :member
-        post :retornar_como_admin, on: :collection
+        get  :entrar_como,            on: :member
+        post :retornar_como_admin,    on: :collection
       end
 
-      # 🌾 Campos agrícolas e aquacultura
-      resources :fields, only: [:index, :show, :new, :create, :destroy] do
+      # 🌾 Campos & Sensores
+      resources :fields do
         resources :sensors, only: [:create, :destroy] do
-          post :simulate, on: :member
+          post  :simulate,      on: :member
           patch :toggle_status, on: :member
         end
-      end
 
-      resources :fields do
         resources :irrigation_schedules, only: [:create, :destroy] do
           collection { get :today }
-          get :by_sensor 
+          get :by_sensor
         end
       end
 
@@ -62,40 +66,37 @@ Rails.application.routes.draw do
       resources :aquaculture_tanks
       resources :aquaculture_seas
 
-      # 🌱 Dados agrícolas
-      resources :tasks, only: [:index, :create, :update, :destroy]
-      resources :planned_tasks, only: [:destroy]
-      resources :crop_yields, only: [:create]
-      resources :soil_readings, only: [:create]
-      resources :financials, only: [:create]
-      resources :irrigation_schedules, only: [:destroy]
+      # 🌱 Dados agrícolas (registos rápidos)
+      resources :tasks,            only: [:index, :create, :update, :destroy]
+      resources :planned_tasks,    only: [:destroy]
+      resources :crop_yields,      only: [:create]
+      resources :soil_readings,    only: [:create]
+      resources :financials,       only: [:create]
+      resources :irrigation_schedules, only: [:destroy]  # (rota global extra que já tinhas)
 
       # 🛰️ Sensores globais
       resources :sensors, only: [:create, :destroy, :update] do
-        post :simulate, to: "api/sensors#simulate", as: :simulate_api
-        patch "/sensors/:id/toggle_status", to: "api/sensors#toggle_status", as: :toggle_status_api
-        patch :unassign_field, on: :member
-        post :stop_irrigation, on: :member
-        post :start_irrigation, on: :member
-        post "readings", to: "sensor_readings#create", on: :member
-        patch :assign_field, on: :member
-        patch :update_status, on: :member
-        get :readings, on: :member
-        get :irrigation_history, on: :member
-        get :status_info, on: :member
+        # APIs internas/ações
+        post   :simulate,          to: "api/sensors#simulate",        as: :simulate_api
+        patch  "/sensors/:id/toggle_status", to: "api/sensors#toggle_status", as: :toggle_status_api
+        patch  :unassign_field,    on: :member
+        post   :stop_irrigation,   on: :member
+        post   :start_irrigation,  on: :member
+        post   "readings",         to: "sensor_readings#create", on: :member
+        patch  :assign_field,      on: :member
+        patch  :update_status,     on: :member
+        get    :readings,          on: :member
+        get    :irrigation_history,on: :member
+        get    :status_info,       on: :member
         collection { post :lookup }
       end
 
       get "irrigation_schedules/by_sensor", to: "irrigation_schedules#by_sensor", as: :irrigation_by_sensor
 
+      # 📅 Eventos
+      get "/events/upcoming",            to: "events#upcoming"
+      get "/dashboard/upcoming_events",  to: "dashboard#upcoming_events", as: :dashboard_upcoming_events
 
-      # 📅 Eventos e previsões
-      get "/events/upcoming", to: "events#upcoming"
-      get "/dashboard/upcoming_events", to: "dashboard#upcoming_events", as: :dashboard_upcoming_events
-
-      # 📈 Exportações Analytics
-      get  "analytics/data",     to: "analytics#data"      # JSON para os gráficos/KPIs
-      get  "analytics/export",   to: "analytics#export"    # CSV/PDF (stub)
       # ⚙️ Configurações pessoais
       resource :settings, only: [:index] do
         patch :update_profile
@@ -103,37 +104,37 @@ Rails.application.routes.draw do
         patch :update_password
       end
 
-      # 🔎 Endpoints auxiliares
-      get 'sensors/:id/irrigation_status', to: 'sensors#irrigation_status'
-      get 'fields/:id/show_details', to: 'fields#show_details', as: 'show_field_details'
+      # 🔎 Auxiliares
+      get "sensors/:id/irrigation_status", to: "sensors#irrigation_status"
+      get "fields/:id/show_details",       to: "fields#show_details", as: :show_field_details
     end
 
-    # 👤 Perfil individual
+    # 👤 Perfil público
     get "profile/:id", to: "profiles#show", as: "user_profile"
 
     # 🌐 API pública/protegida
     namespace :api do
-      get "sensors/identify", to: "sensors#identify"
+      get "sensors/identify",          to: "sensors#identify"
       get "sensors/find_by_device_id", to: "sensors#find_by_device_id"
 
       resources :sensors, only: [] do
         patch :toggle_status, on: :member
-        post :simulate, on: :member
-        post "readings", to: "sensor_readings#create", on: :member
+        post  :simulate,      on: :member
+        post  "readings",     to: "sensor_readings#create", on: :member
       end
+
       post "sensors/register", to: "sensors#register"
       resources :irrigation_logs, only: [:create]
     end
 
-    # 🌍 Localização (idioma)
-
-get 'locale/:id', to: 'locales#update', as: :switch_locale
+    # 🌍 Idioma
+    get "locale/:id", to: "locales#update", as: :switch_locale
   end
 
   # 📡 WebSockets
   mount ActionCable.server => "/cable"
 
-  # ✅ Painel de Background Jobs (Sidekiq)
+  # ✅ Sidekiq (apenas admins)
   authenticate :user, lambda { |u| u.admin? } do
     mount Sidekiq::Web => "/sidekiq"
   end
