@@ -161,46 +161,19 @@
 
 <!-- 🗺️ Script do Mapa -->
   <script>
-    (() => {
-      const init = () => {
-        const hasCoords = <%= (field.latitude.present? && field.longitude.present?).to_s %>;
-        if (!hasCoords) return;
-        if (!(window.mapboxgl && mapboxgl.Map)) return;
+  document.addEventListener("DOMContentLoaded", function () {
+    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
 
-        const containerId = "map-agriculture-<%= field.id %>";
-        const container   = document.getElementById(containerId);
-        if (!container || container.dataset.initialized === "true") return;
+    const map = new mapboxgl.Map({
+      container: 'map-agriculture-<%= field.id %>',
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: [<%= field.longitude %>, <%= field.latitude %>],
+      zoom: 13
+    });
 
-        container.dataset.initialized = "true";
-        if (!container.style.minHeight) container.style.minHeight = "240px";
-
-        // ⚠️ Usa sempre o token público pk.*
-        mapboxgl.accessToken = window.MAPBOX_PUBLIC_TOKEN || "pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA";
-
-        const lng = <%= field.longitude || -8.611 %>;
-        const lat = <%= field.latitude  || 41.145 %>;
-
-        const map = new mapboxgl.Map({
-          container: containerId,
-          style: "mapbox://styles/mapbox/outdoors-v12",
-          center: [lng, lat],
-          zoom: 13,
-          attributionControl: false
-        });
-
-        map.on("load", () => {
-          new mapboxgl.Marker({ color: "#059669" }).setLngLat([lng, lat]).addTo(map);
-          setTimeout(() => map.resize(), 120);
-        });
-
-        document.addEventListener("turbo:before-cache", () => {
-          try { map.remove(); } catch(_) {}
-          if (container) container.dataset.initialized = "false";
-        }, { once: true });
-      };
-
-      document.addEventListener("turbo:load", init);
-      document.addEventListener("turbo:frame-load", init);
-    })();
-  </script>
+    new mapboxgl.Marker()
+      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+      .addTo(map);
+  });
+</script>
 <% end %>
