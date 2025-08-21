@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_19_144428) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_21_013539) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -228,6 +228,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_19_144428) do
     t.integer "soil_phosphorus"
     t.integer "uptime"
     t.integer "error_count"
+    t.integer "soil_raw"
+    t.decimal "soil_pct", precision: 6, scale: 2
+    t.decimal "temp_c", precision: 5, scale: 2
+    t.decimal "hum_air", precision: 5, scale: 2
+    t.decimal "lux", precision: 10, scale: 2
+    t.datetime "measured_at"
+    t.jsonb "raw", default: {}
+    t.index ["sensor_id", "measured_at"], name: "index_sensor_readings_on_sensor_id_and_measured_at"
     t.index ["sensor_id"], name: "index_sensor_readings_on_sensor_id"
   end
 
@@ -259,6 +267,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_19_144428) do
     t.float "ammonia"
     t.float "temperature"
     t.float "current_speed"
+    t.string "model"
+    t.string "label"
+    t.index ["device_id"], name: "index_sensors_on_device_id", unique: true
     t.index ["field_id"], name: "index_sensors_on_field_id"
     t.index ["type"], name: "index_sensors_on_type"
   end

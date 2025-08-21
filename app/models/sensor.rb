@@ -1,78 +1,61 @@
 # app/models/sensor.rb
 class Sensor < ApplicationRecord
-  self.inheritance_column = :type
-
+  # ─── Relacionamentos ─────────────────────────────────────
   belongs_to :field, optional: true
   has_many :sensor_readings, dependent: :destroy
-  has_many :irrigation_schedules, dependent: :destroy
   has_many :irrigation_logs, dependent: :destroy
 
-  validates :name, presence: true
-  validates :device_id, presence: true
-  validates :device_id, uniqueness: true, if: -> { new_record? || will_save_change_to_device_id? }
-  validates :sensor_type, presence: true
-  validates :status, inclusion: { in: %w[Active Inactive parado irrigando] }, allow_nil: true
+  # ─── STI (Single Table Inheritance) ─────────────────────
+  # A coluna "type" decide se é TemperatureSensor, IrrigationSensor, etc.
 
-  def active?
-    status == "Active"
-  end
+  # ─── Validações ─────────────────────────────────────────
+  validates :device_id, presence: true, uniqueness: true
+  validates :sensor_type, presence: true, allow_blank: true
 
-  def update_reading(value:, timestamp: Time.current)
-    self.last_value = value
-    self.last_reading = timestamp
-    save!
-  end
-
-  # Alias para clareza
-  def irrigation_started_at
-    last_reading
-  end
-
-  def irrigation_duration
-    last_duration
-  end
-
-  # Tempo restante de irrigação
-  def remaining_time
-    return 0 unless status == "irrigando" && irrigation_started_at && irrigation_duration
-
-    elapsed = Time.current - irrigation_started_at
-    [irrigation_duration - elapsed.to_i, 0].max
-  end
-
-  # Duração total da última irrigação
-  def last_duration
-    self[:last_duration] || 60
-  end
-
-def suggested_field
-  return nil if Field.none?
-
-  # 1. Por nome semelhante
-  similar_by_name = Field.where("name ILIKE ?", "%#{name}%").first
-  return similar_by_name if similar_by_name
-
-  # 2. Por proximidade (se o sensor tiver coordenadas no futuro)
-  if respond_to?(:latitude) && respond_to?(:longitude) && latitude.present? && longitude.present?
-    Field
-      .select("*, (point(latitude, longitude) <-> point(#{latitude}, #{longitude})) AS distance")
-      .order("distance ASC")
-      .first
-  else
-    nil
-  end
-end
-
-
-  # WebSocket callback
+  # ─── Callbacks ──────────────────────────────────────────
   after_update_commit :broadcast_irrigation_status, if: :irrigation_status_changed?
+
+  # ─── Escopos ────────────────────────────────────────────
+  scope :active, -> { where(active: true) }
+  scope :by_type, ->(stype) { where(sensor_type: stype) }
+
+  # ─── Métodos de Negócio ─────────────────────────────────
+  
+  # Tempo total da última irrigação
+  def last_duration
+    self[:last_duration] || irrigation_duration || 60
+  end
+
+  # Sugestão de campo associado
+  def suggested_field
+    return nil if Field.none?
+
+    # 1. Por nome semelhante
+    similar_by_name = Field.where("name ILIKE ?", "%#{name}%").first
+    return similar_by_name if similar_by_name
+
+    # 2. Por proximidade (se tiver coordenadas)
+    if respond_to?(:latitude) && respond_to?(:longitude) && latitude.present? && longitude.present?
+      Field
+        .select("fields.*, (point(latitude, longitude) <-> point(#{latitude}, #{longitude})) AS distance")
+        .order("distance ASC")
+        .first
+    else
+      nil
+    end
+  end
 
   private
 
-def irrigation_status_changed?
-  saved_change_to_status? || saved_change_to_last_reading? || saved_change_to_irrigation_duration?
-end
+  # Verifica se houve mudança relevante para broadcast
+  def irrigation_status_changed?
+    saved_change_to_status? ||
+      saved_change_to_last_reading? ||
+      saved_change_to_irrigation_duration? ||
+      saved_change_to_remaining_time?
+  end
 
+  # Broadcast via ActionCable (tempo real no dashboard)
   def broadcast_irrigation_status
     ActionCable.server.broadcast("irrigation_status", {
       sensor_id: id,
