@@ -1,14 +1,16 @@
-<div id="addFieldModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 <%= 'hidden' unless @field&.errors&.any? %>">
+<div id="addFieldModal"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 <%= (@field&.errors&.any? ? '' : 'hidden') %>">
   <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md transform transition-all scale-95">
     <div class="flex justify-between items-center border-b pb-3 mb-4">
       <h2 class="text-xl font-semibold text-gray-800">Adicionar Novo Campo</h2>
-      <button onclick="toggleModal()" class="text-gray-500 hover:text-red-600 text-2xl leading-none">&times;</button>
+      <button type="button" onclick="toggleAddFieldModal(false)"
+              class="text-gray-500 hover:text-red-600 text-2xl leading-none">&times;</button>
     </div>
 
     <p class="text-gray-500 text-sm mb-4">Preenche os dados necessários para criar um novo campo.</p>
 
-    <!-- ⛑️ Mostra os erros -->
-    <% if @field.errors.any? %>
+    <!-- ⛑️ Erros -->
+    <% if @field&.errors&.any? %>
       <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
         <ul class="list-disc pl-5 text-sm">
           <% @field.errors.full_messages.each do |msg| %>
@@ -25,13 +27,13 @@
         <%= f.text_field :name, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
       </div>
 
-<div>
-  <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Campo</label>
-  <input type="text"
-         value="<%= current_user.account.farm_type.humanize.capitalize %>"
-         readonly
-         class="w-full p-2 bg-gray-100 text-gray-600 border border-gray-300 rounded-md cursor-not-allowed text-sm" />
-</div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Campo</label>
+        <input type="text"
+               value="<%= current_user.account.farm_type.humanize.capitalize %>"
+               readonly
+               class="w-full p-2 bg-gray-100 text-gray-600 border border-gray-300 rounded-md cursor-not-allowed text-sm" />
+      </div>
 
       <div>
         <%= f.label :area, "Área (ha)", class: "block text-sm font-medium text-gray-700" %>
@@ -51,14 +53,16 @@
 
       <div class="mt-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Delimitar Terreno</label>
-        <button type="button" onclick="openBoundaryModal()" class="w-full border border-gray-300 px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50">
-          <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <button type="button" onclick="openBoundaryModal()"
+                class="w-full border border-gray-300 px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50">
+          <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M9.75 9.75L14.25 14.25"/>
           </svg>
           <span>Definir Limites</span>
         </button>
       </div>
 
+      <!-- guarda o polígono aqui -->
       <%= f.hidden_field :polygon_coordinates, id: "polygonCoordinates" %>
 
       <div>
@@ -67,108 +71,157 @@
       </div>
 
       <div class="flex justify-end space-x-2 pt-4">
-        <button type="button" onclick="toggleModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">Cancelar</button>
+        <button type="button" onclick="toggleAddFieldModal(false)"
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">Cancelar</button>
         <%= f.submit "Criar Campo", class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700" %>
       </div>
     <% end %>
   </div>
 
+  <!-- Modal secundário: delimitação (partial com os IDs usados em baixo) -->
   <%= render "fields/boundary_modal" %>
 </div>
 
-
-
 <script>
-  let polygonMap;
-  let polygonPoints = [];
-  let polygonLine;
-  let polygonMarkers = [];
-
-  function togglePolygonMap() {
-    const container = document.getElementById("polygonMapContainer");
-    container.classList.toggle("hidden");
-
-    if (!polygonMap) {
-      mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
-      polygonMap = new mapboxgl.Map({
-        container: 'polygonMap',
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [-8.611, 41.145],
-        zoom: 13
-      });
-
-      polygonMap.on('click', function (e) {
-        if (polygonPoints.length >= 8) return;
-
-        const point = [e.lngLat.lng, e.lngLat.lat];
-        polygonPoints.push(point);
-
-        const marker = new mapboxgl.Marker({ color: "orange" }).setLngLat(point).addTo(polygonMap);
-        polygonMarkers.push(marker);
-
-        updatePolygon();
-      });
-    }
+  // —— Modal principal (adicionar campo)
+  function toggleAddFieldModal(show = null) {
+    const el = document.getElementById("addFieldModal");
+    if (!el) return;
+    if (show === true)  el.classList.remove("hidden");
+    else if (show === false) el.classList.add("hidden");
+    else el.classList.toggle("hidden");
   }
 
-  function updatePolygon() {
-    const status = document.getElementById("polygonStatus");
-    status.textContent = `${polygonPoints.length}/8 pontos`;
+  // —— Polígono / Delimitação — usa IDs existentes no partial:
+  // boundaryModal, boundaryMap, boundaryStatus, boundaryResetBtn, boundarySaveBtn
+  // E o hidden field do form principal: polygonCoordinates
+  let boundaryMap, boundaryLineId = "boundary-line", boundarySourceId = "boundary-geojson";
+  let boundaryPoints = [];
+  let boundaryMarkers = [];
 
-    if (polygonLine) {
-      polygonMap.removeLayer('polygon-line');
-      polygonMap.removeSource('polygon-line');
-    }
+  function openBoundaryModal() {
+    const modal = document.getElementById("boundaryModal");
+    if (!modal) return alert("Modal de delimitação não encontrado.");
+    modal.classList.remove("hidden");
 
-    if (polygonPoints.length > 1) {
-      polygonMap.addSource('polygon-line', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          geometry: {
-            type: 'Polygon',
-            coordinates: [[...polygonPoints, polygonPoints[0]]]
-          }
-        }
-      });
-
-      polygonMap.addLayer({
-        id: 'polygon-line',
-        type: 'line',
-        source: 'polygon-line',
-        paint: {
-          'line-color': '#f97316',
-          'line-width': 3
-        }
-      });
-
-      polygonLine = true;
-    }
-  }
-
-  function resetPolygon() {
-    polygonPoints = [];
-    polygonMarkers.forEach(marker => marker.remove());
-    polygonMarkers = [];
-
-    if (polygonLine) {
-      polygonMap.removeLayer('polygon-line');
-      polygonMap.removeSource('polygon-line');
-      polygonLine = null;
-    }
-
-    document.getElementById("polygonStatus").textContent = "0/8 pontos";
-    document.getElementById("polygonCoordinatesInput").value = "";
-  }
-
-  function savePolygon() {
-    if (polygonPoints.length < 3) {
-      alert("O polígono precisa de pelo menos 3 pontos.");
+    if (!(window.mapboxgl && mapboxgl.Map)) {
+      console.warn("Mapbox GL não disponível.");
       return;
     }
 
-    const closedPolygon = [...polygonPoints, polygonPoints[0]];
-    document.getElementById("polygonCoordinatesInput").value = JSON.stringify(closedPolygon);
-    alert("Área guardada com sucesso!");
+    // Iniciar o mapa apenas uma vez
+    const mapContainer = document.getElementById("boundaryMap");
+    if (!boundaryMap) {
+      mapboxgl.accessToken = window.MAPBOX_ACCESS_TOKEN || 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+      boundaryMap = new mapboxgl.Map({
+        container: 'boundaryMap',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-8.611, 41.145],
+        zoom: 13,
+        attributionControl: false
+      });
+
+      boundaryMap.on('load', () => {
+        updateBoundary(); // desenha se já houver pontos carregados
+        setTimeout(() => boundaryMap && boundaryMap.resize(), 100);
+      });
+
+      boundaryMap.on('click', function (e) {
+        if (boundaryPoints.length >= 8) return; // limite 8
+        const pt = [e.lngLat.lng, e.lngLat.lat];
+        boundaryPoints.push(pt);
+
+        const marker = new mapboxgl.Marker({ color: "#f59e0b" }).setLngLat(pt).addTo(boundaryMap);
+        boundaryMarkers.push(marker);
+
+        updateBoundary();
+      });
+    } else {
+      setTimeout(() => boundaryMap && boundaryMap.resize(), 50);
+    }
+
+    // Carregar do hidden se já existir
+    try {
+      const hidden = document.getElementById("polygonCoordinates");
+      if (hidden && hidden.value) {
+        const arr = JSON.parse(hidden.value);
+        // aceitar [[lng,lat],...] (fechado) ou aberto; normalizar para aberto
+        boundaryPoints = (arr && arr.length > 2) ? arr.slice(0, -1) : (arr || []);
+        redrawBoundaryMarkers();
+        updateBoundary();
+      }
+    } catch(_) {}
   }
+
+  function closeBoundaryModal() {
+    const modal = document.getElementById("boundaryModal");
+    if (modal) modal.classList.add("hidden");
+  }
+
+  function redrawBoundaryMarkers() {
+    if (!boundaryMap) return;
+    boundaryMarkers.forEach(m => m.remove());
+    boundaryMarkers = [];
+    boundaryPoints.forEach(pt => {
+      boundaryMarkers.push(new mapboxgl.Marker({ color: "#f59e0b" }).setLngLat(pt).addTo(boundaryMap));
+    });
+  }
+
+  function updateBoundary() {
+    const status = document.getElementById("boundaryStatus");
+    if (status) status.textContent = `${boundaryPoints.length}/8 pontos`;
+
+    if (!boundaryMap) return;
+
+    // remover camadas se existirem
+    if (boundaryMap.getLayer(boundaryLineId)) boundaryMap.removeLayer(boundaryLineId);
+    if (boundaryMap.getSource(boundarySourceId)) boundaryMap.removeSource(boundarySourceId);
+
+    if (boundaryPoints.length > 1) {
+      const closed = [...boundaryPoints, boundaryPoints[0]];
+      boundaryMap.addSource(boundarySourceId, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: { type: 'Polygon', coordinates: [closed] }
+        }
+      });
+      boundaryMap.addLayer({
+        id: boundaryLineId,
+        type: 'line',
+        source: boundarySourceId,
+        paint: { 'line-color': '#f97316', 'line-width': 3 }
+      });
+    }
+  }
+
+  function resetBoundary() {
+    boundaryPoints = [];
+    redrawBoundaryMarkers();
+    updateBoundary();
+    const hidden = document.getElementById("polygonCoordinates");
+    if (hidden) hidden.value = "";
+  }
+
+  function saveBoundary() {
+    if (boundaryPoints.length < 3) {
+      alert("O polígono precisa de pelo menos 3 pontos.");
+      return;
+    }
+    const closed = [...boundaryPoints, boundaryPoints[0]];
+    const hidden = document.getElementById("polygonCoordinates");
+    if (hidden) hidden.value = JSON.stringify(closed);
+    alert("Área guardada com sucesso!");
+    closeBoundaryModal();
+  }
+
+  // Libertar recursos ao navegar (Turbo)
+  document.addEventListener("turbo:before-cache", () => {
+    try {
+      if (boundaryMap) {
+        boundaryMap.remove();
+        boundaryMap = null;
+      }
+    } catch(_) {}
+  });
 </script>
