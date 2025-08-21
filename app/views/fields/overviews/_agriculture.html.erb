@@ -1,5 +1,7 @@
 <%= turbo_frame_tag "overview-#{field.id}" do %>
   <div x-data="{ showNotes: false }" class="space-y-6">
+
+    <!-- 🌍 Mapa -->
     <div class="relative">
       <div id="map-agriculture-<%= field.id %>" class="w-full h-60 rounded-xl shadow border overflow-hidden"></div>
       <% unless field.latitude.present? && field.longitude.present? %>
@@ -9,6 +11,7 @@
       <% end %>
     </div>
 
+    <!-- 📝 Título + Editar -->
     <div class="flex justify-between items-center">
       <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
         <i class="lucide lucide-wheat w-5 h-5 text-green-600"></i>
@@ -16,11 +19,14 @@
       </h2>
       <%= link_to edit_field_path(field, locale: I18n.locale),
                   class: "inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg shadow transition hover:scale-105 duration-200" do %>
-        <i class="lucide lucide-pencil w-4 h-4"></i> <%= t("actions.edit", default: "Editar") %>
+        <i class="lucide lucide-pencil w-4 h-4"></i>
+        <%= t("actions.edit", default: "Editar") %>
       <% end %>
     </div>
 
+    <!-- 📦 Dados do Campo -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- 🌱 Cultura -->
       <div class="bg-white border rounded-xl p-5 shadow-sm">
         <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
           <i class="lucide lucide-sprout w-4 h-4 text-green-500"></i>
@@ -35,6 +41,7 @@
         </div>
       </div>
 
+      <!-- 🌍 Solo & Localização -->
       <div class="bg-white border rounded-xl p-5 shadow-sm">
         <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
           <i class="lucide lucide-land-plot w-4 h-4 text-green-500"></i>
@@ -49,104 +56,16 @@
       </div>
     </div>
 
-    <% begin
-         range_24h = 24.hours.ago..Time.current
-         scope = field.sensors.joins(:sensor_readings).where(sensor_readings: { read_at: range_24h })
-         avg_temp     = scope.average(:temperature)&.to_f&.round(1)
-         avg_moist    = scope.average(:moisture)&.to_f&.round(1)
-         avg_hum_air  = scope.average(:air_humidity)&.to_f&.round(0)
-         avg_lux      = scope.average(:light_intensity)&.to_f&.round(0)
-       rescue
-         avg_temp = avg_moist = avg_hum_air = avg_lux = nil
-       end %>
+    <!-- 📡 Monitorização em Tempo Real -->
+    <h3 class="text-lg font-semibold text-gray-700 mt-4">
+      📡 <%= t("fields.realtime_monitoring", default: "Monitorização em Tempo Real") %>
+    </h3>
 
-    <h3 class="text-lg font-semibold text-gray-700 mt-4">📡 <%= t("fields.realtime_monitoring", default: "Monitorização em Tempo Real") %></h3>
-
-    <% if field.sensors.exists? %>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-        <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
-          <span class="block text-blue-500 text-2xl">💧</span>
-          <p class="text-gray-600 text-sm"><%= t("metrics.moisture", default: "Humidade do Solo") %></p>
-          <p class="font-bold text-lg text-gray-800 mt-2">
-            <%= avg_moist || '-' %> <span class="text-sm text-gray-500">%</span>
-          </p>
-          <% moist_status = (avg_moist && (40..80).cover?(avg_moist)) ? t("metrics.normal", default: "Normal") : t("metrics.attention", default: "Atenção") %>
-          <span class="inline-block mt-2 px-2 py-0.5 text-xs rounded-full <%= moist_status == t('metrics.normal', default: 'Normal') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600' %> font-medium">
-            <%= moist_status %>
-          </span>
-        </div>
-
-        <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
-          <span class="block text-orange-500 text-2xl">🌡️</span>
-          <p class="text-gray-600 text-sm"><%= t("metrics.temperature", default: "Temperatura") %></p>
-          <p class="font-bold text-lg text-gray-800 mt-2">
-            <%= avg_temp || '-' %> <span class="text-sm text-gray-500">°C</span>
-          </p>
-          <% temp_status = (avg_temp && (10..40).cover?(avg_temp)) ? t("metrics.normal", default: "Normal") : t("metrics.attention", default: "Atenção") %>
-          <span class="inline-block mt-2 px-2 py-0.5 text-xs rounded-full <%= temp_status == t('metrics.normal', default: 'Normal') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600' %> font-medium">
-            <%= temp_status %>
-          </span>
-        </div>
-
-        <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
-          <span class="block text-cyan-600 text-2xl">🌬️</span>
-          <p class="text-gray-600 text-sm"><%= t("metrics.air_humidity", default: "Humidade do Ar") %></p>
-          <p class="font-bold text-lg text-gray-800 mt-2">
-            <%= avg_hum_air || '-' %> <span class="text-sm text-gray-500">%</span>
-          </p>
-        </div>
-
-        <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
-          <span class="block text-amber-500 text-2xl">🔆</span>
-          <p class="text-gray-600 text-sm"><%= t("metrics.light", default: "Intensidade da Luz") %></p>
-          <p class="font-bold text-lg text-gray-800 mt-2">
-            <%= avg_lux || '-' %> <span class="text-sm text-gray-500">lux</span>
-          </p>
-        </div>
-
-        <% if (irrigation_sensor = field.sensors.find_by(sensor_type: "irrigation")) %>
-          <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition md:col-span-2" id="<%= dom_id(irrigation_sensor, :irrigation_status_block) %>">
-            <span class="block text-blue-600 text-2xl">💦</span>
-            <p class="text-gray-600 text-sm"><%= t("metrics.irrigation", default: "Irrigação") %></p>
-            <%= render partial: "sensors/irrigation_status_block", locals: { sensor: irrigation_sensor } %>
-          </div>
-
-          <script>
-            document.addEventListener("turbo:load", () => {
-              const sensorId = "<%= irrigation_sensor.id %>";
-              const containerId = "<%= dom_id(irrigation_sensor, :irrigation_status_block) %>";
-              const consumer = window.App?.cable || window.actionCable || (window.ActionCable && window.ActionCable.createConsumer && window.ActionCable.createConsumer());
-              if (!consumer || !consumer.subscriptions) return;
-              const subscription = consumer.subscriptions.create(
-                { channel: "IrrigationChannel", sensor_id: sensorId },
-                {
-                  received() {
-                    fetch(`/sensors/${sensorId}/status_info`, { headers: { "Turbo-Frame": "" } })
-                      .then(r => r.text())
-                      .then(html => {
-                        const container = document.getElementById(containerId);
-                        if (container) container.innerHTML = html;
-                      })
-                      .catch(() => {});
-                  }
-                }
-              );
-              document.addEventListener("turbo:before-cache", () => {
-                try { subscription && consumer.subscriptions.remove(subscription); } catch(_) {}
-              }, { once: true });
-            });
-          </script>
-        <% end %>
-      </div>
-    <% else %>
-      <div class="mt-3 p-6 bg-white border rounded-xl text-center text-gray-600">
-        <p class="mb-2"><%= t("fields.no_sensors", default: "Ainda não existem sensores associados a este campo.") %></p>
-        <%= link_to t("sensors.add", default: "Adicionar Sensor"),
-                    new_sensor_path(field_id: field.id, locale: I18n.locale),
-                    class: "inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow transition" %>
-      </div>
+    <%= turbo_frame_tag dom_id(field, :metrics) do %>
+      <%= render partial: "fields/metrics", locals: { field: field } %>
     <% end %>
 
+    <!-- 📝 Notas -->
     <div class="mt-6">
       <button @click="showNotes = !showNotes" class="text-green-700 hover:underline text-sm font-medium mb-2 transition">
         <i class="lucide lucide-sticky-note w-4 h-4 inline-block mr-1"></i>
@@ -157,23 +76,26 @@
         <p class="text-sm text-gray-600"><%= field.notes.presence || t("fields.no_notes", default: "Sem observações.") %></p>
       </div>
     </div>
+
   </div>
 
-<!-- 🗺️ Script do Mapa -->
+  <!-- 🗺️ Script do Mapa -->
   <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+    document.addEventListener("DOMContentLoaded", function () {
+      if (!(<%= field.latitude.present?.to_s %> && <%= field.longitude.present?.to_s %>)) return;
 
-    const map = new mapboxgl.Map({
-      container: 'map-agriculture-<%= field.id %>',
-      style: 'mapbox://styles/mapbox/outdoors-v12',
-      center: [<%= field.longitude %>, <%= field.latitude %>],
-      zoom: 13
+      mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+
+      const map = new mapboxgl.Map({
+        container: 'map-agriculture-<%= field.id %>',
+        style: 'mapbox://styles/mapbox/outdoors-v12',
+        center: [<%= field.longitude %>, <%= field.latitude %>],
+        zoom: 13
+      });
+
+      new mapboxgl.Marker()
+        .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+        .addTo(map);
     });
-
-    new mapboxgl.Marker()
-      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
-      .addTo(map);
-  });
-</script>
+  </script>
 <% end %>

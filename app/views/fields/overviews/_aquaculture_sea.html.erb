@@ -1,11 +1,10 @@
 <%= turbo_frame_tag "overview-#{field.id}" do %>
 <div x-data="{ showNotes: false }" class="space-y-6 animate-fade-in">
 
-  <!-- 🌍 Mapa do Local -->
+  <!-- 🌍 Mapa -->
   <div class="relative rounded-lg shadow-md overflow-hidden">
     <div id="map-sea-<%= field.id %>" class="h-64 w-full rounded-lg"></div>
 
-    <%# Fallback quando não há coordenadas %>
     <% unless field.latitude.present? && field.longitude.present? %>
       <div class="absolute inset-0 grid place-items-center bg-white/70">
         <span class="text-sm text-slate-600">Sem coordenadas para este local</span>
@@ -18,7 +17,7 @@
     <% end %>
   </div>
 
-  <!-- 📦 Dados do Tanque e Localização -->
+  <!-- 📦 Dados -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
     <!-- 🔧 Dados do Tanque -->
@@ -29,7 +28,7 @@
       <div class="grid grid-cols-2 gap-y-2 text-sm text-gray-700">
         <p><strong>Espécie:</strong></p>             <p><%= field.species || '-' %></p>
         <p><strong>Volume:</strong></p>              <p><%= field.tank_volume || '-' %> m³</p>
-        <p><strong>Densidade:</strong></p>           <p><%= field.stocking_density || '-' %> kg/m³</p>
+        <p><strong>Densidade:</strong></p>           <p><%= field.stocking_density || '-' %> peixes/m³</p>
         <p><strong>Regime Alimentar:</strong></p>    <p><%= field.feeding_regime || '-' %></p>
       </div>
     </div>
@@ -48,27 +47,37 @@
     </div>
   </div>
 
-  <!-- 📊 Monitoramento em Tempo Real -->
+  <!-- 📊 Monitoramento -->
   <div class="space-y-2">
     <h3 class="text-gray-800 font-semibold text-lg">Monitoramento em Tempo Real</h3>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <% sensores = {
-        "pH"           => [:ph,               "🧪", "text-blue-500",   "pH"],
-        "Salinidade"   => [:salinity,         "🧂", "text-indigo-500", "ppt"],
-        "Oxigénio"     => [:oxygen,           "🫧", "text-cyan-500",   "mg/L"],
-        "Temp. Água"   => [:water_temperature,"🌡", "text-red-500",    "°C"]
-      } %>
+    <% readings = AquacultureReading.where(field_id: field.id, measured_at: 24.hours.ago..Time.current) %>
+    <% avg_ph       = readings.average(:ph)&.round(2) %>
+    <% avg_salinity = readings.average(:salinity)&.round(2) %>
+    <% avg_oxygen   = readings.average(:oxygen_level)&.round(2) %>
+    <% avg_temp     = readings.average(:temperature)&.round(2) %>
 
-      <% sensores.each do |label, (atributo, icon, cor, unidade)| %>
-        <div class="bg-blue-50 p-4 rounded-lg text-center shadow-sm transform transition duration-300 hover:scale-105">
-          <span class="block <%= cor %> text-2xl"><%= icon %></span>
-          <p class="text-gray-600 text-sm"><%= label %></p>
-          <p class="font-bold text-xl">
-            <%= field.sensors.average(atributo)&.to_f&.round(2) || '-' %> <%= unidade %>
-          </p>
-        </div>
-      <% end %>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-blue-50 p-4 rounded-lg text-center shadow-sm hover:scale-105 transition">
+        <span class="block text-blue-500 text-2xl">🧪</span>
+        <p class="text-gray-600 text-sm">pH</p>
+        <p class="font-bold text-xl"><%= avg_ph || '-' %></p>
+      </div>
+      <div class="bg-blue-50 p-4 rounded-lg text-center shadow-sm hover:scale-105 transition">
+        <span class="block text-indigo-500 text-2xl">🧂</span>
+        <p class="text-gray-600 text-sm">Salinidade</p>
+        <p class="font-bold text-xl"><%= avg_salinity || '-' %> ppt</p>
+      </div>
+      <div class="bg-blue-50 p-4 rounded-lg text-center shadow-sm hover:scale-105 transition">
+        <span class="block text-cyan-500 text-2xl">🫧</span>
+        <p class="text-gray-600 text-sm">Oxigénio</p>
+        <p class="font-bold text-xl"><%= avg_oxygen || '-' %> mg/L</p>
+      </div>
+      <div class="bg-blue-50 p-4 rounded-lg text-center shadow-sm hover:scale-105 transition">
+        <span class="block text-red-500 text-2xl">🌡</span>
+        <p class="text-gray-600 text-sm">Temp. Água</p>
+        <p class="font-bold text-xl"><%= avg_temp || '-' %> °C</p>
+      </div>
     </div>
   </div>
 
@@ -83,37 +92,30 @@
       <p class="text-sm text-gray-600"><%= field.notes.presence || "Sem observações no momento." %></p>
     </div>
   </div>
-
 </div>
 
 <script>
-  // Inicializa o mapa quando a página (Turbo) carrega
-  document.addEventListener("turbo:load", function () {
-    const hasCoords = <%= (field.latitude.present? && field.longitude.present?).to_s %>;
-    if (!hasCoords) return;
-    if (!(window.mapboxgl && mapboxgl.Map)) return;
+document.addEventListener("turbo:load", function () {
+  const hasCoords = <%= (field.latitude.present? && field.longitude.present?).to_s %>;
+  if (!hasCoords) return;
+  if (!(window.mapboxgl && mapboxgl.Map)) return;
 
-    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+  mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
 
-    const map = new mapboxgl.Map({
-      container: 'map-sea-<%= field.id %>',
-      style: 'mapbox://styles/mapbox/outdoors-v12',
-      center: [<%= field.longitude %>, <%= field.latitude %>],
-      zoom: 13,
-      attributionControl: false
-    });
-
-    map.on('load', () => {
-      new mapboxgl.Marker({ color: '#2563eb' })
-        .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
-        .addTo(map);
-      setTimeout(() => map.resize(), 120);
-    });
+  const map = new mapboxgl.Map({
+    container: 'map-sea-<%= field.id %>',
+    style: 'mapbox://styles/mapbox/outdoors-v12',
+    center: [<%= field.longitude %>, <%= field.latitude %>],
+    zoom: 13,
+    attributionControl: false
   });
+
+  map.on('load', () => {
+    new mapboxgl.Marker({ color: '#2563eb' })
+      .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+      .addTo(map);
+    setTimeout(() => map.resize(), 120);
+  });
+});
 </script>
 <% end %>
-
-<!-- Se estes assets já estiverem no layout, remove as 2 linhas seguintes -->
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

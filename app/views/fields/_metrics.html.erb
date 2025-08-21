@@ -3,12 +3,12 @@
 
   scope = SensorReading
             .joins(:sensor)
-            .where(sensors: { field_id: field.id }, read_at: range_short)
+            .where(sensors: { field_id: field.id }, measured_at: range_short)
 
   last_reading = SensorReading
                    .joins(:sensor)
                    .where(sensors: { field_id: field.id })
-                   .order(read_at: :desc)
+                   .order(measured_at: :desc)
                    .first
 
   avg_temp    = scope.average(:temperature)&.to_f&.round(1)
@@ -24,6 +24,8 @@
 
 <% if field.sensors.exists? %>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+
+    <!-- 💧 Humidade do Solo -->
     <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
       <span class="block text-blue-500 text-2xl">💧</span>
       <p class="text-gray-600 text-sm"><%= t("metrics.moisture", default: "Humidade do Solo") %></p>
@@ -36,6 +38,7 @@
       </span>
     </div>
 
+    <!-- 🌡️ Temperatura -->
     <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
       <span class="block text-orange-500 text-2xl">🌡️</span>
       <p class="text-gray-600 text-sm"><%= t("metrics.temperature", default: "Temperatura") %></p>
@@ -48,6 +51,7 @@
       </span>
     </div>
 
+    <!-- 🌬️ Humidade do Ar -->
     <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
       <span class="block text-cyan-600 text-2xl">🌬️</span>
       <p class="text-gray-600 text-sm"><%= t("metrics.air_humidity", default: "Humidade do Ar") %></p>
@@ -56,6 +60,7 @@
       </p>
     </div>
 
+    <!-- 🔆 Intensidade da Luz -->
     <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
       <span class="block text-amber-500 text-2xl">🔆</span>
       <p class="text-gray-600 text-sm"><%= t("metrics.light", default: "Intensidade da Luz") %></p>
