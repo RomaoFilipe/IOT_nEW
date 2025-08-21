@@ -1,65 +1,76 @@
 # app/controllers/fields_controller.rb
 class FieldsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_field, only: [:show, :edit, :update, :destroy, :show_details]
 
-  # GET /fields
   def index
-    # Lista apenas os campos do utilizador atual
-    @fields = current_user.fields
-                          .includes(:sensors) # evita N+1 ao ler sensores
-                          .order(created_at: :desc)
+    @fields = current_account.fields
+                             .includes(:sensors) # evita N+1 na listagem
+                             .order(updated_at: :desc)
 
-    # Instância para o modal "novo campo"
-    @field = current_user.fields.build(
-      account_id: current_user.account_id # assegura FK obrigatória
-    )
-
-    # Métricas rápidas (sem N+1)
-    field_ids = @fields.pluck(:id)
-
-    # Se manténs o counter_cache (:sensors_count) atualizado, usa-o:
-    if Field.column_names.include?("sensors_count")
-      @total_sensors = @fields.sum(:sensors_count)
-    else
-      @total_sensors = Sensor.where(field_id: field_ids).count
-    end
-
-    @total_fields   = @fields.size
-    @active_sensors = Sensor.where(field_id: field_ids)
-                            .where("LOWER(COALESCE(status, '')) = 'active'")
-                            .count
-  rescue => e
-    Rails.logger.warn("[Fields#index] Falha a preparar listagem: #{e.class}: #{e.message}")
-    @fields = Field.none
-    @field  = current_user.fields.build(account_id: current_user.account_id)
-    @total_fields = @total_sensors = @active_sensors = 0
+    # usado pelo modal "Adicionar Novo Campo"
+    @field  = current_account.fields.build(user: current_user)
+    assign_company_safely(@field)
+    apply_field_type_from_account(@field)
   end
 
-  # GET /fields/:id
-  def show
+  def new
+    @field = current_account.fields.build(user: current_user)
+    assign_company_safely(@field)
+    apply_field_type_from_account(@field)
   end
 
-  # GET /fields/:id/edit
-  def edit
-  end
-
-  # POST /fields
   def create
-    @field = current_user.fields.build(field_params)
-    @field.account_id ||= current_user.account_id
+    # constrói SEMPRE pela conta do utilizador (garante account_id)
+    @field = current_account.fields.build(field_params)
+    @field.user ||= current_user
+
+    # company é opcional — só atribuímos se o modelo tiver a associação
+    assign_company_safely(@field)
+
+    # normaliza o tipo do campo a partir do farm_type da conta (se existir)
+    apply_field_type_from_account(@field)
 
     if @field.save
-      redirect_to fields_path, notice: "Campo criado com sucesso."
+      respond_to do |format|
+        format.html { redirect_to fields_path, notice: "Campo criado com sucesso." }
+        format.turbo_stream do
+          flash.now[:notice] = "Campo criado com sucesso."
+          render turbo_stream: turbo_stream.prepend(
+            "fields_list",
+            partial: "fields/card",
+            locals: { field: @field }
+          )
+        end
+      end
     else
-      # Recarrega listagem e métricas para re-render do index com erros no modal
-      recalc_index_state_for_failed_form
-      render :index, status: :unprocessable_entity
+      # recarrega lista para o index não rebentar quando há erros
+      @fields = current_account.fields
+                              .select(:id, :name, :latitude, :longitude, :area, :field_type, :updated_at, :polygon_coordinates)
+                              .order(updated_at: :desc)
+
+      respond_to do |format|
+        format.html do
+          flash.now[:alert] = "Erro ao criar campo."
+          render :index, status: :unprocessable_entity
+        end
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "field_form_errors",
+            partial: "fields/form_errors",
+            locals: { field: @field }
+          )
+        end
+      end
     end
   end
 
-  # PATCH/PUT /fields/:id
+  def edit
+    @field = current_account.fields.find(params[:id])
+  end
+
   def update
+    @field = current_account.fields.find(params[:id])
+
     if @field.update(field_params)
       redirect_to fields_path, notice: "Campo atualizado com sucesso."
     else
@@ -67,86 +78,73 @@ class FieldsController < ApplicationController
     end
   end
 
-  # DELETE /fields/:id
   def destroy
+    @field = current_account.fields.find(params[:id])
     @field.destroy
     redirect_to fields_path, notice: "Campo eliminado com sucesso."
   end
 
-  # GET /fields/:id/show_details (parcial)
   def show_details
+    @field = current_account.fields.find(params[:id])
     render partial: "fields/view_details", locals: { field: @field }
   end
 
   private
 
-  # Garante que só acedes a campos do utilizador atual
-  def set_field
-    @field = current_user.fields.find(params[:id])
+  # ——— helpers ———
+
+  def current_account
+    current_user.account
   end
 
-  # Strong params + sanitização de JSON
+  # Atribui company só se a associação existir e for compatível
+  def assign_company_safely(field)
+    return unless field.respond_to?(:company=)
+
+    candidate =
+      if current_user.respond_to?(:company) && current_user.company.present?
+        current_user.company
+      elsif current_account.respond_to?(:company) && current_account.company.present?
+        current_account.company
+      else
+        # Em muitos projetos "company" é na prática a própria Account.
+        # Só atribuímos se a classe coincidir para não dar AssociationTypeMismatch.
+        current_account
+      end
+
+    # evita AssociationTypeMismatch (Company esperado vs Account)
+    begin
+      field.company ||= candidate
+    rescue ActiveRecord::AssociationTypeMismatch
+      # ignora se a classe não for a esperada
+    end
+  end
+
+  # Sincroniza field_type com o farm_type da conta (se existir)
+  def apply_field_type_from_account(field)
+    return unless field.respond_to?(:field_type) && current_account.respond_to?(:farm_type)
+
+    ft = current_account.farm_type.presence
+    field.field_type = ft if ft.present?
+  end
+
   def field_params
     permitted = params.require(:field).permit(
-      :name,
-      :area,
-      :latitude,
-      :longitude,
-      :notes,
-      :species,
-      :tank_volume,
-      :stocking_density,
-      :feeding_regime,
-      :fish_placement_date,
-      :estimated_harvest_date,
-      :plantation_type,
-      :production_kind,
-      :soil_type,
-      :soil_quality,
-      :irrigation_type,
-      :planting_date,
-      :harvest_date,
-      :field_type,           # enum inteiro (se usado)
-      :account_id,           # assegura FK, por norma igual a current_user.account_id
-      :model_path,
-      :status,
-      :sensors_count,        # só se permitires atualizar via form (normalmente não)
-      :field_boundary,       # pode vir como JSON string
-      :polygon_coordinates   # pode vir como JSON string
+      :name, :area, :latitude, :longitude, :notes, :polygon_coordinates,
+      :species, :tank_volume, :stocking_density, :feeding_regime,
+      :fish_placement_date, :estimated_harvest_date, :plantation_type,
+      :production_kind, :field_type # se vier do form, deixamos passar
     )
 
-    # Sanitiza campos JSON quando vêm como string (ex.: do form/JS)
-    %i[field_boundary polygon_coordinates].each do |json_attr|
-      next unless permitted[json_attr].present?
-
-      if permitted[json_attr].is_a?(String)
-        permitted[json_attr] = safe_parse_json(permitted[json_attr])
+    # aceitar JSON de polígono vindo como string
+    if permitted[:polygon_coordinates].present? && permitted[:polygon_coordinates].is_a?(String)
+      begin
+        permitted[:polygon_coordinates] = JSON.parse(permitted[:polygon_coordinates])
+      rescue JSON::ParserError
+        permitted[:polygon_coordinates] = nil
       end
     end
 
     permitted
-  end
-
-  def safe_parse_json(str)
-    JSON.parse(str)
-  rescue JSON::ParserError
-    Rails.logger.warn("[FieldsController] JSON inválido em param: #{str.truncate(120)}")
-    nil
-  end
-
-  # Recalcular estado do index quando create falha (para o modal mostrar erros)
-  def recalc_index_state_for_failed_form
-    @fields = current_user.fields.includes(:sensors).order(created_at: :desc)
-    field_ids = @fields.pluck(:id)
-
-    if Field.column_names.include?("sensors_count")
-      @total_sensors = @fields.sum(:sensors_count)
-    else
-      @total_sensors = Sensor.where(field_id: field_ids).count
-    end
-    @total_fields   = @fields.size
-    @active_sensors = Sensor.where(field_id: field_ids)
-                            .where("LOWER(COALESCE(status, '')) = 'active'")
-                            .count
   end
 end

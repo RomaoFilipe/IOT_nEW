@@ -1,11 +1,9 @@
-
-
 <h3 class="text-base sm:text-lg font-semibold text-slate-800 mb-4 flex items-center justify-between">
   <span>🗺️ Estado dos Campos</span>
   <%= link_to "Ver todos", fields_path, class: "text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium" %>
 </h3>
 
-<% if @fields.any? %>
+<% if @fields.present? && @fields.any? %>
   <div
     x-data="{
       ids: <%= raw @fields.map(&:id).to_json %>,
@@ -41,17 +39,34 @@
     <!-- Cartões -->
     <div class="relative">
       <% @fields.each do |field| %>
-        <%# --- métricas por campo --- %>
-        <% total      = field.sensors.count
-           active     = field.sensors.where(status: 'Active').count
-           pct_active = total.positive? ? ((active.to_f / total) * 100).round : 0
-           avg_moist  = field.sensors.average(:moisture)&.round
-           avg_temp   = field.sensors.average(:temperature)&.round(1)
-           avg_batt   = field.sensors.average(:battery)&.round
-           last_irrig = field.irrigation_schedules.order(created_at: :desc).limit(1).first&.created_at
+        <%# ====== MÉTRICAS POR CAMPO (defensivas) ====== %>
+        <% total        = field.sensors&.count.to_i
+           active       = field.sensors&.where(status: 'Active')&.count.to_i
+           pct_active   = total.positive? ? ((active.to_f / total) * 100).round : 0
+
+           avg_moist    = field.sensors&.average(:moisture)&.to_f
+           avg_temp     = field.sensors&.average(:temperature)&.to_f
+           avg_batt     = field.sensors&.average(:battery)&.to_f
+           avg_rssi     = field.sensors&.average(:signal)&.to_f
+
+           # Lux e humidade do ar vivem nas leituras; faz join defensivo
+           avg_lux      = begin
+                            field.sensors.joins(:sensor_readings).average("sensor_readings.light_intensity")&.to_f
+                          rescue
+                            nil
+                          end
+           avg_air_hum  = begin
+                            field.sensors.joins(:sensor_readings).average("sensor_readings.air_humidity")&.to_f
+                          rescue
+                            nil
+                          end
+
+           last_irrig   = field.try(:irrigation_schedules)&.order(created_at: :desc)&.limit(1)&.pick(:created_at)
+           last_reading = field.sensors&.maximum(:last_reading)
+
            status_class = %w[ativo active].include?(field.status.to_s.downcase) ?
-                           'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' :
-                           'bg-rose-50 text-rose-700 ring-1 ring-rose-200'
+                          'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' :
+                          'bg-rose-50 text-rose-700 ring-1 ring-rose-200'
         %>
 
         <section
@@ -59,12 +74,18 @@
           x-cloak
           @mouseenter="stop()" @mouseleave="start()"
           class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 sm:p-5 space-y-4">
+
           <!-- Header -->
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="text-sm text-emerald-700 font-semibold truncate"><%= field.name %></p>
               <p class="text-base font-semibold text-slate-900 truncate"><%= field.field_type.to_s.humanize %></p>
-              <p class="text-xs text-slate-500">Área: <%= field.area %> ha</p>
+              <p class="text-xs text-slate-500">
+                Área: <%= field.area.presence || '—' %> ha
+                <% if last_reading %>
+                  · Última leitura: <%= l(last_reading, format: '%d/%m/%Y %H:%M') %>
+                <% end %>
+              </p>
             </div>
 
             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium <%= status_class %>">
@@ -73,7 +94,7 @@
             </span>
           </div>
 
-          <!-- Métricas -->
+          <!-- Métricas (3 colunas principais) -->
           <div class="grid sm:grid-cols-3 gap-3">
             <!-- Sensores ativos -->
             <div class="col-span-1">
@@ -90,10 +111,13 @@
             <div class="col-span-1">
               <div class="flex items-center justify-between text-xs text-slate-600">
                 <span>💧 Humidade média</span>
-                <span class="font-semibold text-slate-800"><%= avg_moist || '—' %><%= avg_moist ? '%' : '' %></span>
+                <span class="font-semibold text-slate-800">
+                  <%= avg_moist&.round&.to_i || '—' %><%= avg_moist ? '%' : '' %>
+                </span>
               </div>
               <div class="w-full h-2 bg-slate-200 rounded-full mt-1 overflow-hidden">
-                <div class="h-2 bg-sky-600 rounded-full transition-[width] duration-500" style="width:<%= (avg_moist || 0).clamp(0,100) %>%"></div>
+                <div class="h-2 bg-sky-600 rounded-full transition-[width] duration-500"
+                     style="width:<%= ((avg_moist || 0).clamp(0,100)).to_i %>%"></div>
               </div>
             </div>
 
@@ -101,10 +125,39 @@
             <div class="col-span-1">
               <div class="flex items-center justify-between text-xs text-slate-600">
                 <span>🔋 Bateria média</span>
-                <span class="font-semibold text-slate-800"><%= avg_batt || '—' %><%= avg_batt ? '%' : '' %></span>
+                <span class="font-semibold text-slate-800">
+                  <%= avg_batt&.round&.to_i || '—' %><%= avg_batt ? '%' : '' %>
+                </span>
               </div>
               <div class="w-full h-2 bg-slate-200 rounded-full mt-1 overflow-hidden">
-                <div class="h-2 bg-violet-500 rounded-full transition-[width] duration-500" style="width:<%= (avg_batt || 0).clamp(0,100) %>%"></div>
+                <div class="h-2 bg-violet-500 rounded-full transition-[width] duration-500"
+                     style="width:<%= ((avg_batt || 0).clamp(0,100)).to_i %>%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Extras (Lux, RSSI, Humidade do ar, Temperatura média) -->
+          <div class="grid sm:grid-cols-4 gap-3">
+            <div class="rounded-md bg-slate-50 border border-slate-200 p-3 text-xs">
+              <div class="text-slate-500">🌞 Lux (média)</div>
+              <div class="text-slate-900 font-semibold"><%= avg_lux&.round(0) || '—' %></div>
+            </div>
+            <div class="rounded-md bg-slate-50 border border-slate-200 p-3 text-xs">
+              <div class="text-slate-500">📶 RSSI médio</div>
+              <div class="text-slate-900 font-semibold">
+                <%= avg_rssi ? avg_rssi.round : '—' %><%= avg_rssi ? ' dBm' : '' %>
+              </div>
+            </div>
+            <div class="rounded-md bg-slate-50 border border-slate-200 p-3 text-xs">
+              <div class="text-slate-500">💨 Humidade do ar</div>
+              <div class="text-slate-900 font-semibold">
+                <%= avg_air_hum ? avg_air_hum.round : '—' %><%= avg_air_hum ? '%' : '' %>
+              </div>
+            </div>
+            <div class="rounded-md bg-slate-50 border border-slate-200 p-3 text-xs">
+              <div class="text-slate-500">🌡️ Temperatura média</div>
+              <div class="text-slate-900 font-semibold">
+                <%= avg_temp ? avg_temp.round(1) : '—' %><%= avg_temp ? ' °C' : '' %>
               </div>
             </div>
           </div>
@@ -113,8 +166,7 @@
           <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
             <div class="text-xs text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1">
               <span>🗓️ Última irrigação: <%= last_irrig ? l(last_irrig, format: '%d/%m/%Y %H:%M') : 'Sem registo' %></span>
-              <span>📍 <%= field.latitude %>, <%= field.longitude %></span>
-              <% if avg_temp %><span>🌡️ <%= avg_temp %> °C</span><% end %>
+              <span>📍 <%= field.latitude.presence || '—' %>, <%= field.longitude.presence || '—' %></span>
             </div>
 
             <button
