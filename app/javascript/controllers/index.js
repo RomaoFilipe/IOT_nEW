@@ -2,6 +2,10 @@
 import { application } from "controllers/application"
 import { eagerLoadControllersFrom } from "@hotwired/stimulus-loading"
 eagerLoadControllersFrom("controllers", application)
+
 import TabsController from "./tabs_controller"
 application.register("tabs", TabsController)
 
+// ➕ Mapbox
+import MapboxController from "./mapbox_controller"
+application.register("mapbox", MapboxController)

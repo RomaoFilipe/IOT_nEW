@@ -5,43 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AgriloT Synergy</title>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Alpine.js (dropdowns, toggle menus etc) -->
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
+
+  <!-- Mapbox GL -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" data-turbo-track="reload">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js" data-turbo-track="reload"></script>
+
+  <!-- Token público (pk.*) disponível no frontend -->
+  <script>
+    window.MAPBOX_PUBLIC_TOKEN = "<%= ENV.fetch('MAPBOX_PUBLIC_TOKEN', 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA') %>";
+  </script>
+
   <%= javascript_include_tag 'application', 'data-turbo-track': 'reload', defer: true %>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
 
-  <!-- 🔝 Navbar -->
   <%= render 'shared/navbar' %>
 
-  <!-- 🔄 Flash Messages -->
   <% flash.each do |key, message| %>
     <div class="p-4 text-sm text-white <%= key == 'notice' ? 'bg-green-600' : 'bg-red-600' %>">
       <%= message %>
     </div>
   <% end %>
 
-  <!-- 📦 Conteúdo principal -->
   <main class="flex-grow">
     <%= yield %>
   </main>
 
-  <!-- 👣 Rodapé -->
   <footer class="bg-white text-center py-4 text-gray-500 text-sm border-t">
     &copy; <%= Time.current.year %> AgriloT Synergy - Todos os direitos reservados.
   </footer>
 
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script>lucide.createIcons();</script>
-
 </body>
 </html>
