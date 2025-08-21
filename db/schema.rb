@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_13_114137) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_19_144428) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -34,7 +34,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_13_114137) do
     t.integer "farm_type", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "production_kind"
+    t.integer "fields_count", default: 0, null: false
     t.index ["nif"], name: "index_accounts_on_nif", unique: true
+    t.index ["production_kind"], name: "index_accounts_on_production_kind"
   end
 
   create_table "agriculture_fields", force: :cascade do |t|
