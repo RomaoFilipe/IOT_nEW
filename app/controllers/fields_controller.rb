@@ -2,6 +2,24 @@ class FieldsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_field, only: [:edit, :update, :destroy, :show_details]
 
+  def index
+    @fields = current_user.fields.includes(:sensors).order(created_at: :desc)
+
+    # Evitar nil e N+1: calcula métricas no controller
+    field_ids = @fields.pluck(:id)
+    @total_fields   = @fields.size
+    @total_sensors  = Sensor.where(field_id: field_ids).count
+    @active_sensors = Sensor.where(field_id: field_ids)
+                            .where("LOWER(COALESCE(status, '')) = 'active'")
+                            .count
+  rescue => e
+    Rails.logger.warn("[Fields#index] fallback vazio: #{e.class}: #{e.message}")
+    @fields = Field.none
+    @total_fields = @total_sensors = @active_sensors = 0
+  end
+
+
+
   # GET /fields/:id/edit
   def edit
   end
