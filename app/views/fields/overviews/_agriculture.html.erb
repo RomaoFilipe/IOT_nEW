@@ -55,16 +55,17 @@
       </div>
     </div>
 
-<h3 class="text-lg font-semibold text-gray-700 mt-4">
-  📡 <%= t("fields.realtime_monitoring", default: "Monitorização em Tempo Real") %>
-</h3>
-
-<%= turbo_stream_from [field, :metrics] %>
-
-<%= turbo_frame_tag dom_id(field, :metrics) do %>
-  <%= render partial: "fields/metrics", locals: { field: field } %>
-<% end %>
-
+    <!-- Monitorização (médias últimas 24h) -->
+    <% begin
+         range_24h = 24.hours.ago..Time.current
+         scope = field.sensors.joins(:sensor_readings).where(sensor_readings: { read_at: range_24h })
+         avg_temp     = scope.average(:temperature)&.to_f&.round(1)
+         avg_moist    = scope.average(:moisture)&.to_f&.round(1)
+         avg_hum_air  = scope.average(:air_humidity)&.to_f&.round(0)
+         avg_lux      = scope.average(:light_intensity)&.to_f&.round(0)
+       rescue
+         avg_temp = avg_moist = avg_hum_air = avg_lux = nil
+       end %>
 
     <h3 class="text-lg font-semibold text-gray-700 mt-4">📡 <%= t("fields.realtime_monitoring", default: "Monitorização em Tempo Real") %></h3>
 
@@ -176,40 +177,22 @@
 
   </div>
 
-  <!-- Mapbox init (idempotente com Turbo) -->
   <script>
-    document.addEventListener("turbo:load", function () {
-      const hasCoords = <%= (field.latitude.present? && field.longitude.present?).to_s %>;
-      if (!hasCoords) return;
-      if (!(window.mapboxgl && mapboxgl.Map)) return;
+    document.addEventListener("DOMContentLoaded", function () {
+      if (!(<%= field.latitude.present?.to_s %> && <%= field.longitude.present?.to_s %>)) return;
 
-      const containerId = "map-agriculture-<%= field.id %>";
-      const container   = document.getElementById(containerId);
-      if (!container || container.dataset.initialized === "true") return;
-      container.dataset.initialized = "true";
-
-      mapboxgl.accessToken = window.MAPBOX_ACCESS_TOKEN || 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+      mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
 
       const map = new mapboxgl.Map({
-        container: containerId,
+        container: 'map-agriculture-<%= field.id %>',
         style: 'mapbox://styles/mapbox/outdoors-v12',
-        center: [<%= field.longitude || -8.611 %>, <%= field.latitude || 41.145 %>],
-        zoom: 13,
-        attributionControl: false
+        center: [<%= field.longitude %>, <%= field.latitude %>],
+        zoom: 13
       });
 
-      map.on('load', () => {
-        new mapboxgl.Marker({ color: '#059669' })
-          .setLngLat([<%= field.longitude || -8.611 %>, <%= field.latitude || 41.145 %>])
-          .addTo(map);
-        setTimeout(() => map.resize(), 120);
-      });
-
-      // Libertar no cache Turbo (evita “container is already initialized”)
-      document.addEventListener("turbo:before-cache", () => {
-        try { map.remove(); } catch(_) {}
-        if (container) container.dataset.initialized = "false";
-      }, { once: true });
+      new mapboxgl.Marker()
+        .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+        .addTo(map);
     });
   </script>
 <% end %>
