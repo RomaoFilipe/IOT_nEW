@@ -35,6 +35,9 @@ gem 'mqtt'
 gem 'clockwork'
 gem 'sidekiq'
 
+gem "groupdate"
+gem "prawn"
+
 
 gem 'dotenv-rails', groups: [:development, :test]
 

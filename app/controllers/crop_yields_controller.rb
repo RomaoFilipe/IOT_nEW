@@ -1,35 +1,54 @@
+# app/controllers/crop_yields_controller.rb
 class CropYieldsController < ApplicationController
-  MESES_PT = {
-    "Jan" => "Jan", "Feb" => "Fev", "Mar" => "Mar", "Apr" => "Abr",
-    "May" => "Mai", "Jun" => "Jun", "Jul" => "Jul", "Aug" => "Ago",
-    "Sep" => "Set", "Oct" => "Out", "Nov" => "Nov", "Dec" => "Dez",
-    "Fev" => "Fev", "Abr" => "Abr", "Ago" => "Ago", "Set" => "Set", "Out" => "Out", "Dez" => "Dez"
-  }
+  before_action :authenticate_user!
 
+  MESES_PT = %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez].freeze
+
+  # Recebe arrays do modal e cria vários registos
   def create
-    crop_types = params[:crop_yield][:crop_type]
-    amounts    = params[:crop_yield][:amount]
-    months     = params[:crop_yield][:month]
-    field_id   = params[:crop_yield][:field_id]
+    cy         = params.fetch(:crop_yield, {})
+    field_id   = cy[:field_id]
+    crop_types = Array(cy[:crop_type])
+    amounts    = Array(cy[:amount])
+    months     = Array(cy[:month])
 
-    @new_yields = []
+    created = 0
 
     crop_types.each_with_index do |type, i|
-      mes_normalizado = MESES_PT[months[i]] || months[i]
+      next if type.blank?
 
-      yield_record = CropYield.create!(
-        field_id: field_id,
-        crop_type: type.presence,
-        amount: amounts[i].to_f,
-        month: mes_normalizado
-      )
+      amt = amounts[i].to_f
+      next if amt <= 0
 
-      @new_yields << yield_record
+      mes = months[i].presence
+      mes = mes.in?(MESES_PT) ? mes : nil
+
+      attrs = {
+        field_id:  field_id,
+        crop_type: type,
+        amount:    amt
+      }
+
+      # Se o modelo tiver measured_at, gravamos o último dia do mês selecionado para ajudar nos gráficos diários/mensais
+      if CropYield.column_names.include?("measured_at")
+        measured_at =
+          if mes
+            month_index = MESES_PT.index(mes) + 1
+            Date.new(Time.zone.today.year, month_index, 1).end_of_month
+          else
+            Time.zone.today
+          end
+        attrs[:measured_at] = measured_at
+      else
+        attrs[:month] = mes # fallback textual
+      end
+
+      CropYield.create!(attrs)
+      created += 1
     end
 
-    respond_to do |format|
-      format.html { redirect_to analytics_path(field_id: field_id), notice: "Produção registada com sucesso." }
-      format.turbo_stream
-    end
+    redirect_to analytics_path, notice: "#{created} registo(s) guardado(s)."
+  rescue => e
+    redirect_to analytics_path, alert: "Erro a guardar: #{e.message}"
   end
 end
