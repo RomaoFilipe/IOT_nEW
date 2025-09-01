@@ -1,354 +1,409 @@
-<!-- app/views/analytics/index.html.erb -->
+<!-- ApexCharts -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-<style>
-
-:root{
-  --bg:#f7fafc; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
-  --shadow:0 1px 2px rgba(16,24,40,.04); --brand:#10b981;
-}
-*{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
-
-
-.page{max-width:1200px;margin:0 auto;padding:16px}
-
-
-.grid{display:grid;gap:14px}
-.grid-2{grid-template-columns:1fr 1fr}
-.grid-3{grid-template-columns:repeat(3,1fr)}
-.grid-4{grid-template-columns:repeat(4,1fr)}
-.grid-12{grid-template-columns:repeat(12,1fr)}
-.col-9{grid-column:span 9}
-.col-3{grid-column:span 3}
-@media (max-width:1024px){.grid-12{grid-template-columns:1fr}.col-9,.col-3{grid-column:span 1}}
-.h-center{display:flex;align-items:center;justify-content:space-between}
-.m-0{margin:0}
-.mt-6{margin-top:16px}
-.mt-3{margin-top:10px}
-.txt-xs{font-size:12px;color:var(--muted)}
-.txt-sm{font-size:13px;color:var(--muted)}
-.txt-lg{font-size:20px;font-weight:600}
-.btn{border:1px solid var(--border);background:#fff;border-radius:10px;padding:8px 12px;font-weight:600}
-.btn--on{background:var(--brand);color:#fff;border-color:var(--brand)}
-.badge{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700}
-.badge--rt{background:#ecfdf5;color:#047857}
-.badge--high{background:#fff1f2;color:#be123c}
-.badge--med{background:#fffbeb;color:#b45309}
-.badge--low{background:#eef2ff;color:#3730a3}
-
-
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow)}
-.pad{padding:14px}
-.title{font-weight:700;margin:0 0 8px}
-
-
-.kpi{display:flex;gap:10px;align-items:center}
-.kpi-ic{font-size:18px}
-.kpi-val{font-size:22px;font-weight:700}
-.kpi-sub{font-size:11px;color:var(--muted)}
-
-
-.chart{height:220px}
-
-
-.tabs{display:flex;gap:8px}
-.tab{border:1px solid var(--border);padding:8px 10px;border-radius:10px;font-weight:700;background:#fff}
-.tab--active{background:var(--brand);color:#fff;border-color:var(--brand)}
-
-.ins-list{display:grid;gap:10px}
-.ins{background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px}
-.ins h4{margin:0 0 2px;font-size:14px}
-.ins p{margin:2px 0;font-size:12px;color:var(--muted)}
-
-.foot{padding:24px 0;text-align:center;color:#9ca3af;font-size:12px}
-</style>
-
-<div class="page">
-  <!-- Cabeçalho -->
-  <div class="card pad h-center">
-    <div class="h-center" style="gap:10px">
-      <h1 class="txt-lg m-0">Analytics Dashboard</h1>
-      <span class="txt-xs">Última atualização: <span id="lastUpdate">—:—:—</span></span>
-      <span class="badge badge--rt">Em tempo real</span>
-    </div>
-    <div class="h-center" style="gap:8px">
-      <select id="selectPeriod" class="btn">
-        <option value="">Últimos 30 dias</option>
-        <option value="7d">Últimos 7 dias</option>
-        <option value="quarter">Trimestre</option>
-        <option value="year">Ano</option>
-      </select>
-      <button id="btnAuto" class="btn">Auto‑refresh</button>
-      <div style="position:relative">
-        <button id="btnExport" class="btn">Exportar</button>
-        <div id="exportMenu" style="display:none;position:absolute;right:0;top:40px;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 8px 18px rgba(0,0,0,.08)">
-          <a id="linkCsv"  style="display:block;padding:8px 12px;font-size:13px">CSV</a>
-          <a id="linkPdf"  style="display:block;padding:8px 12px;font-size:13px">PDF</a>
+<div class="mx-auto max-w-[1400px] p-4 lg:p-6 space-y-6">
+  <!-- Header -->
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 p-5 shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex items-start gap-4">
+        <div class="h-12 w-12 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
+          <!-- leaf icon -->
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+              d="M9 21c-4-2-6-6-6-10C3 6 7 3 12 3s9 3 9 8c0 4-2 8-6 10M9 21c0-5 3-8 6-10"/>
+          </svg>
         </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Analytics</h1>
+          <p class="text-sm text-slate-600 dark:text-slate-400">Monitorização integrada de Agricultura, Aquacultura e Rega.</p>
+          <p id="last-updated" class="text-xs text-slate-500 dark:text-slate-400 mt-1">A carregar…</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="<%= export_analytics_path(locale: I18n.locale) %>" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
+          <!-- download icon -->
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/>
+          </svg>
+          Exportar CSV
+        </a>
+      </div>
+    </div>
+
+    <!-- Toolbar sticky -->
+    <div class="mt-4 sticky top-2 z-10">
+      <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur px-3 py-2 flex flex-wrap items-center gap-2">
+        <!-- Período -->
+        <div class="inline-flex overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
+          <button class="seg-btn active" data-period="7d">7d</button>
+          <button class="seg-btn" data-period="30d">30d</button>
+          <button class="seg-btn" data-period="quarter">Trim.</button>
+          <button class="seg-btn" data-period="year">Ano</button>
+        </div>
+
+        <!-- Auto-refresh -->
+        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700">
+          <input id="auto-refresh" type="checkbox" class="rounded text-emerald-600 focus:ring-emerald-500">
+          <span class="text-sm text-slate-700 dark:text-slate-300">Auto-refresh (30s)</span>
+        </label>
+
+        <!-- Atualizar -->
+        <button id="refresh-btn" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+              d="M4 4v6h6M20 20v-6h-6M20 8a8 8 0 10-6.32 12.9"/>
+          </svg>
+          Atualizar
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="card pad mt-6 h-center">
-    <div class="tabs">
-      <%= link_to "🌾 Agricultura",
-          analytics_path(request.query_parameters.merge(production_kind: "agriculture")),
-          class: "tab #{ @effective_kind=='agriculture' ? 'tab--active' : '' }" %>
-      <%= link_to "🌊 Sea",
-          analytics_path(request.query_parameters.merge(production_kind: "aquaculture_sea")),
-          class: "tab #{ @effective_kind=='aquaculture_sea' ? 'tab--active' : '' }" %>
-      <%= link_to "🐟 Tank",
-          analytics_path(request.query_parameters.merge(production_kind: "aquaculture_tank")),
-          class: "tab #{ @effective_kind=='aquaculture_tank' ? 'tab--active' : '' }" %>
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="kpi">
+      <div class="kpi-top">
+        <div class="kpi-icon bg-emerald-600/10 text-emerald-700 dark:text-emerald-300">
+          <!-- droplet -->
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-width="1.8" d="M12 2C12 2 5 9 5 13a7 7 0 0014 0c0-4-7-11-7-11z"/>
+          </svg>
+        </div>
+        <span class="kpi-label">Média Solo</span>
+        <span class="kpi-chip">%</span>
+      </div>
+      <div class="kpi-val" id="kpi-soil">—</div>
+      <div class="kpi-trend" id="trend-soil"></div>
+      <div id="spark-soil" class="spark"></div>
     </div>
-    <span class="txt-sm">
-      <% case @effective_kind
-        when "agriculture" then %>Vista: Agricultura
-      <% when "aquaculture_sea" then %>Vista: Zona Marítima
-      <% else %>Vista: Tanque
-      <% end %>
-    </span>
+
+    <div class="kpi">
+      <div class="kpi-top">
+        <div class="kpi-icon bg-amber-500/10 text-amber-600 dark:text-amber-300">
+          <!-- thermometer -->
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-width="1.8" d="M14 14.76V5a2 2 0 10-4 0v9.76a4 4 0 104 0z"/>
+          </svg>
+        </div>
+        <span class="kpi-label">Temp. Ar</span>
+        <span class="kpi-chip">°C</span>
+      </div>
+      <div class="kpi-val" id="kpi-airt">—</div>
+      <div class="kpi-trend" id="trend-temp"></div>
+      <div id="spark-temp" class="spark"></div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-top">
+        <div class="kpi-icon bg-sky-500/10 text-sky-600 dark:text-sky-300">
+          <!-- humidity -->
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-width="1.8" d="M12 2s7 7 7 11a7 7 0 11-14 0c0-4 7-11 7-11z"/>
+          </svg>
+        </div>
+        <span class="kpi-label">Hum. Ar</span>
+        <span class="kpi-chip">%</span>
+      </div>
+      <div class="kpi-val" id="kpi-airh">—</div>
+      <div class="kpi-trend" id="trend-hum"></div>
+      <div id="spark-hum" class="spark"></div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-top">
+        <div class="kpi-icon bg-purple-500/10 text-purple-600 dark:text-purple-300">
+          <!-- gauge -->
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18zm0-9l6-2"/>
+          </svg>
+        </div>
+        <span class="kpi-label">Solo (Últ.)</span>
+        <span class="kpi-chip">%</span>
+      </div>
+      <div class="kpi-val" id="gauge-last">—</div>
+      <div class="kpi-trend" id="trend-lux"></div>
+      <div id="spark-lux" class="spark"></div>
+    </div>
   </div>
 
-  <!-- KPIs (sem partial, para não duplicar nada) -->
-  <div class="grid grid-4 mt-6">
-    <div class="card pad">
-      <div class="kpi">
-        <div class="kpi-ic">📦</div>
-        <div>
-          <div class="kpi-val" id="kpi-total">—</div>
-          <div class="kpi-sub"><%= @effective_kind=='agriculture' ? "Produção Total" : "Captura Total" %></div>
-        </div>
+  <!-- Agricultura -->
+  <div class="card">
+    <div class="card-head">
+      <h2 class="card-title">Agricultura — Tendências</h2>
+      <div class="flex flex-wrap gap-2">
+        <button class="chip" data-toggle-series="Humidade do Solo (%)">Solo</button>
+        <button class="chip" data-toggle-series="Temperatura do Ar (°C)">Temp</button>
+        <button class="chip" data-toggle-series="Humidade do Ar (%)">Hum</button>
+        <button class="chip" data-toggle-series="Luz (lux)">Luz</button>
       </div>
     </div>
-    <div class="card pad">
-      <div class="kpi">
-        <div class="kpi-ic">⚡</div>
-        <div>
-          <div class="kpi-val" id="kpi-eff">—</div>
-          <div class="kpi-sub">Eficiência</div>
-        </div>
-      </div>
+    <div id="chart-agri-line" class="h-[360px]"></div>
+  </div>
+
+  <!-- Aquacultura -->
+  <div class="card">
+    <div class="card-head">
+      <h2 class="card-title">Aquacultura — Tendências</h2>
+      <span id="aqua-empty" class="text-sm text-slate-500 dark:text-slate-400 hidden">Sem dados no período.</span>
     </div>
-    <div class="card pad">
-      <div class="kpi">
-        <div class="kpi-ic">💶</div>
-        <div>
-          <div class="kpi-val" id="kpi-costs">—</div>
-          <div class="kpi-sub">Custos Operacionais</div>
-        </div>
+    <div id="chart-aqua-line" class="h-[360px]"></div>
+  </div>
+
+  <!-- Rega + Donut -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title">Minutos de Rega / Dia</h3>
       </div>
+      <div id="chart-irrig-bars" class="h-[320px]"></div>
     </div>
-    <div class="card pad">
-      <div class="kpi">
-        <div class="kpi-ic">💧</div>
-        <div>
-          <div class="kpi-val" id="kpi-quality">—</div>
-          <div class="kpi-sub">Qualidade da Água</div>
-        </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title">Solo Médio por Sensor</h3>
       </div>
+      <div id="chart-donut" class="h-[320px]"></div>
     </div>
   </div>
 
-  <!-- Corpo (gráficos + insights) -->
-  <div class="grid grid-12 mt-6">
-    <!-- Gráficos -->
-    <div class="col-9 grid grid-2">
-      <div class="card pad">
-        <h3 class="title" id="title-line"><%= @effective_kind=="agriculture" ? "Produção ao Longo do Tempo" : "Métrica ao Longo do Tempo" %></h3>
-        <div id="chart-line" class="chart"></div>
-      </div>
-
-      <div class="card pad">
-        <h3 class="title" id="title-bars"><%= @effective_kind=="agriculture" ? "Despesas por Categoria" : (@effective_kind=="aquaculture_sea" ? "Captura por Zona" : "Produção por Tanque") %></h3>
-        <div id="chart-bars" class="chart"></div>
-      </div>
-
-      <div class="card pad">
-        <h3 class="title" id="title-donut"><%= @effective_kind=="agriculture" ? "Distribuição de Despesas (sem irrigação)" : "Distribuição por Espécie" %></h3>
-        <div id="chart-donut" class="chart"></div>
-        <div id="chart-donut-legend" class="mt-3 txt-xs"></div>
-      </div>
-
-      <div class="card pad">
-        <div class="h-center">
-          <h3 class="title m-0">Indicador de Performance</h3>
-          <span id="gaugeBadge" class="badge badge--low">—</span>
-        </div>
-        <div id="chart-gauge" class="chart"></div>
-        <p class="m-0 txt-lg" style="text-align:center" id="gauge-val">—</p>
-        <p class="m-0 txt-xs" style="text-align:center">Performance atual</p>
-      </div>
+  <!-- Próximas Regas -->
+  <div class="card">
+    <div class="card-head">
+      <h3 class="card-title">Próximas Rega(s)</h3>
     </div>
-
-    <!-- Sidebar Insights -->
-    <aside class="col-3">
-      <div class="card pad">
-        <div class="h-center">
-          <div>
-            <div class="txt-lg">AI</div>
-            <div class="txt-sm" style="margin-top:-4px">Insights</div>
-          </div>
-          <button id="btnRefresh" class="btn btn--on">Refresh</button>
-        </div>
-
-        <div class="ins-list mt-6">
-          <div class="ins">
-            <div class="h-center">
-              <h4>Otimização de Alimentação</h4>
-              <span class="badge badge--high">HIGH</span>
-            </div>
-            <p>Reduzir a taxa em ~8% pode manter crescimento.</p>
-            <p class="txt-xs">92% confiança</p>
-          </div>
-
-          <div class="ins">
-            <div class="h-center">
-              <h4>Área/Zona Promissora</h4>
-              <span class="badge badge--med">MEDIUM</span>
-            </div>
-            <p>Condições apontam +20–25% de produção.</p>
-            <p class="txt-xs">86% confiança</p>
-          </div>
-
-          <div class="ins">
-            <div class="h-center">
-              <h4>Risco Sanitário</h4>
-              <span class="badge badge--high">HIGH</span>
-            </div>
-            <p>Planear prevenção e monitorização.</p>
-            <p class="txt-xs">88% confiança</p>
-          </div>
-
-          <div class="ins">
-            <div class="h-center">
-              <h4>Eficiência Energética</h4>
-              <span class="badge badge--low">LOW</span>
-            </div>
-            <p>Ajustes podem reduzir ~15% do consumo.</p>
-            <p class="txt-xs">76% confiança</p>
-          </div>
-
-          <button class="btn" style="width:100%">Ver Todos os Insights</button>
-        </div>
-      </div>
-    </aside>
+    <ul id="upcoming-list" class="space-y-2">
+      <li class="skeleton h-10 rounded-lg"></li>
+      <li class="skeleton h-10 rounded-lg"></li>
+      <li class="skeleton h-10 rounded-lg"></li>
+    </ul>
   </div>
-
-  <div class="foot">© 2025 AgriloT Synergy — Todos os direitos reservados.</div>
 </div>
 
+<!-- Minimal styles utilitários (sem @apply para evitar build extra) -->
+<style>
+  .seg-btn{ padding:.5rem .75rem; font-size:.875rem; color:rgb(71,85,105); background:transparent }
+  .seg-btn.active{ background:#059669; color:white }
+  .kpi{ border:1px solid rgba(100,116,139,.2); border-radius:1rem; padding:1rem; background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(248,250,252,.9)); box-shadow:0 1px 2px rgba(16,24,40,.05) }
+  .dark .kpi{ background:linear-gradient(180deg,rgba(2,6,23,.9),rgba(15,23,42,.9)); border-color:rgba(51,65,85,.6) }
+  .kpi-top{ display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:.5rem; margin-bottom:.25rem }
+  .kpi-icon{ display:flex; align-items:center; justify-content:center; width:1.75rem; height:1.75rem; border-radius:.6rem }
+  .kpi-label{ font-size:.875rem; color:rgb(71,85,105) }
+  .dark .kpi-label{ color:rgb(148,163,184) }
+  .kpi-chip{ font-size:.7rem; padding:.125rem .5rem; border-radius:999px; background:rgba(148,163,184,.15); color:rgb(71,85,105) }
+  .dark .kpi-chip{ background:rgba(100,116,139,.25); color:rgb(203,213,225) }
+  .kpi-val{ font-weight:700; font-size:1.75rem; color:rgb(15,23,42) }
+  .dark .kpi-val{ color:white }
+  .kpi-trend{ font-size:.75rem; color:rgb(71,85,105); margin-bottom:.25rem }
+  .dark .kpi-trend{ color:rgb(148,163,184) }
+  .spark{ height:44px }
+  .card{ border:1px solid rgba(100,116,139,.2); border-radius:1rem; background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(248,250,252,.9)); padding:1rem; box-shadow:0 1px 2px rgba(16,24,40,.05) }
+  .dark .card{ background:linear-gradient(180deg,rgba(2,6,23,.9),rgba(15,23,42,.9)); border-color:rgba(51,65,85,.6) }
+  .card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem }
+  .card-title{ font-weight:600; color:rgb(15,23,42) }
+  .dark .card-title{ color:white }
+  .chip{ font-size:.75rem; padding:.3rem .6rem; border-radius:999px; border:1px solid rgba(100,116,139,.35); color:rgb(71,85,105); background:transparent }
+  .chip:hover{ background:rgba(15,23,42,.04) }
+  .dark .chip{ color:rgb(203,213,225); border-color:rgba(51,65,85,.8) }
+  .dark .chip:hover{ background:rgba(148,163,184,.12) }
+  .skeleton{ animation:pulse 1.2s ease-in-out infinite; background:linear-gradient(90deg, rgba(148,163,184,.15), rgba(148,163,184,.25), rgba(148,163,184,.15)); background-size:200% 100% }
+  @keyframes pulse{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+</style>
+
 <script>
-(function(){
-  const domain = '<%= @effective_kind %>';
-  const params = new URLSearchParams(<%= request.query_parameters.to_json.html_safe %>);
+  const DATA_URL = "<%= analytics_data_path(locale: I18n.locale) %>";
 
-  let auto = false, tmr = null;
-  const $ = s => document.querySelector(s);
+  // Vars
+  let agriLine, aquaLine, irrigBars, donut;
+  let sparkSoil, sparkTemp, sparkHum, sparkLux;
+  let timer = null;
 
-  function setKpis(k){
-    $('#kpi-total').textContent   = k.total ?? '—';
-    $('#kpi-eff').textContent     = k.efficiency_pct!=null ? `${k.efficiency_pct}%` : '—';
-    $('#kpi-costs').textContent   = k.costs_eur!=null ? new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(k.costs_eur) : '—';
-    $('#kpi-quality').textContent = k.water_quality_pct!=null ? `${k.water_quality_pct}%` : '—';
-  }
-
-  function clear(el){ if(el) el.innerHTML=''; }
-
-  function draw(ch){
-    clear($('#chart-line')); clear($('#chart-bars')); clear($('#chart-donut')); clear($('#chart-gauge'));
-
-    new ApexCharts($('#chart-line'), {
-      chart:{type:'line',height:220,toolbar:{show:false}},
-      series: ch.line.series,
-      xaxis:{categories:ch.line.categories},
-      stroke:{width:3,curve:'smooth'},
-      dataLabels:{enabled:false}
-    }).render();
-
-    new ApexCharts($('#chart-bars'), {
-      chart:{type:'bar',height:220,toolbar:{show:false}},
-      series: ch.bars.series,
-      xaxis:{categories:ch.bars.categories},
-      plotOptions:{bar:{borderRadius:4,columnWidth:'45%'}},
-      dataLabels:{enabled:false}
-    }).render();
-
-    const donut = new ApexCharts($('#chart-donut'), {
-      chart:{type:'donut',height:220},
-      labels: ch.donut.labels,
-      series: ch.donut.data,
-      legend:{show:false}
+  // Factories
+  function makeLine(el, names){
+    return new ApexCharts(document.querySelector(el), {
+      chart: { type:'line', height: 360, toolbar:{ show:false }, animations:{ enabled:true } },
+      series: names.map(n => ({ name:n, data:[] })),
+      xaxis: { categories:[], labels:{ rotate:-30 } },
+      stroke: { width:2, curve:'smooth' },
+      markers:{ size:0 },
+      grid:{ borderColor:'rgba(148,163,184,.3)' },
+      tooltip:{ shared:true, intersect:false },
+      noData:{ text:'Sem dados' }
     });
-    donut.render().then(()=>{
-      const el = $('#chart-donut-legend');
-      if(el) el.innerHTML = ch.donut.labels.map((l,i)=> `<span style="margin-right:12px">${l}: <b>${(ch.donut.data[i]||0)}</b></span>`).join('');
+  }
+  function makeBar(el){
+    return new ApexCharts(document.querySelector(el), {
+      chart:{ type:'bar', height:320, toolbar:{ show:false } },
+      series:[{ name:'Minutos de rega', data:[] }],
+      xaxis:{ categories:[], labels:{ rotate:-30 } },
+      grid:{ borderColor:'rgba(148,163,184,.3)' },
+      noData:{ text:'Sem dados' }
+    });
+  }
+  function makeDonut(el){
+    return new ApexCharts(document.querySelector(el), {
+      chart:{ type:'donut', height:320 },
+      labels:[], series:[],
+      legend:{ position:'bottom' },
+      noData:{ text:'Sem dados' }
+    });
+  }
+  function makeSpark(el){
+    return new ApexCharts(document.querySelector(el), {
+      chart:{ type:'line', height:44, sparkline:{ enabled:true } },
+      stroke:{ width:2, curve:'smooth' },
+      series:[{ data:[] }],
+      tooltip:{ enabled:false }
+    });
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    agriLine  = makeLine('#chart-agri-line', ['Humidade do Solo (%)','Temperatura do Ar (°C)','Humidade do Ar (%)','Luz (lux)']);
+    aquaLine  = makeLine('#chart-aqua-line', ['Temp. Água (°C)','pH','Salinidade (ppt)','Oxigénio (mg/L)']);
+    irrigBars = makeBar('#chart-irrig-bars');
+    donut     = makeDonut('#chart-donut');
+
+    agriLine.render(); aquaLine.render(); irrigBars.render(); donut.render();
+
+    sparkSoil = makeSpark('#spark-soil'); sparkSoil.render();
+    sparkTemp = makeSpark('#spark-temp'); sparkTemp.render();
+    sparkHum  = makeSpark('#spark-hum');  sparkHum.render();
+    sparkLux  = makeSpark('#spark-lux');  sparkLux.render();
+
+    // Período
+    document.querySelectorAll('.seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        loadData();
+      });
     });
 
-    const raw = ch.gauge.value ?? 0;
-    const n = Math.max(0, Math.min(100, raw));
-    new ApexCharts($('#chart-gauge'), {
-      chart:{type:'radialBar',height:220,toolbar:{show:false}},
-      series:[n],
-      plotOptions:{radialBar:{hollow:{size:'60%'},dataLabels:{show:false}}}
-    }).render();
-    $('#gauge-val').textContent = ch.gauge.value==null ? '—' : `${n}%`;
-    const badge = $('#gaugeBadge');
-    badge.textContent = n>=90 ? 'Excelente' : (n>=75 ? 'Bom' : 'Atenção');
-    badge.className = 'badge ' + (n>=90 ? 'badge--rt' : (n>=75 ? 'badge--med' : 'badge--low'));
-  }
+    // Toggle séries
+    document.querySelectorAll('[data-toggle-series]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        agriLine.toggleSeries(chip.dataset.toggleSeries);
+        chip.classList.toggle('chip-active');
+        if (chip.classList.contains('chip-active')) {
+          chip.style.backgroundColor = 'rgba(16,185,129,.15)';
+          chip.style.borderColor = 'rgba(16,185,129,.35)';
+        } else {
+          chip.style.backgroundColor = 'transparent';
+          chip.style.borderColor = 'rgba(100,116,139,.35)';
+        }
+      });
+    });
 
-  async function fetchData(){
-    params.set('production_kind', domain);
-    const url = `/analytics/data.json?${params.toString()}`;
-    const res = await fetch(url, {headers:{'Accept':'application/json'}});
-    if(!res.ok) return;
-    const j = await res.json();
+    // Botões
+    document.getElementById('refresh-btn').addEventListener('click', loadData);
+    const auto = document.getElementById('auto-refresh');
+    auto.addEventListener('change', () => auto.checked ? startAuto() : stopAuto());
 
-    // Títulos por domínio
-    $('#title-line').textContent = j.domain==='agriculture' ? 'Produção ao Longo do Tempo' : 'Métrica ao Longo do Tempo';
-    $('#title-bars').textContent = (j.domain==='aquaculture_sea') ? 'Captura por Zona' : (j.domain==='aquaculture_tank' ? 'Produção por Tanque' : 'Despesas por Categoria');
-    $('#title-donut').textContent= j.domain==='agriculture' ? 'Distribuição de Despesas (sem irrigação)' : 'Distribuição por Espécie';
-
-    setKpis(j.kpis);
-    draw(j.charts);
-    $('#lastUpdate').textContent = new Date(j.updated_at).toLocaleTimeString('pt-PT');
-  }
-
-  // UI
-  $('#btnRefresh')?.addEventListener('click', fetchData);
-  $('#btnAuto')?.addEventListener('click', ()=>{
-    auto = !auto;
-    const b = $('#btnAuto');
-    b.classList.toggle('btn--on', auto);
-    if(tmr){ clearInterval(tmr); tmr=null; }
-    if(auto) tmr = setInterval(fetchData, 15000);
+    // 1ª carga + auto on
+    loadData(); auto.checked = true; startAuto();
   });
 
-  // Export
-  $('#btnExport')?.addEventListener('click', ()=>{
-    const m = $('#exportMenu'); m.style.display = (m.style.display==='block'?'none':'block');
-    const base = new URL(window.location.origin + '/analytics/export');
-    params.forEach((v,k)=> base.searchParams.set(k,v));
-    base.searchParams.set('production_kind', domain);
-    $('#linkCsv').href = base.toString()+'.csv';
-    $('#linkPdf').href = base.toString()+'.pdf';
-  });
-  document.addEventListener('click', (e)=>{
-    if(!e.target.closest('#btnExport') && !e.target.closest('#exportMenu')){
-      const m = $('#exportMenu'); if(m) m.style.display='none';
+  function period(){ const a = document.querySelector('.seg-btn.active'); return a ? a.dataset.period : '7d'; }
+  function startAuto(){ stopAuto(); timer = setInterval(loadData, 30000); }
+  function stopAuto(){ if (timer){ clearInterval(timer); timer = null; } }
+
+  async function loadData(){
+    const url = `${DATA_URL}?period=${encodeURIComponent(period())}`;
+    try{
+      const res = await fetch(url, { headers:{ 'Accept':'application/json' } });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+
+      // Atualizado
+      const dt = new Date(json.updated_at);
+      document.getElementById('last-updated').textContent = `Última atualização: ${dt.toLocaleString()}`;
+
+      // KPIs
+      setText('kpi-soil',  json.kpis.avg_soil_pct, 2, '%');
+      setText('kpi-airt',  json.kpis.avg_air_temp, 2, '°C');
+      setText('kpi-airh',  json.kpis.avg_air_hum,  2, '%');
+      setText('gauge-last',json.charts.gauge.value,2, '%');
+
+      // Tendências (pequena variação última vs penúltima)
+      const agri = json.charts.line.series || [];
+      setTrend('trend-soil', agri[0]?.data);
+      setTrend('trend-temp', agri[1]?.data);
+      setTrend('trend-hum',  agri[2]?.data);
+      setTrend('trend-lux',  agri[3]?.data);
+
+      // Gráfico Agricultura
+      agriLine.updateOptions({ xaxis:{ categories: json.charts.line.categories || [] } });
+      agriLine.updateSeries((json.charts.line.series || []).map(s => ({ name:s.name, data:s.data || [] })));
+
+      // Aquacultura
+      const hasAqua = (json.charts.aqua_line.categories || []).length > 0;
+      document.getElementById('aqua-empty').classList.toggle('hidden', hasAqua);
+      aquaLine.updateOptions({ xaxis:{ categories: json.charts.aqua_line.categories || [] } });
+      aquaLine.updateSeries((json.charts.aqua_line.series || []).map(s => ({ name:s.name, data:s.data || [] })));
+
+      // Rega
+      irrigBars.updateOptions({ xaxis:{ categories: json.charts.bars.categories || [] } });
+      irrigBars.updateSeries(json.charts.bars.series || []);
+
+      // Donut
+      donut.updateOptions({ labels: json.charts.donut.labels || [] });
+      donut.updateSeries(json.charts.donut.data || []);
+
+      // Lista próximas
+      renderUpcoming(json.irrigation?.upcoming || []);
+
+      // Sparklines (aproveita agri series)
+      const sSoil = agri[0]?.data || [];
+      const sTemp = agri[1]?.data || [];
+      const sHum  = agri[2]?.data || [];
+      const sLux  = agri[3]?.data || [];
+      sparkSoil.updateSeries([{ data: sSoil }]);
+      sparkTemp.updateSeries([{ data: sTemp }]);
+      sparkHum.updateSeries([{ data: sHum }]);
+      sparkLux.updateSeries([{ data: sLux }]);
+    } catch(e){ console.error(e); }
+  }
+
+  function renderUpcoming(items){
+    const ul = document.getElementById('upcoming-list'); ul.innerHTML='';
+    if (!items.length){
+      const li = document.createElement('li');
+      li.className='text-slate-500 dark:text-slate-400'; li.textContent='Sem agendamentos.'; ul.appendChild(li); return;
     }
-  });
+    items.forEach(ir => {
+      const li = document.createElement('li');
+      li.className='flex items-center justify-between border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2';
+      li.innerHTML = `<span class="text-sm text-slate-800 dark:text-slate-200">
+        <strong>D${ir.day_of_week}</strong> · ${ir.time} — ${ir.duration} min
+      </span>${ir.sensor_id ? `<span class="text-xs text-slate-500">Sensor #${ir.sensor_id}</span>` : ''}`;
+      ul.appendChild(li);
+    });
+  }
 
-  // Período → recarrega com query param
-  $('#selectPeriod')?.addEventListener('change', (e)=>{
-    const url = new URL(window.location.href);
-    if(e.target.value) url.searchParams.set('period', e.target.value); else url.searchParams.delete('period');
-    window.location = url.toString();
-  });
+  function setText(id, v, d, suf){
+    const el = document.getElementById(id);
+    if (v === null || v === undefined || isNaN(v)) { el.textContent='—'; return; }
+    el.textContent = `${Number(v).toFixed(d)}${suf}`;
+  }
 
-  // Arranque
-  fetchData();
-})();
+  function setTrend(id, arr){
+    const el = document.getElementById(id);
+    if (!arr || arr.length < 2){ el.textContent=''; return; }
+    const last = lastNumber(arr); const prev = lastNumber(arr, -2);
+    if (last == null || prev == null){ el.textContent=''; return; }
+    const diff = (last - prev).toFixed(2);
+    const up = diff >= 0;
+    el.innerHTML = `<span class="${up?'text-emerald-600':'text-rose-600'} inline-flex items-center gap-1">
+      ${up ? '▲' : '▼'} ${Math.abs(diff)}
+    </span>`;
+  }
+
+  function lastNumber(arr, idxOffset=-1){
+    for (let i=arr.length+idxOffset; i>=0; i--){
+      const n = Number(arr[i]); if (!isNaN(n)) return n;
+    }
+    return null;
+  }
 </script>

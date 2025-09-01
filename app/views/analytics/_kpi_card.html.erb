@@ -1,21 +1,8 @@
-<%# locals esperados: icon:, title:, value:, badge:, badge_value:, color: %>
-<% icon        = local_assigns.fetch(:icon, "ℹ️") %>
-<% title       = local_assigns.fetch(:title, "KPI") %>
-<% value       = local_assigns.fetch(:value, "—") %>
-<% badge       = local_assigns.fetch(:badge, nil) %>          <%# '+' | '-' | nil %>
-<% badge_value = local_assigns.fetch(:badge_value, nil) %>    <%# Float | Nil %>
-<% color       = local_assigns.fetch(:color, "slate") %>
-
-<div class="bg-white rounded-xl border shadow-sm p-4">
-  <div class="flex items-start justify-between">
-    <div class="text-2xl"><%= icon %></div>
-    <% if badge_value.present? %>
-      <% pos = badge != '-' %>
-      <span class="text-[10px] px-2 py-0.5 rounded-full <%= pos ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' %>">
-        <%= pos ? '↑' : '↓' %> <%= badge_value.to_f.round(1) %>%
-      </span>
-    <% end %>
+<%# locals: icon:, title:, value:, sub: %>
+<div class="card pad kpi">
+  <div class="kpi-ic"><%= local_assigns[:icon] || "ℹ️" %></div>
+  <div>
+    <div class="kpi-val"><%= (local_assigns[:value].presence || "—") %></div>
+    <div class="kpi-sub"><%= (local_assigns[:sub].presence || "") %></div>
   </div>
-  <p class="mt-2 text-xs text-gray-500">Este período</p>
-  <p class="text-2xl font-bold text-gray-900"><%= value.presence || "—" %></p>
 </div>

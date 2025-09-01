@@ -1,0 +1,54 @@
+<script>
+  // Exemplo de URL: /sensors/123/status_info?locale=pt
+  const STATUS_URL = "<%= sensors_status_info_path(@sensor, locale: I18n.locale) rescue '#' %>";
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRealtime();
+    setInterval(loadRealtime, 15000); // 15s
+  });
+
+  async function loadRealtime(){
+    if (STATUS_URL === '#') return;
+    try {
+      const res = await fetch(STATUS_URL, { headers: { 'Accept': 'application/json' }});
+      const j   = await res.json();
+
+      // Fallbacks de chaves (novo -> antigo)
+      setVal('#soil-value', j.soil_pct ?? j.moisture, '%');      // Humidade do Solo
+      setVal('#temp-value', j.temp_c   ?? j.air_temperature, '°C'); // Temperatura
+      setVal('#hum-value',  j.hum_air  ?? j.air_humidity, '%');  // Humidade do Ar
+      setVal('#lux-value',  j.lux      ?? j.light_intensity, ' lux'); // Luz
+
+      // Estado de rega (texto)
+      setText('#irrig-state', j.irrigation_state || '—');
+
+      // Badge “Atenção” se dado estiver ausente ou stale
+      toggleWarn('#soil-card', isWarn(j.soil_pct ?? j.moisture, j.stale));
+      toggleWarn('#temp-card', isWarn(j.temp_c ?? j.air_temperature, j.stale));
+      toggleWarn('#hum-card',  isWarn(j.hum_air ?? j.air_humidity, j.stale));
+      toggleWarn('#lux-card',  isWarn(j.lux ?? j.light_intensity, j.stale));
+
+    } catch(e) {
+      console.error('Realtime error:', e);
+    }
+  }
+
+  function setVal(sel, val, suf=''){
+    const el = document.querySelector(sel);
+    if (!el) return;
+    if (val === null || val === undefined || isNaN(Number(val))) { el.textContent = '—'; return; }
+    el.textContent = `${Number(val).toFixed( val % 1 === 0 ? 0 : 2)} ${suf}`.trim();
+  }
+
+  function setText(sel, txt){ const el = document.querySelector(sel); if (el) el.textContent = txt; }
+
+  function isWarn(v, stale){ return stale || v === null || v === undefined || isNaN(Number(v)); }
+
+  function toggleWarn(cardSel, warn){
+    const card = document.querySelector(cardSel);
+    if (!card) return;
+    card.classList.toggle('ring-rose-300', warn);
+    card.classList.toggle('ring-1', warn);
+  }
+</script>
+

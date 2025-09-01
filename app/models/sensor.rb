@@ -4,6 +4,8 @@ class Sensor < ApplicationRecord
   belongs_to :field, optional: true
   has_many :sensor_readings, dependent: :destroy
   has_many :irrigation_logs, dependent: :destroy
+  has_many :irrigation_schedules
+
 
   # ─── STI (Single Table Inheritance) ─────────────────────
   # A coluna "type" decide se é TemperatureSensor, IrrigationSensor, etc.

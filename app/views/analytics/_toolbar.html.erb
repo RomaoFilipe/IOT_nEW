@@ -1,0 +1,17 @@
+<div class="card pad h-center">
+  <div class="h-center" style="gap:10px">
+    <h1 class="txt-lg m-0">Analytics Dashboard</h1>
+    <span class="txt-xs">Última atualização: <span id="lastUpdate">—:—:—</span></span>
+    <span class="badge badge--rt">Em tempo real</span>
+  </div>
+  <div class="h-center" style="gap:8px">
+    <select id="selectPeriod" class="btn" aria-label="Período">
+      <option value="">Últimos 30 dias</option>
+      <option value="7d">Últimos 7 dias</option>
+      <option value="quarter">Trimestre</option>
+      <option value="year">Ano</option>
+    </select>
+    <button id="btnAuto" class="btn" aria-pressed="false">Auto-refresh</button>
+    <%= render "analytics/export_menu" %>
+  </div>
+</div>

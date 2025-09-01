@@ -1,49 +1,28 @@
-# app/models/sensor_reading.rb
 class SensorReading < ApplicationRecord
   belongs_to :sensor
-  delegate :field, to: :sensor
 
-  validates :read_at, presence: true
+  # ----- Scopes -----
+  scope :for_field, ->(field_id) {
+    joins(sensor: :field).where(fields: { id: field_id })
+  }
 
-  # Realtime para o bloco de métricas do campo (Turbo Streams)
-  after_create_commit :broadcast_metrics_frame
+  scope :between_ts, ->(from_time, to_time) {
+    where(Arel.sql("#{ts_sql} BETWEEN :from AND :to"), from: from_time, to: to_time)
+  }
 
-  # Realtime por sensor via ActionCable (já usavas)
-  after_create_commit :broadcast_sensor_channel
-
-  private
-
-  def broadcast_metrics_frame
-    broadcast_replace_later_to(
-      [field, :metrics],
-      target: ActionView::RecordIdentifier.dom_id(field, :metrics),
-      partial: "fields/metrics",
-      locals: { field: field }
-    )
+  # ----- SQL helpers (compatibilidade colunas) -----
+  def self.ts_sql
+    # timestamp canónico (usa measured_at, senão read_at, senão created_at)
+    "COALESCE(sensor_readings.measured_at, sensor_readings.read_at, sensor_readings.created_at)"
   end
 
-  def broadcast_sensor_channel
-    SensorReadingsChannel.broadcast_to(
-      sensor,
-      {
-        moisture: moisture,
-        temperature: temperature,
-        battery: battery,
-        signal: signal,
-        light_intensity: light_intensity,
-        wind_speed: wind_speed,
-        wind_direction: wind_direction,
-        air_temperature: air_temperature,
-        air_humidity: air_humidity,
-        soil_ph: soil_ph,
-        soil_ec: soil_ec,
-        soil_nitrogen: soil_nitrogen,
-        soil_potassium: soil_potassium,
-        soil_phosphorus: soil_phosphorus,
-        uptime: uptime,
-        error_count: error_count,
-        read_at: read_at
-      }
-    )
+  def self.air_temp_sql
+    # suporta temp_c (decimal) e air_temperature (float)
+    "COALESCE(sensor_readings.temp_c, sensor_readings.air_temperature)"
+  end
+
+  def self.air_hum_sql
+    # suporta hum_air (decimal) e air_humidity (integer)
+    "COALESCE(sensor_readings.hum_air, sensor_readings.air_humidity)"
   end
 end

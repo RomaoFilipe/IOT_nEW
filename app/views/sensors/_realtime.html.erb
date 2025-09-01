@@ -1,0 +1,46 @@
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="realtime-<%= sensor.id %>">
+  <div class="card" id="soil-card"><div>Humidade do Solo</div><div id="soil-value">—</div></div>
+  <div class="card" id="temp-card"><div>Temperatura</div><div id="temp-value">—</div></div>
+  <div class="card" id="hum-card"><div>Humidade do Ar</div><div id="hum-value">—</div></div>
+  <div class="card" id="lux-card"><div>Intensidade da Luz</div><div id="lux-value">—</div></div>
+</div>
+
+<script>
+  // ⬇️ É AQUI que usas o helper:
+  const STATUS_URL_<%= sensor.id %> = "<%= status_info_sensor_path(sensor, locale: I18n.locale) %>";
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRealtime_<%= sensor.id %>();
+    setInterval(loadRealtime_<%= sensor.id %>, 15000);
+  });
+
+  async function loadRealtime_<%= sensor.id %>() {
+    try {
+      const res = await fetch(STATUS_URL_<%= sensor.id %>, { headers: { 'Accept': 'application/json' } });
+      const j   = await res.json();
+
+      setVal('#soil-value', j.soil_pct ?? j.moisture, '%');
+      setVal('#temp-value', j.temp_c   ?? j.air_temperature, '°C');
+      setVal('#hum-value',  j.hum_air  ?? j.air_humidity, '%');
+      setVal('#lux-value',  j.lux      ?? j.light_intensity, ' lux');
+
+      toggleWarn('#soil-card', isWarn(j.soil_pct ?? j.moisture, j.stale));
+      toggleWarn('#temp-card', isWarn(j.temp_c ?? j.air_temperature, j.stale));
+      toggleWarn('#hum-card',  isWarn(j.hum_air ?? j.air_humidity, j.stale));
+      toggleWarn('#lux-card',  isWarn(j.lux ?? j.light_intensity, j.stale));
+    } catch(e){ console.error(e); }
+  }
+
+  function setVal(sel, val, suf=''){
+    const el = document.querySelector('#realtime-<%= sensor.id %> ' + sel);
+    if (!el) return;
+    if (val == null || isNaN(Number(val))) { el.textContent = '—'; return; }
+    el.textContent = `${Number(val).toFixed(val % 1 === 0 ? 0 : 2)}${suf}`;
+  }
+  function isWarn(v, stale){ return stale || v == null || isNaN(Number(v)); }
+  function toggleWarn(cardSel, warn){
+    const card = document.querySelector('#realtime-<%= sensor.id %> ' + cardSel);
+    if (!card) return;
+    card.style.boxShadow = warn ? '0 0 0 2px rgba(244,63,94,.25)' : '';
+  }
+</script>

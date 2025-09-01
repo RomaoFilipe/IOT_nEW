@@ -1,0 +1,168 @@
+<script>
+(function(){
+  const root = document.getElementById('analytics-root');
+  const DATA_URL   = root?.dataset.dataUrl;
+  const EXPORT_URL = root?.dataset.exportUrl;
+
+  const domain = '<%= @effective_kind %>';
+  const params = new URLSearchParams(<%= request.query_parameters.to_json.html_safe %>);
+  const $ = s => document.querySelector(s);
+
+  // UX helpers
+  function toast(msg){ const t = $('#toast'); if(!t) return; t.textContent = msg; t.style.display='block'; setTimeout(()=>{ t.style.display='none'; }, 2800); }
+  function fmtEUR(n){ try { return new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(n) } catch(e){ return n } }
+  function clear(el){ if(el) el.innerHTML=''; el?.classList?.remove('skel'); }
+
+  // KPIs
+  function setKpis(k){
+    $('#kpi-total').textContent   = (k.total!=null ? k.total : '—');
+    $('#kpi-eff').textContent     = (k.efficiency_pct!=null ? `${k.efficiency_pct}%` : '—');
+    $('#kpi-costs').textContent   = (k.costs_eur!=null ? fmtEUR(k.costs_eur) : '—');
+    $('#kpi-quality').textContent = (k.water_quality_pct!=null ? `${k.water_quality_pct}%` : '—');
+  }
+
+  // Gráficos principais
+  function drawMain(ch){
+    const line = ch.line || { categories:[], series:[{name:'—', data:[]}] };
+    const bars = ch.bars || { categories:[], series:[{name:'—', data:[]}] };
+    const donut= ch.donut|| { labels:[], data:[] };
+    const gauge= ch.gauge|| { value:0 };
+
+    clear($('#chart-line')); clear($('#chart-bars')); clear($('#chart-donut')); clear($('#chart-gauge'));
+
+    new ApexCharts($('#chart-line'), {
+      chart:{type:'line',height:220,toolbar:{show:false}},
+      series: line.series, xaxis:{categories:line.categories},
+      stroke:{width:3,curve:'smooth'}, dataLabels:{enabled:false}, noData:{text:'Sem dados'}
+    }).render();
+
+    new ApexCharts($('#chart-bars'), {
+      chart:{type:'bar',height:220,toolbar:{show:false}},
+      series: bars.series, xaxis:{categories:bars.categories},
+      plotOptions:{bar:{borderRadius:4,columnWidth:'45%'}},
+      dataLabels:{enabled:false}, noData:{text:'Sem dados'}
+    }).render();
+
+    const donutChart = new ApexCharts($('#chart-donut'), {
+      chart:{type:'donut',height:220}, labels: donut.labels, series: donut.data,
+      legend:{show:false}, noData:{text:'Sem dados'}
+    });
+    donutChart.render().then(()=>{
+      const el = $('#chart-donut-legend');
+      if(el && donut.labels?.length){
+        el.innerHTML = donut.labels.map((l,i)=> `<span style="margin-right:12px">${l}: <b>${(donut.data[i]||0)}</b></span>`).join('');
+      } else if(el){ el.innerHTML=''; }
+    });
+
+    const raw = gauge.value ?? 0;
+    const n = Math.max(0, Math.min(100, raw));
+    new ApexCharts($('#chart-gauge'), {
+      chart:{type:'radialBar',height:220,toolbar:{show:false}},
+      series:[n], plotOptions:{radialBar:{hollow:{size:'60%'},dataLabels:{show:false}}}
+    }).render();
+    $('#gauge-val').textContent = (gauge.value==null ? '—' : `${n}%`);
+    const badge = $('#gaugeBadge');
+    badge.textContent = n>=90 ? 'Excelente' : (n>=75 ? 'Bom' : 'Atenção');
+    badge.className = 'badge ' + (n>=90 ? 'badge--rt' : (n>=75 ? 'badge--med' : 'badge--low'));
+  }
+
+  // Mini-gráficos
+  function drawExtra(extra){
+    const cards = [
+      {el:'#chart-extra-1', obj: extra?.extra1},
+      {el:'#chart-extra-2', obj: extra?.extra2},
+      {el:'#chart-extra-3', obj: extra?.extra3},
+      {el:'#chart-extra-4', obj: extra?.extra4},
+    ];
+    cards.forEach((c)=>{
+      const el = $(c.el);
+      clear(el);
+      const conf = c.obj;
+      if(!el || !conf) { return; }
+      const type = conf.type || 'line';
+      new ApexCharts(el, {
+        chart:{type:type,height:160,toolbar:{show:false}},
+        series: conf.series || [{name:'—', data:[]}],
+        xaxis: {categories: conf.categories || []},
+        stroke: {width: (type==='line'||type==='area') ? 3 : 0, curve:'smooth'},
+        plotOptions: {bar:{borderRadius:4,columnWidth:'45%'}},
+        dataLabels:{enabled:false}, noData:{text:'Sem dados'}
+      }).render();
+    });
+  }
+
+  // Fetch & render
+  async function fetchData(){
+    try{
+      const url = new URL(DATA_URL, window.location.origin);
+      params.forEach((v,k)=> url.searchParams.set(k,v));
+
+      const res = await fetch(url.toString(), {headers:{'Accept':'application/json'}});
+      if(!res.ok){
+        console.error('[analytics] data fetch failed', res.status, res.statusText);
+        toast('Falha ao carregar dados ('+res.status+')');
+        return;
+      }
+      const j = await res.json();
+
+      $('#title-line').textContent  = j.domain==='agriculture' ? 'Produção ao Longo do Tempo' : 'Métrica ao Longo do Tempo';
+      $('#title-bars').textContent  = (j.domain==='aquaculture_sea') ? 'Captura por Zona' : (j.domain==='aquaculture_tank' ? 'Produção por Tanque' : 'Despesas por Categoria');
+      $('#title-donut').textContent = j.domain==='agriculture' ? 'Distribuição de Despesas (sem irrigação)' : 'Distribuição por Espécie';
+
+      setKpis(j.kpis||{});
+      drawMain(j.charts||{});
+      drawExtra(j.charts||{});
+      $('#lastUpdate').textContent = new Date(j.updated_at||Date.now()).toLocaleTimeString('pt-PT');
+    }catch(e){
+      console.error('[analytics] exception', e);
+      toast('Erro inesperado no Analytics');
+    }
+  }
+
+  // UI
+  let auto=false, tmr=null;
+  $('#btnRefresh')?.addEventListener('click', fetchData);
+
+  $('#btnAuto')?.addEventListener('click', ()=>{
+    auto = !auto; const b = $('#btnAuto');
+    b.classList.toggle('btn--on', auto); b.setAttribute('aria-pressed', auto?'true':'false');
+    b.textContent = auto ? 'Auto-refresh (ON)' : 'Auto-refresh';
+    if(tmr){ clearInterval(tmr); tmr=null; }
+    if(auto) tmr = setInterval(fetchData, 15000);
+  });
+
+  // Export (URLs injectadas)
+  $('#btnExport')?.addEventListener('click', ()=>{
+    const m = $('#exportMenu'); const open = m.style.display==='block';
+    m.style.display = open ? 'none':'block';
+    $('#btnExport')?.setAttribute('aria-expanded', open?'false':'true');
+
+    const base = new URL(EXPORT_URL, window.location.origin);
+    params.forEach((v,k)=> base.searchParams.set(k,v));  // preserva period etc.
+
+    $('#linkCsv').href = base.toString()+'.csv';
+    $('#linkPdf').href = base.toString()+'.pdf';
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('#btnExport') && !e.target.closest('#exportMenu')){
+      const m = $('#exportMenu'); if(m) m.style.display='none';
+      $('#btnExport')?.setAttribute('aria-expanded','false');
+    }
+  });
+
+  // Período → mantém seleção
+  (function initPeriod(){
+    const dd = $('#selectPeriod'); if(!dd) return;
+    const cur = new URL(window.location.href).searchParams.get('period') || '';
+    dd.value = cur;
+    dd.addEventListener('change', (e)=>{
+      const url = new URL(window.location.href);
+      if(e.target.value) url.searchParams.set('period', e.target.value);
+      else url.searchParams.delete('period');
+      window.location = url.toString();
+    });
+  })();
+
+  fetchData();
+})();
+</script>

@@ -16,11 +16,12 @@ Rails.application.routes.draw do
       get "dashboard", to: "dashboard#index", as: :dashboard
       get "settings",  to: "settings#index",  as: :settings
 
-      # 📈 Analytics
-      resource :analytics, only: [:index] do
-        get :data
-        get :export
-      end
+      # 📈 Analytics (rotas explícitas, sem resource singular)
+# 📈 Analytics
+get "analytics",        to: "analytics#index",  as: :analytics
+get "analytics/data",   to: "analytics#data",   as: :analytics_data,  defaults: { format: :json }
+get "analytics/export", to: "analytics#export", as: :export_analytics
+
 
       # 👑 OWNER - Gestão de contas
       namespace :admin do
