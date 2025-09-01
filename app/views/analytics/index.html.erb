@@ -1,11 +1,18 @@
 <!-- ApexCharts -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-<%# --------- Descobrir domínio atual (com fallback) --------- %>
-<% dom = (respond_to?(:current_domain) ? current_domain : (current_user&.account&.production_kind || 'agriculture')) %>
-<% agri = dom == 'agriculture' %>
-<% aqua_tank = dom == 'aquaculture_tank' %>
-<% aqua_sea  = dom == 'aquaculture_sea'  %>
+<% raw_dom = current_user&.account&.production_kind.to_s %>
+<% dom = raw_dom.strip.downcase.tr(' ', '_') %>
+<% dom = case dom
+         when 'agricultura'        then 'agriculture'
+         when 'aquacultura_tank'   then 'aquaculture_tank'
+         when 'aquacultura_sea'    then 'aquaculture_sea'
+         else dom.presence || 'agriculture'
+         end %>
+
+<% agri      = (dom == 'agriculture') %>
+<% aqua_tank = (dom == 'aquaculture_tank') %>
+<% aqua_sea  = (dom == 'aquaculture_sea')  %>
 
 <div id="analytics-root" data-domain="<%= dom %>" class="mx-auto max-w-[1400px] p-4 lg:p-6 space-y-6">
   <!-- Header -->

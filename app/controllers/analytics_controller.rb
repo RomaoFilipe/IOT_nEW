@@ -5,30 +5,31 @@ class AnalyticsController < ApplicationController
   before_action :set_kind!
 
   # Página HTML
-  def index
-  end
+  def index; end
 
-  # JSON consumido pela view
-  # GET /analytics/data?period=7d|30d|quarter|year&production_kind=...
+  # GET /analytics/data?period=7d|30d|quarter|year
   def data
-    period = params[:period].presence_in(%w[7d 30d quarter year]) || '7d'
+    period = params[:period].presence_in(%w[7d 30d quarter year]) || "7d"
     from, to = window_for(period)
 
-    # Campos desta conta (opcionalmente filtrados por produção)
+    # Campos desta conta (com filtro tolerante ao formato guardado na BD)
     fields = Field.where(account_id: @account.id)
-    fields = fields.where(production_kind: @kind) if Field.column_names.include?("production_kind") && @kind.present?
-    fids   = fields.pluck(:id)
+    if Field.column_names.include?("production_kind") && @kind.present?
+      # normaliza na query: lower(replace(production_kind,' ','_')) = @kind
+      fields = fields.where(Arel.sql("LOWER(REPLACE(production_kind,' ','_')) = ?"), @kind)
+    end
+    fids = fields.pluck(:id)
     return render json: empty_payload, status: :ok if fids.empty?
 
-    # Domínios existentes
-    has_agri      = !Field.column_names.include?("production_kind") || fields.where(production_kind: ['agriculture', nil]).exists?
-    has_aqua_tank = Field.column_names.include?("production_kind") && fields.where(production_kind: 'aquaculture_tank').exists?
-    has_aqua_sea  = Field.column_names.include?("production_kind") && fields.where(production_kind: 'aquaculture_sea').exists?
+    # Domínios a partir do @kind (normalizado)
+    has_agri      = (@kind == "agriculture")
+    has_aqua_tank = (@kind == "aquaculture_tank")
+    has_aqua_sea  = (@kind == "aquaculture_sea")
 
     # Sensores desses campos
     sids = Sensor.where(field_id: fids).pluck(:id)
 
-    # --------- AGRICULTURA (só se existir) ----------
+    # --------- AGRICULTURA (só se for o domínio atual) ----------
     kpi_soil = kpi_airt = kpi_airh = nil
     last_soil = nil
     line  = { categories: [], series: [] }
@@ -56,37 +57,37 @@ class AnalyticsController < ApplicationController
         ).sort_by { |d, *_| d }
 
       line = {
-        categories: daily_rows.map { |d, *_| d.to_date.strftime('%d/%m') },
+        categories: daily_rows.map { |d, *_| d.to_date.strftime("%d/%m") },
         series: [
-          { name: 'Humidade do Solo (%)',   data: daily_rows.map { |_, v, *_| v&.to_f&.round(2) } },
-          { name: 'Temperatura do Ar (°C)', data: daily_rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
-          { name: 'Humidade do Ar (%)',     data: daily_rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
-          { name: 'Luz (lux)',              data: daily_rows.map { |_, _, _, _, v| v&.to_f&.round(0) } }
+          { name: "Humidade do Solo (%)",   data: daily_rows.map { |_, v, *_| v&.to_f&.round(2) } },
+          { name: "Temperatura do Ar (°C)", data: daily_rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
+          { name: "Humidade do Ar (%)",     data: daily_rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
+          { name: "Luz (lux)",              data: daily_rows.map { |_, _, _, _, v| v&.to_f&.round(0) } }
         ]
       }
 
-      # Barras: minutos de rega/dia (usa IrrigationLog se existir; caso contrário, fallback para executed_at no schedule)
-      if ActiveRecord::Base.connection.data_source_exists?('irrigation_logs')
+      # Barras de rega: prefere IrrigationLog (histórico real). Fallback: executed_at em schedule.
+      if ActiveRecord::Base.connection.data_source_exists?("irrigation_logs")
         irrig_rows = IrrigationLog.joins(:sensor)
-                      .where(sensors: { field_id: fids })
-                      .where(executed_at: from..to)
-                      .group(Arel.sql('DATE(executed_at)'))
-                      .pluck(Arel.sql('DATE(executed_at) AS day'), Arel.sql('COALESCE(SUM(duration),0)'))
-                      .sort_by { |d, *_| d }
+                                  .where(sensors: { field_id: fids })
+                                  .where(executed_at: from..to)
+                                  .group(Arel.sql("DATE(executed_at)"))
+                                  .pluck(Arel.sql("DATE(executed_at) AS day"), Arel.sql("COALESCE(SUM(duration),0)"))
+                                  .sort_by { |d, *_| d }
       else
         irrig_rows = IrrigationSchedule.for_fields(fids)
-                      .executed_between(from, to)
-                      .group(Arel.sql('DATE(executed_at)'))
-                      .pluck(Arel.sql('DATE(executed_at) AS day'), Arel.sql('COALESCE(SUM(duration),0)'))
-                      .sort_by { |d, *_| d }
+                                       .executed_between(from, to)
+                                       .group(Arel.sql("DATE(executed_at)"))
+                                       .pluck(Arel.sql("DATE(executed_at) AS day"), Arel.sql("COALESCE(SUM(duration),0)"))
+                                       .sort_by { |d, *_| d }
       end
 
       bars = {
-        categories: irrig_rows.map { |d, _| d.to_date.strftime('%d/%m') },
-        series: [{ name: 'Minutos de rega', data: irrig_rows.map { |_, m| m.to_i } }]
+        categories: irrig_rows.map { |d, _| d.to_date.strftime("%d/%m") },
+        series: [{ name: "Minutos de rega", data: irrig_rows.map { |_, m| m.to_i } }]
       }
 
-      donut_dist   = readings.group(:sensor_id).pluck(:sensor_id, Arel.sql('AVG(soil_pct)'))
+      donut_dist   = readings.group(:sensor_id).pluck(:sensor_id, Arel.sql("AVG(soil_pct)"))
       sensor_names = Sensor.where(id: donut_dist.map(&:first)).pluck(:id, :name).to_h
       donut = {
         labels: donut_dist.map { |sid, _| sensor_names[sid].presence || "Sensor ##{sid}" },
@@ -97,7 +98,7 @@ class AnalyticsController < ApplicationController
     # --------- AQUACULTURA: TANQUES ----------
     aqua_tank_line = { categories: [], series: [] }
     if has_aqua_tank
-      tank_fids  = fields.where(production_kind: 'aquaculture_tank').pluck(:id)
+      tank_fids  = fields.pluck(:id) # já estão filtrados ao domínio
       tank_scope = AquacultureReading.for_fields(tank_fids).between(from, to)
       if tank_scope.exists?
         rows = tank_scope.group(Arel.sql("DATE(measured_at)"))
@@ -109,12 +110,12 @@ class AnalyticsController < ApplicationController
                            Arel.sql("AVG(oxygen_level)")
                          ).sort_by { |d, *_| d }
         aqua_tank_line = {
-          categories: rows.map { |d, *_| d.to_date.strftime('%d/%m') },
+          categories: rows.map { |d, *_| d.to_date.strftime("%d/%m") },
           series: [
-            { name: 'Temp. Água (°C)',   data: rows.map { |_, v, *_| v&.to_f&.round(2) } },
-            { name: 'pH',                data: rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
-            { name: 'Salinidade (ppt)',  data: rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
-            { name: 'Oxigénio (mg/L)',   data: rows.map { |_, _, _, _, v| v&.to_f&.round(2) } }
+            { name: "Temp. Água (°C)",   data: rows.map { |_, v, *_| v&.to_f&.round(2) } },
+            { name: "pH",                data: rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
+            { name: "Salinidade (ppt)",  data: rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
+            { name: "Oxigénio (mg/L)",   data: rows.map { |_, _, _, _, v| v&.to_f&.round(2) } }
           ]
         }
       end
@@ -123,7 +124,7 @@ class AnalyticsController < ApplicationController
     # --------- AQUACULTURA: MAR ----------
     aqua_sea_line = { categories: [], series: [] }
     if has_aqua_sea
-      sea_fids  = fields.where(production_kind: 'aquaculture_sea').pluck(:id)
+      sea_fids  = fields.pluck(:id) # já filtrados ao domínio
       sea_scope = AquacultureReading.for_fields(sea_fids).between(from, to)
       if sea_scope.exists?
         rows = sea_scope.group(Arel.sql("DATE(measured_at)"))
@@ -135,21 +136,21 @@ class AnalyticsController < ApplicationController
                           Arel.sql("AVG(oxygen_level)")
                         ).sort_by { |d, *_| d }
         aqua_sea_line = {
-          categories: rows.map { |d, *_| d.to_date.strftime('%d/%m') },
+          categories: rows.map { |d, *_| d.to_date.strftime("%d/%m") },
           series: [
-            { name: 'Temp. Mar (°C)',    data: rows.map { |_, v, *_| v&.to_f&.round(2) } },
-            { name: 'pH',                data: rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
-            { name: 'Salinidade (ppt)',  data: rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
-            { name: 'Oxigénio (mg/L)',   data: rows.map { |_, _, _, _, v| v&.to_f&.round(2) } }
+            { name: "Temp. Mar (°C)",    data: rows.map { |_, v, *_| v&.to_f&.round(2) } },
+            { name: "pH",                data: rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
+            { name: "Salinidade (ppt)",  data: rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
+            { name: "Oxigénio (mg/L)",   data: rows.map { |_, _, _, _, v| v&.to_f&.round(2) } }
           ]
         }
       end
     end
 
-    # Próximas regas (top 5)
-    upcoming = IrrigationSchedule.for_fields(fids).upcoming.first(5).map { |ir|
+    # Próximas regas (apenas faz sentido em agricultura; mas enviamos sempre)
+    upcoming = IrrigationSchedule.for_fields(fids).upcoming.first(5).map do |ir|
       { day_of_week: ir.day_of_week, time: ir.time_hhmm, duration: ir.duration, sensor_id: ir.sensor_id }
-    }
+    end
 
     payload = {
       domain: @kind,
@@ -170,16 +171,16 @@ class AnalyticsController < ApplicationController
       irrigation: { upcoming: upcoming }
     }
 
-    response.set_header('Cache-Control', 'max-age=10, public')
+    response.set_header("Cache-Control", "max-age=10, public")
     render json: payload, status: :ok
   rescue => e
     Rails.logger.error("[Analytics#data] #{e.class}: #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}")
-    render json: { error: 'Falha ao gerar analytics.' }, status: :unprocessable_entity
+    render json: { error: "Falha ao gerar analytics." }, status: :unprocessable_entity
   end
 
   # Export CSV simples
   def export
-    period = params[:period].presence_in(%w[7d 30d quarter year]) || '7d'
+    period = params[:period].presence_in(%w[7d 30d quarter year]) || "7d"
     from, to = window_for(period)
 
     sids = Sensor.where(field_id: current_user.account.fields.select(:id)).pluck(:id)
@@ -195,6 +196,28 @@ class AnalyticsController < ApplicationController
 
   private
 
+  # --------- Helpers de normalização e contexto ---------
+  def normalize_kind(value)
+    v = value.to_s.strip.downcase
+    v = v.tr(" ", "_") # "Aquaculture tank" -> "aquaculture_tank"
+    case v
+    when "agricultura"       then "agriculture"
+    when "aquacultura_tank"  then "aquaculture_tank"
+    when "aquacultura_sea"   then "aquaculture_sea"
+    else v
+    end
+  end
+
+  def set_account!
+    @account = current_user.account
+    head :forbidden unless @account
+  end
+
+  def set_kind!
+    @kind = normalize_kind(@account&.production_kind || "agriculture")
+  end
+
+  # --------- Payload vazio ---------
   def empty_payload
     {
       domain: @kind,
@@ -212,26 +235,16 @@ class AnalyticsController < ApplicationController
     }
   end
 
-  def set_account!
-    @account = current_user.account
-    head :forbidden unless @account
-  end
-
-  def set_kind!
-    # usa se tiveres esta info; senão, deixa nil e ignora o filtro
-    @kind = params[:production_kind].presence ||
-            (@account.respond_to?(:production_kind) ? @account.production_kind : nil)
-  end
-
+  # --------- Janela temporal ---------
   def window_for(period)
     to = Time.zone.now
     from =
       case period
-      when '7d'      then 7.days.ago.beginning_of_day
-      when '30d'     then 30.days.ago.beginning_of_day
-      when 'quarter' then 3.months.ago.beginning_of_day
-      when 'year'    then 1.year.ago.beginning_of_day
-      else                7.days.ago.beginning_of_day
+      when "7d"      then 7.days.ago.beginning_of_day
+      when "30d"     then 30.days.ago.beginning_of_day
+      when "quarter" then 3.months.ago.beginning_of_day
+      when "year"    then 1.year.ago.beginning_of_day
+      else                 7.days.ago.beginning_of_day
       end
     [from, to]
   end
