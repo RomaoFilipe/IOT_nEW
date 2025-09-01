@@ -194,28 +194,47 @@ class AnalyticsController < ApplicationController
     send_data csv, filename: "analytics_#{Time.zone.now.strftime('%Y%m%d_%H%M')}.csv"
   end
 
-  private
+private
 
-  # --------- Helpers de normalização e contexto ---------
-  def normalize_kind(value)
-    v = value.to_s.strip.downcase
-    v = v.tr(" ", "_") # "Aquaculture tank" -> "aquaculture_tank"
-    case v
-    when "agricultura"       then "agriculture"
-    when "aquacultura_tank"  then "aquaculture_tank"
-    when "aquacultura_sea"   then "aquaculture_sea"
-    else v
-    end
+def normalize_kind(value)
+  v = value.to_s.strip.downcase.tr(" ", "_")
+  case v
+  when "agricultura"       then "agriculture"
+  when "aquacultura_tank"  then "aquaculture_tank"
+  when "aquacultura_sea"   then "aquaculture_sea"
+  else v
   end
+end
 
-  def set_account!
-    @account = current_user.account
-    head :forbidden unless @account
-  end
+def infer_kind_from_fields
+  return nil unless Field.column_names.include?("production_kind")
+  kinds = Field.where(account_id: @account.id)
+               .pluck(:production_kind)
+               .compact
+               .map { |v| normalize_kind(v) }
+  return nil if kinds.empty?
+  kinds.group_by(&:itself).max_by { |_k, v| v.size }&.first
+end
 
-  def set_kind!
-    @kind = normalize_kind(@account&.production_kind || "agriculture")
+def set_account!
+  @account = current_user.account
+  head :forbidden unless @account
+end
+
+def set_kind!
+  acc_kind   = normalize_kind(@account&.production_kind)
+  inferred   = infer_kind_from_fields
+
+  if acc_kind.present? && Field.column_names.include?("production_kind")
+    has_for_acc = Field.where(account_id: @account.id)
+                       .where(Arel.sql("LOWER(REPLACE(production_kind,' ','_')) = ?"), acc_kind)
+                       .exists?
+    @kind = has_for_acc ? acc_kind : (inferred || "agriculture")
+  else
+    @kind = acc_kind.presence || inferred || "agriculture"
   end
+end
+
 
   # --------- Payload vazio ---------
   def empty_payload
