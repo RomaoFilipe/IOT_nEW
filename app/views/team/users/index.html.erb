@@ -9,7 +9,6 @@
         <i class="lucide lucide-building-2 w-5 h-5 text-blue-600"></i>
         Editar Conta da Empresa
       </h2>
-      <%= link_to "← Voltar", team_users_path, class: "text-sm text-slate-600 hover:underline" %>
     </div>
 
     <%= form_with model: @account, url: update_account_team_users_path, method: :patch, local: true, class: "space-y-4" do |f| %>
@@ -20,23 +19,32 @@
           <%= f.text_field :name, class: "w-full rounded-lg border-slate-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
         </div>
 
-        <!-- NIF (não editável) -->
-        <div>
-          <%= f.label :nif, "NIF", class: "block text-sm font-medium text-slate-700 mb-1" %>
-          <%= f.text_field :nif, value: @account.nif, disabled: true,
-                class: "w-full bg-slate-100 text-slate-600 border border-slate-300 rounded-lg px-4 py-2 text-sm cursor-not-allowed" %>
-        </div>
+        <!-- NIF (se existir no modelo) -->
+        <% if @account.respond_to?(:nif) %>
+          <div>
+            <%= f.label :nif, "NIF", class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= f.text_field :nif, value: @account.nif, disabled: true,
+                  class: "w-full bg-slate-100 text-slate-600 border border-slate-300 rounded-lg px-4 py-2 text-sm cursor-not-allowed" %>
+          </div>
+        <% end %>
 
         <!-- Tipo de Produção -->
         <div class="md:col-span-2">
-          <%= f.label :farm_type, "Tipo de Produção", class: "block text-sm font-medium text-slate-700 mb-1" %>
-          <%= f.select :farm_type,
-                Account.farm_types.keys.map { |type| [type.humanize.capitalize, type] },
-                {},
-                disabled: @account.fields.exists?,
+          <%= f.label :production_kind, "Tipo de Produção", class: "block text-sm font-medium text-slate-700 mb-1" %>
+
+          <% options = [
+               ["Agricultura", "agriculture"],
+               ["Aquacultura — Tanques", "aquaculture_tank"],
+               ["Aquacultura — Mar", "aquaculture_sea"]
+             ] %>
+
+          <%= f.select :production_kind,
+                options,
+                { selected: @account.production_kind },
+                disabled: (@account.respond_to?(:fields) && @account.fields.exists?),
                 class: "w-full rounded-lg border-slate-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
 
-          <% if @account.fields.exists? %>
+          <% if @account.respond_to?(:fields) && @account.fields.exists? %>
             <p class="text-xs text-rose-600 mt-1">⚠ Não é possível alterar o tipo de produção com campos existentes.</p>
           <% end %>
         </div>
@@ -44,7 +52,6 @@
 
       <!-- Ações -->
       <div class="flex items-center justify-end gap-3 pt-4">
-        <%= link_to "Cancelar", team_users_path, class: "text-sm text-slate-600 hover:underline" %>
         <%= f.submit "💾 Guardar Alterações", class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm" %>
       </div>
     <% end %>
@@ -70,7 +77,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 flex flex-col justify-between h-full">
           <!-- Perfil -->
           <div class="flex items-start gap-4">
-            <% if user.photo.present? %>
+            <% if user.respond_to?(:photo) && user.photo.present? %>
               <img src="<%= user.photo.url %>" class="w-14 h-14 rounded-full object-cover border border-slate-200" alt="<%= user.name %>">
             <% else %>
               <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-base font-semibold border border-slate-200">
@@ -88,13 +95,13 @@
               <p class="text-sm text-slate-600 truncate"><%= user.email %></p>
 
               <% badge_class =
-                   case user.role
+                   case user.role.to_s
+                   when "owner"      then "bg-yellow-100 text-yellow-800"
                    when "admin"      then "bg-amber-100 text-amber-800"
                    when "manager"    then "bg-emerald-100 text-emerald-700"
                    when "technician" then "bg-indigo-100 text-indigo-700"
                    when "viewer"     then "bg-slate-100 text-slate-700"
-                   when "owner"      then "bg-yellow-100 text-yellow-800"
-                   else "bg-rose-100 text-rose-700"
+                   else "bg-slate-100 text-slate-700"
                    end %>
 
               <span class="inline-block mt-1 text-[11px] px-2.5 py-1 rounded-full font-semibold <%= badge_class %>">
@@ -125,13 +132,11 @@
                 data: { confirm: "Tens a certeza que queres apagar este utilizador?" },
                 class: "flex-1 text-center px-3 py-2 text-sm border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition" %>
 
-              <%# Hierarquia para simular %>
+              <%# Permissão para simular %>
               <% can_impersonate =
-                   case current_user.role
-                   when "admin"   then true
-                   when "manager" then !user.admin? && !user.owner?
-                   else false
-                   end %>
+                   (current_user.owner? && user.role.to_s != "owner") ||
+                   (current_user.admin? && !%w[owner admin].include?(user.role.to_s)) ||
+                   (current_user.manager? && !%w[owner admin manager].include?(user.role.to_s)) %>
 
               <% if can_impersonate %>
                 <%= button_to "👀 Simular", impersonate_team_user_path(user), method: :post,

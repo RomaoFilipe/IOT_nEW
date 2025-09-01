@@ -14,14 +14,12 @@ Rails.application.routes.draw do
     authenticate :user do
       # 🌍 Navegação principal
       get "dashboard", to: "dashboard#index", as: :dashboard
-      get "settings",  to: "settings#index",  as: :settings
+      # (REMOVIDO) get "settings" duplicado — o resource :settings já define GET /settings
 
-      # 📈 Analytics (rotas explícitas, sem resource singular)
-# 📈 Analytics
-get "analytics",        to: "analytics#index",  as: :analytics
-get "analytics/data",   to: "analytics#data",   as: :analytics_data,  defaults: { format: :json }
-get "analytics/export", to: "analytics#export", as: :export_analytics
-
+      # 📈 Analytics
+      get "analytics",        to: "analytics#index",  as: :analytics
+      get "analytics/data",   to: "analytics#data",   as: :analytics_data,  defaults: { format: :json }
+      get "analytics/export", to: "analytics#export", as: :export_analytics
 
       # 👑 OWNER - Gestão de contas
       namespace :admin do
@@ -41,13 +39,13 @@ get "analytics/export", to: "analytics#export", as: :export_analytics
       end
       post "/revert_impersonation", to: "team/users#revert_impersonation", as: :revert_impersonation
 
-      # 👤 Utilizadores (geral)
+      # 👤 Utilizadores (geral da app, não Devise)
       resources :users, only: [:index, :new, :create, :edit, :update, :destroy] do
         get  :entrar_como,         on: :member
         post :retornar_como_admin, on: :collection
       end
 
-      # 🌾 Campos & Sensores
+      # 🌾 Campos & Sensores (aninhados em campo)
       resources :fields do
         resources :sensors, only: [:create, :destroy] do
           post  :simulate,      on: :member
@@ -60,7 +58,7 @@ get "analytics/export", to: "analytics#export", as: :export_analytics
         end
       end
 
-      # Extras de domínio
+      # Extras por domínio
       resources :agriculture_fields
       resources :aquaculture_tanks
       resources :aquaculture_seas
@@ -77,20 +75,25 @@ get "analytics/export", to: "analytics#export", as: :export_analytics
       get "irrigation_schedules/by_sensor", to: "irrigation_schedules#by_sensor", as: :irrigation_by_sensor
 
       # 🛰️ Sensores globais
-      # 👉 Adicionámos :new para existir new_sensor_path
+      # Inclui :new para existir new_sensor_path
       resources :sensors, only: [:index, :show, :new, :create, :destroy, :update] do
-        # actions internas / APIs
-        post  :simulate,           to: "api/sensors#simulate",      as: :simulate_api
-        patch :toggle_status,      to: "api/sensors#toggle_status", as: :toggle_status_api
-        patch :unassign_field,     on: :member
-        post  :stop_irrigation,    on: :member
-        post  :start_irrigation,   on: :member
-        post  :readings,           to: "sensor_readings#create", on: :member
-        patch :assign_field,       on: :member
-        patch :update_status,      on: :member
-        get   :readings,           on: :member
-        get   :irrigation_history, on: :member
-        get   :status_info,        on: :member
+        # Alguns membros apontam para controllers API (ok, se for intencional)
+        post  :simulate,        to: "api/sensors#simulate",      as: :simulate_api
+        patch :toggle_status,   to: "api/sensors#toggle_status", as: :toggle_status_api
+
+        # Membros no controller web
+        patch :unassign_field,  on: :member
+        post  :stop_irrigation, on: :member
+        post  :start_irrigation,on: :member
+
+        # Leituras
+        post :readings,         to: "sensor_readings#create", on: :member
+        get  :readings,         on: :member
+
+        # Info
+        get  :irrigation_history, on: :member
+        get  :status_info,        on: :member
+
         collection { post :lookup }
       end
 
