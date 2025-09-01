@@ -1,28 +1,44 @@
 <!-- ApexCharts -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-<div class="mx-auto max-w-[1400px] p-4 lg:p-6 space-y-6">
+<%# --------- Descobrir domínio atual (com fallback) --------- %>
+<% dom = (respond_to?(:current_domain) ? current_domain : (current_user&.account&.production_kind || 'agriculture')) %>
+<% agri = dom == 'agriculture' %>
+<% aqua_tank = dom == 'aquaculture_tank' %>
+<% aqua_sea  = dom == 'aquaculture_sea'  %>
+
+<div id="analytics-root" data-domain="<%= dom %>" class="mx-auto max-w-[1400px] p-4 lg:p-6 space-y-6">
   <!-- Header -->
   <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 p-5 shadow-sm">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div class="flex items-start gap-4">
         <div class="h-12 w-12 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
-          <!-- leaf icon -->
-          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-              d="M9 21c-4-2-6-6-6-10C3 6 7 3 12 3s9 3 9 8c0 4-2 8-6 10M9 21c0-5 3-8 6-10"/>
-          </svg>
+          <!-- leaf/water icon -->
+          <% if agri %>
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                d="M9 21c-4-2-6-6-6-10C3 6 7 3 12 3s9 3 9 8c0 4-2 8-6 10M9 21c0-5 3-8 6-10"/>
+            </svg>
+          <% else %>
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="1.8" d="M12 2C12 2 5 9 5 13a7 7 0 0014 0c0-4-7-11-7-11z"/>
+            </svg>
+          <% end %>
         </div>
         <div>
           <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Analytics</h1>
-          <p class="text-sm text-slate-600 dark:text-slate-400">Monitorização integrada de Agricultura, Aquacultura e Rega.</p>
+          <p class="text-sm text-slate-600 dark:text-slate-400">
+            <% if agri %>Monitorização de Agricultura e Rega.
+            <% elsif aqua_tank %>Monitorização de Aquacultura — Tanques.
+            <% else %>Monitorização de Aquacultura — Mar.<% end %>
+          </p>
           <p id="last-updated" class="text-xs text-slate-500 dark:text-slate-400 mt-1">A carregar…</p>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <a href="<%= export_analytics_path(locale: I18n.locale) %>" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
-          <!-- download icon -->
+        <a href="<%= url_for(controller: 'analytics', action: 'export', only_path: true, locale: I18n.locale) %>"
+           class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
               d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/>
@@ -61,127 +77,142 @@
     </div>
   </div>
 
-  <!-- KPIs -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="kpi">
-      <div class="kpi-top">
-        <div class="kpi-icon bg-emerald-600/10 text-emerald-700 dark:text-emerald-300">
-          <!-- droplet -->
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-width="1.8" d="M12 2C12 2 5 9 5 13a7 7 0 0014 0c0-4-7-11-7-11z"/>
-          </svg>
+  <%# ==================== KPIs (apenas Agricultura) ==================== %>
+  <% if agri %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-icon bg-emerald-600/10 text-emerald-700 dark:text-emerald-300">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="1.8" d="M12 2C12 2 5 9 5 13a7 7 0 0014 0c0-4-7-11-7-11z"/>
+            </svg>
+          </div>
+          <span class="kpi-label">Média Solo</span>
+          <span class="kpi-chip">%</span>
         </div>
-        <span class="kpi-label">Média Solo</span>
-        <span class="kpi-chip">%</span>
+        <div class="kpi-val" id="kpi-soil">—</div>
+        <div class="kpi-trend" id="trend-soil"></div>
+        <div id="spark-soil" class="spark"></div>
       </div>
-      <div class="kpi-val" id="kpi-soil">—</div>
-      <div class="kpi-trend" id="trend-soil"></div>
-      <div id="spark-soil" class="spark"></div>
-    </div>
 
-    <div class="kpi">
-      <div class="kpi-top">
-        <div class="kpi-icon bg-amber-500/10 text-amber-600 dark:text-amber-300">
-          <!-- thermometer -->
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-width="1.8" d="M14 14.76V5a2 2 0 10-4 0v9.76a4 4 0 104 0z"/>
-          </svg>
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-icon bg-amber-500/10 text-amber-600 dark:text-amber-300">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="1.8" d="M14 14.76V5a2 2 0 10-4 0v9.76a4 4 0 104 0z"/>
+            </svg>
+          </div>
+          <span class="kpi-label">Temp. Ar</span>
+          <span class="kpi-chip">°C</span>
         </div>
-        <span class="kpi-label">Temp. Ar</span>
-        <span class="kpi-chip">°C</span>
+        <div class="kpi-val" id="kpi-airt">—</div>
+        <div class="kpi-trend" id="trend-temp"></div>
+        <div id="spark-temp" class="spark"></div>
       </div>
-      <div class="kpi-val" id="kpi-airt">—</div>
-      <div class="kpi-trend" id="trend-temp"></div>
-      <div id="spark-temp" class="spark"></div>
-    </div>
 
-    <div class="kpi">
-      <div class="kpi-top">
-        <div class="kpi-icon bg-sky-500/10 text-sky-600 dark:text-sky-300">
-          <!-- humidity -->
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-width="1.8" d="M12 2s7 7 7 11a7 7 0 11-14 0c0-4 7-11 7-11z"/>
-          </svg>
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-icon bg-sky-500/10 text-sky-600 dark:text-sky-300">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="1.8" d="M12 2s7 7 7 11a7 7 0 11-14 0c0-4 7-11 7-11z"/>
+            </svg>
+          </div>
+          <span class="kpi-label">Hum. Ar</span>
+          <span class="kpi-chip">%</span>
         </div>
-        <span class="kpi-label">Hum. Ar</span>
-        <span class="kpi-chip">%</span>
+        <div class="kpi-val" id="kpi-airh">—</div>
+        <div class="kpi-trend" id="trend-hum"></div>
+        <div id="spark-hum" class="spark"></div>
       </div>
-      <div class="kpi-val" id="kpi-airh">—</div>
-      <div class="kpi-trend" id="trend-hum"></div>
-      <div id="spark-hum" class="spark"></div>
-    </div>
 
-    <div class="kpi">
-      <div class="kpi-top">
-        <div class="kpi-icon bg-purple-500/10 text-purple-600 dark:text-purple-300">
-          <!-- gauge -->
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18zm0-9l6-2"/>
-          </svg>
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-icon bg-purple-500/10 text-purple-600 dark:text-purple-300">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18zm0-9l6-2"/>
+            </svg>
+          </div>
+          <span class="kpi-label">Solo (Últ.)</span>
+          <span class="kpi-chip">%</span>
         </div>
-        <span class="kpi-label">Solo (Últ.)</span>
-        <span class="kpi-chip">%</span>
-      </div>
-      <div class="kpi-val" id="gauge-last">—</div>
-      <div class="kpi-trend" id="trend-lux"></div>
-      <div id="spark-lux" class="spark"></div>
-    </div>
-  </div>
-
-  <!-- Agricultura -->
-  <div class="card">
-    <div class="card-head">
-      <h2 class="card-title">Agricultura — Tendências</h2>
-      <div class="flex flex-wrap gap-2">
-        <button class="chip" data-toggle-series="Humidade do Solo (%)">Solo</button>
-        <button class="chip" data-toggle-series="Temperatura do Ar (°C)">Temp</button>
-        <button class="chip" data-toggle-series="Humidade do Ar (%)">Hum</button>
-        <button class="chip" data-toggle-series="Luz (lux)">Luz</button>
+        <div class="kpi-val" id="gauge-last">—</div>
+        <div class="kpi-trend" id="trend-lux"></div>
+        <div id="spark-lux" class="spark"></div>
       </div>
     </div>
-    <div id="chart-agri-line" class="h-[360px]"></div>
-  </div>
+  <% end %>
 
-  <!-- Aquacultura -->
-  <div class="card">
-    <div class="card-head">
-      <h2 class="card-title">Aquacultura — Tendências</h2>
-      <span id="aqua-empty" class="text-sm text-slate-500 dark:text-slate-400 hidden">Sem dados no período.</span>
-    </div>
-    <div id="chart-aqua-line" class="h-[360px]"></div>
-  </div>
-
-  <!-- Rega + Donut -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <%# ==================== Linha Agricultura ==================== %>
+  <% if agri %>
     <div class="card">
       <div class="card-head">
-        <h3 class="card-title">Minutos de Rega / Dia</h3>
+        <h2 class="card-title">Agricultura — Tendências</h2>
+        <div class="flex flex-wrap gap-2">
+          <button class="chip" data-toggle-series="Humidade do Solo (%)">Solo</button>
+          <button class="chip" data-toggle-series="Temperatura do Ar (°C)">Temp</button>
+          <button class="chip" data-toggle-series="Humidade do Ar (%)">Hum</button>
+          <button class="chip" data-toggle-series="Luz (lux)">Luz</button>
+        </div>
       </div>
-      <div id="chart-irrig-bars" class="h-[320px]"></div>
+      <div id="chart-agri-line" class="h-[360px]"></div>
     </div>
+  <% end %>
 
+  <%# ==================== Aquacultura – Tanques ==================== %>
+  <% if aqua_tank %>
     <div class="card">
       <div class="card-head">
-        <h3 class="card-title">Solo Médio por Sensor</h3>
+        <h2 class="card-title">Aquacultura — Tanques</h2>
+        <span id="aqua-tank-empty" class="text-sm text-slate-500 hidden">Sem dados.</span>
       </div>
-      <div id="chart-donut" class="h-[320px]"></div>
+      <div id="chart-aqua-tank" class="h-[360px]"></div>
     </div>
-  </div>
+  <% end %>
 
-  <!-- Próximas Regas -->
-  <div class="card">
-    <div class="card-head">
-      <h3 class="card-title">Próximas Rega(s)</h3>
+  <%# ==================== Aquacultura – Mar ==================== %>
+  <% if aqua_sea %>
+    <div class="card">
+      <div class="card-head">
+        <h2 class="card-title">Aquacultura — Mar</h2>
+        <span id="aqua-sea-empty" class="text-sm text-slate-500 hidden">Sem dados.</span>
+      </div>
+      <div id="chart-aqua-sea" class="h-[360px]"></div>
     </div>
-    <ul id="upcoming-list" class="space-y-2">
-      <li class="skeleton h-10 rounded-lg"></li>
-      <li class="skeleton h-10 rounded-lg"></li>
-      <li class="skeleton h-10 rounded-lg"></li>
-    </ul>
-  </div>
+  <% end %>
+
+  <%# ==================== Barras Rega & Donut (apenas Agricultura) ==================== %>
+  <% if agri %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">Minutos de Rega / Dia</h3>
+        </div>
+        <div id="chart-irrig-bars" class="h-[320px]"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">Solo Médio por Sensor</h3>
+        </div>
+        <div id="chart-donut" class="h-[320px]"></div>
+      </div>
+    </div>
+
+    <!-- Próximas Regas -->
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title">Próximas Rega(s)</h3>
+      </div>
+      <ul id="upcoming-list" class="space-y-2">
+        <li class="skeleton h-10 rounded-lg"></li>
+        <li class="skeleton h-10 rounded-lg"></li>
+        <li class="skeleton h-10 rounded-lg"></li>
+      </ul>
+    </div>
+  <% end %>
 </div>
 
-<!-- Minimal styles utilitários (sem @apply para evitar build extra) -->
+<!-- Minimal styles utilitários -->
 <style>
   .seg-btn{ padding:.5rem .75rem; font-size:.875rem; color:rgb(71,85,105); background:transparent }
   .seg-btn.active{ background:#059669; color:white }
@@ -199,7 +230,7 @@
   .dark .kpi-trend{ color:rgb(148,163,184) }
   .spark{ height:44px }
   .card{ border:1px solid rgba(100,116,139,.2); border-radius:1rem; background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(248,250,252,.9)); padding:1rem; box-shadow:0 1px 2px rgba(16,24,40,.05) }
-  .dark .card{ background:linear-gradient(180deg,rgba(2,6,23,.9),rgba(15,23,42,.9)); border-color:rgba(51,65,85,.6) }
+  .dark .card{ background:linear-gradient(180deg,rgba(2,6,23,.9),rgba(15,23,42,.9)); border-color:rgba(51,65,85,.8) }
   .card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem }
   .card-title{ font-weight:600; color:rgb(15,23,42) }
   .dark .card-title{ color:white }
@@ -212,11 +243,12 @@
 </style>
 
 <script>
-  const DATA_URL = "<%= analytics_data_path(locale: I18n.locale) %>";
+  // Endpoints robustos (independe do alias da rota)
+  const DATA_URL = "<%= url_for(controller: 'analytics', action: 'data', only_path: true, locale: I18n.locale) %>";
 
   // Vars
-  let agriLine, aquaLine, irrigBars, donut;
-  let sparkSoil, sparkTemp, sparkHum, sparkLux;
+  let agriLine = null, aquaTank = null, aquaSea = null, irrigBars = null, donut = null;
+  let sparkSoil = null, sparkTemp = null, sparkHum = null, sparkLux = null;
   let timer = null;
 
   // Factories
@@ -260,17 +292,28 @@
 
   // Init
   document.addEventListener('DOMContentLoaded', () => {
-    agriLine  = makeLine('#chart-agri-line', ['Humidade do Solo (%)','Temperatura do Ar (°C)','Humidade do Ar (%)','Luz (lux)']);
-    aquaLine  = makeLine('#chart-aqua-line', ['Temp. Água (°C)','pH','Salinidade (ppt)','Oxigénio (mg/L)']);
-    irrigBars = makeBar('#chart-irrig-bars');
-    donut     = makeDonut('#chart-donut');
+    // Que elementos existem (dependem do domínio)?
+    const agriEl = document.querySelector('#chart-agri-line');
+    const tankEl = document.querySelector('#chart-aqua-tank');
+    const seaEl  = document.querySelector('#chart-aqua-sea');
+    const barsEl = document.querySelector('#chart-irrig-bars');
+    const dnutEl = document.querySelector('#chart-donut');
 
-    agriLine.render(); aquaLine.render(); irrigBars.render(); donut.render();
+    if (agriEl) {
+      agriLine = makeLine('#chart-agri-line', ['Humidade do Solo (%)','Temperatura do Ar (°C)','Humidade do Ar (%)','Luz (lux)']);
+      agriLine.render();
 
-    sparkSoil = makeSpark('#spark-soil'); sparkSoil.render();
-    sparkTemp = makeSpark('#spark-temp'); sparkTemp.render();
-    sparkHum  = makeSpark('#spark-hum');  sparkHum.render();
-    sparkLux  = makeSpark('#spark-lux');  sparkLux.render();
+      // KPIs & sparklines só em Agricultura
+      sparkSoil = makeSpark('#spark-soil'); sparkSoil.render();
+      sparkTemp = makeSpark('#spark-temp'); sparkTemp.render();
+      sparkHum  = makeSpark('#spark-hum');  sparkHum.render();
+      sparkLux  = makeSpark('#spark-lux');  sparkLux.render();
+    }
+
+    if (tankEl) { aquaTank = makeLine('#chart-aqua-tank', ['Temp. Água (°C)','pH','Salinidade (ppt)','Oxigénio (mg/L)']); aquaTank.render(); }
+    if (seaEl)  { aquaSea  = makeLine('#chart-aqua-sea',  ['Temp. Mar (°C)','pH','Salinidade (ppt)','Oxigénio (mg/L)']);  aquaSea.render();  }
+    if (barsEl) { irrigBars = makeBar('#chart-irrig-bars'); irrigBars.render(); }
+    if (dnutEl) { donut     = makeDonut('#chart-donut');   donut.render(); }
 
     // Período
     document.querySelectorAll('.seg-btn').forEach(btn => {
@@ -281,20 +324,17 @@
       });
     });
 
-    // Toggle séries
-    document.querySelectorAll('[data-toggle-series]').forEach(chip => {
-      chip.addEventListener('click', () => {
-        agriLine.toggleSeries(chip.dataset.toggleSeries);
-        chip.classList.toggle('chip-active');
-        if (chip.classList.contains('chip-active')) {
-          chip.style.backgroundColor = 'rgba(16,185,129,.15)';
-          chip.style.borderColor = 'rgba(16,185,129,.35)';
-        } else {
-          chip.style.backgroundColor = 'transparent';
-          chip.style.borderColor = 'rgba(100,116,139,.35)';
-        }
+    // Toggle séries de Agricultura (só se existir o gráfico)
+    if (agriLine) {
+      document.querySelectorAll('[data-toggle-series]').forEach(chip => {
+        chip.addEventListener('click', () => {
+          agriLine.toggleSeries(chip.dataset.toggleSeries);
+          chip.classList.toggle('chip-active');
+          chip.style.backgroundColor = chip.classList.contains('chip-active') ? 'rgba(16,185,129,.15)' : 'transparent';
+          chip.style.borderColor     = chip.classList.contains('chip-active') ? 'rgba(16,185,129,.35)' : 'rgba(100,116,139,.35)';
+        });
       });
-    });
+    }
 
     // Botões
     document.getElementById('refresh-btn').addEventListener('click', loadData);
@@ -320,49 +360,61 @@
       const dt = new Date(json.updated_at);
       document.getElementById('last-updated').textContent = `Última atualização: ${dt.toLocaleString()}`;
 
-      // KPIs
-      setText('kpi-soil',  json.kpis.avg_soil_pct, 2, '%');
-      setText('kpi-airt',  json.kpis.avg_air_temp, 2, '°C');
-      setText('kpi-airh',  json.kpis.avg_air_hum,  2, '%');
-      setText('gauge-last',json.charts.gauge.value,2, '%');
+      // ---------------- Agricultura ----------------
+      if (agriLine && json.charts?.line) {
+        // KPIs
+        setText('kpi-soil',  json.kpis.avg_soil_pct, 2, '%');
+        setText('kpi-airt',  json.kpis.avg_air_temp, 2, '°C');
+        setText('kpi-airh',  json.kpis.avg_air_hum,  2, '%');
+        setText('gauge-last',json.charts.gauge.value,2, '%');
 
-      // Tendências (pequena variação última vs penúltima)
-      const agri = json.charts.line.series || [];
-      setTrend('trend-soil', agri[0]?.data);
-      setTrend('trend-temp', agri[1]?.data);
-      setTrend('trend-hum',  agri[2]?.data);
-      setTrend('trend-lux',  agri[3]?.data);
+        // Tendências / linha
+        const line = json.charts.line || { categories: [], series: [] };
+        agriLine.updateOptions({ xaxis:{ categories: line.categories || [] } });
+        agriLine.updateSeries((line.series || []).map(s => ({ name:s.name, data:s.data || [] })));
 
-      // Gráfico Agricultura
-      agriLine.updateOptions({ xaxis:{ categories: json.charts.line.categories || [] } });
-      agriLine.updateSeries((json.charts.line.series || []).map(s => ({ name:s.name, data:s.data || [] })));
+        // Trends
+        const agri = line.series || [];
+        setTrend('trend-soil', agri[0]?.data);
+        setTrend('trend-temp', agri[1]?.data);
+        setTrend('trend-hum',  agri[2]?.data);
+        setTrend('trend-lux',  agri[3]?.data);
 
-      // Aquacultura
-      const hasAqua = (json.charts.aqua_line.categories || []).length > 0;
-      document.getElementById('aqua-empty').classList.toggle('hidden', hasAqua);
-      aquaLine.updateOptions({ xaxis:{ categories: json.charts.aqua_line.categories || [] } });
-      aquaLine.updateSeries((json.charts.aqua_line.series || []).map(s => ({ name:s.name, data:s.data || [] })));
+        // Sparklines
+        if (sparkSoil) sparkSoil.updateSeries([{ data: agri[0]?.data || [] }]);
+        if (sparkTemp) sparkTemp.updateSeries([{ data: agri[1]?.data || [] }]);
+        if (sparkHum)  sparkHum .updateSeries([{ data: agri[2]?.data || [] }]);
+        if (sparkLux)  sparkLux .updateSeries([{ data: agri[3]?.data || [] }]);
+      }
 
-      // Rega
-      irrigBars.updateOptions({ xaxis:{ categories: json.charts.bars.categories || [] } });
-      irrigBars.updateSeries(json.charts.bars.series || []);
+      if (irrigBars && json.charts?.bars) {
+        irrigBars.updateOptions({ xaxis:{ categories: json.charts.bars.categories || [] } });
+        irrigBars.updateSeries(json.charts.bars.series || []);
+      }
 
-      // Donut
-      donut.updateOptions({ labels: json.charts.donut.labels || [] });
-      donut.updateSeries(json.charts.donut.data || []);
+      if (donut && json.charts?.donut) {
+        donut.updateOptions({ labels: json.charts.donut.labels || [] });
+        donut.updateSeries(json.charts.donut.data || []);
+      }
 
-      // Lista próximas
-      renderUpcoming(json.irrigation?.upcoming || []);
+      // ---------------- Aquacultura ----------------
+      if (aquaTank) {
+        const tank = json.charts?.aqua_tank || { categories: [], series: [] };
+        document.getElementById('aqua-tank-empty')?.classList.toggle('hidden', (tank.categories || []).length > 0);
+        aquaTank.updateOptions({ xaxis: { categories: tank.categories || [] } });
+        aquaTank.updateSeries((tank.series || []).map(s => ({ name: s.name, data: s.data || [] })));
+      }
+      if (aquaSea) {
+        const sea = json.charts?.aqua_sea || { categories: [], series: [] };
+        document.getElementById('aqua-sea-empty')?.classList.toggle('hidden', (sea.categories || []).length > 0);
+        aquaSea.updateOptions({ xaxis: { categories: sea.categories || [] } });
+        aquaSea.updateSeries((sea.series || []).map(s => ({ name: s.name, data: s.data || [] })));
+      }
 
-      // Sparklines (aproveita agri series)
-      const sSoil = agri[0]?.data || [];
-      const sTemp = agri[1]?.data || [];
-      const sHum  = agri[2]?.data || [];
-      const sLux  = agri[3]?.data || [];
-      sparkSoil.updateSeries([{ data: sSoil }]);
-      sparkTemp.updateSeries([{ data: sTemp }]);
-      sparkHum.updateSeries([{ data: sHum }]);
-      sparkLux.updateSeries([{ data: sLux }]);
+      // Próximas regas (apenas Agricultura)
+      if (document.getElementById('upcoming-list')) {
+        renderUpcoming(json.irrigation?.upcoming || []);
+      }
     } catch(e){ console.error(e); }
   }
 
@@ -384,12 +436,13 @@
 
   function setText(id, v, d, suf){
     const el = document.getElementById(id);
+    if (!el) return;
     if (v === null || v === undefined || isNaN(v)) { el.textContent='—'; return; }
     el.textContent = `${Number(v).toFixed(d)}${suf}`;
   }
 
   function setTrend(id, arr){
-    const el = document.getElementById(id);
+    const el = document.getElementById(id); if (!el) return;
     if (!arr || arr.length < 2){ el.textContent=''; return; }
     const last = lastNumber(arr); const prev = lastNumber(arr, -2);
     if (last == null || prev == null){ el.textContent=''; return; }

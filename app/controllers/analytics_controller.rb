@@ -1,3 +1,4 @@
+# app/controllers/analytics_controller.rb
 class AnalyticsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_account!
@@ -13,112 +14,142 @@ class AnalyticsController < ApplicationController
     period = params[:period].presence_in(%w[7d 30d quarter year]) || '7d'
     from, to = window_for(period)
 
-    # Campos desta conta (se tiveres coluna production_kind, filtra)
+    # Campos desta conta (opcionalmente filtrados por produção)
     fields = Field.where(account_id: @account.id)
     fields = fields.where(production_kind: @kind) if Field.column_names.include?("production_kind") && @kind.present?
     fids   = fields.pluck(:id)
-
-    has_agri = fields.where(production_kind: ['agriculture', nil]).exists? || !Field.column_names.include?("production_kind")
-    has_aqua_tank = fields.where(production_kind: 'aquaculture_tank').exists?
-    has_aqua_sea  = fields.where(production_kind: 'aquaculture_sea').exists?
-
-
-
-
     return render json: empty_payload, status: :ok if fids.empty?
+
+    # Domínios existentes
+    has_agri      = !Field.column_names.include?("production_kind") || fields.where(production_kind: ['agriculture', nil]).exists?
+    has_aqua_tank = Field.column_names.include?("production_kind") && fields.where(production_kind: 'aquaculture_tank').exists?
+    has_aqua_sea  = Field.column_names.include?("production_kind") && fields.where(production_kind: 'aquaculture_sea').exists?
 
     # Sensores desses campos
     sids = Sensor.where(field_id: fids).pluck(:id)
 
-    # ---------------- AGRICULTURA (sensor_readings) ----------------
-    readings = SensorReading.where(sensor_id: sids)
-                            .where(Arel.sql("#{SensorReading.ts_sql} BETWEEN :from AND :to"), from: from, to: to)
+    # --------- AGRICULTURA (só se existir) ----------
+    kpi_soil = kpi_airt = kpi_airh = nil
+    last_soil = nil
+    line  = { categories: [], series: [] }
+    bars  = { categories: [], series: [] }
+    donut = { labels: [], data: [] }
 
-    kpi_soil = readings.average(:soil_pct)&.to_f&.round(2)
-    kpi_airt = readings.average(Arel.sql(SensorReading.air_temp_sql))&.to_f&.round(2)
-    kpi_airh = readings.average(Arel.sql(SensorReading.air_hum_sql))&.to_f&.round(2)
+    if has_agri && sids.any?
+      readings = SensorReading.where(sensor_id: sids)
+                              .where(Arel.sql("#{SensorReading.ts_sql} BETWEEN :from AND :to"), from: from, to: to)
 
-    last_soil = readings.order(Arel.sql("#{SensorReading.ts_sql} DESC"))
-                        .limit(1)
-                        .pick(:soil_pct)&.to_f&.round(2)
+      kpi_soil = readings.average(:soil_pct)&.to_f&.round(2)
+      kpi_airt = readings.average(Arel.sql(SensorReading.air_temp_sql))&.to_f&.round(2)
+      kpi_airh = readings.average(Arel.sql(SensorReading.air_hum_sql))&.to_f&.round(2)
 
-    daily_rows = readings
-      .group(Arel.sql("DATE(#{SensorReading.ts_sql})"))
-      .pluck(
-        Arel.sql("DATE(#{SensorReading.ts_sql}) AS day"),
-        Arel.sql("AVG(soil_pct)"),
-        Arel.sql("AVG(#{SensorReading.air_temp_sql})"),
-        Arel.sql("AVG(#{SensorReading.air_hum_sql})"),
-        Arel.sql("AVG(lux)")
-      )
-      .sort_by { |d, *_| d }
+      last_soil = readings.order(Arel.sql("#{SensorReading.ts_sql} DESC")).limit(1).pick(:soil_pct)&.to_f&.round(2)
 
-    line = {
-      categories: daily_rows.map { |d, *_| d.to_date.strftime('%d/%m') },
-      series: [
-        { name: 'Humidade do Solo (%)', data: daily_rows.map { |_, v, *_| v&.to_f&.round(2) } },
-        { name: 'Temperatura do Ar (°C)', data: daily_rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
-        { name: 'Humidade do Ar (%)', data: daily_rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
-        { name: 'Luz (lux)', data: daily_rows.map { |_, _, _, _, v| v&.to_f&.round(0) } }
-      ]
-    }
+      daily_rows = readings
+        .group(Arel.sql("DATE(#{SensorReading.ts_sql})"))
+        .pluck(
+          Arel.sql("DATE(#{SensorReading.ts_sql}) AS day"),
+          Arel.sql("AVG(soil_pct)"),
+          Arel.sql("AVG(#{SensorReading.air_temp_sql})"),
+          Arel.sql("AVG(#{SensorReading.air_hum_sql})"),
+          Arel.sql("AVG(lux)")
+        ).sort_by { |d, *_| d }
 
-    # Barras: minutos de rega/dia (histórico executado)
-    irrig_rows = IrrigationSchedule
-      .for_fields(fids)
-      .executed_between(from, to)
-      .group(Arel.sql('DATE(executed_at)'))
-      .pluck(Arel.sql('DATE(executed_at) AS day'), Arel.sql('COALESCE(SUM(duration),0)'))
-      .sort_by { |d, *_| d }
+      line = {
+        categories: daily_rows.map { |d, *_| d.to_date.strftime('%d/%m') },
+        series: [
+          { name: 'Humidade do Solo (%)',   data: daily_rows.map { |_, v, *_| v&.to_f&.round(2) } },
+          { name: 'Temperatura do Ar (°C)', data: daily_rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
+          { name: 'Humidade do Ar (%)',     data: daily_rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
+          { name: 'Luz (lux)',              data: daily_rows.map { |_, _, _, _, v| v&.to_f&.round(0) } }
+        ]
+      }
 
-    bars = {
-      categories: irrig_rows.map { |d, _| d.to_date.strftime('%d/%m') },
-      series: [{ name: 'Minutos de rega', data: irrig_rows.map { |_, m| m.to_i } }]
-    }
-
-    # Donut: solo médio por sensor
-    donut_dist = readings.group(:sensor_id).pluck(:sensor_id, Arel.sql('AVG(soil_pct)'))
-    sensor_names = Sensor.where(id: donut_dist.map(&:first)).pluck(:id, :name).to_h
-    donut = {
-      labels: donut_dist.map { |sid, _| sensor_names[sid].presence || "Sensor ##{sid}" },
-      data:   donut_dist.map { |_, avg| avg&.to_f&.round(2) || 0 }
-    }
-
-    # ---------------- AQUACULTURA (aquaculture_readings) ----------------
-    aqua_scope = AquacultureReading.for_fields(fids).between(from, to)
-
-    aqua_line =
-      if aqua_scope.exists?
-        rows = aqua_scope
-          .group(Arel.sql("DATE(measured_at)"))
-          .pluck(
-            Arel.sql("DATE(measured_at) AS day"),
-            Arel.sql("AVG(temperature)"),
-            Arel.sql("AVG(ph)"),
-            Arel.sql("AVG(salinity)"),
-            Arel.sql("AVG(oxygen_level)")
-          )
-          .sort_by { |d, *_| d }
-
-        {
-          categories: rows.map { |d, *_| d.to_date.strftime('%d/%m') },
-          series: [
-            { name: 'Temp. Água (°C)', data: rows.map { |_, v, *_| v&.to_f&.round(2) } },
-            { name: 'pH',              data: rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
-            { name: 'Salinidade (ppt)',data: rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
-            { name: 'Oxigénio (mg/L)', data: rows.map { |_, _, _, _, v| v&.to_f&.round(2) } }
-          ]
-        }
+      # Barras: minutos de rega/dia (usa IrrigationLog se existir; caso contrário, fallback para executed_at no schedule)
+      if ActiveRecord::Base.connection.data_source_exists?('irrigation_logs')
+        irrig_rows = IrrigationLog.joins(:sensor)
+                      .where(sensors: { field_id: fids })
+                      .where(executed_at: from..to)
+                      .group(Arel.sql('DATE(executed_at)'))
+                      .pluck(Arel.sql('DATE(executed_at) AS day'), Arel.sql('COALESCE(SUM(duration),0)'))
+                      .sort_by { |d, *_| d }
       else
-        { categories: [], series: [] }
+        irrig_rows = IrrigationSchedule.for_fields(fids)
+                      .executed_between(from, to)
+                      .group(Arel.sql('DATE(executed_at)'))
+                      .pluck(Arel.sql('DATE(executed_at) AS day'), Arel.sql('COALESCE(SUM(duration),0)'))
+                      .sort_by { |d, *_| d }
       end
 
-    # Próximas regas (até 5)
-    upcoming = IrrigationSchedule
-      .for_fields(fids)
-      .upcoming
-      .limit(5)
-      .map { |ir| { day_of_week: ir.day_of_week, time: ir.time_hhmm, duration: ir.duration, sensor_id: ir.sensor_id } }
+      bars = {
+        categories: irrig_rows.map { |d, _| d.to_date.strftime('%d/%m') },
+        series: [{ name: 'Minutos de rega', data: irrig_rows.map { |_, m| m.to_i } }]
+      }
+
+      donut_dist   = readings.group(:sensor_id).pluck(:sensor_id, Arel.sql('AVG(soil_pct)'))
+      sensor_names = Sensor.where(id: donut_dist.map(&:first)).pluck(:id, :name).to_h
+      donut = {
+        labels: donut_dist.map { |sid, _| sensor_names[sid].presence || "Sensor ##{sid}" },
+        data:   donut_dist.map { |_, avg| avg&.to_f&.round(2) || 0 }
+      }
+    end
+
+    # --------- AQUACULTURA: TANQUES ----------
+    aqua_tank_line = { categories: [], series: [] }
+    if has_aqua_tank
+      tank_fids  = fields.where(production_kind: 'aquaculture_tank').pluck(:id)
+      tank_scope = AquacultureReading.for_fields(tank_fids).between(from, to)
+      if tank_scope.exists?
+        rows = tank_scope.group(Arel.sql("DATE(measured_at)"))
+                         .pluck(
+                           Arel.sql("DATE(measured_at) AS day"),
+                           Arel.sql("AVG(temperature)"),
+                           Arel.sql("AVG(ph)"),
+                           Arel.sql("AVG(salinity)"),
+                           Arel.sql("AVG(oxygen_level)")
+                         ).sort_by { |d, *_| d }
+        aqua_tank_line = {
+          categories: rows.map { |d, *_| d.to_date.strftime('%d/%m') },
+          series: [
+            { name: 'Temp. Água (°C)',   data: rows.map { |_, v, *_| v&.to_f&.round(2) } },
+            { name: 'pH',                data: rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
+            { name: 'Salinidade (ppt)',  data: rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
+            { name: 'Oxigénio (mg/L)',   data: rows.map { |_, _, _, _, v| v&.to_f&.round(2) } }
+          ]
+        }
+      end
+    end
+
+    # --------- AQUACULTURA: MAR ----------
+    aqua_sea_line = { categories: [], series: [] }
+    if has_aqua_sea
+      sea_fids  = fields.where(production_kind: 'aquaculture_sea').pluck(:id)
+      sea_scope = AquacultureReading.for_fields(sea_fids).between(from, to)
+      if sea_scope.exists?
+        rows = sea_scope.group(Arel.sql("DATE(measured_at)"))
+                        .pluck(
+                          Arel.sql("DATE(measured_at) AS day"),
+                          Arel.sql("AVG(temperature)"),
+                          Arel.sql("AVG(ph)"),
+                          Arel.sql("AVG(salinity)"),
+                          Arel.sql("AVG(oxygen_level)")
+                        ).sort_by { |d, *_| d }
+        aqua_sea_line = {
+          categories: rows.map { |d, *_| d.to_date.strftime('%d/%m') },
+          series: [
+            { name: 'Temp. Mar (°C)',    data: rows.map { |_, v, *_| v&.to_f&.round(2) } },
+            { name: 'pH',                data: rows.map { |_, _, v, *_| v&.to_f&.round(2) } },
+            { name: 'Salinidade (ppt)',  data: rows.map { |_, _, _, v, _| v&.to_f&.round(2) } },
+            { name: 'Oxigénio (mg/L)',   data: rows.map { |_, _, _, _, v| v&.to_f&.round(2) } }
+          ]
+        }
+      end
+    end
+
+    # Próximas regas (top 5)
+    upcoming = IrrigationSchedule.for_fields(fids).upcoming.first(5).map { |ir|
+      { day_of_week: ir.day_of_week, time: ir.time_hhmm, duration: ir.duration, sensor_id: ir.sensor_id }
+    }
 
     payload = {
       domain: @kind,
@@ -133,22 +164,20 @@ class AnalyticsController < ApplicationController
         bars:      bars,
         donut:     donut,
         gauge:     { value: last_soil },
-        aqua_line: aqua_line
+        aqua_tank: aqua_tank_line,
+        aqua_sea:  aqua_sea_line
       },
-      irrigation: {
-        upcoming: upcoming
-      }
+      irrigation: { upcoming: upcoming }
     }
 
     response.set_header('Cache-Control', 'max-age=10, public')
     render json: payload, status: :ok
-
   rescue => e
     Rails.logger.error("[Analytics#data] #{e.class}: #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}")
     render json: { error: 'Falha ao gerar analytics.' }, status: :unprocessable_entity
   end
 
-  # Export CSV simples (opcional)
+  # Export CSV simples
   def export
     period = params[:period].presence_in(%w[7d 30d quarter year]) || '7d'
     from, to = window_for(period)
@@ -172,11 +201,12 @@ class AnalyticsController < ApplicationController
       updated_at: Time.zone.now,
       kpis: { avg_soil_pct: nil, avg_air_temp: nil, avg_air_hum: nil },
       charts: {
-        line:      { categories: [], series: [] },
-        bars:      { categories: [], series: [] },
-        donut:     { labels: [], data: [] },
-        gauge:     { value: nil },
-        aqua_line: { categories: [], series: [] }
+        line:       { categories: [], series: [] },
+        bars:       { categories: [], series: [] },
+        donut:      { labels: [], data: [] },
+        gauge:      { value: nil },
+        aqua_tank:  { categories: [], series: [] },
+        aqua_sea:   { categories: [], series: [] }
       },
       irrigation: { upcoming: [] }
     }
