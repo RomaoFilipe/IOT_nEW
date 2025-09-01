@@ -4,6 +4,8 @@ class AnalyticsController < ApplicationController
   before_action :set_account!
   before_action :set_kind!
 
+  helper_method :current_domain
+
   # Página HTML
   def index; end
 
@@ -195,6 +197,10 @@ class AnalyticsController < ApplicationController
   end
 
 private
+
+  def current_domain
+    @kind
+  end
 
 def normalize_kind(value)
   v = value.to_s.strip.downcase.tr(" ", "_")

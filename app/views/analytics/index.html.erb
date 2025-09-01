@@ -1,15 +1,10 @@
 <!-- ApexCharts -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-<% raw_dom = current_user&.account&.production_kind.to_s %>
-<% dom = raw_dom.strip.downcase.tr(' ', '_') %>
-<% dom = case dom
-         when 'agricultura'        then 'agriculture'
-         when 'aquacultura_tank'   then 'aquaculture_tank'
-         when 'aquacultura_sea'    then 'aquaculture_sea'
-         else dom.presence || 'agriculture'
-         end %>
-
+<%# --------- Domínio atual vindo do controller (já normalizado) --------- %>
+<% dom =
+     (@kind.presence ||
+      (respond_to?(:current_domain) ? current_domain : nil)).to_s.presence || 'agriculture' %>
 <% agri      = (dom == 'agriculture') %>
 <% aqua_tank = (dom == 'aquaculture_tank') %>
 <% aqua_sea  = (dom == 'aquaculture_sea')  %>
@@ -183,7 +178,7 @@
         <h2 class="card-title">Aquacultura — Mar</h2>
         <span id="aqua-sea-empty" class="text-sm text-slate-500 hidden">Sem dados.</span>
       </div>
-      <div id="chart-aqua-sea" class="h-[360px]"></div>
+        <div id="chart-aqua-sea" class="h-[360px]"></div>
     </div>
   <% end %>
 
@@ -299,7 +294,6 @@
 
   // Init
   document.addEventListener('DOMContentLoaded', () => {
-    // Que elementos existem (dependem do domínio)?
     const agriEl = document.querySelector('#chart-agri-line');
     const tankEl = document.querySelector('#chart-aqua-tank');
     const seaEl  = document.querySelector('#chart-aqua-sea');
@@ -309,8 +303,6 @@
     if (agriEl) {
       agriLine = makeLine('#chart-agri-line', ['Humidade do Solo (%)','Temperatura do Ar (°C)','Humidade do Ar (%)','Luz (lux)']);
       agriLine.render();
-
-      // KPIs & sparklines só em Agricultura
       sparkSoil = makeSpark('#spark-soil'); sparkSoil.render();
       sparkTemp = makeSpark('#spark-temp'); sparkTemp.render();
       sparkHum  = makeSpark('#spark-hum');  sparkHum.render();
@@ -322,7 +314,6 @@
     if (barsEl) { irrigBars = makeBar('#chart-irrig-bars'); irrigBars.render(); }
     if (dnutEl) { donut     = makeDonut('#chart-donut');   donut.render(); }
 
-    // Período
     document.querySelectorAll('.seg-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
@@ -331,7 +322,6 @@
       });
     });
 
-    // Toggle séries de Agricultura (só se existir o gráfico)
     if (agriLine) {
       document.querySelectorAll('[data-toggle-series]').forEach(chip => {
         chip.addEventListener('click', () => {
@@ -343,12 +333,10 @@
       });
     }
 
-    // Botões
     document.getElementById('refresh-btn').addEventListener('click', loadData);
     const auto = document.getElementById('auto-refresh');
     auto.addEventListener('change', () => auto.checked ? startAuto() : stopAuto());
 
-    // 1ª carga + auto on
     loadData(); auto.checked = true; startAuto();
   });
 
@@ -363,31 +351,25 @@
       const json = await res.json();
       if (json.error) throw new Error(json.error);
 
-      // Atualizado
       const dt = new Date(json.updated_at);
       document.getElementById('last-updated').textContent = `Última atualização: ${dt.toLocaleString()}`;
 
-      // ---------------- Agricultura ----------------
       if (agriLine && json.charts?.line) {
-        // KPIs
         setText('kpi-soil',  json.kpis.avg_soil_pct, 2, '%');
         setText('kpi-airt',  json.kpis.avg_air_temp, 2, '°C');
         setText('kpi-airh',  json.kpis.avg_air_hum,  2, '%');
         setText('gauge-last',json.charts.gauge.value,2, '%');
 
-        // Tendências / linha
         const line = json.charts.line || { categories: [], series: [] };
         agriLine.updateOptions({ xaxis:{ categories: line.categories || [] } });
         agriLine.updateSeries((line.series || []).map(s => ({ name:s.name, data:s.data || [] })));
 
-        // Trends
         const agri = line.series || [];
         setTrend('trend-soil', agri[0]?.data);
         setTrend('trend-temp', agri[1]?.data);
         setTrend('trend-hum',  agri[2]?.data);
         setTrend('trend-lux',  agri[3]?.data);
 
-        // Sparklines
         if (sparkSoil) sparkSoil.updateSeries([{ data: agri[0]?.data || [] }]);
         if (sparkTemp) sparkTemp.updateSeries([{ data: agri[1]?.data || [] }]);
         if (sparkHum)  sparkHum .updateSeries([{ data: agri[2]?.data || [] }]);
@@ -404,7 +386,6 @@
         donut.updateSeries(json.charts.donut.data || []);
       }
 
-      // ---------------- Aquacultura ----------------
       if (aquaTank) {
         const tank = json.charts?.aqua_tank || { categories: [], series: [] };
         document.getElementById('aqua-tank-empty')?.classList.toggle('hidden', (tank.categories || []).length > 0);
@@ -418,7 +399,6 @@
         aquaSea.updateSeries((sea.series || []).map(s => ({ name: s.name, data: s.data || [] })));
       }
 
-      // Próximas regas (apenas Agricultura)
       if (document.getElementById('upcoming-list')) {
         renderUpcoming(json.irrigation?.upcoming || []);
       }
