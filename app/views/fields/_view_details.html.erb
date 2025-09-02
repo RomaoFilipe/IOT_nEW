@@ -1,9 +1,10 @@
-
 <% field_id = (defined?(field) && field.present?) ? field.id : "dynamic" %>
 
 <div id="viewDetailsModal-<%= field_id %>"
      class="fixed inset-0 z-50 hidden"
-     aria-modal="true" role="dialog" aria-labelledby="fd-title-<%= field_id %>">
+     aria-modal="true"
+     role="dialog"
+     aria-labelledby="fd-title-<%= field_id %>">
 
   <!-- overlay -->
   <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeFieldModal('<%= field_id %>')"></div>
@@ -15,10 +16,10 @@
       <div class="min-w-0">
         <h2 id="fd-title-<%= field_id %>" class="flex items-center gap-2 text-lg sm:text-xl font-semibold text-slate-900 truncate">
           <i class="lucide lucide-map w-5 h-5 text-emerald-600"></i>
-          <span id="modalFieldName" class="truncate"><%= field&.name || "Field" %></span>
+          <span id="modalFieldName" class="truncate"><%= field&.name || t('fields.common.field', default: 'Field') %></span>
         </h2>
-        
-        <% status_text = field&.status.presence || 'Desconhecido' %>
+
+        <% status_text = field&.status.presence || t('common.unknown', default: 'Unknown') %>
         <% good = %w[ativo active running ok good].include?(status_text.to_s.downcase) %>
         <span class="mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1
                      <%= good ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-700 ring-amber-200' %>">
@@ -28,7 +29,7 @@
 
       <button type="button"
               class="shrink-0 rounded-full p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-              aria-label="Close"
+              aria-label="<%= t('common.close', default: 'Close') %>"
               onclick="closeFieldModal('<%= field_id %>')">
         <i class="lucide lucide-x w-5 h-5"></i>
       </button>
@@ -41,17 +42,17 @@
           <button id="tab-overview-<%= field_id %>"
                   class="tab-button active"
                   onclick="showFieldTab('<%= field_id %>', 'overview')">
-            Overview
+            <%= t('fields.modal.tabs.overview', default: t('common.overview', default: 'Overview')) %>
           </button>
           <button id="tab-iot-equipment-<%= field_id %>"
                   class="tab-button"
                   onclick="showFieldTab('<%= field_id %>', 'iot-equipment')">
-            IoT Equipment
+            <%= t('iot_equipment.title', default: 'IoT Equipment') %>
           </button>
           <button id="tab-analytics-<%= field_id %>"
                   class="tab-button"
                   onclick="showFieldTab('<%= field_id %>', 'analytics')">
-            Analytics
+            <%= t('navbar.analytics', default: 'Analytics') %>
           </button>
         </div>
       </div>
@@ -73,18 +74,18 @@
 
       <!-- actions -->
       <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
-        <button class="btn-secondary">Schedule Task</button>
-        <button class="btn-secondary">View History</button>
-        <button class="btn-primary">Generate Report</button>
+        <button class="btn-secondary"><%= t('fields.modal.actions.schedule_task', default: 'Schedule Task') %></button>
+        <button class="btn-secondary"><%= t('fields.modal.actions.view_history', default: 'View History') %></button>
+        <button class="btn-primary"><%= t('fields.modal.actions.generate_report', default: 'Generate Report') %></button>
       </div>
 
       <!-- danger zone -->
       <div class="mt-6">
         <%= button_to field_path(field),
               method: :delete,
-              data: { turbo_confirm: "Tens a certeza que queres eliminar este campo? Esta ação não pode ser anulada." },
+              data: { turbo_confirm: t('fields.modal.delete.confirm', default: 'Are you sure you want to delete this field? This action cannot be undone.') },
               class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-md bg-rose-600 px-4 py-2 font-medium text-white shadow hover:bg-rose-700" do %>
-          <i class="lucide lucide-trash-2 w-4 h-4"></i> Eliminar Campo
+          <i class="lucide lucide-trash-2 w-4 h-4"></i> <%= t('fields.modal.delete.button', default: 'Delete Field') %>
         <% end %>
       </div>
     </div>
@@ -93,18 +94,39 @@
 
 <style>
   .tab-button{
-    @apply w-full rounded-lg px-3 py-2.5 text-center transition
-           text-slate-700 hover:text-emerald-700;
+    width:100%;
+    border-radius:.5rem;
+    padding:.625rem .75rem;
+    text-align:center;
+    transition:all .15s ease;
+    color:#334155; /* slate-700 */
+    background:transparent;
   }
+  .tab-button:hover{ color:#047857; } /* emerald-700 */
   .tab-button.active{
-    @apply bg-white shadow text-slate-900 font-semibold;
+    background:#fff;
+    box-shadow:0 1px 2px rgba(15,23,42,.06);
+    color:#0f172a; /* slate-900 */
+    font-weight:600;
   }
   .btn-primary{
-    @apply rounded-md bg-emerald-600 px-4 py-2 text-white font-medium shadow hover:bg-emerald-700;
+    border-radius:.375rem;
+    background:#059669; /* emerald-600 */
+    padding:.5rem 1rem;
+    color:#fff;
+    font-weight:500;
+    box-shadow:0 1px 2px rgba(15,23,42,.06);
   }
+  .btn-primary:hover{ background:#047857; } /* emerald-700 */
   .btn-secondary{
-    @apply rounded-md bg-slate-700 px-4 py-2 text-white font-medium shadow hover:bg-slate-800;
+    border-radius:.375rem;
+    background:#0f172a; /* slate-900-ish */
+    padding:.5rem 1rem;
+    color:#fff;
+    font-weight:500;
+    box-shadow:0 1px 2px rgba(15,23,42,.06);
   }
+  .btn-secondary:hover{ background:#111827; } /* slightly darker */
   [id^="viewDetailsModal-"] .mapboxgl-control-container,
   [id^="viewDetailsModal-"] .mapboxgl-canvas-container,
   [id^="viewDetailsModal-"] .mapboxgl-marker,
@@ -121,9 +143,7 @@
     const m = document.getElementById(`viewDetailsModal-${id}`);
     if (!m) return;
     m.classList.remove('hidden');
-
-    // abre sempre na primeira tab
-    showFieldTab(id, 'overview');
+    showFieldTab(id, 'overview'); // abre sempre na primeira tab
   }
 
   // Tabs
@@ -144,13 +164,8 @@
     // se houver mapas nesta tab, faz resize
     setTimeout(() => {
       if (window.mapboxgl) {
-        // tenta ajustar todos os mapas visíveis dentro da tab
-        current?.querySelectorAll('.mapboxgl-canvas').forEach(() => {
-          // alguns projetos guardam o mapa em window, outros no elemento;
-          // o resize global cobre o caso mais comum.
-          if (window.mainMap) { try { window.mainMap.resize(); } catch(_){} }
-          if (window.mainFieldsMap) { try { window.mainFieldsMap.resize(); } catch(_){} }
-        });
+        if (window.mainMap) { try { window.mainMap.resize(); } catch(_){} }
+        if (window.mainFieldsMap) { try { window.mainFieldsMap.resize(); } catch(_){} }
       }
     }, 100);
   }

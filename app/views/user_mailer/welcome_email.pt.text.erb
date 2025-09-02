@@ -1,0 +1,17 @@
+Olá, <%= @user.name.presence || @user.email %>!
+
+Foste convidado(a) a juntar-te à conta <%= @account&.name || 'da empresa' %> em <%= @app_name %>.
+
+<% if @raw_password.present? %>
+Credenciais iniciais:
+- Email: <%= @user.email %>
+- Password provisória: <%= @raw_password %>
+
+Por segurança, altera a password após o primeiro login.
+<% else %>
+Para começares, define a tua password a partir da plataforma.
+<% end %>
+
+Entrar: <%= new_user_session_url(locale: I18n.locale) %>
+
+Se não estavas à espera deste convite, ignora este email.

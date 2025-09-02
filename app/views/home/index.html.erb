@@ -29,9 +29,7 @@
             'soft': '0 8px 30px rgba(2, 132, 199, .08)',
             'ring': '0 0 0 8px rgba(16,185,129,.08)'
           },
-          backdropBlur: {
-            xs: '2px'
-          }
+          backdropBlur: { xs: '2px' }
         }
       }
     }
@@ -97,7 +95,7 @@
 
         <!-- trust bar -->
         <div class="mx-auto mt-12 grid max-w-4xl grid-cols-2 gap-4 opacity-80 sm:grid-cols-4">
-          <% ["IoT", "AI Forecast", "Edge", "MQTT"].each do |label| %>
+          <% (t("landing.trust_bar") || []).each do |label| %>
             <div class="rounded-lg bg-white/70 px-3 py-2 text-sm font-medium text-gray-700 ring-1 ring-gray-200 backdrop-blur-xs"><%= label %></div>
           <% end %>
         </div>
@@ -111,7 +109,7 @@
           <%= t("landing.choose_type.title") %>
         </h2>
         <p class="mx-auto mt-3 max-w-2xl text-gray-600">
-          <!-- descrição opcional, mantém vazio se não tiveres key -->
+          <%= t("landing.choose_type.description", default: "") %>
         </p>
 
         <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -238,7 +236,7 @@
                 <span><%= t("landing.comparison.#{phase}.title") %></span>
               </div>
               <ul class="space-y-2 text-gray-700">
-                <% t("landing.comparison.#{phase}.items").each do |item| %>
+                <% (t("landing.comparison.#{phase}.items") || []).each do |item| %>
                   <li class="flex items-start gap-3">
                     <i data-lucide="<%= phase == :after ? 'check-circle-2' : 'minus' %>" class="h-5 w-5 <%= phase == :after ? 'text-emerald-600' : 'text-gray-400' %>"></i>
                     <span><%= item %></span>
@@ -258,7 +256,7 @@
         <p class="mx-auto mt-3 max-w-2xl text-gray-600"><%= t("landing.technologies.subtitle") %></p>
 
         <div class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
-          <% t("landing.technologies.items").each do |tech| %>
+          <% (t("landing.technologies.items") || []).each do |tech| %>
             <div class="rounded-xl bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 ring-1 ring-gray-200 hover:shadow-soft"><%= tech %></div>
           <% end %>
         </div>
@@ -298,7 +296,7 @@
           <div>
             <h3 class="font-semibold uppercase tracking-wide text-gray-900"><%= t("landing.footer.sections.#{section}.title") %></h3>
             <ul class="mt-3 space-y-2">
-              <% t("landing.footer.sections.#{section}.links").each do |item| %>
+              <% (t("landing.footer.sections.#{section}.links") || []).each do |item| %>
                 <li><a href="#" class="text-gray-600 hover:text-emerald-700 transition"><%= item %></a></li>
               <% end %>
             </ul>
@@ -317,6 +315,31 @@
     // Lucide
     document.addEventListener("DOMContentLoaded", () => { lucide.createIcons(); });
 
+    // Localized strings for "How it works"
+    const L = <%= {
+      how: {
+        agriculture: {
+          emoji: "🚜",
+          title: t('landing.how_it_works.agriculture.step1.title'),
+          desc:  t('landing.how_it_works.agriculture.step1.desc')
+        },
+        aquaculture_sea: {
+          emoji: "🌊",
+          title: t('landing.how_it_works.sea.step1.title'),
+          desc:  t('landing.how_it_works.sea.step1.desc')
+        },
+        aquaculture_tank: {
+          emoji: "🐟",
+          title: t('landing.how_it_works.tank.step1.title'),
+          desc:  t('landing.how_it_works.tank.step1.desc')
+        },
+        common: {
+          step2: { emoji: "📊", title: t('landing.how_it_works.common.step2.title'), desc: t('landing.how_it_works.common.step2.desc') },
+          step3: { emoji: "⚙️", title: t('landing.how_it_works.common.step3.title'), desc: t('landing.how_it_works.common.step3.desc') }
+        }
+      }
+    }.to_json.html_safe %>;
+
     // “Como funciona” – conteúdo dinâmico + estados
     document.addEventListener("DOMContentLoaded", () => {
       const content = document.getElementById("howItWorksContent");
@@ -326,50 +349,29 @@
         aquaculture_tank: document.getElementById("card-aquaculture_tank")
       };
 
-      const templates = {
-        agriculture: `
-          <div class='rounded-2xl bg-white p-6 ring-1 ring-gray-200 shadow-soft'>
-            <div class='text-emerald-600 text-3xl mb-4'>🚜</div>
-            <h3 class='text-lg font-bold'>1. Sensores no Campo</h3>
-            <p class='text-sm text-gray-600 mt-2'>Humidade, temperatura e qualidade do solo.</p>
-          </div>`,
-        aquaculture_sea: `
-          <div class='rounded-2xl bg-white p-6 ring-1 ring-gray-200 shadow-soft'>
-            <div class='text-cyan-600 text-3xl mb-4'>🌊</div>
-            <h3 class='text-lg font-bold'>1. Monitorização Marinha</h3>
-            <p class='text-sm text-gray-600 mt-2'>Oxigénio, salinidade, temperatura da água.</p>
-          </div>`,
-        aquaculture_tank: `
-          <div class='rounded-2xl bg-white p-6 ring-1 ring-gray-200 shadow-soft'>
-            <div class='text-teal-600 text-3xl mb-4'>🐟</div>
-            <h3 class='text-lg font-bold'>1. Gestão de Tanques</h3>
-            <p class='text-sm text-gray-600 mt-2'>Sensores nos viveiros, alertas e relatórios.</p>
-          </div>`
-      };
-
-      function stepCommons() {
+      function cardHTML(emoji, title, desc) {
         return `
           <div class='rounded-2xl bg-white p-6 ring-1 ring-gray-200 shadow-soft'>
-            <div class='text-yellow-500 text-3xl mb-4'>📊</div>
-            <h3 class='text-lg font-bold'>2. Análise Inteligente</h3>
-            <p class='text-sm text-gray-600 mt-2'>Gráficos, previsões e alertas em tempo real.</p>
-          </div>
-          <div class='rounded-2xl bg-white p-6 ring-1 ring-gray-200 shadow-soft'>
-            <div class='text-emerald-600 text-3xl mb-4'>⚙️</div>
-            <h3 class='text-lg font-bold'>3. Ações Automatizadas</h3>
-            <p class='text-sm text-gray-600 mt-2'>Rega, ventilação e notificações automáticas.</p>
+            <div class='text-emerald-600 text-3xl mb-4'>${emoji}</div>
+            <h3 class='text-lg font-bold'>${title}</h3>
+            <p class='text-sm text-gray-600 mt-2'>${desc}</p>
           </div>`;
       }
 
       function render(type) {
         Object.values(cards).forEach(el => el.classList.remove("ring-2", "ring-emerald-400", "shadow-ring"));
-        const activeCard =
+        const active =
           type === "agriculture" ? cards.agriculture :
           type === "aquaculture_sea" ? cards.aquaculture_sea :
           cards.aquaculture_tank;
 
-        activeCard.classList.add("ring-2", "ring-emerald-400", "shadow-ring");
-        content.innerHTML = templates[type] + stepCommons();
+        active.classList.add("ring-2", "ring-emerald-400", "shadow-ring");
+
+        const domain = L.how[type];
+        content.innerHTML =
+          cardHTML(domain.emoji, domain.title, domain.desc) +
+          cardHTML(L.how.common.step2.emoji, L.how.common.step2.title, L.how.common.step2.desc) +
+          cardHTML(L.how.common.step3.emoji, L.how.common.step3.title, L.how.common.step3.desc);
       }
 
       Object.values(cards).forEach(el => el.addEventListener("click", () => render(el.dataset.exploration)));

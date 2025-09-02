@@ -1,54 +1,98 @@
+
+
+<% sensor = local_assigns[:sensor] || @sensor %>
+
+<%# Resolve helper de rota com fallback seguro %>
+<% status_url =
+     (begin ; status_info_sensor_path(sensor, locale: I18n.locale) ; rescue ; nil ; end) ||
+     (begin ; sensors_status_info_path(sensor, locale: I18n.locale) ; rescue ; nil ; end) ||
+     (begin ; url_for(controller: "sensors", action: "status_info", id: sensor&.id, only_path: true, locale: I18n.locale) ; rescue ; "#" ; end)
+%>
+
 <script>
-  // Exemplo de URL: /sensors/123/status_info?locale=pt
-  const STATUS_URL = "<%= sensors_status_info_path(@sensor, locale: I18n.locale) rescue '#' %>";
+  (function(){
+    // === I18N / Locale ===
+    const LOCALE   = "<%= I18n.locale %>";
+    const STATUS_URL = "<%= status_url %>";
+    const UNKNOWN  = "<%= t('common.unknown', default: '—') %>";
+    const UNITS = {
+      pct: "<%= t('units.percent', default: '%') %>",
+      c:   "<%= t('units.celsius', default: '°C') %>",
+      lux: "<%= t('units.lux',     default: ' lux') %>"
+    };
+    const ERROR_LABEL = "<%= t('fields.realtime.loading_error', default: 'Realtime error') %>";
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadRealtime();
-    setInterval(loadRealtime, 15000); // 15s
-  });
+    let intervalId = null;
 
-  async function loadRealtime(){
-    if (STATUS_URL === '#') return;
-    try {
-      const res = await fetch(STATUS_URL, { headers: { 'Accept': 'application/json' }});
-      const j   = await res.json();
-
-      // Fallbacks de chaves (novo -> antigo)
-      setVal('#soil-value', j.soil_pct ?? j.moisture, '%');      // Humidade do Solo
-      setVal('#temp-value', j.temp_c   ?? j.air_temperature, '°C'); // Temperatura
-      setVal('#hum-value',  j.hum_air  ?? j.air_humidity, '%');  // Humidade do Ar
-      setVal('#lux-value',  j.lux      ?? j.light_intensity, ' lux'); // Luz
-
-      // Estado de rega (texto)
-      setText('#irrig-state', j.irrigation_state || '—');
-
-      // Badge “Atenção” se dado estiver ausente ou stale
-      toggleWarn('#soil-card', isWarn(j.soil_pct ?? j.moisture, j.stale));
-      toggleWarn('#temp-card', isWarn(j.temp_c ?? j.air_temperature, j.stale));
-      toggleWarn('#hum-card',  isWarn(j.hum_air ?? j.air_humidity, j.stale));
-      toggleWarn('#lux-card',  isWarn(j.lux ?? j.light_intensity, j.stale));
-
-    } catch(e) {
-      console.error('Realtime error:', e);
+    function start(){
+      loadRealtime();
+      intervalId = setInterval(loadRealtime, 15000); // 15s
     }
-  }
+    function stop(){
+      if (intervalId){ clearInterval(intervalId); intervalId = null; }
+    }
 
-  function setVal(sel, val, suf=''){
-    const el = document.querySelector(sel);
-    if (!el) return;
-    if (val === null || val === undefined || isNaN(Number(val))) { el.textContent = '—'; return; }
-    el.textContent = `${Number(val).toFixed( val % 1 === 0 ? 0 : 2)} ${suf}`.trim();
-  }
+    async function loadRealtime(){
+      if (!STATUS_URL || STATUS_URL === '#') return;
+      try {
+        const res = await fetch(STATUS_URL, { headers: { 'Accept': 'application/json' }});
+        if (!res.ok) throw new Error(res.status);
+        const j = await res.json();
 
-  function setText(sel, txt){ const el = document.querySelector(sel); if (el) el.textContent = txt; }
+        // Fallbacks de chaves (novo -> antigo)
+        setVal('#soil-value', j.soil_pct ?? j.moisture, UNITS.pct);        // Humidade do Solo
+        setVal('#temp-value', j.temp_c   ?? j.air_temperature, UNITS.c);   // Temperatura
+        setVal('#hum-value',  j.hum_air  ?? j.air_humidity,   UNITS.pct);  // Humidade do Ar
+        setVal('#lux-value',  j.lux      ?? j.light_intensity, UNITS.lux); // Luz
 
-  function isWarn(v, stale){ return stale || v === null || v === undefined || isNaN(Number(v)); }
+        // Estado de rega (texto)
+        setText('#irrig-state', j.irrigation_state || UNKNOWN);
 
-  function toggleWarn(cardSel, warn){
-    const card = document.querySelector(cardSel);
-    if (!card) return;
-    card.classList.toggle('ring-rose-300', warn);
-    card.classList.toggle('ring-1', warn);
-  }
+        // Badge “Atenção” se dado estiver ausente ou stale
+        toggleWarn('#soil-card', isWarn(j.soil_pct ?? j.moisture, j.stale));
+        toggleWarn('#temp-card', isWarn(j.temp_c ?? j.air_temperature, j.stale));
+        toggleWarn('#hum-card',  isWarn(j.hum_air ?? j.air_humidity, j.stale));
+        toggleWarn('#lux-card',  isWarn(j.lux ?? j.light_intensity, j.stale));
+
+      } catch (e) {
+        console.error(ERROR_LABEL + ':', e);
+      }
+    }
+
+    function setVal(sel, val, suf=''){
+      const el = document.querySelector(sel);
+      if (!el) return;
+      const num = Number(val);
+      if (val === null || val === undefined || Number.isNaN(num)) {
+        el.textContent = UNKNOWN; return;
+      }
+      const nf = new Intl.NumberFormat(LOCALE, {
+        maximumFractionDigits: (Math.floor(num) === num ? 0 : 2)
+      });
+      el.textContent = `${nf.format(num)}${suf}`;
+    }
+
+    function setText(sel, txt){
+      const el = document.querySelector(sel);
+      if (el) el.textContent = txt;
+    }
+
+    function isWarn(v, stale){
+      const num = Number(v);
+      return !!stale || v === null || v === undefined || Number.isNaN(num);
+    }
+
+    function toggleWarn(cardSel, warn){
+      const card = document.querySelector(cardSel);
+      if (!card) return;
+      card.classList.toggle('ring-rose-300', warn);
+      card.classList.toggle('ring-1', warn);
+    }
+
+    // Hooks para Turbo/DOM clássico
+    document.addEventListener('DOMContentLoaded', start);
+    document.addEventListener('turbo:load', start);
+    document.addEventListener('turbo:before-cache', stop);
+    window.addEventListener('beforeunload', stop);
+  })();
 </script>
-

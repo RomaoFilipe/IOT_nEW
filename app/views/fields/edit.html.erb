@@ -1,11 +1,10 @@
-
 <div class="max-w-7xl mx-auto px-4 md:px-6 py-6">
 
   <!-- Breadcrumb -->
   <nav class="mb-4 text-sm text-slate-500">
-    <%= link_to "Campos", fields_path, class: "hover:text-slate-700" %>
+    <%= link_to t("fields.edit.breadcrumb_fields", default: "Fields"), fields_path, class: "hover:text-slate-700" %>
     <span class="mx-2">/</span>
-    <span class="text-slate-700 font-medium"><%= @field.name.presence || "Editar" %></span>
+    <span class="text-slate-700 font-medium"><%= @field.name.presence || t("fields.edit.breadcrumb_current_fallback", default: "Edit") %></span>
   </nav>
 
   <!-- Header -->
@@ -15,35 +14,35 @@
         <div class="flex items-center gap-3">
           <i class="lucide lucide-pencil w-6 h-6 text-emerald-700"></i>
           <h1 class="truncate text-2xl md:text-3xl font-extrabold text-slate-900">
-            Editar Campo
+            <%= t("fields.edit.title", default: "Edit Field") %>
           </h1>
           <span class="shrink-0 ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
             <i class="lucide lucide-leaf w-3.5 h-3.5"></i>
-            <%= @field.field_type.to_s.humanize %>
+            <%= t("field_types.#{@field.field_type}", default: @field.field_type.to_s.humanize) %>
           </span>
           <% if @field.status.present? %>
             <% ok = %w[active ativo running ok good].include?(@field.status.to_s.downcase) %>
             <span class="shrink-0 ml-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ring-1
                         <%= ok ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-700 ring-amber-200' %>">
-              <span class="text-[8px]">●</span> <%= @field.status %>
+              <span class="text-[8px]">●</span>
+              <%= t("status.states.#{@field.status.to_s.downcase}", default: @field.status) %>
             </span>
           <% end %>
         </div>
         <p class="mt-2 text-sm text-slate-600">
-          Atualize os dados deste campo. As alterações entram em vigor de imediato após guardar.
+          <%= t("fields.edit.subtitle", default: "Update this field's data. Changes take effect immediately after saving.") %>
         </p>
       </div>
 
       <div class="flex items-center gap-2">
         <%= link_to fields_path,
             class: "inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" do %>
-          <i class="lucide lucide-arrow-left w-4 h-4"></i> Voltar à lista
+          <i class="lucide lucide-arrow-left w-4 h-4"></i> <%= t("fields.edit.back_to_list", default: "Back to list") %>
         <% end %>
-        <%# Dica: se tiveres o modal de detalhes, podes expor um botão rápido %>
         <button type="button"
                 onclick="document.getElementById('viewDetailsModal-<%= @field.id %>')?.classList.remove('hidden')"
                 class="hidden md:inline-flex items-center gap-2 rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-white hover:bg-slate-900">
-          <i class="lucide lucide-eye w-4 h-4"></i> Ver detalhes
+          <i class="lucide lucide-eye w-4 h-4"></i> <%= t("fields.edit.view_details", default: "View details") %>
         </button>
       </div>
     </div>
@@ -51,7 +50,7 @@
 
   <!-- Conteúdo -->
   <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Formulário (mantém os teus parciais por tipo) -->
+    <!-- Formulário por tipo -->
     <section class="lg:col-span-2">
       <div class="rounded-2xl bg-white p-5 md:p-6 shadow-xl border border-slate-100">
         <% case @field.field_type.to_s %>
@@ -73,17 +72,21 @@
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2">
-            <i class="lucide lucide-map-pin w-4 h-4 text-emerald-600"></i> Localização
+            <i class="lucide lucide-map-pin w-4 h-4 text-emerald-600"></i> <%= t("fields.edit.location.title", default: "Location") %>
           </h3>
           <% if @field.latitude.present? && @field.longitude.present? %>
-            <span class="text-xs text-slate-500">Lat: <%= @field.latitude %> • Lng: <%= @field.longitude %></span>
+            <span class="text-xs text-slate-500">
+              <%= t("map.details.latitude", default: "Latitude") %>: <%= @field.latitude %>
+              •
+              <%= t("map.details.longitude", default: "Longitude") %>: <%= @field.longitude %>
+            </span>
           <% end %>
         </div>
 
         <div class="h-48 rounded-xl border border-slate-200 overflow-hidden" id="edit-mini-map-<%= @field.id %>">
           <% unless @field.latitude.present? && @field.longitude.present? %>
             <div class="h-full w-full flex items-center justify-center text-slate-400 text-sm">
-              Sem coordenadas
+              <%= t("fields.edit.location.no_coords", default: "No coordinates") %>
             </div>
           <% end %>
         </div>
@@ -92,27 +95,27 @@
       <!-- Resumo -->
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h3 class="mb-3 text-sm font-semibold text-slate-800 flex items-center gap-2">
-          <i class="lucide lucide-info w-4 h-4 text-emerald-600"></i> Resumo do Campo
+          <i class="lucide lucide-info w-4 h-4 text-emerald-600"></i> <%= t("fields.edit.summary.title", default: "Field Summary") %>
         </h3>
         <dl class="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <dt class="text-slate-500">Nome</dt>
+            <dt class="text-slate-500"><%= t("fields.edit.summary.name", default: "Name") %></dt>
             <dd class="font-medium text-slate-800"><%= @field.name %></dd>
           </div>
           <div>
-            <dt class="text-slate-500">Área</dt>
+            <dt class="text-slate-500"><%= t("fields.edit.summary.area", default: "Area") %></dt>
             <dd class="font-medium text-slate-800"><%= @field.area || '—' %> ha</dd>
           </div>
           <div>
-            <dt class="text-slate-500">Tipo</dt>
-            <dd class="font-medium text-slate-800"><%= @field.field_type.to_s.humanize %></dd>
+            <dt class="text-slate-500"><%= t("fields.edit.summary.type", default: "Type") %></dt>
+            <dd class="font-medium text-slate-800"><%= t("field_types.#{@field.field_type}", default: @field.field_type.to_s.humanize) %></dd>
           </div>
           <div>
-            <dt class="text-slate-500">Sensores</dt>
+            <dt class="text-slate-500"><%= t("fields.edit.summary.sensors", default: "Sensors") %></dt>
             <dd class="font-medium text-slate-800"><%= @field.sensors.count %></dd>
           </div>
           <div class="col-span-2">
-            <dt class="text-slate-500">Atualizado</dt>
+            <dt class="text-slate-500"><%= t("fields.edit.summary.updated", default: "Updated") %></dt>
             <dd class="font-medium text-slate-800">
               <%= l(@field.updated_at, format: "%d/%m/%Y %H:%M") rescue @field.updated_at %>
             </dd>
@@ -123,12 +126,16 @@
       <!-- Dicas -->
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h3 class="mb-2 text-sm font-semibold text-slate-800 flex items-center gap-2">
-          <i class="lucide lucide-lightbulb w-4 h-4 text-amber-500"></i> Dicas
+          <i class="lucide lucide-lightbulb w-4 h-4 text-amber-500"></i> <%= t("fields.edit.tips.title", default: "Tips") %>
         </h3>
         <ul class="space-y-1 text-sm text-slate-600">
-          <li>• Mantém as coordenadas corretas para o mapa e meteo.</li>
-          <li>• Liga sensores ao campo para análises ricas.</li>
-          <li>• Atualiza notas para histórico claro.</li>
+          <% (t("fields.edit.tips.items", default: [
+                "Keep coordinates accurate for map and weather.",
+                "Link sensors to the field for richer analytics.",
+                "Update notes for a clear history."
+              ])).each do |tip| %>
+            <li>• <%= tip %></li>
+          <% end %>
         </ul>
       </div>
     </aside>

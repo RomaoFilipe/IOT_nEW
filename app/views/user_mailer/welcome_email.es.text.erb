@@ -1,0 +1,16 @@
+Hola, <%= @user.name.presence || @user.email %>!
+
+Has sido invitado(a) a unirte a <%= @account&.name || 'la empresa' %> en <%= @app_name %>.
+
+<% if @raw_password.present? %>
+Credenciales iniciales:
+- Email: <%= @user.email %>
+- Contraseña temporal: <%= @raw_password %>
+Cambia la contraseña después del primer inicio de sesión.
+<% else %>
+Para empezar, establece tu contraseña desde la plataforma.
+<% end %>
+
+Acceder: <%= new_user_session_url(locale: I18n.locale) %>
+
+Si no esperabas esta invitación, ignora este correo.

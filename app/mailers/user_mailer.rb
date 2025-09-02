@@ -1,17 +1,15 @@
 class UserMailer < ApplicationMailer
-  default from: "no-reply@iotagro.pt"
+  def welcome_email(user, raw_password = nil)
+    @user     = user
+    @account  = user.account
+    @app_name = Rails.application.class.module_parent_name
+    @raw_password = raw_password
 
-  def welcome_email(user, generated_password)
-    @user = user
-    @generated_password = generated_password
-    @login_url = "https://iotagro.pt/users/sign_in"
-    @account = @user.account
-    @company_name = @account&.name || "Empresa"
-    @company_nif = @account&.nif || "N/A"
-
-    mail(
-      to: @user.email,
-      subject: "👋 Bem-vindo à IoT Agro - A tua conta foi criada"
-    )
+    I18n.with_locale(@user.try(:locale).presence || I18n.locale) do
+      mail(
+        to: @user.email,
+        subject: I18n.t("mailers.user_mailer.welcome.subject", app: @app_name)
+      )
+    end
   end
 end

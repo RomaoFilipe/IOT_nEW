@@ -34,10 +34,18 @@ Rails.application.configure do
   config.active_storage.service = :local
 
   # Mailer
-  config.action_mailer.raise_delivery_errors = false
-  config.action_mailer.perform_caching = false
-  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
-
+# Opção A) SMTP real em dev
+config.action_mailer.delivery_method = :smtp
+config.action_mailer.perform_deliveries = true
+config.action_mailer.raise_delivery_errors = true
+config.action_mailer.smtp_settings = {
+  address:              ENV.fetch("SMTP_ADDRESS", "smtp.gmail.com"),
+  port:                 ENV.fetch("SMTP_PORT", 587),
+  domain:               ENV.fetch("SMTP_DOMAIN", "localhost"),
+  user_name:            Rails.application.credentials.dig(:smtp, :user_name) || ENV["SMTP_USERNAME"],
+  password:             Rails.application.credentials.dig(:smtp, :password)  || ENV["SMTP_PASSWORD"],
+  authentication:       :plain,
+  enable_starttls_auto: true
   # Logs
   config.active_support.deprecation = :log
   config.active_support.disallowed_deprecation = :raise

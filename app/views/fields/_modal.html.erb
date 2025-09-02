@@ -1,17 +1,28 @@
+<!-- app/views/fields/_modal.html.erb -->
 <div id="addFieldModal"
      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 <%= (@field&.errors&.any? ? '' : 'hidden') %>">
   <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md transform transition-all scale-95">
+    <!-- Header -->
     <div class="flex justify-between items-center border-b pb-3 mb-4">
-      <h2 class="text-xl font-semibold text-gray-800">Adicionar Novo Campo</h2>
-      <button type="button" onclick="toggleAddFieldModal(false)"
-              class="text-gray-500 hover:text-red-600 text-2xl leading-none">&times;</button>
+      <h2 class="text-xl font-semibold text-gray-800">
+        <%= t("fields.new_modal.title", default: "Add New Field") %>
+      </h2>
+      <button type="button"
+              onclick="toggleAddFieldModal(false)"
+              class="text-gray-500 hover:text-red-600 text-2xl leading-none"
+              aria-label="<%= t('actions.cancel', default: 'Cancel') %>">&times;</button>
     </div>
 
-    <p class="text-gray-500 text-sm mb-4">Preenche os dados necessários para criar um novo campo.</p>
+    <p class="text-gray-500 text-sm mb-4">
+      <%= t("fields.new_modal.description", default: "Fill in the required data to create a new field.") %>
+    </p>
 
-    <!-- ⛑️ Erros -->
+    <!-- Errors -->
     <% if @field&.errors&.any? %>
       <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <p class="font-semibold text-sm mb-1">
+          <%= t("fields.new_modal.errors_title", default: "There were errors creating the field:") %>
+        </p>
         <ul class="list-disc pl-5 text-sm">
           <% @field.errors.full_messages.each do |msg| %>
             <li><%= msg %></li>
@@ -20,15 +31,17 @@
       </div>
     <% end %>
 
-    <!-- 🔧 Formulário -->
+    <!-- Form -->
     <%= form_with model: @field, url: fields_path, local: true do |f| %>
       <div>
-        <%= f.label :name, "Nome do Campo", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :name, t("fields.new_modal.form.name", default: "Field Name"), class: "block text-sm font-medium text-gray-700" %>
         <%= f.text_field :name, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Campo</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          <%= t("fields.new_modal.form.type_label", default: "Field Type") %>
+        </label>
         <input type="text"
                value="<%= current_user.account.farm_type.humanize.capitalize %>"
                readonly
@@ -36,81 +49,97 @@
       </div>
 
       <div>
-        <%= f.label :area, "Área (ha)", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :area, t("fields.new_modal.form.area", default: "Area (ha)"), class: "block text-sm font-medium text-gray-700" %>
         <%= f.number_field :area, step: 0.1, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <%= f.label :latitude, "Latitude", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :latitude, t("fields.new_modal.form.latitude", default: "Latitude"), class: "block text-sm font-medium text-gray-700" %>
           <%= f.text_field :latitude, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
         </div>
         <div>
-          <%= f.label :longitude, "Longitude", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :longitude, t("fields.new_modal.form.longitude", default: "Longitude"), class: "block text-sm font-medium text-gray-700" %>
           <%= f.text_field :longitude, required: true, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
         </div>
       </div>
 
       <div class="mt-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Delimitar Terreno</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          <%= t("fields.new_modal.form.boundary_label", default: "Set Boundary") %>
+        </label>
         <button type="button" onclick="openBoundaryModal()"
                 class="w-full border border-gray-300 px-4 py-2 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50">
           <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M9.75 9.75L14.25 14.25"/>
           </svg>
-          <span>Definir Limites</span>
+          <span><%= t("fields.new_modal.form.boundary_button", default: "Define Boundary") %></span>
         </button>
       </div>
 
-      <!-- guarda o polígono aqui -->
+      <!-- polygon payload -->
       <%= f.hidden_field :polygon_coordinates, id: "polygonCoordinates" %>
 
       <div>
-        <%= f.label :notes, "Anotações", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :notes, t("fields.new_modal.form.notes", default: "Notes"), class: "block text-sm font-medium text-gray-700" %>
         <%= f.text_area :notes, rows: 3, class: "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" %>
       </div>
 
       <div class="flex justify-end space-x-2 pt-4">
         <button type="button" onclick="toggleAddFieldModal(false)"
-                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">Cancelar</button>
-        <%= f.submit "Criar Campo", class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700" %>
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100">
+          <%= t("actions.cancel", default: "Cancel") %>
+        </button>
+        <%= f.submit t("fields.overview.modal.submit", default: t("fields.new_modal.form.submit", default: "Create Field")),
+                     class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700" %>
       </div>
     <% end %>
   </div>
 
-  <!-- Modal secundário: delimitação (partial com os IDs usados em baixo) -->
+  <!-- Boundary modal partial (uses IDs referenced below) -->
   <%= render "fields/boundary_modal" %>
 </div>
 
 <script>
-  // —— Modal principal (adicionar campo)
+  // i18n strings for JS
+  const I18N = {
+    boundary: {
+      missing_modal: "<%= j t('fields.boundary.errors.missing_modal', default: 'Boundary modal not found.') %>",
+      mapbox_unavailable: "<%= j t('fields.boundary.errors.mapbox_unavailable', default: 'Mapbox GL not available.') %>",
+      too_few_points: "<%= j t('fields.boundary.errors.too_few_points', default: 'The polygon needs at least 3 points.') %>",
+      saved: "<%= j t('fields.boundary.saved', default: 'Area saved successfully!') %>",
+      points_suffix: "<%= j t('fields.boundary.points_suffix', default: 'points') %>"
+    }
+  };
+
+  // —— Main modal (add field)
   function toggleAddFieldModal(show = null) {
     const el = document.getElementById("addFieldModal");
     if (!el) return;
-    if (show === true)  el.classList.remove("hidden");
+    if (show === true)      el.classList.remove("hidden");
     else if (show === false) el.classList.add("hidden");
-    else el.classList.toggle("hidden");
+    else                     el.classList.toggle("hidden");
   }
 
-  // —— Polígono / Delimitação — usa IDs existentes no partial:
+  // —— Boundary / polygon capture
+  // expects the following IDs to exist (from boundary_modal partial):
   // boundaryModal, boundaryMap, boundaryStatus, boundaryResetBtn, boundarySaveBtn
-  // E o hidden field do form principal: polygonCoordinates
+  // plus the hidden input in the main form: polygonCoordinates
   let boundaryMap, boundaryLineId = "boundary-line", boundarySourceId = "boundary-geojson";
   let boundaryPoints = [];
   let boundaryMarkers = [];
 
   function openBoundaryModal() {
     const modal = document.getElementById("boundaryModal");
-    if (!modal) return alert("Modal de delimitação não encontrado.");
+    if (!modal) { alert(I18N.boundary.missing_modal); return; }
     modal.classList.remove("hidden");
 
     if (!(window.mapboxgl && mapboxgl.Map)) {
-      console.warn("Mapbox GL não disponível.");
+      console.warn(I18N.boundary.mapbox_unavailable);
       return;
     }
 
-    // Iniciar o mapa apenas uma vez
-    const mapContainer = document.getElementById("boundaryMap");
+    // init map once
     if (!boundaryMap) {
       mapboxgl.accessToken = window.MAPBOX_ACCESS_TOKEN || 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
       boundaryMap = new mapboxgl.Map({
@@ -122,12 +151,12 @@
       });
 
       boundaryMap.on('load', () => {
-        updateBoundary(); // desenha se já houver pontos carregados
+        updateBoundary();
         setTimeout(() => boundaryMap && boundaryMap.resize(), 100);
       });
 
       boundaryMap.on('click', function (e) {
-        if (boundaryPoints.length >= 8) return; // limite 8
+        if (boundaryPoints.length >= 8) return; // max 8
         const pt = [e.lngLat.lng, e.lngLat.lat];
         boundaryPoints.push(pt);
 
@@ -140,13 +169,12 @@
       setTimeout(() => boundaryMap && boundaryMap.resize(), 50);
     }
 
-    // Carregar do hidden se já existir
+    // load from hidden if any
     try {
       const hidden = document.getElementById("polygonCoordinates");
       if (hidden && hidden.value) {
         const arr = JSON.parse(hidden.value);
-        // aceitar [[lng,lat],...] (fechado) ou aberto; normalizar para aberto
-        boundaryPoints = (arr && arr.length > 2) ? arr.slice(0, -1) : (arr || []);
+        boundaryPoints = (arr && arr.length > 2) ? arr.slice(0, -1) : (arr || []); // normalize to open list
         redrawBoundaryMarkers();
         updateBoundary();
       }
@@ -169,11 +197,10 @@
 
   function updateBoundary() {
     const status = document.getElementById("boundaryStatus");
-    if (status) status.textContent = `${boundaryPoints.length}/8 pontos`;
+    if (status) status.textContent = `${boundaryPoints.length}/8 ${I18N.boundary.points_suffix}`;
 
     if (!boundaryMap) return;
 
-    // remover camadas se existirem
     if (boundaryMap.getLayer(boundaryLineId)) boundaryMap.removeLayer(boundaryLineId);
     if (boundaryMap.getSource(boundarySourceId)) boundaryMap.removeSource(boundarySourceId);
 
@@ -205,17 +232,17 @@
 
   function saveBoundary() {
     if (boundaryPoints.length < 3) {
-      alert("O polígono precisa de pelo menos 3 pontos.");
+      alert(I18N.boundary.too_few_points);
       return;
     }
     const closed = [...boundaryPoints, boundaryPoints[0]];
     const hidden = document.getElementById("polygonCoordinates");
     if (hidden) hidden.value = JSON.stringify(closed);
-    alert("Área guardada com sucesso!");
+    alert(I18N.boundary.saved);
     closeBoundaryModal();
   }
 
-  // Libertar recursos ao navegar (Turbo)
+  // Turbo: free resources before caching
   document.addEventListener("turbo:before-cache", () => {
     try {
       if (boundaryMap) {

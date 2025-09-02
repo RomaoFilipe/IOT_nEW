@@ -1,0 +1,16 @@
+Hi, <%= @user.name.presence || @user.email %>!
+
+You've been invited to join <%= @account&.name || 'the company' %> on <%= @app_name %>.
+
+<% if @raw_password.present? %>
+Initial credentials:
+- Email: <%= @user.email %>
+- Temporary password: <%= @raw_password %>
+Please change your password after your first login.
+<% else %>
+To get started, set your password from the platform.
+<% end %>
+
+Login: <%= new_user_session_url(locale: I18n.locale) %>
+
+If you didn’t expect this invitation, ignore this email.

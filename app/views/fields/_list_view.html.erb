@@ -3,15 +3,17 @@
     <% @fields.each do |field| %>
       <% avg_moist = field.sensors.average(:moisture)&.round %>
       <% avg_temp  = field.sensors.average(:temperature)&.round(1) %>
+
       <% location_text =
            if field.respond_to?(:formatted_location) && field.formatted_location.present?
              field.formatted_location
            elsif field.latitude.present? && field.longitude.present?
              "#{format('%.5f', field.latitude)}, #{format('%.5f', field.longitude)}"
            else
-             t("fields.location.none", default: "Sem localização")
+             t("fields.location.none", default: "No location")
            end %>
-      <% status_label = field.status.presence || t("fields.status.unknown", default: "Desconhecido") %>
+
+      <% status_label = field.status.presence || t("fields.status.unknown", default: "Unknown") %>
       <% status_class =
            case field.status.to_s.downcase
            when "active", "ativo" then "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
@@ -36,7 +38,7 @@
               class="mini-map-button inline-flex items-center gap-1"
               onclick="flyToField(<%= field.longitude %>, <%= field.latitude %>, <%= field.id %>)">
               <i class="lucide lucide-map w-3.5 h-3.5"></i>
-              <span class="text-xs font-medium">Ver no mapa</span>
+              <span class="text-xs font-medium"><%= t("fields.list_view.view_on_map", default: "View on Map") %></span>
             </button>
           <% else %>
             <div class="flex items-center justify-center h-36 text-slate-400">
@@ -58,20 +60,27 @@
           </header>
 
           <div class="grid grid-cols-2 gap-3 text-sm">
-            <p class="text-slate-600"><span class="font-medium">📍</span> <%= location_text %></p>
-            <p class="text-slate-600"><span class="font-medium">📏</span> <%= field.area || '—' %> ha</p>
+            <p class="text-slate-600">
+              <span class="font-medium">📍</span>
+              <%= location_text %>
+            </p>
+            <p class="text-slate-600">
+              <span class="font-medium">📏</span>
+              <%= field.area || t("common.unknown", default: "—") %> ha
+            </p>
             <p class="text-slate-600">
               <span class="font-medium">💧</span>
-              <%= avg_moist ? "#{avg_moist}%" : '—' %>
+              <%= avg_moist ? "#{avg_moist}#{t('units.percent', default: '%')}" : t("common.unknown", default: "—") %>
             </p>
             <p class="text-slate-600">
               <span class="font-medium">🌡</span>
-              <%= avg_temp ? "#{avg_temp}°C" : '—' %>
+              <%= avg_temp ? "#{avg_temp}#{t('units.celsius', default: '°C')}" : t("common.unknown", default: "—") %>
             </p>
           </div>
 
           <p class="text-xs text-slate-500">
-            <%= t("common.last_updated", default: "Atualizado há") %> <%= time_ago_in_words(field.updated_at) %>
+            <%= t("map.details.updated_at", default: "Last updated") %>
+            <%= time_ago_in_words(field.updated_at) %>
           </p>
 
           <div class="mt-1">
@@ -80,7 +89,7 @@
               onclick="toggleViewDetails(<%= field.id %>)"
               class="w-full text-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-sm font-medium transition">
               <i class="lucide lucide-eye w-4 h-4 inline-block -mt-0.5 mr-1"></i>
-              <%= t("fields.actions.view_details", default: "Ver detalhes") %>
+              <%= t("fields.list_view.view_details", default: "View Details") %>
             </button>
           </div>
         </div>
@@ -102,26 +111,21 @@
 </style>
 
 <script>
-  // Chama o inicializador global definido no index (idêntico ao que já te dei).
+  // Inicializa mini-mapas (definido no index)
   document.addEventListener("DOMContentLoaded", () => {
     if (typeof initializeMiniMaps === "function") {
-      // pequeno atraso para garantir que os nós já estão no DOM
       setTimeout(() => initializeMiniMaps(), 150);
     }
   });
 
-  // Helper: abre o separador "Mapa", inicializa (se preciso) e faz flyTo.
-  // Nota: no _map_view, ao criares o mapa principal, faz:
-  //   window.mainFieldsMap = map;
+  // Abre tab "Mapa", inicializa se necessário e faz flyTo.
   window.flyToField = function(lng, lat, id){
     try {
-      // muda para o separador Mapa
-      const mapTabBtn = document.querySelector('[aria-label="View switch"] button:last-child');
+      const mapTabBtn = document.querySelector('[aria-label="<%= j t("fields.index.view_switch", default: "View switch") %>"] button:last-child');
       if (mapTabBtn) mapTabBtn.click();
       if (typeof updateQuery === "function") updateQuery("map");
       if (typeof initMainMapIfNeeded === "function") initMainMapIfNeeded();
 
-      // espera o mapa principal ficar pronto
       const seek = () => {
         const m = window.mainFieldsMap || window.__fieldsMainMap;
         if (m && typeof m.flyTo === "function") {
