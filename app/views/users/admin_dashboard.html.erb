@@ -1,24 +1,20 @@
-<% content_for :title, "Painel de Administração" %>
-
-<style>
-  input[type="text"]::placeholder {
-    color: #9ca3af;
-  }
-  .transition {
-    transition: all 0.3s ease-in-out;
-  }
-</style>
+<% content_for :title, t("users.dashboard.title", default: "Painel de Administração") %>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
   <% if session[:admin_user_id].present? %>
-    <div class="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 flex justify-between items-center shadow-sm">
-      <div class="flex items-center text-sm text-yellow-800">
-        <i class="bi bi-person-check-fill text-xl mr-2"></i>
-        Estás a navegar como <strong class="mx-1"><%= current_user.name %></strong>
+    <div class="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 flex justify-between items-center shadow-sm">
+      <div class="flex items-center text-sm text-amber-800">
+        <i class="lucide lucide-user-check mr-2 h-5 w-5"></i>
+        <%= t("users.dashboard.simulating_as", default: "Estás a navegar como") %>
+        <strong class="mx-1"><%= current_user.name %></strong>
       </div>
-      <%= button_to "Retornar como Admin", retornar_como_admin_users_path, method: :post, class: "inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500 text-white text-sm font-semibold rounded hover:bg-yellow-600 transition" do %>
-        <i class="bi bi-arrow-return-left"></i> Voltar
+
+      <%= button_to t("users.dashboard.return_to_admin", default: "Retornar como Admin"),
+                    retornar_como_admin_users_path,
+                    method: :post,
+                    class: "inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500 text-white text-sm font-semibold rounded hover:bg-amber-600 transition" do %>
+        <i class="lucide lucide-corner-up-left h-4 w-4"></i>
+        <span><%= t("users.dashboard.back", default: "Voltar") %></span>
       <% end %>
     </div>
   <% end %>
@@ -26,64 +22,88 @@
   <!-- Cabeçalho -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
     <div class="w-full sm:w-auto">
-      <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">👤 Utilizadores</h1>
-      <p class="mt-1 text-sm text-gray-500">Gestão completa de contas registadas na plataforma.</p>
+      <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">👤 <%= t("users.dashboard.users", default: "Utilizadores") %></h1>
+      <p class="mt-1 text-sm text-slate-500"><%= t("users.dashboard.description", default: "Gestão completa de contas registadas na plataforma.") %></p>
     </div>
+
     <div class="w-full sm:w-auto flex flex-col sm:flex-row items-stretch gap-2">
       <input
         type="text"
-        placeholder="Pesquisar por nome ou email..."
-        class="w-full sm:w-64 px-4 py-2 rounded-lg border border-gray-300 focus:ring-indigo-300 focus:border-indigo-400 focus:outline-none text-sm"
+        placeholder="<%= t('users.dashboard.search_placeholder', default: 'Pesquisar por nome ou email...') %>"
+        class="w-full sm:w-64 px-4 py-2 rounded-lg border border-slate-300 focus:ring-emerald-300 focus:border-emerald-400 focus:outline-none text-sm"
         oninput="filtrarUtilizadores(this.value)"
         autocomplete="off"
+        aria-label="<%= t('users.dashboard.search_placeholder', default: 'Pesquisar por nome ou email...') %>"
       />
-      <%= link_to new_user_path, class: "inline-flex justify-center items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 shadow transition" do %>
-        <i class="bi bi-person-plus-fill"></i>
-        Novo Utilizador
+
+      <%= link_to new_user_path,
+                  class: "inline-flex justify-center items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 shadow transition" do %>
+        <i class="lucide lucide-user-plus h-4 w-4"></i>
+        <span><%= t("users.dashboard.new_user", default: "Novo Utilizador") %></span>
       <% end %>
     </div>
   </div>
 
-  <!-- Botão Voltar para Home -->
+  <!-- Voltar para Home -->
   <div class="mb-6">
-    <%= link_to home_path, class: "inline-flex items-center gap-2 text-sm px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 shadow-sm transition" do %>
-      <i class="bi bi-house-door-fill text-lg"></i>
-      <span>Voltar para Home</span>
+    <%= link_to home_path,
+                class: "inline-flex items-center gap-2 text-sm px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 shadow-sm transition" do %>
+      <i class="lucide lucide-home h-4 w-4"></i>
+      <span><%= t("users.dashboard.back_to_home", default: "Voltar para Home") %></span>
     <% end %>
   </div>
 
-  <!-- Lista de Utilizadores -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+  <!-- Lista -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <% @users.each do |user| %>
-      <div class="bg-white rounded-2xl shadow border border-gray-200 p-6 hover:shadow-lg transition" data-user-card data-user-name="<%= user.name %>" data-user-email="<%= user.email %>">
+      <% role_label = t("admin.users.roles.#{user.role}", default: user.role.to_s.humanize) %>
+      <div class="bg-white rounded-2xl shadow border border-slate-200 p-6 hover:shadow-md transition"
+           data-user-card
+           data-user-name="<%= user.name %>"
+           data-user-email="<%= user.email %>">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-lg font-semibold text-gray-900 truncate"><%= user.name %></h2>
-          <span class="text-xs font-medium text-gray-400 capitalize"><%= user.role %></span>
+          <h2 class="text-lg font-semibold text-slate-900 truncate"><%= user.name %></h2>
+          <span class="text-xs font-medium text-slate-400"><%= role_label %></span>
         </div>
 
-        <p class="text-sm text-gray-600 break-words"><i class="bi bi-envelope-fill mr-1"></i> <%= user.email %></p>
-        <p class="text-xs text-gray-500 mt-1"><i class="bi bi-calendar3 mr-1"></i> Criado em <%= user.created_at.strftime("%d/%m/%Y") %></p>
+        <p class="text-sm text-slate-600 break-words">
+          <i class="lucide lucide-mail mr-1 h-4 w-4 inline-block align-[-2px]"></i>
+          <%= user.email %>
+        </p>
+        <p class="text-xs text-slate-500 mt-1">
+          <i class="lucide lucide-calendar mr-1 h-4 w-4 inline-block align-[-2px]"></i>
+          <%= t("users.dashboard.created_at", default: "Criado em") %> <%= l(user.created_at.to_date) %>
+        </p>
 
-        <% if user.admin? %>
-          <span class="mt-4 inline-block text-xs font-semibold bg-red-100 text-red-700 px-3 py-1 rounded-full">Administrador</span>
-        <% elsif user.manager? %>
-          <span class="mt-4 inline-block text-xs font-semibold bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">Gestor</span>
-        <% else %>
-          <span class="mt-4 inline-block text-xs font-semibold bg-gray-100 text-gray-800 px-3 py-1 rounded-full">Utilizador</span>
-        <% end %>
+        <% badge = case
+                   when user.admin?    then ["bg-rose-100 text-rose-700",  t("users.roles.admin",    default: "Administrador")]
+                   when user.manager?  then ["bg-amber-100 text-amber-800", t("users.roles.manager",  default: "Gestor")]
+                   else                      ["bg-slate-100 text-slate-800", t("users.roles.user",     default: "Utilizador")]
+                   end %>
+
+        <span class="mt-4 inline-block text-xs font-semibold <%= badge.first %> px-3 py-1 rounded-full"><%= badge.last %></span>
 
         <div class="flex flex-wrap mt-5 gap-2">
-          <%= link_to edit_user_path(user), class: "inline-flex items-center px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition" do %>
-            <i class="bi bi-pencil-fill mr-1"></i> Editar
+          <%= link_to edit_user_path(user),
+                      class: "inline-flex items-center px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition" do %>
+            <i class="lucide lucide-pencil mr-1 h-4 w-4"></i>
+            <%= t("actions.edit", default: "Editar") %>
           <% end %>
 
-          <%= link_to user_path(user), method: :delete, data: { confirm: "Tens a certeza que queres eliminar este utilizador?" }, class: "inline-flex items-center px-3 py-1.5 text-xs font-medium bg-red-100 text-red-700 rounded hover:bg-red-200 transition" do %>
-            <i class="bi bi-trash-fill mr-1"></i> Eliminar
+          <%= button_to user_path(user),
+                        method: :delete,
+                        data: { turbo_confirm: t("profile.confirm_delete", default: "Tens a certeza que queres eliminar este utilizador?") },
+                        class: "inline-flex items-center px-3 py-1.5 text-xs font-medium bg-rose-100 text-rose-700 rounded hover:bg-rose-200 transition" do %>
+            <i class="lucide lucide-trash-2 mr-1 h-4 w-4"></i>
+            <%= t("actions.delete", default: "Eliminar") %>
           <% end %>
 
           <% if policy(user).entrar_como? && user != current_user %>
-            <%= link_to entrar_como_user_path(user), method: :post, class: "inline-flex items-center px-3 py-1.5 text-xs font-medium bg-green-100 text-green-700 rounded hover:bg-green-200 transition" do %>
-              <i class="bi bi-person-check-fill mr-1"></i> Entrar como
+            <%= button_to entrar_como_user_path(user),
+                          method: :post,
+                          class: "inline-flex items-center px-3 py-1.5 text-xs font-medium bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition" do %>
+              <i class="lucide lucide-log-in mr-1 h-4 w-4"></i>
+              <%= t("team.users.index.impersonate", default: "Entrar como") %>
             <% end %>
           <% end %>
         </div>
@@ -94,22 +114,11 @@
 
 <script>
   function filtrarUtilizadores(termo) {
-    const cards = document.querySelectorAll('[data-user-card]');
-    termo = termo.toLowerCase();
-
-    cards.forEach(card => {
-      const nome = card.getAttribute('data-user-name').toLowerCase();
-      const email = card.getAttribute('data-user-email').toLowerCase();
-
-      if (nome.includes(termo) || email.includes(termo)) {
-        card.style.display = 'block';
-      } else {
-        card.style.display = 'none';
-      }
+    termo = (termo || "").toLowerCase();
+    document.querySelectorAll("[data-user-card]").forEach(function(card){
+      const nome  = (card.getAttribute("data-user-name")  || "").toLowerCase();
+      const email = (card.getAttribute("data-user-email") || "").toLowerCase();
+      card.style.display = (nome.includes(termo) || email.includes(termo)) ? "" : "none";
     });
   }
 </script>
-
-<!-- Tailwind CSS e Bootstrap Icons -->
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">

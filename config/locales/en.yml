@@ -355,6 +355,7 @@ en:
       return_to_admin: "Return as Admin"
       back: "Back"
     roles:
+        user: "User"
         owner: "👑 Owner"
         admin: "🧑‍💼 Admin"
         manager: "👨‍🌾 Manager"
@@ -1038,7 +1039,8 @@ admin:
         nif: "VAT/NIF"
 
       index:
-
+        title: "Platform Accounts"
+        subtitle: "Manage organisations, see users and simulate access."
         search_placeholder: "Search by name or VAT/NIF…"
         filter_label: "Filter by type"
         filter_all: "All types"
@@ -1069,6 +1071,14 @@ admin:
         empty_state:
           title: "There are no accounts yet."
           cta: "Create first account"
+    users:
+      roles:
+        owner: "Owner"
+        admin: "Administrator"
+        manager: "Manager"
+        technician: "Technician"
+        viewer: "Viewer"
+        user: "User"
   
   
 time:

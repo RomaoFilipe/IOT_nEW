@@ -1,81 +1,134 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Editar Utilizador</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="w-full max-w-3xl bg-white shadow-lg rounded-xl p-8">
-    <!-- Título e Botão Voltar -->
+<% content_for :title, t("users.edit.title", default: "Editar Utilizador") %>
+
+<div class="max-w-4xl mx-auto mt-8">
+  <%# Flash %>
+  <% if flash[:notice].present? %>
+    <div class="mb-4 px-4 py-3 bg-green-50 text-green-800 rounded-lg border border-green-200">
+      ✅ <%= flash[:notice] %>
+    </div>
+  <% elsif flash[:alert].present? %>
+    <div class="mb-4 px-4 py-3 bg-rose-50 text-rose-700 rounded-lg border border-rose-200">
+      ⚠️ <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <div class="bg-white shadow-sm rounded-xl p-6 border">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.304.534 6.121 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        Editar Utilizador
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-2">
+        <i class="lucide lucide-user h-6 w-6 text-emerald-600"></i>
+        <%= t("users.edit.title", default: "Editar Utilizador") %>
       </h1>
-      <%= link_to '← Voltar para Contas', admin_accounts_path, class: 'text-sm text-gray-600 hover:text-green-600 underline' %>
+
+      <%= link_to t("profile.actions.back", default: "Voltar"),
+                  (defined?(admin_accounts_path) ? admin_accounts_path : :back),
+                  class: "text-sm text-slate-600 hover:text-emerald-600 underline" %>
     </div>
 
-    <%= form_with(model: @user, local: true, html: { multipart: true }) do |f| %>
+    <% if @user.errors.any? %>
+      <div class="mb-5 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-700">
+        <p class="font-semibold mb-2"><%= t("users.new.errors_title", default: "Erros ao guardar:") %></p>
+        <ul class="list-disc list-inside text-sm">
+          <% @user.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with(model: @user, local: true, html: { multipart: true }, class: "space-y-8") do |f| %>
       <!-- Dados Pessoais -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <%= f.label :name, 'Nome', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.text_field :name, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500', required: true %>
+          <%= f.label :name, t("users.forms.shared.name", default: "Nome"),
+                      class: "block text-sm font-medium text-slate-700 mb-1" %>
+          <%= f.text_field :name,
+                class: "w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring focus:ring-emerald-200 focus:border-emerald-500",
+                required: true %>
         </div>
 
         <div>
-          <%= f.label :email, 'Email', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.email_field :email, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500', required: true %>
+          <%= f.label :email, t("users.forms.shared.email", default: "Email"),
+                      class: "block text-sm font-medium text-slate-700 mb-1" %>
+          <%= f.email_field :email,
+                class: "w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring focus:ring-emerald-200 focus:border-emerald-500",
+                required: true, autocomplete: "email" %>
         </div>
 
         <div>
-          <%= f.label :role, 'Função', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.select :role, User.roles.keys.map { |role| [role.humanize, role] }, {}, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500' %>
+          <%= f.label :role, t("users.forms.shared.role", default: "Função"),
+                      class: "block text-sm font-medium text-slate-700 mb-1" %>
+          <% role_options = User.roles.keys.map { |r|
+               label = t("admin.users.roles.#{r}", default: r.humanize)
+               [label, r]
+             } %>
+          <%= f.select :role, role_options, {},
+                class: "w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring focus:ring-emerald-200 focus:border-emerald-500" %>
         </div>
 
-        <div>
-          <%= f.label :status, 'Status', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-          <%= f.select :status, [['Ativo', 'active'], ['Inativo', 'inactive']], {}, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500' %>
-        </div>
+        <%# Se tiveres mesmo uma coluna status no modelo User; caso contrário, remove este bloco %>
+        <% if @user.respond_to?(:status) %>
+          <div>
+            <%= f.label :status, t("users.status.active", default: "Estado"),
+                        class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= f.select :status,
+                  [[t("users.status.active", default: "Ativo"), "active"],
+                   [t("users.status.inactive", default: "Inativo"), "inactive"]],
+                  {},
+                  class: "w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring focus:ring-emerald-200 focus:border-emerald-500" %>
+          </div>
+        <% end %>
       </div>
 
       <!-- Atualizar Palavra-passe -->
-      <div class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-1">Atualizar Palavra-passe</h2>
+      <div>
+        <h2 class="text-lg font-semibold text-slate-700 mb-4 border-b pb-1">
+          <%= t("settings.security.change_password", default: "Alterar Palavra-passe") %>
+        </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <%= f.label :password, 'Nova Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-            <%= f.password_field :password, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500' %>
-            <p class="text-xs text-gray-500 italic">Deixa em branco para manter a atual.</p>
+            <%= f.label :password, t("team.users.forms.shared.password", default: "Nova Password"),
+                        class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= f.password_field :password,
+                  class: "w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring focus:ring-emerald-200 focus:border-emerald-500",
+                  autocomplete: "new-password" %>
+            <p class="text-xs text-slate-500 italic">
+              <%= t("team.users.forms.shared.password_placeholder", default: "Deixa em branco para manter a atual") %>.
+            </p>
           </div>
+
           <div>
-            <%= f.label :password_confirmation, 'Confirmar Password', class: 'block text-sm font-medium text-gray-700 mb-1' %>
-            <%= f.password_field :password_confirmation, class: 'w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-200 focus:border-green-500' %>
+            <%= f.label :password_confirmation, t("users.forms.shared.password_confirmation", default: "Confirmar Password"),
+                        class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= f.password_field :password_confirmation,
+                  class: "w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring focus:ring-emerald-200 focus:border-emerald-500",
+                  autocomplete: "new-password" %>
           </div>
         </div>
       </div>
 
       <!-- Foto de Perfil -->
-      <div class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-1">Foto de Perfil</h2>
+      <div>
+        <h2 class="text-lg font-semibold text-slate-700 mb-4 border-b pb-1">
+          <%= t("users.forms.shared.photo", default: "Foto de Perfil") %>
+        </h2>
         <div class="flex items-center gap-4">
-          <% if @user.photo.present? %>
-            <%= image_tag @user.photo.url, class: 'w-16 h-16 rounded-full object-cover border border-gray-300' %>
-          <% end %>
-          <%= f.file_field :photo, class: 'text-sm text-gray-600 border border-gray-300 rounded-md bg-white p-2' %>
+          <%= image_tag(@user.try(:photo)&.respond_to?(:url) ? @user.photo.url : image_path("placeholder-user.png"),
+                        class: "w-16 h-16 rounded-full object-cover border border-slate-300",
+                        alt: "Foto") %>
+          <%= f.file_field :photo,
+                class: "text-sm text-slate-700 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" %>
         </div>
       </div>
 
       <!-- Ações -->
-      <div class="flex justify-between items-center mt-10">
-        <%= f.submit '💾 Salvar Alterações', class: 'bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition duration-200 ease-in-out' %>
-        <%= link_to 'Cancelar', admin_accounts_path, class: 'text-gray-500 hover:text-red-600 text-sm underline' %>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t">
+        <%= link_to t("profile.actions.back", default: "Voltar"),
+                    (defined?(admin_accounts_path) ? admin_accounts_path : :back),
+                    class: "inline-flex items-center justify-center px-4 py-2 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50" %>
+
+        <%= f.submit t("team.users.edit.submit", default: "Guardar Alterações"),
+                     class: "inline-flex items-center justify-center px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm" %>
       </div>
     <% end %>
   </div>
-</body>
-</html>
+</div>
