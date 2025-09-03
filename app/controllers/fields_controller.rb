@@ -19,6 +19,19 @@ class FieldsController < ApplicationController
     apply_field_type_from_account(@field)
   end
 
+  def update_polygon
+  @field = current_account.fields.find(params[:id])
+  coords = params[:polygon_coordinates]
+
+  unless coords.is_a?(Array) && coords.all? { |p| p.is_a?(Array) && p.size == 2 }
+    return render json: { error: "Formato inválido." }, status: :unprocessable_entity
+  end
+
+  # guarda como array de [lng,lat] (JSON column recomendada)
+  @field.update!(polygon_coordinates: coords)
+  render json: { ok: true }
+end
+
   def create
     # constrói SEMPRE pela conta do utilizador (garante account_id)
     @field = current_account.fields.build(field_params)

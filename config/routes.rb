@@ -50,6 +50,7 @@ Rails.application.routes.draw do
         resources :sensors, only: [:create, :destroy] do
           post  :simulate,      on: :member
           patch :toggle_status, on: :member
+          patch :update_polygon
         end
 
         resources :irrigation_schedules, only: [:create, :destroy] do
