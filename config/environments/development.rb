@@ -46,6 +46,7 @@ config.action_mailer.smtp_settings = {
   password:             Rails.application.credentials.dig(:smtp, :password)  || ENV["SMTP_PASSWORD"],
   authentication:       :plain,
   enable_starttls_auto: true
+  } 
   # Logs
   config.active_support.deprecation = :log
   config.active_support.disallowed_deprecation = :raise
