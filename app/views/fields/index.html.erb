@@ -59,8 +59,8 @@
     updateQuery('map');
     $nextTick(() => {
       const m = (window.initMainMapIfNeeded || window.initializeMapbox)?.();
-      setTimeout(() => { m?.resize?.(); window.fitAll?.(); }, 60);
-    })
+      setTimeout(() => { m?.resize?.(); }, 50);
+    });
   ">
   <i class="lucide lucide-map w-4 h-4 inline-block mr-1"></i>
   <%= t('common.map', default: 'Map View') %>
