@@ -272,19 +272,21 @@
     </section>
 
     <!-- CTA FINAL -->
-    <section class="relative overflow-hidden">
-      <div aria-hidden="true" class="pointer-events-none absolute inset-0 bg-gradient-to-br from-emerald-700 via-emerald-600 to-cyan-600"></div>
-      <div class="relative mx-auto max-w-7xl px-6 py-20 text-center text-white">
-        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight"><%= t("landing.cta_final.title") %></h2>
-        <p class="mx-auto mt-3 max-w-2xl text-emerald-100"><%= t("landing.cta_final.subtitle") %></p>
-        <div class="mt-8">
-          <%= link_to new_user_registration_path, class: "inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-emerald-800 shadow-lg hover:bg-gray-100 focus:outline-none" do %>
-            <i data-lucide="leaf" class="h-5 w-5"></i>
-            <%= t("landing.cta_final.button") %>
-          <% end %>
-        </div>
+  <section class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0 bg-gradient-to-br from-emerald-700 via-emerald-600 to-cyan-600"></div>
+    <div class="relative mx-auto max-w-7xl px-6 py-20 text-center text-white">
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight"><%= t("landing.cta_final.title") %></h2>
+      <p class="mx-auto mt-3 max-w-2xl text-emerald-100"><%= t("landing.cta_final.subtitle") %></p>
+      <div class="mt-8">
+        <%= link_to new_user_registration_path,
+                    data: { turbo: false },
+                    class: "inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-emerald-800 shadow-lg hover:bg-gray-100 focus:outline-none" do %>
+          <i data-lucide="leaf" class="h-5 w-5"></i>
+          <%= t("landing.cta_final.button") %>
+        <% end %>
       </div>
-    </section>
+    </div>
+  </section>
 
   </main>
 
