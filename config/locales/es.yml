@@ -37,7 +37,7 @@ es:
         aquaculture_sea: "Acuicultura (Marina)"
         aquaculture_tank: "Acuicultura (Tanque)"
         undefined: "Indefinido"
-  
+
     user:
       role:
         owner: "Propietario"
@@ -74,13 +74,14 @@ es:
     logout: "Cerrar sesión"
     simulating: "Simulando:"
     exit_simulation: "Salir de la simulación"
+    settings: "Ajustes"
 
   # --- Landing (public home)
   landing:
     title: "Agricultura Inteligente"
     hero:
       title: "Agricultura Inteligente"
-      description: "Transforma tu operación con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos."
+      description: "Transforma tu explotación con nuestra plataforma IoT. Supervisa el suelo, automatiza el riego y toma decisiones basadas en datos."
       cta:
         go_to_app: "Ir a la aplicación"
     trust_bar:
@@ -90,26 +91,26 @@ es:
       - "MQTT"
     choose_type:
       title: "Elige tu tipo de operación"
-      description: "Selecciona el dominio que mejor se adapte a tu operación."
+      description: "Selecciona el ámbito que mejor se adapte a tu explotación."
       agriculture:
         title: "Agricultura"
         description: "Supervisa el suelo, automatiza el riego y maximiza el rendimiento."
       sea:
         title: "Acuicultura Marina"
-        description: "Controla salinidad, temperatura y oxígeno en tiempo real."
+        description: "Control de salinidad, temperatura y oxígeno en tiempo real."
       tank:
         title: "Acuicultura en Tanque"
         description: "Gestión inteligente para criaderos y tanques."
     how_it_works:
       title: "Cómo funciona"
-      description: "Ve cómo nuestra solución se adapta a tu operación."
+      description: "Mira cómo nuestra solución se adapta a tu operación."
       agriculture:
         step1:
           title: "Sensores de campo"
           desc: "Humedad del suelo, temperatura del aire y calidad del suelo."
       sea:
         step1:
-          title: "Monitoreo marino"
+          title: "Monitorización marina"
           desc: "Oxígeno, salinidad y temperatura del agua de mar."
       tank:
         step1:
@@ -118,7 +119,7 @@ es:
       common:
         step2:
           title: "Analítica inteligente"
-          desc: "Gráficos, pronósticos y alertas en tiempo real."
+          desc: "Gráficas, previsiones y alertas en tiempo real."
         step3:
           title: "Acciones automatizadas"
           desc: "Riego, ventilación y notificaciones."
@@ -126,39 +127,39 @@ es:
       title: "Historias reales, resultados reales"
       subtitle: "Cómo los clientes están transformando sus operaciones con tecnología inteligente."
       marta:
-        quote: "Reducimos el uso de agua un 35% usando sensores de suelo conectados a nuestra cuenta de AgriloT."
+        quote: "Reducimos el uso de agua un 35% con sensores de suelo conectados a nuestra cuenta de AgriloT."
         name: "Marta Silva"
-        role: "Productora de hortalizas"
+        role: "Productora hortícola"
       tiago:
-        quote: "Con el monitoreo continuo, los peces están más sanos y el oxígeno siempre está en su punto."
+        quote: "Con la monitorización continua, los peces están más sanos y el oxígeno siempre está en el punto adecuado."
         name: "Tiago Ramos"
         role: "Gestor de acuicultura en tanque"
       carlos:
-        quote: "Evitamos un brote de algas gracias a una alerta de la plataforma. Ya no trabajo sin ella."
+        quote: "Evitamos un brote de algas gracias a una alerta de la plataforma. No volveré a trabajar sin ella."
         name: "Carlos Fonseca"
         role: "Acuicultura marina"
     comparison:
       title: "Antes y después de la plataforma"
-      subtitle: "Mira el impacto real de digitalizar tu operación."
+      subtitle: "Observa el impacto real de digitalizar tu operación."
       before:
         emoji: "🌧"
         title: "Antes"
         items:
           - "Riego manual sin datos sólidos"
           - "Desperdicio de agua y energía"
-          - "Falta de alertas y pronósticos"
-          - "Decisiones basadas en intuición"
+          - "Falta de alertas y previsiones"
+          - "Decisiones por intuición"
       after:
         emoji: "☀️"
         title: "Después"
         items:
           - "Riego y alertas automatizados"
-          - "Informes e historial en tiempo real"
+          - "Informes en tiempo real e histórico"
           - "Mayor productividad con menos recursos"
           - "Decisiones basadas en datos"
     technologies:
       title: "Tecnología que impulsa Agro & Acuicultura"
-      subtitle: "Integraciones y compatibilidad con estándares líderes."
+      subtitle: "Integraciones y compatibilidad con estándares líderes del sector."
       items:
         - "MQTT"
         - "LoRaWAN"
@@ -168,10 +169,11 @@ es:
         - "Wi-Fi / BLE"
     cta_final:
       title: "¿Listo para transformar tu operación?"
-      subtitle: "Crea tu cuenta gratis y empieza a monitorizar y automatizar hoy."
-      button: "Crear cuenta gratis"
+      subtitle: "Crea tu cuenta gratuita y empieza a monitorizar y automatizar hoy mismo."
+      button: "Crear cuenta gratuita"
     footer:
       description: "Transformamos la agricultura con tecnología IoT para un futuro más sostenible."
+      rights: "Todos los derechos reservados."
       sections:
         platform:
           title: "Plataforma"
@@ -188,7 +190,7 @@ es:
             - "Base de conocimiento"
             - "Comunidad"
         company:
-          title: "Empresa"
+          title: "Compañía"
           links:
             - "Sobre nosotros"
             - "Carreras"
@@ -196,30 +198,34 @@ es:
             - "Privacidad"
       copyright: "© 2025 AgriloT Synergy. Todos los derechos reservados."
 
+  company:
+    nif: "NIF/CIF de la empresa"
+    nif_hint: "Obligatorio para Administrador/Gestor"
+
   # --- Dashboard
   dashboard:
-    heading: "Panel de la finca"
+    heading: "Panel de la explotación"
     subtitle: "Resumen de operaciones, sensores y tareas."
-    title: "Panel de la finca"
+    title: "Panel de la explotación"
     system_ok: "Todos los sistemas operativos"
     fields:
       empty: "No hay campos vinculados a tu cuenta."
     irrigation:
       title: "Estado del riego"
-      empty: "No hay sensores de riego vinculados a los campos."
+      empty: "No hay sensores de riego vinculados a campos."
     kpis:
       fields: "Campos"
       sensors: "Sensores"
-      irrigation: "Riegos de hoy"
+      irrigation: "Riegos hoy"
       alerts: "Alertas"
       total: "Total"
       online: "En línea"
-      scheduled: "Programados"
+      scheduled: "Programado"
       open: "Abiertas"
     weather:
       title: "Condiciones meteorológicas"
       select_field: "Campo"
-      loading: "Cargando…"
+      loading: "Cargando..."
       wind: "Viento"
       precip: "Precipitación"
       next_days: "Próximos días"
@@ -234,16 +240,16 @@ es:
         "2": "Parcialmente nublado"
         "3": "Nublado"
         "45": "Niebla"
-        "48": "Niebla escarchada"
+        "48": "Niebla con cencellada"
         "51": "Llovizna ligera"
         "53": "Llovizna moderada"
         "55": "Llovizna intensa"
-        "61": "Lluvia débil"
+        "61": "Lluvia ligera"
         "63": "Lluvia"
         "65": "Lluvia intensa"
         "66": "Lluvia helada"
         "67": "Lluvia helada intensa"
-        "71": "Nieve débil"
+        "71": "Nieve ligera"
         "73": "Nieve"
         "75": "Nieve intensa"
         "95": "Tormenta"
@@ -261,7 +267,7 @@ es:
     sensor_status:
       irrigation_status: "Estado del riego"
       remaining: "Restante:"
-      done: "Riego finalizado"
+      done: "Riego completado"
       soil_moisture: "Humedad del suelo"
       temperature: "Temperatura"
       battery: "Batería"
@@ -270,7 +276,7 @@ es:
     field_status:
       title: "Estado de los campos"
       see_all: "Ver todo"
-      area: "Área"
+      area: "Superficie"
       last_reading: "Última lectura"
       unknown: "Desconocido"
       sensors_active: "Sensores activos"
@@ -291,25 +297,25 @@ es:
     quick_actions:
       analytics:
         title: "Analítica"
-        description: "Gráficos y métricas detalladas"
+        description: "Gráficas y métricas detalladas"
         button: "Abrir"
-        aria: "Abrir Analítica"
+        aria: "Abrir analítica"
       fields:
         title: "Gestionar campos"
-        description: "Ver y editar tus campos agrícolas o de acuicultura"
+        description: "Visualiza y edita tus campos agrícolas o acuícolas"
         button: "Abrir"
         aria: "Gestionar campos"
       settings:
         title: "Ajustes"
-        description: "Preferencias del sistema y opciones de cuenta"
+        description: "Preferencias del sistema y opciones de la cuenta"
         button: "Abrir"
-        aria: "Abrir Ajustes"
+        aria: "Abrir ajustes"
 
   # --- Field types
   field_types:
     agriculture: "Agricultura"
     aquaculture_tank: "Acuicultura (Tanque)"
-    aquaculture_sea: "Acuicultura (Mar)"
+    aquaculture_sea: "Acuicultura (Marina)"
 
   # --- Users (generic user admin screens)
   users:
@@ -329,7 +335,7 @@ es:
         email: "Email"
         email_placeholder: "ejemplo@email.com"
         password: "Contraseña"
-        password_placeholder: "Dejar en blanco para mantener"
+        password_placeholder: "Dejar en blanco para mantener la actual"
         password_confirmation: "Confirmación de contraseña"
         role: "Rol"
         photo: "Foto de perfil (opcional)"
@@ -347,17 +353,22 @@ es:
       new_user: "Nuevo usuario"
       back_to_home: "Volver al inicio"
       created_at: "Creado el"
-      confirm_delete: "¿Seguro que deseas eliminar este usuario?"
+      confirm_delete: "¿Seguro que quieres eliminar este usuario?"
       login_as: "Iniciar sesión como"
       simulating_as: "Estás navegando como"
       return_to_admin: "Volver como Admin"
       back: "Volver"
     roles:
+      user: "Usuario"
       owner: "👑 Propietario"
-      admin: "🧑‍💼 Admin"
+      admin: "🧑‍💼 Administrador"
       manager: "👨‍🌾 Gestor"
       technician: "🔧 Técnico"
       viewer: "👀 Lector"
+    name: "Nombre"
+    full_name_placeholder: "p. ej., Juan Pérez"
+    photo: "Foto de perfil"
+    photo_hint: "PNG, JPG o WEBP."
 
   # --- Team / Account management
   team:
@@ -378,7 +389,7 @@ es:
           email: "Email"
           email_placeholder: "ejemplo@email.com"
           password: "Nueva contraseña"
-          password_placeholder: "Dejar en blanco para mantener"
+          password_placeholder: "Dejar en blanco para mantener la actual"
           password_confirmation: "Confirmación"
           role: "Rol"
           photo: "Foto (opcional)"
@@ -388,13 +399,13 @@ es:
     account:
       edit_title: "Editar cuenta de la empresa"
       name: "Nombre de la empresa"
-      nif: "NIF / VAT"
+      nif: "NIF"
       farm_type: "Tipo de producción"
       back: "← Volver"
       save: "💾 Guardar cambios"
       team_title: "Equipo de la empresa"
       add_user: "➕ Añadir usuario"
-      confirm_delete: "¿Seguro que deseas eliminar este usuario?"
+      confirm_delete: "¿Seguro que quieres eliminar este usuario?"
       impersonate: "Suplantar"
       collapse: "Contraer"
       expand: "Expandir"
@@ -414,11 +425,30 @@ es:
       description: "Descripción"
       submit: "Guardar tarea"
 
+  devise:
+    shared:
+      email: "Email"
+      new_password: "Nueva contraseña"
+      password_confirmation: "Confirmar contraseña"
+      current_password: "Contraseña actual"
+    registrations:
+      edit:
+        title: "Editar perfil"
+        subtitle: "Gestionar datos personales y contraseña"
+        profile_section: "Información del perfil"
+        password_section: "Actualizar contraseña"
+        current_password_hint: "Necesaria para confirmar los cambios"
+        update: "Guardar cambios"
+      cancel_title: "Eliminar cuenta"
+      cancel_copy: "Si lo deseas, puedes eliminar tu cuenta de forma permanente."
+      cancel_btn: "Eliminar mi cuenta"
+      cancel_confirm: "¿Estás seguro?"
+
   # --- Settings
   settings:
     title: "Ajustes del sistema"
     active: "Activo ✅"
-    inactive: "Deshabilitado ❌"
+    inactive: "Desactivado ❌"
     unknown: "Desconocido"
     notifications:
       customize: "Personalizar notificaciones"
@@ -437,12 +467,12 @@ es:
       last_login: "Último acceso"
       current_ip: "IP actual"
       last_ip: "IP del último acceso"
-      total_logins: "Inicios de sesión totales"
+      total_logins: "Accesos totales"
 
   # --- Sensors
   sensors:
     index:
-      title: "Equipos IoT"
+      title: "Equipamiento IoT"
       subtitle: "Gestiona tus sensores y dispositivos."
       add_button: "Añadir sensor"
       name: "Nombre"
@@ -454,12 +484,12 @@ es:
       last_reading: "Última lectura"
       actions: "Acciones"
       no_data: "Aún no hay sensores registrados."
-      view_unassigned: "Ver sensores no asignados"
+      view_unassigned: "Ver sensores sin asignar"
       view_all: "Ver todos los sensores"
     new:
       title: "Añadir nuevo sensor"
       subtitle: "Registra un nuevo dispositivo IoT para monitorizar y automatizar."
-      errors_title: "Hubo errores al crear el sensor:"
+      errors_title: "Se produjeron errores al crear el sensor:"
       submit: "💾 Crear sensor"
     update:
       title: "Sensor %{name}"
@@ -496,7 +526,7 @@ es:
         failed: "Fallido"
         unknown: "Desconocido"
     unassigned:
-      title: "Sensores no asignados"
+      title: "Sensores sin asignar"
       name: "Nombre"
       type: "Tipo"
       last_reading: "Última lectura"
@@ -521,12 +551,12 @@ es:
       value: "Valor"
       confirm_delete: "¿Eliminar este sensor?"
     row:
-      view_today_schedules: "Ver programaciones de hoy"
+      view_today_schedules: "Ver las programaciones de hoy"
       irrigation_history: "Historial de riego"
       readings_history: "Historial de lecturas"
       schedule: "Programar"
       schedule_irrigation: "Programar riego"
-      schedule_for: "Establecer programación para %{name}"
+      schedule_for: "Programar para %{name}"
       weekdays: "Días de la semana"
       hour: "Hora"
       minute: "Minuto"
@@ -570,7 +600,7 @@ es:
     remaining: "Restante"
     stop_button: "Detener riego"
     stopped_success: "Riego detenido correctamente"
-    confirm_stop: "¿Seguro que deseas detener el riego?"
+    confirm_stop: "¿Seguro que quieres detener el riego?"
 
   # --- Generic status labels
   status:
@@ -604,6 +634,11 @@ es:
     edit: "Editar"
     delete: "Eliminar"
     cancel: "Cancelar"
+    back: "Volver"
+    save: "Guardar"
+    confirm: "Confirmar"
+    close: "Cerrar"
+    show_password: "Mostrar contraseña"
 
   # --- Map (fields map view)
   map:
@@ -613,19 +648,19 @@ es:
       sensors: "Sensores"
     legend:
       title: "Leyenda"
-      good: "Buen estado"
+      good: "En buen estado"
       warning: "Advertencia"
       moisture: "Sensor de humedad"
     details:
       title: "Detalles del campo"
       crop: "Cultivo"
-      area: "Área"
+      area: "Superficie"
       latitude: "Latitud"
       longitude: "Longitud"
       updated_at: "Última actualización"
     field_list:
       title: "Lista de campos"
-      view: "Ver en mapa"
+      view: "Ver en el mapa"
 
   # --- Fields (list & boundary tools + forms/overviews)
   fields:
@@ -634,14 +669,14 @@ es:
     modal:
       tabs:
         overview: "Resumen"
-        iot_equipment: "Equipos IoT"
+        iot_equipment: "Equipamiento IoT"
         analytics: "Analítica"
       actions:
         schedule_task: "Programar tarea"
         view_history: "Ver historial"
         generate_report: "Generar informe"
       delete:
-        confirm: "¿Seguro que deseas eliminar este campo? Esta acción no se puede deshacer."
+        confirm: "¿Seguro que quieres eliminar este campo? Esta acción no se puede deshacer."
         button: "Eliminar campo"
     index:
       title: "Resumen de campos"
@@ -654,28 +689,28 @@ es:
       fields: "Campos"
       sensors: "Sensores"
       active_sensors: "Sensores activos"
-      area: "Área total (ha)"
+      area: "Superficie total (ha)"
       crops: "Cultivos"
       tasks: "Tareas planificadas"
-      irrigation: "Riegos de hoy"
+      irrigation: "Riegos hoy"
       alerts: "Alertas activas"
       soil_moisture: "Humedad del suelo"
       temperature: "Temperatura"
       air_humidity: "Humedad del aire"
-      light: "Intensidad de luz"
+      light: "Intensidad lumínica"
       no_sensors: "Aún no hay sensores asociados a este campo."
     list_view:
-      view_on_map: "Ver en mapa completo"
+      view_on_map: "Ver en el mapa completo"
       crop: "Cultivo"
       location: "Ubicación"
-      area: "Área"
+      area: "Superficie"
       last_updated: "Última actualización"
       view_details: "Ver detalles"
     boundary:
       title: "Definir límite del campo"
-      instructions: "Haz clic en el mapa para fijar hasta 8 vértices del límite. Pulsa 'Guardar área' al terminar."
+      instructions: "Haz clic en el mapa para establecer hasta 8 vértices del límite del campo. Pulsa «Guardar área» al terminar."
       points: "Puntos"
-      reset: "Reiniciar"
+      reset: "Restablecer"
       cancel: "Cancelar"
       save: "Guardar área"
       errors:
@@ -694,10 +729,10 @@ es:
       irrigation: "Riego"
       fertilization: "Fertilización"
       notes: "Notas"
-      notes_example: "Las plantas se desarrollan bien, adelantadas al plan. La última inspección no mostró plagas ni enfermedades."
+      notes_example: "Las plantas se están desarrollando bien, adelantadas al calendario. La última inspección no mostró plagas ni enfermedades."
       basic_info: "Información básica"
       crop: "Cultivo"
-      area: "Área"
+      area: "Superficie"
       soil_quality: "Calidad del suelo"
       active_sensors: "Sensores activos"
       last_updated: "Última actualización"
@@ -712,7 +747,7 @@ es:
       breadcrumb_fields: "Campos"
       breadcrumb_current_fallback: "Editar"
       title: "Editar campo"
-      subtitle: "Actualiza los datos de este campo. Los cambios se aplican al guardar."
+      subtitle: "Actualiza los datos de este campo. Los cambios surten efecto inmediatamente tras guardar."
       back_to_list: "Volver a la lista"
       view_details: "Ver detalles"
       location:
@@ -729,8 +764,8 @@ es:
         name: "Nombre del campo"
         name_placeholder: "p. ej., Campo Norte"
         type: "Tipo de campo"
-        type_placeholder: "Selecciona tipo de campo"
-        area: "Área (ha)"
+        type_placeholder: "Selecciona el tipo de campo"
+        area: "Superficie (ha)"
         area_placeholder: "p. ej., 2.5"
         crop: "Cultivo"
         crop_placeholder: "p. ej., Maíz"
@@ -739,49 +774,49 @@ es:
       planting_info:
         title: "Información de plantación"
         planting_date: "Fecha de plantación"
-        harvest_date: "Fecha de cosecha estimada"
-        expected_yield: "Rendimiento esperado (toneladas)"
+        harvest_date: "Fecha de cosecha prevista"
+        expected_yield: "Rendimiento esperado (t)"
         expected_yield_placeholder: "p. ej., 5"
       maintenance:
         title: "Mantenimiento"
         pest_control: "Control de plagas"
         pest_control_placeholder: "p. ej., Inspección semanal"
         irrigation: "Riego"
-        irrigation_placeholder: "p. ej., Goteo"
+        irrigation_placeholder: "p. ej., Riego por goteo"
       summary:
         title: "Resumen del campo"
         name: "Nombre"
-        area: "Área"
+        area: "Superficie"
         type: "Tipo"
         sensors: "Sensores"
         updated: "Actualizado"
       tips:
         title: "Consejos"
         items:
-          - "Mantén coordenadas precisas para mapa y clima."
+          - "Mantén coordenadas precisas para mapa y meteorología."
           - "Vincula sensores al campo para una analítica más rica."
-          - "Actualiza notas para un historial claro."
+          - "Actualiza las notas para un historial claro."
     realtime:
       loading_error: "Error en tiempo real"
     new_modal:
       title: "Añadir nuevo campo"
-      description: "Completa los datos requeridos para crear un nuevo campo."
-      errors_title: "Hubo errores al crear el campo:"
+      description: "Rellena los datos requeridos para crear un nuevo campo."
+      errors_title: "Se produjeron errores al crear el campo:"
       form:
         name: "Nombre del campo"
         type_label: "Tipo de campo"
-        area: "Área (ha)"
+        area: "Superficie (ha)"
         latitude: "Latitud"
         longitude: "Longitud"
         boundary_label: "Definir límite"
-        boundary_button: "Definir límite"
+        boundary_button: "Delimitar"
         notes: "Notas"
         submit: "Crear campo"
     form:
       labels:
         name: "Nombre del campo"
         farm_type_readonly: "Tipo de explotación"
-        area: "Área (ha)"
+        area: "Superficie (ha)"
         latitude: "Latitud"
         longitude: "Longitud"
         notes: "Notas"
@@ -808,7 +843,7 @@ es:
         feeding_regime: "Régimen de alimentación"
         placement_date: "Introducción"
         harvest_date: "Cosecha"
-        monitoring_title: "Monitoreo en tiempo real"
+        monitoring_title: "Monitorización en tiempo real"
         toggle_notes: "Mostrar/Ocultar notas"
         no_notes: "Aún no hay notas."
         units:
@@ -833,7 +868,7 @@ es:
         feeding_regime: "Régimen de alimentación"
         placement_date: "Introducción"
         harvest_date: "Cosecha"
-        monitoring_title: "Monitoreo en tiempo real"
+        monitoring_title: "Monitorización en tiempo real"
         toggle_notes: "Mostrar/Ocultar notas"
         notes_title: "Notas"
         no_notes: "Aún no hay notas."
@@ -854,14 +889,14 @@ es:
         no_coords: "Sin coordenadas para este campo"
         crop_details: "Detalles del cultivo"
         plantation_type: "Tipo de plantación"
-        area: "Área"
+        area: "Superficie"
         planting_date: "Fecha de plantación"
         harvest_date: "Fecha de cosecha"
         irrigation_type: "Riego"
         soil_location: "Suelo y ubicación"
         soil_quality: "Calidad del suelo"
         soil_type: "Tipo de suelo"
-        realtime_monitoring: "Monitoreo en tiempo real"
+        realtime_monitoring: "Monitorización en tiempo real"
         no_sensors: "Aún no hay sensores asociados a este campo."
         toggle_notes: "Mostrar/Ocultar notas"
         notes_title: "Notas"
@@ -870,7 +905,7 @@ es:
           moisture: "Humedad del suelo"
           temperature: "Temperatura"
           air_humidity: "Humedad del aire"
-          light: "Intensidad de luz"
+          light: "Intensidad lumínica"
           irrigation: "Riego"
     # Forms (scoped by type)
     forms:
@@ -898,39 +933,39 @@ es:
           name: "p. ej., Tanque Este"
           tank_volume: "p. ej., 500"
           species: "p. ej., Lubina europea"
-          stocking_density: "p. ej., 15.5"
-          feeding_regime: "p. ej., 2 veces/día, alimento flotante"
-          notes: "Notas sobre el tanque, comportamiento de peces, etc."
+          stocking_density: "p. ej., 15,5"
+          feeding_regime: "p. ej., 2x/día, pienso flotante"
+          notes: "Notas sobre el tanque, comportamiento de los peces, etc."
       aquaculture_sea:
         labels:
           name: "Nombre del campo"
           area: "Área marina (ha)"
-          species: "Especie cultivada"
+          species: "Especies cultivadas"
           stocking_density: "Densidad de siembra (kg/ha)"
           feeding_regime: "Régimen de alimentación"
           fish_placement_date: "Fecha de introducción"
           estimated_harvest_date: "Fecha estimada de cosecha"
         placeholders:
           name: "p. ej., Granja Marina Norte"
-          area: "p. ej., 1.5"
+          area: "p. ej., 1,5"
           species: "p. ej., Dorada"
-          stocking_density: "p. ej., 12.5"
-          feeding_regime: "p. ej., 2 veces/día, ración 2%"
-          notes: "Notas sobre el sitio, calidad del agua, etc."
+          stocking_density: "p. ej., 12,5"
+          feeding_regime: "p. ej., 2x/día, ración 2%"
+          notes: "Notas sobre el lugar, calidad del agua, etc."
       agriculture:
         labels:
           name: "Nombre del campo"
           plantation_type: "Tipo de plantación"
-          area: "Área (ha)"
+          area: "Superficie (ha)"
           soil_type: "Tipo de suelo"
           planting_date: "Fecha de plantación"
-          harvest_date: "Fecha estimada de cosecha"
+          harvest_date: "Fecha de cosecha prevista"
           irrigation_type: "Tipo de riego"
           soil_quality: "Calidad del suelo"
         placeholders:
           name: "p. ej., Campo Norte"
           plantation_type: "p. ej., Maíz, Trigo…"
-          area: "p. ej., 2.5"
+          area: "p. ej., 2,5"
           soil_type: "p. ej., Arcilloso, Arenoso…"
           irrigation_type: "p. ej., Goteo, Aspersión…"
           soil_quality: "p. ej., Buena, Media, Pobre…"
@@ -958,7 +993,7 @@ es:
       actions: "Acciones"
       edit: "Editar"
       delete: "Eliminar"
-    confirm_delete: "¿Seguro que deseas eliminar este usuario?"
+    confirm_delete: "¿Seguro que quieres eliminar este usuario?"
     edit:
       title: "Editar perfil"
     form:
@@ -982,10 +1017,10 @@ es:
         add: "Añadir usuario"
         you: "Tú"
         last_login: "Último acceso"
-        total_logins: "Inicios de sesión"
+        total_logins: "Accesos"
         empty_title: "Aún no hay usuarios"
-        empty_sub: "Añade miembros del equipo para colaborar en tu cuenta."
-        confirm_delete: "¿Seguro que deseas eliminar este usuario?"
+        empty_sub: "Añade miembros para colaborar en tu cuenta."
+        confirm_delete: "¿Seguro que quieres eliminar este usuario?"
         impersonate: "Suplantar"
       new:
         title: "Nuevo usuario"
@@ -994,7 +1029,7 @@ es:
           title: "Vista previa del usuario"
         tip:
           title: "Consejo"
-          body: "Si no estableces una contraseña ahora, se puede generar y enviar una invitación (si el email está habilitado)."
+          body: "Si no estableces una contraseña ahora, se puede generar y enviar una invitación (si el correo está habilitado)."
       edit:
         title: "Editar usuario"
         back: "Volver al equipo"
@@ -1002,19 +1037,19 @@ es:
         role_hint: "Selecciona un rol para ver permisos típicos."
       form:
         errors_title: "Errores al crear el usuario:"
-        errors_found: "Encontramos algunos errores:"
+        errors_found: "Hemos encontrado algunos errores:"
         photo_short: "Foto"
         photo: "Foto de perfil (opcional)"
         no_photo: "Sin foto"
         name: "Nombre"
         name_placeholder: "p. ej., Juan Pérez"
         email: "Email"
-        email_hint: "Se usa para inicio de sesión y notificaciones."
+        email_hint: "Se usa para iniciar sesión y notificaciones."
         role: "Rol"
         role_hint_default: "Acceso completo: cuenta, equipo, campos y ajustes."
         set_password_now: "Establecer contraseña ahora (opcional)"
         password: "Contraseña"
-        password_placeholder: "Dejar en blanco para enviar invitación después"
+        password_placeholder: "Dejar en blanco para enviar invitación más tarde"
         password_confirmation: "Confirmación"
         strength: "Fuerza"
         new_password: "Nueva contraseña"
@@ -1023,21 +1058,20 @@ es:
         notif_email: "Recibir notificaciones por email"
         notif_sms: "Recibir notificaciones por SMS"
       role_hints:
-        owner: "Superusuario: todo."
+        owner: "Súper-usuario: todo."
         admin: "Acceso completo: cuenta, equipo, campos y ajustes."
-        manager: "Gestiona equipo y campos. Sin gestión global de cuenta."
+        manager: "Gestiona equipo y campos. Sin administración global."
         technician: "Ejecuta tareas, ve sensores y registros. Sin gestión de equipo."
         viewer: "Solo lectura: paneles, campos e informes."
 
   admin:
     accounts:
       show:
-        nif: "VAT/NIF"
-
+        nif: "IVA/NIF"
       index:
         title: "Cuentas de la plataforma"
-        subtitle: "Gestiona organizaciones, consulta usuarios y simula acceso."
-        search_placeholder: "Buscar por nombre o VAT/NIF…"
+        subtitle: "Gestiona organizaciones, ve usuarios y simula accesos."
+        search_placeholder: "Buscar por nombre o IVA/NIF…"
         filter_label: "Filtrar por tipo"
         filter_all: "Todos los tipos"
         types:
@@ -1048,7 +1082,7 @@ es:
           edit: "Editar"
           view: "Ver"
           delete: "Eliminar"
-          delete_confirm: "¿Seguro que deseas eliminar esta cuenta?"
+          delete_confirm: "¿Seguro que quieres eliminar esta cuenta?"
           impersonate: "Suplantar"
           stop_impersonation: "Detener simulación"
         metrics:
@@ -1065,8 +1099,16 @@ es:
           remove_confirm: "¿Eliminar este usuario?"
           role_fallback: "Sin rol"
         empty_state:
-          title: "Aún no hay cuentas."
-          cta: "Crear primera cuenta"
+          title: "Todavía no hay cuentas."
+          cta: "Crear la primera cuenta"
+    users:
+      roles:
+        owner: "Propietario"
+        admin: "Administrador"
+        manager: "Gestor"
+        technician: "Técnico"
+        viewer: "Lector"
+        user: "Usuario"
 
   time:
     ago: "hace"
