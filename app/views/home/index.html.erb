@@ -81,17 +81,26 @@
           <%= t("landing.hero.description") %>
         </p>
 
-        <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <%= link_to new_user_registration_path, class: "group inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-700/10 hover:bg-emerald-800 focus:outline-none focus-visible:shadow-ring transition" do %>
-            <i data-lucide="rocket" class="h-5 w-5 transition-transform group-hover:translate-x-0.5"></i>
-            <%= t("landing.hero.cta.get_started") %>
-          <% end %>
+<div class="mt-10 flex flex-wrap items-center justify-center gap-3">
+  <% if user_signed_in? %>
+    <%= link_to (t("landing.hero.cta.go_to_app", default: "Ir para a aplicação")),
+                (defined?(fields_path) ? fields_path : root_path),
+                class: "group inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-700/10 hover:bg-emerald-800 focus:outline-none focus-visible:shadow-ring transition" do %>
+      <i data-lucide="layout-dashboard" class="h-5 w-5 transition-transform group-hover:translate-x-0.5"></i>
+      <span><%= t("landing.hero.cta.go_to_app", default: "Ir para a aplicação") %></span>
+    <% end %>
+  <% else %>
+    <%= link_to new_user_registration_path, class: "group inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-700/10 hover:bg-emerald-800 focus:outline-none focus-visible:shadow-ring transition" do %>
+      <i data-lucide="rocket" class="h-5 w-5 transition-transform group-hover:translate-x-0.5"></i>
+      <%= t("landing.hero.cta.get_started") %>
+    <% end %>
 
-          <%= link_to new_user_session_path, class: "inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-emerald-900 ring-1 ring-emerald-200 hover:shadow-soft focus:outline-none" do %>
-            <i data-lucide="play-circle" class="h-5 w-5"></i>
-            <span><%= t("navbar.login") %></span>
-          <% end %>
-        </div>
+    <%= link_to new_user_session_path, class: "inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-emerald-900 ring-1 ring-emerald-200 hover:shadow-soft focus:outline-none" do %>
+      <i data-lucide="play-circle" class="h-5 w-5"></i>
+      <span><%= t("navbar.login") %></span>
+    <% end %>
+  <% end %>
+</div>
 
         <!-- trust bar -->
         <div class="mx-auto mt-12 grid max-w-4xl grid-cols-2 gap-4 opacity-80 sm:grid-cols-4">
