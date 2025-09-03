@@ -355,11 +355,11 @@ en:
       return_to_admin: "Return as Admin"
       back: "Back"
     roles:
-      admin: "Administrator"
-      manager: "Manager"
-      user: "User"
-      technician: "Technician"
-      viewer: "Viewer"
+        owner: "👑 Owner"
+        admin: "🧑‍💼 Admin"
+        manager: "👨‍🌾 Manager"
+        technician: "🔧 Technician"
+        viewer: "👀 Viewer"
 
   # --- Team / Account management
   team:
@@ -1034,10 +1034,43 @@ en:
 
 admin:
     accounts:
+      show:
+        nif: "VAT/NIF"
+
       index:
         title: "Platform Accounts"
         subtitle: "Manage organisations, see users and simulate access."
-
-  # --- Misc
+        search_placeholder: "Search by name or VAT/NIF…"
+        filter_label: "Filter by type"
+        filter_all: "All types"
+        types:
+          agriculture: "Agriculture"
+          aquaculture_sea: "Aquaculture (Marine)"
+          aquaculture_tank: "Aquaculture (Tank)"
+        actions:
+          edit: "Edit"
+          view: "View"
+          delete: "Delete"
+          delete_confirm: "Are you sure you want to delete this account?"
+          impersonate: "Impersonate"
+          stop_impersonation: "Stop simulation"
+        metrics:
+          users: "Users"
+          created_at: "Created on"
+          updated_at: "Updated"
+          updated_ago_suffix: "ago"
+        users_list:
+          show: "Show users"
+          hide: "Hide users"
+          empty: "No users in this account."
+          edit: "Edit"
+          remove: "Remove"
+          remove_confirm: "Delete this user?"
+          role_fallback: "No role"
+        empty_state:
+          title: "There are no accounts yet."
+          cta: "Create first account"
+  
+  
 time:
     ago: "ago"
