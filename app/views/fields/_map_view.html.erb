@@ -66,9 +66,136 @@
   .pulse-marker::after { content:''; position:absolute; width:100%; height:100%; border-radius:50%; background:rgba(59,130,246,.4); animation:pulse 1.5s ease-out infinite; z-index:5; }
   @keyframes pulse { 0%{transform:scale(1);opacity:.8} 70%{transform:scale(2.5);opacity:0} 100%{opacity:0} }
 </style>
-
 <script>
+  // ====== Dados e estado global ======
+  window.fieldData = <%= raw @fields.to_json(only: [:id, :name, :field_type, :area, :latitude, :longitude, :updated_at], methods: [:polygon_coordinates]) %>;
+  window.__fieldMarkers = new Map();
+  window.__polygonIds   = new Set();
+  window.__sensorMarkers = [];
+  window.__sensorsVisible = false;
 
+  // ====== Inicialização do mapa principal ======
+  function initMainMapIfNeeded() {
+    if (window.mainFieldsMap) return window.mainFieldsMap;
+
+    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+
+    const map = new mapboxgl.Map({
+      container: "fields-main-map",
+      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      center: [-8.611, 41.145],
+      zoom: 6,
+      pitch: 45,
+      bearing: -20,
+      antialias: true
+    });
+
+    map.on("style.load", () => {
+      addTerrainAndShading(map);
+      renderFieldsOnMap(map);
+    });
+
+    window.mainFieldsMap = map;
+    return map;
+  }
+
+  // Exposto para o index chamar ao abrir o separador
+  window.initializeMapbox = initMainMapIfNeeded;
+
+  // ====== Camadas de terreno / sombras ======
+  function addTerrainAndShading(map) {
+    if (!map.getSource("mapbox-dem")) {
+      map.addSource("mapbox-dem", {
+        type: "raster-dem",
+        url: "mapbox://mapbox.terrain-rgb",
+        tileSize: 512,
+        maxzoom: 14
+      });
+      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
+      if (!map.getLayer("hillshading")) {
+        map.addLayer({ id: "hillshading", source: "mapbox-dem", type: "hillshade" });
+      }
+    }
+  }
+
+  // ====== Renderização dos campos ======
+  function renderFieldsOnMap(map) {
+    // Limpa marcadores anteriores
+    window.__fieldMarkers.forEach(m => m.remove());
+    window.__fieldMarkers.clear();
+
+    // Remove polígonos anteriores
+    window.__polygonIds.forEach(pid => {
+      if (map.getLayer(pid + "-fill")) map.removeLayer(pid + "-fill");
+      if (map.getSource(pid)) map.removeSource(pid);
+    });
+    window.__polygonIds.clear();
+
+    // Adiciona marcadores e polígonos
+    let bounds = null;
+
+    (window.fieldData || []).forEach(field => {
+      if (field.latitude && field.longitude) {
+        const marker = new mapboxgl.Marker({ color: "#2563eb" })
+          .setLngLat([field.longitude, field.latitude])
+          .setPopup(new mapboxgl.Popup({ offset: 12 }).setText(field.name))
+          .addTo(map);
+
+        marker.getElement().addEventListener("click", () => showFieldDetails(field));
+        window.__fieldMarkers.set(field.id, marker);
+
+        if (!bounds) {
+          bounds = new mapboxgl.LngLatBounds([field.longitude, field.latitude], [field.longitude, field.latitude]);
+        } else {
+          bounds.extend([field.longitude, field.latitude]);
+        }
+      }
+
+      if (field.polygon_coordinates && field.polygon_coordinates.length >= 3) {
+        const polygonId = `field-poly-${field.id}`;
+        const polygonData = {
+          type: "Feature",
+          geometry: {
+            type: "Polygon",
+            coordinates: [[...field.polygon_coordinates, field.polygon_coordinates[0]]]
+          }
+        };
+
+        map.addSource(polygonId, { type: "geojson", data: polygonData });
+        map.addLayer({
+          id: `${polygonId}-fill`,
+          type: "fill",
+          source: polygonId,
+          paint: { "fill-color": "#f97316", "fill-opacity": 0.3 }
+        });
+        window.__polygonIds.add(polygonId);
+
+        // Centro do polígono com efeito pulsante (se diferente do ponto principal)
+        const c = getPolygonCenter(field.polygon_coordinates);
+        const sameAsMain = Math.abs(c[0] - (field.longitude || 0)) < 0.00001 &&
+                           Math.abs(c[1] - (field.latitude  || 0)) < 0.00001;
+        if (!sameAsMain) {
+          const centerEl = document.createElement("div");
+          centerEl.className = "center-marker pulse-marker";
+          new mapboxgl.Marker(centerEl).setLngLat(c).addTo(map);
+        }
+      }
+    });
+
+    if (bounds) map.fitBounds(bounds, { padding: 32, duration: 700 });
+  }
+
+  // ====== UI Detalhes ======
+  function showFieldDetails(field) {
+    document.getElementById("fieldName").innerText   = field.name || '—';
+    document.getElementById("fieldCrop").innerText   = (field.field_type || '—');
+    document.getElementById("fieldArea").innerText   = (field.area || '—');
+    document.getElementById("fieldLat").innerText    = (field.latitude || '—');
+    document.getElementById("fieldLng").innerText    = (field.longitude || '—');
+    document.getElementById("fieldUpdated").innerText= field.updated_at ? new Date(field.updated_at).toLocaleString() : '—';
+  }
+
+  // ====== Estilo do mapa ======
   function setMapStyle(styleId) {
     const map = initMainMapIfNeeded();
     map.setStyle(`mapbox://styles/mapbox/${styleId}`);
@@ -76,7 +203,78 @@
       addTerrainAndShading(map);
       renderFieldsOnMap(map);
       if (window.__sensorsVisible) toggleSensors(true);
-      map.resize(); 
     });
   }
+
+  // ====== Sensores (demo) ======
+  function initializeSensors() {
+    if (window.__sensorMarkers.length) return; // já criados
+    // Exemplo: cria 1 sensor perto de cada campo (se existir)
+    (window.fieldData || []).slice(0, 6).forEach(f => {
+      if (f.latitude && f.longitude) {
+        const el = document.createElement("div");
+        el.className = "w-3.5 h-3.5 rounded-full";
+        el.style.backgroundColor = "#22c55e"; // good
+        const m = new mapboxgl.Marker(el).setLngLat([f.longitude + 0.002, f.latitude + 0.002]);
+        window.__sensorMarkers.push(m);
+      }
+    });
+  }
+
+  function toggleSensors(forceOn) {
+    const map = initMainMapIfNeeded();
+    initializeSensors();
+    const turnOn = forceOn === true ? true : !window.__sensorsVisible;
+
+    if (turnOn) {
+      window.__sensorMarkers.forEach(m => m.addTo(map));
+      window.__sensorsVisible = true;
+    } else {
+      window.__sensorMarkers.forEach(m => m.remove());
+      window.__sensorsVisible = false;
+    }
+  }
+
+  // ====== Fit bounds de todos os campos ======
+  function fitAll() {
+    const map = initMainMapIfNeeded();
+    let b = null;
+    (window.fieldData || []).forEach(f => {
+      if (f.latitude && f.longitude) {
+        if (!b) b = new mapboxgl.LngLatBounds([f.longitude, f.latitude], [f.longitude, f.latitude]);
+        else b.extend([f.longitude, f.latitude]);
+      }
+    });
+    if (b) map.fitBounds(b, { padding: 32, duration: 700 });
+  }
+
+  // ====== Helpers ======
+  function getPolygonCenter(coords) {
+    let lngSum = 0, latSum = 0;
+    coords.forEach(c => { lngSum += c[0]; latSum += c[1]; });
+    return [lngSum / coords.length, latSum / coords.length];
+  }
+
+  // Expor helpers globais
+  window.setMapStyle = setMapStyle;
+  window.toggleSensors = toggleSensors;
+  window.fitAll = fitAll;
+
+  // FlyTo global (caso não exista o do _list_view)
+  if (!window.flyToField) {
+    window.flyToField = function(lng, lat, fieldId) {
+      const map = initMainMapIfNeeded();
+      map.flyTo({ center: [lng, lat], zoom: 15, essential: true });
+      const f = (window.fieldData || []).find(x => x.id === fieldId);
+      if (f) showFieldDetails(f);
+      document.getElementById("mapViewContainer")?.scrollIntoView({ behavior: "smooth" });
+    };
+  }
+
+  // Se o tab "Mapa" já estiver aberto ao carregar, inicializa
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!document.getElementById("mapViewContainer")?.classList.contains("hidden")) {
+      initMainMapIfNeeded();
+    }
+  });
 </script>
