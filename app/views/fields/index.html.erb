@@ -54,10 +54,18 @@
   :aria-selected="view==='map'"
   :class="view==='map' ? 'bg-white text-slate-900 shadow' : 'text-slate-700 hover:text-slate-900'"
   class="px-4 py-2 text-sm font-medium rounded-md transition"
-  @click="view='map'; updateQuery('map'); $nextTick(() => { const m = window.initMainMapIfNeeded?.(); setTimeout(() => { m?.resize?.(); window.fitAll?.(); }, 60); })">
+  @click="
+    view='map';
+    updateQuery('map');
+    $nextTick(() => {
+      const m = (window.initMainMapIfNeeded || window.initializeMapbox)?.();
+      setTimeout(() => { m?.resize?.(); window.fitAll?.(); }, 60);
+    })
+  ">
   <i class="lucide lucide-map w-4 h-4 inline-block mr-1"></i>
   <%= t('common.map', default: 'Map View') %>
 </button>
+
 </nav>
 
       <!-- (Placeholder) Filtro -->
