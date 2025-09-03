@@ -1038,8 +1038,7 @@ admin:
         nif: "VAT/NIF"
 
       index:
-        title: "Platform Accounts"
-        subtitle: "Manage organisations, see users and simulate access."
+
         search_placeholder: "Search by name or VAT/NIF…"
         filter_label: "Filter by type"
         filter_all: "All types"
