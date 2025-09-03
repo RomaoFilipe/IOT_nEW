@@ -1032,7 +1032,11 @@ en:
         technician: "Executes tasks, views sensors and logs. No team management."
         viewer: "Read-only access: dashboards, fields and reports."
 
-
+admin:
+    accounts:
+      index:
+        title: "Platform Accounts"
+        subtitle: "Manage organisations, see users and simulate access."
 
   # --- Misc
 time:
