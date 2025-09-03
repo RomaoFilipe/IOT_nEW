@@ -76,6 +76,7 @@ en:
     logout: "Sign out"
     simulating: "Simulating:"
     exit_simulation: "Exit simulation"
+    settings: "Settings"
 
   # --- Landing (public home)
   landing:
@@ -174,6 +175,7 @@ en:
       button: "Create Free Account"
     footer:
       description: "We transform agriculture with IoT technology for a more sustainable future."
+      rights: "All rights reserved."
       sections:
         platform:
           title: "Platform"
@@ -198,6 +200,9 @@ en:
             - "Privacy"
       copyright: "© 2025 AgriloT Synergy. All rights reserved."
 
+  company:
+    nif: "Company VAT/NIF"
+    nif_hint: "Required for Administrator/Manager"
   # --- Dashboard
   dashboard:
     heading: "Farm Dashboard"
@@ -361,6 +366,10 @@ en:
         manager: "👨‍🌾 Manager"
         technician: "🔧 Technician"
         viewer: "👀 Viewer"
+    name: "Name"
+    full_name_placeholder: "e.g., John Smith"
+    photo: "Profile photo"
+    photo_hint: "PNG, JPG or WEBP."
 
   # --- Team / Account management
   team:
@@ -416,6 +425,25 @@ en:
       end_time: "End Time"
       description: "Description"
       submit: "Save Task"
+
+  devise:
+    shared:
+      email: "Email"
+      new_password: "New password"
+      password_confirmation: "Confirm password"
+      current_password: "Current password"
+    registrations:
+      edit:
+        title: "Edit profile"
+        subtitle: "Manage personal data and password"
+        profile_section: "Profile information"
+        password_section: "Update password"
+        current_password_hint: "Required to confirm changes"
+        update: "Save changes"
+      cancel_title: "Delete account"
+      cancel_copy: "If you wish, you can permanently delete your account."
+      cancel_btn: "Delete my account"
+      cancel_confirm: "Are you sure?"
 
   # --- Settings
   settings:
@@ -607,6 +635,11 @@ en:
     edit: "Edit"
     delete: "Delete"
     cancel: "Cancel"
+    back: "Back"
+    save: "Save"
+    confirm: "Confirm"
+    close: "Close"
+    show_password: "Show password"
 
   # --- Map (fields map view)
   map:
