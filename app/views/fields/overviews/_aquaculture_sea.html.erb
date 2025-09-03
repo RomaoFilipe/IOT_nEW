@@ -1,11 +1,10 @@
 <%= turbo_frame_tag "overview-#{field.id}" do %>
 <div x-data="{ showNotes: false }" class="space-y-6 animate-fade-in">
 
-  <!-- 🌍 Mapa do Local -->
   <div class="relative rounded-lg shadow-md overflow-hidden">
     <div id="map-sea-<%= field.id %>" class="h-64 w-full rounded-lg"></div>
 
-    <%# Fallback quando não há coordenadas %>
+   
     <% unless field.latitude.present? && field.longitude.present? %>
       <div class="absolute inset-0 grid place-items-center bg-white/70">
         <span class="text-sm text-slate-600"><%= t("fields.overviews.aquaculture_sea.no_coords") %></span>
