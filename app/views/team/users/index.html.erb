@@ -1,4 +1,4 @@
-<%# app/views/team/users/index.html.erb %>
+
 <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
   <!-- Account -->
   <div class="bg-white shadow-soft rounded-2xl p-6 border border-slate-200">
@@ -25,9 +25,12 @@
 
         <div class="md:col-span-2">
           <%= f.label :production_kind, t("team.account.production_kind", default: "Production Type"), class: "block text-sm font-medium text-slate-700 mb-1" %>
-          <% options = [[t("field_types.agriculture","Agriculture"), "agriculture"],
-                        [t("field_types.aquaculture_tank","Aquaculture (Tank)"), "aquaculture_tank"],
-                        [t("field_types.aquaculture_sea","Aquaculture (Sea)"), "aquaculture_sea"]] %>
+          <% options = [
+  [t("field_types.agriculture", default: "Agriculture"), "agriculture"],
+  [t("field_types.aquaculture_tank", default: "Aquaculture (Tank)"), "aquaculture_tank"],
+  [t("field_types.aquaculture_sea", default: "Aquaculture (Sea)"), "aquaculture_sea"]
+] %>
+
           <%= f.select :production_kind, options, { selected: @account.production_kind },
                 disabled: (@account.respond_to?(:fields) && @account.fields.exists?),
                 class: "w-full rounded-lg border-slate-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
