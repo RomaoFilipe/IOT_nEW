@@ -14,17 +14,20 @@
 
     <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
       <!-- Pesquisa -->
-      <div class="relative">
-        <label for="search-accounts" class="sr-only"><%= t("admin.accounts.index.search_placeholder") %></label>
-        <input
-          id="search-accounts"
-          x-model="q"
-          type="search"
-          placeholder="<%= t('admin.accounts.index.search_placeholder') %>"
-          class="w-full sm:w-72 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
-        />
-        <i class="lucide lucide-search pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-slate-400"></i>
-      </div>
+<div class="relative">
+  <label for="search-accounts" class="sr-only">
+    <%= t("admin.accounts.index.search_placeholder") %>
+  </label>
+  <input
+    id="search-accounts"
+    x-model="q"
+    type="search"
+    placeholder="<%= t('admin.accounts.index.search_placeholder') %>"
+    class="w-full sm:w-72 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
+  />
+  <i class="lucide lucide-search absolute right-3 top-2.5 h-4 w-4 text-slate-400"></i>
+</div>
+
 
       <!-- Filtro por tipo -->
       <div class="relative">
