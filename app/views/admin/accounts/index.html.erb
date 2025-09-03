@@ -4,22 +4,32 @@
   <!-- Título + Toolbar -->
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-bold text-slate-900">🏢 <%= t("admin.accounts.index.title") %></h1>
-      <p class="text-sm text-slate-500 mt-1"><%= t("admin.accounts.index.subtitle") %></p>
+      <h1 class="text-3xl font-bold text-slate-900">
+        🏢 <%= t("admin.accounts.index.title") %>
+      </h1>
+      <p class="text-sm text-slate-500 mt-1">
+        <%= t("admin.accounts.index.subtitle") %>
+      </p>
     </div>
 
     <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
       <!-- Pesquisa -->
       <div class="relative">
-        <input x-model="q" type="search" placeholder="<%= t('admin.accounts.index.search_placeholder') %>"
-               class="w-full sm:w-64 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+        <input
+          x-model="q"
+          type="search"
+          placeholder="<%= t('admin.accounts.index.search_placeholder') %>"
+          class="w-full sm:w-64 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+        />
         <i class="lucide lucide-search absolute right-3 top-2.5 h-4 w-4 text-slate-400"></i>
       </div>
 
       <!-- Filtro por tipo -->
-      <select x-model="type"
-              class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
-              title="<%= t('admin.accounts.index.filter_label') %>">
+      <select
+        x-model="type"
+        class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+        title="<%= t('admin.accounts.index.filter_label') %>"
+      >
         <option value="all"><%= t("admin.accounts.index.filter_all") %></option>
         <option value="agriculture"><%= t("admin.accounts.index.types.agriculture") %></option>
         <option value="aquaculture_sea"><%= t("admin.accounts.index.types.aquaculture_sea") %></option>
@@ -27,6 +37,8 @@
       </select>
     </div>
   </div>
+</div>
+
 
   <!-- Grid de contas -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
