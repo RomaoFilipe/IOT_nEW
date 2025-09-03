@@ -22,17 +22,20 @@ en:
     percent: "%"
     celsius: "°C"
     lux: "lux"
+
   # --- Rails date/time formats
   date:
     formats:
       default: "%d/%m/%Y"
       short: "%d %b"
       long: "%d %B %Y"
+
   time:
     formats:
       default: "%d/%m/%Y %H:%M"
       short: "%d/%m %H:%M"
       long: "%d %B %Y %H:%M"
+    ago: "ago"
 
   # --- Language names
   languages:
@@ -64,13 +67,11 @@ en:
       description: "Transform your operation with our IoT platform. Monitor soil, automate irrigation, and make data-driven decisions."
       cta:
         get_started: "Get Started"
-
     trust_bar:
       - "IoT"
       - "AI Forecast"
       - "Edge"
       - "MQTT"
-
     choose_type:
       title: "Choose your operation type"
       description: "Pick the domain that best matches your operation."
@@ -83,7 +84,6 @@ en:
       tank:
         title: "Tank Aquaculture"
         description: "Smart management for hatcheries and tanks."
-
     how_it_works:
       title: "How It Works"
       description: "See how our solution adapts to your operation."
@@ -106,7 +106,6 @@ en:
         step3:
           title: "Automated actions"
           desc: "Irrigation, ventilation and notifications."
-
     testimonials:
       title: "Real Stories, Real Results"
       subtitle: "How customers are transforming their operations with smart tech."
@@ -122,7 +121,6 @@ en:
         quote: "We avoided an algae outbreak thanks to the platform alert. I'll never work without it."
         name: "Carlos Fonseca"
         role: "Marine aquaculture"
-
     comparison:
       title: "Before and After the Platform"
       subtitle: "See the real impact of digitizing your operation."
@@ -142,7 +140,6 @@ en:
           - "Real-time reports and history"
           - "Higher productivity with fewer resources"
           - "Data-driven decisions"
-
     technologies:
       title: "Technology that Powers Ag & Aquaculture"
       subtitle: "Integrations and compatibility with industry-leading standards."
@@ -153,12 +150,10 @@ en:
         - "Tuya"
         - "REST API"
         - "Wi-Fi / BLE"
-
     cta_final:
       title: "Ready to transform your operation?"
       subtitle: "Create your free account and start monitoring and automating today."
       button: "Create Free Account"
-
     footer:
       description: "We transform agriculture with IoT technology for a more sustainable future."
       sections:
@@ -185,7 +180,7 @@ en:
             - "Privacy"
       copyright: "© 2025 AgriloT Synergy. All rights reserved."
 
-  
+  # --- Dashboard
   dashboard:
     heading: "Farm Dashboard"
     subtitle: "Overview of operations, sensors and tasks."
@@ -428,129 +423,128 @@ en:
 
   # --- Sensors
   sensors:
-  index:
-    title: "IoT Equipment"
-    subtitle: "Manage your sensors and devices."
-    add_button: "Add Sensor"
-    name: "Name"
-    type: "Type"
-    field: "Field"
-    status: "Status"
-    battery: "Battery"
-    signal: "Signal"
-    last_reading: "Last Reading"
-    actions: "Actions"
-    no_data: "No sensors registered yet."
-    view_unassigned: "View unassigned sensors"
-    view_all: "View all sensors"
-  new:
-    title: "Add New Sensor"
-    subtitle: "Register a new IoT device to monitor and automate."
-    errors_title: "There were errors creating the sensor:"
-    submit: "💾 Create Sensor"
-  update:
-    title: "Sensor %{name}"
-    temperature: "Temperature"
-    moisture: "Moisture"
-    battery: "Battery"
-    signal: "Signal"
-    last_reading: "Last reading"
-    ago: "ago"
-    value: "Value"
-  readings:
-    title: "Sensor History: %{name}"
-    not_found: "Sensor not found."
-    date: "Date"
-    temperature: "Temperature (°C)"
-    moisture: "Moisture (%)"
-    battery: "Battery (%)"
-    signal: "Signal (%)"
-    back: "Back"
-    chart_title: "Sensor Readings"
-  irrigation:
-    title: "Irrigation History: %{name}"
-    not_found: "Sensor not found."
-    date: "Date"
-    duration: "Duration (s)"
-    status: "Status"
-    back: "Back"
-    chart_title: "Irrigation History"
-    chart_label: "Irrigation Duration (s)"
-    x_axis: "Date & Time"
-    y_axis: "Seconds"
-    statuses:
-      executed: "Executed"
-      failed: "Failed"
-      unknown: "Unknown"
-  unassigned:
-    title: "Unassigned Sensors"
-    name: "Name"
-    type: "Type"
-    last_reading: "Last reading"
-    actions: "Actions"
-    no_data: "No data"
-    assign: "Assign to this field"
-  status:
-    label: "Status"
-    updated_at: "Updated"
-    states:
-      irrigating: "Irrigating"
-      stopped: "Stopped"
-      inactive: "Inactive"
-  card:
-    title: "Sensor %{name}"
-    temperature: "Temperature"
-    moisture: "Moisture"
-    battery: "Battery"
-    signal: "Signal"
-    last_reading: "Last reading"
-    ago: "ago"
-    value: "Value"
-    confirm_delete: "Delete this sensor?"
-  row:
-    view_today_schedules: "View today's schedules"
-    irrigation_history: "Irrigation History"
-    readings_history: "Readings History"
-    schedule: "Schedule"
-    schedule_irrigation: "Schedule Irrigation"
-    schedule_for: "Set schedule for %{name}"
-    weekdays: "Weekdays"
-    hour: "Hour"
-    minute: "Minute"
-    duration: "Duration"
-  sensor_status:
-    states:
-      active: "Active"
-      inactive: "Inactive"
-  types:
-    temperature: "Temperature"
-    moisture: "Moisture"
-    irrigation: "Irrigation"
-    humidity: "Humidity"
-    ph: "pH"
-  cancel: "Cancel"
-  confirm: "Confirm"
-  delete: "Delete"
-  schedule_modal:
-    title: "Irrigation Schedules"
-    confirm_delete: "Delete this schedule?"
-    none: "None"
-  close: "Close"
-  configure_modal:
-    title: "Configure Sensor"
-    labels:
-      name: "Sensor Name"
+    index:
+      title: "IoT Equipment"
+      subtitle: "Manage your sensors and devices."
+      add_button: "Add Sensor"
+      name: "Name"
       type: "Type"
+      field: "Field"
       status: "Status"
-    buttons:
-      cancel: "Cancel"
-      save: "Save"
-    dropdown:
-      more: "More"
-      configure: "Configure"
-      simulate: "Simulate"
-      delete: "Delete"
-
+      battery: "Battery"
+      signal: "Signal"
+      last_reading: "Last Reading"
+      actions: "Actions"
+      no_data: "No sensors registered yet."
+      view_unassigned: "View unassigned sensors"
+      view_all: "View all sensors"
+    new:
+      title: "Add New Sensor"
+      subtitle: "Register a new IoT device to monitor and automate."
+      errors_title: "There were errors creating the sensor:"
+      submit: "💾 Create Sensor"
+    update:
+      title: "Sensor %{name}"
+      temperature: "Temperature"
+      moisture: "Moisture"
+      battery: "Battery"
+      signal: "Signal"
+      last_reading: "Last reading"
+      ago: "ago"
+      value: "Value"
+    readings:
+      title: "Sensor History: %{name}"
+      not_found: "Sensor not found."
+      date: "Date"
+      temperature: "Temperature (°C)"
+      moisture: "Moisture (%)"
+      battery: "Battery (%)"
+      signal: "Signal (%)"
+      back: "Back"
+      chart_title: "Sensor Readings"
+    irrigation:
+      title: "Irrigation History: %{name}"
+      not_found: "Sensor not found."
+      date: "Date"
+      duration: "Duration (s)"
+      status: "Status"
+      back: "Back"
+      chart_title: "Irrigation History"
+      chart_label: "Irrigation Duration (s)"
+      x_axis: "Date & Time"
+      y_axis: "Seconds"
+      statuses:
+        executed: "Executed"
+        failed: "Failed"
+        unknown: "Unknown"
+    unassigned:
+      title: "Unassigned Sensors"
+      name: "Name"
+      type: "Type"
+      last_reading: "Last reading"
+      actions: "Actions"
+      no_data: "No data"
+      assign: "Assign to this field"
+    status:
+      label: "Status"
+      updated_at: "Updated"
+      states:
+        irrigating: "Irrigating"
+        stopped: "Stopped"
+        inactive: "Inactive"
+    card:
+      title: "Sensor %{name}"
+      temperature: "Temperature"
+      moisture: "Moisture"
+      battery: "Battery"
+      signal: "Signal"
+      last_reading: "Last reading"
+      ago: "ago"
+      value: "Value"
+      confirm_delete: "Delete this sensor?"
+    row:
+      view_today_schedules: "View today's schedules"
+      irrigation_history: "Irrigation History"
+      readings_history: "Readings History"
+      schedule: "Schedule"
+      schedule_irrigation: "Schedule Irrigation"
+      schedule_for: "Set schedule for %{name}"
+      weekdays: "Weekdays"
+      hour: "Hour"
+      minute: "Minute"
+      duration: "Duration"
+    sensor_status:
+      states:
+        active: "Active"
+        inactive: "Inactive"
+    types:
+      temperature: "Temperature"
+      moisture: "Moisture"
+      irrigation: "Irrigation"
+      humidity: "Humidity"
+      ph: "pH"
+    cancel: "Cancel"
+    confirm: "Confirm"
+    delete: "Delete"
+    schedule_modal:
+      title: "Irrigation Schedules"
+      confirm_delete: "Delete this schedule?"
+      none: "None"
+    close: "Close"
+    configure_modal:
+      title: "Configure Sensor"
+      labels:
+        name: "Sensor Name"
+        type: "Type"
+        status: "Status"
+      buttons:
+        cancel: "Cancel"
+        save: "Save"
+      dropdown:
+        more: "More"
+        configure: "Configure"
+        simulate: "Simulate"
+        delete: "Delete"
 
   # --- Irrigation status (widgets)
   irrigation_status:
@@ -568,7 +562,7 @@ en:
       inactive: "Inactive"
       active: "Active"
 
-  # --- Legacy/general IoT equipment form (used in some partials)
+  # --- Generic IoT equipment form (legacy)
   form:
     title: "Add IoT Equipment"
     subtitle: "Setup for %{name}"
@@ -587,7 +581,7 @@ en:
     moisture: "Moisture"
     other: "Other"
 
-  # --- Generic actions
+  # --- Actions (generic)
   actions:
     edit: "Edit"
     delete: "Delete"
@@ -615,13 +609,10 @@ en:
       title: "Fields List"
       view: "View on Map"
 
-  # --- Fields (list & boundary tools)
-
-en:
+  # --- Fields (list & boundary tools + forms/overviews)
   fields:
     common:
       field: "Field"
-
     modal:
       tabs:
         overview: "Overview"
@@ -634,16 +625,13 @@ en:
       delete:
         confirm: "Are you sure you want to delete this field? This action cannot be undone."
         button: "Delete Field"
-
     index:
       title: "Fields Overview"
       heading: "Fields Overview"
       subtitle: "Manage your agricultural and aquaculture areas."
       view_switch: "View switch"
-
     actions:
       add: "Add Field"
-
     metrics:
       fields: "Fields"
       sensors: "Sensors"
@@ -658,7 +646,6 @@ en:
       air_humidity: "Air Humidity"
       light: "Light Intensity"
       no_sensors: "There are no sensors associated with this field yet."
-
     list_view:
       view_on_map: "View on full map"
       crop: "Crop"
@@ -666,7 +653,6 @@ en:
       area: "Area"
       last_updated: "Last updated"
       view_details: "View Details"
-
     boundary:
       title: "Define Field Boundary"
       instructions: "Click on the map to set up to 8 vertices for the field boundary. Click 'Save Area' when done."
@@ -680,7 +666,6 @@ en:
         too_few_points: "The polygon needs at least 3 points."
       saved: "Area saved successfully!"
       points_suffix: "points"
-
     overview:
       planting_info: "Planting Information"
       planting_date: "Planting Date"
@@ -705,7 +690,6 @@ en:
       good: "Good"
       modal:
         submit: "Create Field"
-
     edit:
       breadcrumb_fields: "Fields"
       breadcrumb_current_fallback: "Edit"
@@ -759,10 +743,8 @@ en:
           - "Keep coordinates accurate for map and weather."
           - "Link sensors to the field for richer analytics."
           - "Update notes for a clear history."
-
     realtime:
       loading_error: "Realtime error"
-
     new_modal:
       title: "Add New Field"
       description: "Fill in the required data to create a new field."
@@ -777,7 +759,6 @@ en:
         boundary_button: "Define Boundary"
         notes: "Notes"
         submit: "Create Field"
-
     form:
       labels:
         name: "Field Name"
@@ -797,7 +778,6 @@ en:
         cancel: "Cancel"
         save: "Save"
       errors_title: "Errors creating field:"
-
     overviews:
       aquaculture_tank:
         header_title: "Tank"
@@ -874,8 +854,7 @@ en:
           air_humidity: "Air Humidity"
           light: "Light Intensity"
           irrigation: "Irrigation"
-
-    # 👇 NOVO: namespace separado para os formulários por tipo
+    # Forms (scoped by type)
     forms:
       common:
         labels:
@@ -888,7 +867,6 @@ en:
         buttons:
           create: "Create Field"
           update: "Update Field"
-
       aquaculture_tank:
         labels:
           name: "Field Name"
@@ -905,7 +883,6 @@ en:
           stocking_density: "e.g., 15.5"
           feeding_regime: "e.g., 2x/day, floating feed"
           notes: "Notes about the tank, fish behaviour, etc..."
-
       aquaculture_sea:
         labels:
           name: "Field Name"
@@ -922,7 +899,6 @@ en:
           stocking_density: "e.g., 12.5"
           feeding_regime: "e.g., 2x/day, 2% ration"
           notes: "Notes about the site, water quality, etc..."
-
       agriculture:
         labels:
           name: "Field Name"
@@ -942,29 +918,8 @@ en:
           soil_quality: "e.g., Good, Medium, Poor…"
           notes: "Additional information about the field…"
 
-
-
-
-  # --- IoT equipment (tab in modal)
-  iot_equipment:
-    title: "Associated IoT Equipment"
-    add_button: "Add Equipment"
-    name: "Name"
-    type: "Type"
-    status: "Status"
-    battery: "Battery"
-    signal: "Signal"
-    last_reading: "Last Reading"
-    actions: "Actions"
-    none_assigned: "No sensor assigned to this field yet."
-    enter_device_id: "Enter a device_id."
-    verifying: "Verifying..."
-    device_found: "Sensor found or created"
-    not_found: "Sensor not found."
-    server_error: "Server error."
-
-
-profile:
+  # --- Profile
+  profile:
     title: "Manage Users"
     subtitle: "Profile and team overview"
     actions:
@@ -994,6 +949,7 @@ profile:
       password: "New Password"
       password_confirmation: "Password Confirmation"
       photo: "Profile Photo"
+
 
   team:
     account:
