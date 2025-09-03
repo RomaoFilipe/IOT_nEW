@@ -1,4 +1,4 @@
-<<%= tag.meta name: "sensor-id", content: sensor.id %>
+<%= tag.meta name: "sensor-id", content: sensor.id %>
 
 <div class="border p-4 rounded-xl shadow bg-gray-50">
   <h4 class="text-md font-semibold text-gray-700 mb-3">📍 <%= field.name %></h4>
@@ -6,8 +6,8 @@
   <!-- Estado da Irrigação + Barra -->
   <div class="irrigation-status mb-2">
     <div class="flex justify-between items-center text-sm font-medium text-gray-600 mb-1">
-      <span>💦  Estado da Irrigação: <%= sensor.status.capitalize %></span>
-      <span class="irrigation-progress-text text-gray-700">Faltam: 0h 0m 0s</span>
+      <span>💦 <%= t("dashboard.sensor_status.irrigation_status", default: "Irrigation Status") %>: <%= sensor.status.to_s.capitalize %></span>
+      <span class="irrigation-progress-text text-gray-700"><%= t("dashboard.sensor_status.remaining", default: "Remaining:") %> 0h 0m 0s</span>
     </div>
 
     <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
@@ -16,7 +16,6 @@
     </div>
   </div>
 
-  <!-- Outros sensores -->
   <% temp_sensor = field.sensors.find { |s| s.sensor_type == "temperature" } %>
   <% sensor_id = sensor.id %>
 
@@ -25,7 +24,7 @@
     <div class="flex justify-between items-center">
       <div class="flex items-center space-x-2">
         <span>💧</span>
-        <p class="text-sm font-medium text-gray-600">Humidade do Solo</p>
+        <p class="text-sm font-medium text-gray-600"><%= t("dashboard.sensor_status.soil_moisture", default: "Soil Moisture") %></p>
       </div>
       <span class="text-blue-600 text-sm font-medium">
         <span id="moisture-<%= sensor_id %>"><%= temp_sensor&.moisture || "N/A" %></span> %
@@ -41,7 +40,7 @@
     <div class="flex justify-between items-center">
       <div class="flex items-center space-x-2">
         <span>🌡️</span>
-        <p class="text-sm font-medium text-gray-600">Temperatura</p>
+        <p class="text-sm font-medium text-gray-600"><%= t("dashboard.sensor_status.temperature", default: "Temperature") %></p>
       </div>
       <span class="text-blue-600 text-sm font-medium">
         <span id="temperature-<%= sensor_id %>"><%= temp_sensor&.temperature || "N/A" %></span> °C
@@ -57,7 +56,7 @@
     <div class="flex justify-between items-center">
       <div class="flex items-center space-x-2">
         <span>🔋</span>
-        <p class="text-sm font-medium text-gray-600">Bateria</p>
+        <p class="text-sm font-medium text-gray-600"><%= t("dashboard.sensor_status.battery", default: "Battery") %></p>
       </div>
       <span class="text-blue-600 text-sm font-medium">
         <span id="battery-<%= sensor_id %>"><%= temp_sensor&.battery || 0 %></span> %
@@ -71,10 +70,9 @@
 
 <!-- Botões de navegação entre sensores -->
 <div class="flex justify-between items-center mt-4">
-  <button id="prevSlide" class="text-gray-600 hover:text-gray-900">&laquo; Anterior</button>
-  <button id="nextSlide" class="text-gray-600 hover:text-gray-900">Próximo &raquo;</button>
+  <button id="prevSlide" class="text-gray-600 hover:text-gray-900"><%= t("dashboard.sensor_status.previous", default: "« Previous") %></button>
+  <button id="nextSlide" class="text-gray-600 hover:text-gray-900"><%= t("dashboard.sensor_status.next", default: "Next »") %></button>
 </div>
-
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -98,7 +96,7 @@
     function updateUI() {
       const percent = totalTime > 0 ? (remainingTime / totalTime) * 100 : 0;
       progressBar.style.width = `${percent}%`;
-      progressText.textContent = `Faltam: ${formatTime(remainingTime)}`;
+      progressText.textContent = "<%= j t('dashboard.sensor_status.remaining', default: 'Remaining:') %> " + formatTime(remainingTime);
     }
 
     async function checkStatus() {
@@ -112,10 +110,10 @@
           updateUI();
         } else {
           progressBar.style.width = `0%`;
-          progressText.textContent = "Irrigação concluída";
+          progressText.textContent = "<%= j t('dashboard.sensor_status.done', default: 'Irrigation completed') %>";
         }
       } catch (e) {
-        console.error("Erro ao buscar status:", e);
+        console.error("Status fetch error:", e);
       }
     }
 
@@ -124,10 +122,7 @@
       updateUI();
     }, 1000);
 
-    setInterval(() => {
-      checkStatus();
-    }, 5000);
-
+    setInterval(checkStatus, 5000);
     checkStatus();
   });
 </script>

@@ -1,114 +1,80 @@
-<!-- app/views/team/users/edit.html.erb -->
-
+<%# app/views/team/users/edit.html.erb %>
 <div class="min-h-screen flex items-center justify-center px-4">
   <div class="w-full max-w-2xl">
-
-    <!-- Título (centrado) -->
     <h1 class="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-slate-900">
       <i class="lucide lucide-user-cog w-6 h-6 text-emerald-600"></i>
-      ✏️ Editar Utilizador
+      <%= t("team.users.edit.title", default: "Edit User") %>
     </h1>
 
-    <!-- Cartão -->
     <div class="bg-white p-6 rounded-2xl shadow border border-slate-200">
-
       <% if @user.errors.any? %>
         <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg p-4">
-          <p class="font-semibold mb-2">⚠️ Foram encontrados alguns erros:</p>
+          <p class="font-semibold mb-2">⚠️ <%= t("team.users.form.errors_found", default: "We found some errors:") %></p>
           <ul class="list-disc list-inside text-sm space-y-0.5">
-            <% @user.errors.full_messages.each do |msg| %>
-              <li><%= msg %></li>
-            <% end %>
+            <% @user.errors.full_messages.each { |msg| %><li><%= msg %></li><% } %>
           </ul>
         </div>
       <% end %>
 
-      <%= form_with model: @user,
-                    url: team_user_path(@user),
-                    method: :patch,
-                    local: true,
-                    html: { multipart: true },
-                    class: "space-y-6" do |f| %>
-
-        <!-- Avatar atual + Upload com preview -->
+      <%= form_with model: @user, url: team_user_path(@user), method: :patch, local: true, html: { multipart: true }, class: "space-y-6" do |f| %>
+        <!-- Avatar -->
         <div class="flex items-center gap-4">
           <div class="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
             <% if @user.respond_to?(:photo) && @user.photo.present? %>
-              <img id="avatarPreview"
-                   src="<%= @user.photo.url %>"
-                   alt="Foto atual"
-                   class="w-full h-full object-cover" />
+              <img id="avatarPreview" src="<%= @user.photo.url %>" alt="avatar" class="w-full h-full object-cover" />
             <% else %>
-              <img id="avatarPreview" alt="Preview da foto" class="w-full h-full object-cover hidden" />
-              <span id="avatarFallback" class="text-slate-400 text-sm">Sem foto</span>
+              <img id="avatarPreview" alt="avatar preview" class="w-full h-full object-cover hidden" />
+              <span id="avatarFallback" class="text-slate-400 text-sm"><%= t("team.users.form.no_photo", default: "No photo") %></span>
             <% end %>
           </div>
-
           <div class="flex-1">
-            <%= f.label :photo, "Foto (opcional)", class: "block text-sm font-medium text-slate-700 mb-1" %>
-            <%= f.file_field :photo,
-                  accept: "image/*",
-                  class: "w-full rounded-md border-slate-300 shadow-sm text-sm file:bg-emerald-50 file:text-emerald-700 file:font-semibold file:border-0 file:px-4 file:py-2 file:rounded file:cursor-pointer hover:file:bg-emerald-100" %>
-            <p class="text-xs text-slate-500 mt-1">PNG/JPG até ~5MB.</p>
+            <%= f.label :photo, t("team.users.form.photo", default: "Profile photo (optional)"), class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= f.file_field :photo, accept: "image/*", class: "w-full rounded-md border-slate-300 shadow-sm text-sm file:bg-emerald-50 file:text-emerald-700 file:font-semibold file:border-0 file:px-4 file:py-2 file:rounded file:cursor-pointer hover:file:bg-emerald-100" %>
+            <p class="text-xs text-slate-500 mt-1">PNG/JPG ~5MB</p>
           </div>
         </div>
 
-        <!-- Nome -->
+        <!-- Name / Email -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1" for="user_name">Nome</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1" for="user_name"><%= t("team.users.form.name", default: "Name") %></label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-              <i class="lucide lucide-user w-4 h-4"></i>
-            </div>
-            <%= f.text_field :name,
-                  placeholder: "Ex.: João Silva",
-                  class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400"><i class="lucide lucide-user w-4 h-4"></i></div>
+            <%= f.text_field :name, placeholder: t("team.users.form.name_placeholder", default: "e.g., John Smith"),
+                class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
           </div>
         </div>
-
-        <!-- Email -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1" for="user_email">Email</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1" for="user_email"><%= t("team.users.form.email", default: "Email") %></label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-              <i class="lucide lucide-mail w-4 h-4"></i>
-            </div>
-            <%= f.email_field :email,
-                  placeholder: "exemplo@empresa.com",
-                  autocomplete: "email",
-                  class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400"><i class="lucide lucide-mail w-4 h-4"></i></div>
+            <%= f.email_field :email, autocomplete: "email",
+                class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
           </div>
-          <p class="text-xs text-slate-500 mt-1">Utilizado para login e notificações.</p>
+          <p class="text-xs text-slate-500 mt-1"><%= t("team.users.form.email_hint", default: "Used for login and notifications.") %></p>
         </div>
 
         <!-- Password -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password">Nova Palavra-passe</label>
+            <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password"><%= t("team.users.form.new_password", default: "New Password") %></label>
             <div class="relative">
-              <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-                <i class="lucide lucide-lock w-4 h-4"></i>
-              </div>
-              <%= f.password_field :password,
-                    placeholder: "Deixar em branco para manter",
-                    class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+              <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400"><i class="lucide lucide-lock w-4 h-4"></i></div>
+              <%= f.password_field :password, placeholder: t("team.users.form.keep_blank", default: "Leave blank to keep"),
+                  class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password_confirmation">Confirmação</label>
+            <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password_confirmation"><%= t("team.users.form.password_confirmation", default: "Confirmation") %></label>
             <div class="relative">
-              <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-                <i class="lucide lucide-check w-4 h-4"></i>
-              </div>
-              <%= f.password_field :password_confirmation,
-                    class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+              <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400"><i class="lucide lucide-check w-4 h-4"></i></div>
+              <%= f.password_field :password_confirmation, class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
             </div>
           </div>
         </div>
 
-        <!-- Função -->
+        <!-- Role -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1" for="user_role">Função</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1" for="user_role"><%= t("team.users.form.role", default: "Role") %></label>
           <% role_options =
                if current_user.owner?
                  User.roles.map { |r, _| [r.capitalize, r] }
@@ -117,86 +83,59 @@
                else
                  User.roles.except("owner", "admin").map { |r, _| [r.capitalize, r] }
                end %>
-
-          <%= f.select :role,
-                role_options,
-                {},
-                class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
-                id: "user_role" %>
-
-          <div id="roleHint"
-               class="mt-2 rounded-md bg-slate-50 border border-slate-200 p-2 text-xs text-slate-600">
-            Selecione uma função para ver as permissões típicas.
+          <%= f.select :role, role_options, {}, class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600", id: "user_role" %>
+          <div id="roleHint" class="mt-2 rounded-md bg-slate-50 border border-slate-200 p-2 text-xs text-slate-600">
+            <%= t("team.users.edit.role_hint", default: "Select a role to see typical permissions.") %>
           </div>
         </div>
 
-        <!-- Notificações -->
+        <!-- Notifs -->
         <div class="space-y-3">
-          <p class="text-sm font-medium text-slate-700">Notificações</p>
+          <p class="text-sm font-medium text-slate-700"><%= t("team.users.form.notifications", default: "Notifications") %></p>
           <div class="flex flex-col sm:flex-row gap-4">
             <label class="inline-flex items-center gap-3">
               <%= f.check_box :notif_email, class: "toggle-switch", checked: @user.try(:notif_email) %>
-              <span class="text-sm text-slate-700">Receber notificações por email</span>
+              <span class="text-sm text-slate-700"><%= t("team.users.form.notif_email", default: "Receive email notifications") %></span>
             </label>
             <label class="inline-flex items-center gap-3">
               <%= f.check_box :notif_sms, class: "toggle-switch", checked: @user.try(:notif_sms) %>
-              <span class="text-sm text-slate-700">Receber notificações por SMS</span>
+              <span class="text-sm text-slate-700"><%= t("team.users.form.notif_sms", default: "Receive SMS notifications") %></span>
             </label>
           </div>
         </div>
 
-        <!-- Ações -->
+        <!-- Actions -->
         <div class="flex justify-between items-center pt-2">
-          <%= link_to "← Voltar para a Equipa", team_users_path, class: "text-sm text-slate-600 hover:underline" %>
-          <button type="submit"
-                  class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm">
+          <%= link_to "← " + t("team.users.edit.back", default: "Back to Team"), team_users_path, class: "text-sm text-slate-600 hover:underline" %>
+          <button type="submit" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm">
             <i class="lucide lucide-save w-4 h-4"></i>
-            💾 Atualizar Utilizador
+            <%= t("team.users.edit.submit", default: "Update User") %>
           </button>
         </div>
-
       <% end %>
     </div>
   </div>
 </div>
 
-<!-- Estilos dos toggles -->
 <style>
-  .toggle-switch {
-    appearance: none; -webkit-appearance: none;
-    position: relative; width: 42px; height: 24px;
-    background: #d1d5db; border-radius: 9999px; outline: none; cursor: pointer;
-    transition: background .2s ease;
-  }
-  .toggle-switch:checked { background: #10b981; }
-  .toggle-switch::before {
-    content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
-    background: #fff; border-radius: 9999px; transition: transform .2s ease;
-    box-shadow: 0 1px 2px rgba(0,0,0,.15);
-  }
-  .toggle-switch:checked::before { transform: translateX(18px); }
+  .toggle-switch{appearance:none;-webkit-appearance:none;position:relative;width:42px;height:24px;background:#d1d5db;border-radius:9999px;outline:none;cursor:pointer;transition:background .2s}
+  .toggle-switch:checked{background:#10b981}
+  .toggle-switch::before{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:9999px;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:transform .2s}
+  .toggle-switch:checked::before{transform:translateX(18px)}
 </style>
 
-<!-- Scripts (lucide + hint) -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
   lucide.createIcons();
-
-  // Dicas por função
   const roleHint = document.getElementById('roleHint');
   const roleSelect = document.getElementById('user_role');
   const ROLE_HINTS = {
-    owner:      "Super-utilizador: tudo.",
-    admin:      "Acesso total: gerir conta, equipa, campos e configurações.",
-    manager:    "Gestão de equipa e campos. Sem gestão global da conta.",
-    technician: "Executa tarefas, vê sensores e registos. Sem gestão de equipa.",
-    viewer:     "Acesso de leitura: vê painéis, campos e relatórios."
+    owner:      "<%= j t('team.users.role_hints.owner', default: 'Super-user: everything.') %>",
+    admin:      "<%= j t('team.users.role_hints.admin', default: 'Full access: account, team, fields & settings.') %>",
+    manager:    "<%= j t('team.users.role_hints.manager', default: 'Manages team and fields. No global account management.') %>",
+    technician: "<%= j t('team.users.role_hints.technician', default: 'Executes tasks, views sensors and logs. No team management.') %>",
+    viewer:     "<%= j t('team.users.role_hints.viewer', default: 'Read-only: dashboards, fields and reports.') %>"
   };
-
-  function updateRoleHint() {
-    const val = roleSelect?.value || '';
-    roleHint.textContent = ROLE_HINTS[val] || "Selecione uma função para ver as permissões típicas.";
-  }
-  roleSelect?.addEventListener('change', updateRoleHint);
-  updateRoleHint();
+  function updateRoleHint(){ roleHint.textContent = ROLE_HINTS[roleSelect?.value] || "<%= j t('team.users.edit.role_hint', default: 'Select a role to see typical permissions.') %>"; }
+  roleSelect?.addEventListener('change', updateRoleHint); updateRoleHint();
 </script>

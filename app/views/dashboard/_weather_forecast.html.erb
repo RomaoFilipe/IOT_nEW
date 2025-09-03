@@ -1,4 +1,3 @@
-
 <% widget_id = local_assigns[:widget_id] || "wx-#{SecureRandom.hex(4)}" %>
 <% fields = Array(@fields).compact %>
 <% first_with_coords = fields.find { |f| f.latitude.present? && f.longitude.present? } %>
@@ -6,7 +5,6 @@
 <div id="<%= widget_id %>"
      class="rounded-2xl bg-white/70 ring-1 ring-gray-200 backdrop-blur-xs p-6 shadow-soft space-y-6 text-gray-800">
 
-  <!-- Cabeçalho -->
   <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <h3 class="text-lg font-semibold flex items-center gap-2">
       <i data-lucide="cloud-sun" class="h-5 w-5 text-emerald-700"></i>
@@ -29,7 +27,7 @@
               data-lat="<%= lat %>"
               data-lon="<%= lon %>"
               <%= "selected" if (params[:field_id].to_s == field.id.to_s) %>>
-              <%= field.name %><%= " • (sem coordenadas)" unless lat && lon %>
+              <%= field.name %><%= " • (#{t('dashboard.weather.missing_coords_short', default: 'no coords')})" unless lat && lon %>
             </option>
           <% end %>
         </select>
@@ -37,7 +35,6 @@
     <% end %>
   </div>
 
-  <!-- Now / resumo -->
   <div class="flex flex-wrap items-center justify-between gap-6">
     <div>
       <p id="<%= "#{widget_id}-current-temp" %>" class="text-5xl font-extrabold tracking-tight text-emerald-900">--°C</p>
@@ -58,14 +55,12 @@
     </div>
   </div>
 
-  <!-- Previsão diária -->
   <div>
     <h4 class="text-sm font-semibold text-gray-700 mb-2">
       <%= t("dashboard.weather.next_days", default: "Next Days") %>
     </h4>
     <div id="<%= "#{widget_id}-daily" %>"
          class="flex gap-2 overflow-x-auto pb-2 scroll-smooth">
-      <!-- Skeleton inicial -->
       <% 5.times do %>
         <div class="w-16 h-20 rounded bg-gray-100 animate-pulse"></div>
       <% end %>
@@ -74,27 +69,23 @@
 
   <hr class="border-gray-200">
 
-  <!-- Previsão horária -->
   <div>
     <h4 class="text-sm font-semibold text-gray-700 mb-2">
       <%= t("dashboard.weather.next_24h", default: "Next 24 Hours") %>
     </h4>
     <div id="<%= "#{widget_id}-hourly" %>"
          class="flex gap-2 overflow-x-auto pb-1 text-center text-sm scroll-smooth">
-      <!-- Skeleton inicial -->
       <% 8.times do %>
         <div class="min-w-[3.5rem] h-16 rounded bg-gray-100 animate-pulse"></div>
       <% end %>
     </div>
   </div>
 
-  <!-- Mensagens -->
   <p id="<%= "#{widget_id}-msg" %>" class="hidden text-xs text-red-600"></p>
 </div>
 
 <script>
 (() => {
-  // --- helpers isolados por widget ---
   const WID = "<%= widget_id %>";
   const $id = (suf) => document.getElementById(`${WID}-${suf}`);
   const root = document.getElementById(WID);
@@ -117,28 +108,28 @@
   }
   function weatherText(code) {
     const map = {
-      0:"<%= j t('weather.codes.clear', default: 'Céu limpo') %>",
-      1:"<%= j t('weather.codes.few', default: 'Poucas nuvens') %>",
-      2:"<%= j t('weather.codes.scattered', default: 'Nuvens dispersas') %>",
-      3:"<%= j t('weather.codes.overcast', default: 'Céu nublado') %>",
-      45:"<%= j t('weather.codes.fog', default: 'Nevoeiro') %>",
-      48:"<%= j t('weather.codes.rime_fog', default: 'Nevoeiro com geada') %>",
-      51:"<%= j t('weather.codes.drizzle', default: 'Chuviscos') %>",
-      53:"<%= j t('weather.codes.drizzle', default: 'Chuviscos') %>",
-      55:"<%= j t('weather.codes.drizzle', default: 'Chuviscos') %>",
-      61:"<%= j t('weather.codes.rain_light', default: 'Chuva fraca') %>",
-      63:"<%= j t('weather.codes.rain', default: 'Chuva') %>",
-      65:"<%= j t('weather.codes.rain_heavy', default: 'Chuva forte') %>",
-      66:"<%= j t('weather.codes.freezing_rain', default: 'Chuva gelada') %>",
-      67:"<%= j t('weather.codes.freezing_rain_heavy', default: 'Chuva gelada forte') %>",
-      71:"<%= j t('weather.codes.snow_light', default: 'Neve leve') %>",
-      73:"<%= j t('weather.codes.snow', default: 'Neve') %>",
-      75:"<%= j t('weather.codes.snow_heavy', default: 'Neve intensa') %>",
-      95:"<%= j t('weather.codes.thunder', default: 'Trovoada') %>",
-      96:"<%= j t('weather.codes.thunder_hail', default: 'Trovoada com granizo') %>",
-      99:"<%= j t('weather.codes.severe_storm', default: 'Tempestade severa') %>"
+      0:"<%= j t('dashboard.weather.code.0',  default: 'Clear sky') %>",
+      1:"<%= j t('dashboard.weather.code.1',  default: 'Mostly clear') %>",
+      2:"<%= j t('dashboard.weather.code.2',  default: 'Partly cloudy') %>",
+      3:"<%= j t('dashboard.weather.code.3',  default: 'Overcast') %>",
+      45:"<%= j t('dashboard.weather.code.45', default: 'Fog') %>",
+      48:"<%= j t('dashboard.weather.code.48', default: 'Depositing rime fog') %>",
+      51:"<%= j t('dashboard.weather.code.51', default: 'Light drizzle') %>",
+      53:"<%= j t('dashboard.weather.code.53', default: 'Moderate drizzle') %>",
+      55:"<%= j t('dashboard.weather.code.55', default: 'Dense drizzle') %>",
+      61:"<%= j t('dashboard.weather.code.61', default: 'Slight rain') %>",
+      63:"<%= j t('dashboard.weather.code.63', default: 'Rain') %>",
+      65:"<%= j t('dashboard.weather.code.65', default: 'Heavy rain') %>",
+      66:"<%= j t('dashboard.weather.code.66', default: 'Freezing rain') %>",
+      67:"<%= j t('dashboard.weather.code.67', default: 'Heavy freezing rain') %>",
+      71:"<%= j t('dashboard.weather.code.71', default: 'Slight snow') %>",
+      73:"<%= j t('dashboard.weather.code.73', default: 'Snow') %>",
+      75:"<%= j t('dashboard.weather.code.75', default: 'Heavy snow') %>",
+      95:"<%= j t('dashboard.weather.code.95', default: 'Thunderstorm') %>",
+      96:"<%= j t('dashboard.weather.code.96', default: 'Thunderstorm with hail') %>",
+      99:"<%= j t('dashboard.weather.code.99', default: 'Severe thunderstorm') %>"
     };
-    return map[code] || "—";
+    return map[code] || "<%= j t('dashboard.weather.unknown', default: 'Unknown') %>";
   }
 
   async function fetchWeather(lat, lon) {
@@ -154,13 +145,11 @@
     if (els.desc)  els.desc.textContent  = weatherText(cur.weathercode);
     if (els.wind)  els.wind.textContent  = `${cur.winddirection}° · ${cur.windspeed} km/h`;
 
-    // precipitação diária agregada de hoje
     const today = new Date().toISOString().slice(0,10);
     const idxs = data.hourly.time.map((t,i)=> t.startsWith(today) ? i : -1).filter(i=> i>=0);
     const precip = idxs.reduce((a,i)=> a + (data.hourly.precipitation[i] || 0), 0);
     if (els.precip) els.precip.textContent = `${precip.toFixed(1)} mm`;
 
-    // hourly
     if (els.hourly) {
       els.hourly.innerHTML = "";
       for (let i = 0; i < 24 && i < data.hourly.time.length; i++) {
@@ -177,7 +166,6 @@
       }
     }
 
-    // daily
     if (els.daily) {
       els.daily.innerHTML = "";
       for (let i = 0; i < data.daily.time.length; i++) {
@@ -199,7 +187,7 @@
   async function loadFor(lat, lon) {
     if (!lat || !lon) {
       if (els.msg) {
-        els.msg.textContent = "<%= j t('dashboard.weather.missing_coords', default: 'Campo sem coordenadas. Selecione outro.') %>";
+        els.msg.textContent = "<%= j t('dashboard.weather.missing_coords', default: 'Field without coordinates. Choose another.') %>";
         els.msg.classList.remove("hidden");
       }
       return;
@@ -212,19 +200,17 @@
       render(data);
     } catch (e) {
       if (els.msg) {
-        els.msg.textContent = "<%= j t('dashboard.weather.error', default: 'Erro ao obter meteorologia.') %>";
+        els.msg.textContent = "<%= j t('dashboard.weather.error', default: 'Error fetching weather.') %>";
         els.msg.classList.remove("hidden");
       }
       console.error(e);
     }
   }
 
-  // inicialização
   const initialOption =
     els.select?.selectedOptions?.[0] ||
     (els.select?.options?.length ? els.select.options[0] : null);
 
-  // Se não há dropdown, tenta 1º campo com coords
   let initLat = initialOption?.dataset?.lat || "<%= first_with_coords&.latitude %>";
   let initLon = initialOption?.dataset?.lon || "<%= first_with_coords&.longitude %>";
 
@@ -237,9 +223,8 @@
     });
   }
 
-  // Recria ícones Lucide deste widget (caso ainda não tenham sido “upgraded”)
   if (window.lucide && typeof window.lucide.createIcons === "function") {
-    window.lucide.createIcons({ icons: window.lucide.icons, attrs: {}, nameAttr: "data-lucide", contents: {} ,});
+    window.lucide.createIcons();
   }
 })();
 </script>

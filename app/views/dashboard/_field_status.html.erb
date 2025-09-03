@@ -1,6 +1,6 @@
 <h3 class="text-base sm:text-lg font-semibold text-slate-800 mb-4 flex items-center justify-between">
-  <span>🗺️ Estado dos Campos</span>
-  <%= link_to "Ver todos", fields_path, class: "text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium" %>
+  <span>🗺️ <%= t("dashboard.field_status.title", default: "Fields Status") %></span>
+  <%= link_to t("dashboard.field_status.see_all", default: "See All"), fields_path, class: "text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium" %>
 </h3>
 
 <% if @fields.present? && @fields.any? %>
@@ -20,7 +20,6 @@
     x-init="start()"
     class="space-y-4"
   >
-    <!-- Selector de campos -->
     <div class="flex gap-2 overflow-x-auto pb-1">
       <% @fields.each do |field| %>
         <button
@@ -36,10 +35,8 @@
       <% end %>
     </div>
 
-    <!-- Cartões -->
     <div class="relative">
       <% @fields.each do |field| %>
-        <%# ====== MÉTRICAS POR CAMPO (defensivas) ====== %>
         <% total        = field.sensors&.count.to_i
            active       = field.sensors&.where(status: 'Active')&.count.to_i
            pct_active   = total.positive? ? ((active.to_f / total) * 100).round : 0
@@ -49,7 +46,6 @@
            avg_batt     = field.sensors&.average(:battery)&.to_f
            avg_rssi     = field.sensors&.average(:signal)&.to_f
 
-           # Lux e humidade do ar vivem nas leituras; faz join defensivo
            avg_lux      = begin
                             field.sensors.joins(:sensor_readings).average("sensor_readings.light_intensity")&.to_f
                           rescue
@@ -75,31 +71,28 @@
           @mouseenter="stop()" @mouseleave="start()"
           class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 sm:p-5 space-y-4">
 
-          <!-- Header -->
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="text-sm text-emerald-700 font-semibold truncate"><%= field.name %></p>
               <p class="text-base font-semibold text-slate-900 truncate"><%= field.field_type.to_s.humanize %></p>
               <p class="text-xs text-slate-500">
-                Área: <%= field.area.presence || '—' %> ha
+                <%= t("dashboard.field_status.area", default: "Area") %>: <%= field.area.presence || '—' %> ha
                 <% if last_reading %>
-                  · Última leitura: <%= l(last_reading, format: '%d/%m/%Y %H:%M') %>
+                  · <%= t("dashboard.field_status.last_reading", default: "Last reading") %>: <%= l(last_reading, format: '%d/%m/%Y %H:%M') %>
                 <% end %>
               </p>
             </div>
 
             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium <%= status_class %>">
               <span class="text-[10px]">●</span>
-              <%= field.status.presence || 'Desconhecido' %>
+              <%= field.status.presence || t("dashboard.field_status.unknown", default: "Unknown") %>
             </span>
           </div>
 
-          <!-- Métricas (3 colunas principais) -->
           <div class="grid sm:grid-cols-3 gap-3">
-            <!-- Sensores ativos -->
             <div class="col-span-1">
               <div class="flex items-center justify-between text-xs text-slate-600">
-                <span>📡 Sensores ativos</span>
+                <span>📡 <%= t("dashboard.field_status.sensors_active", default: "Active Sensors") %></span>
                 <span class="font-semibold text-slate-800"><%= active %>/<%= total %></span>
               </div>
               <div class="w-full h-2 bg-slate-200 rounded-full mt-1 overflow-hidden">
@@ -107,10 +100,9 @@
               </div>
             </div>
 
-            <!-- Humidade média -->
             <div class="col-span-1">
               <div class="flex items-center justify-between text-xs text-slate-600">
-                <span>💧 Humidade média</span>
+                <span>💧 <%= t("dashboard.field_status.moisture_avg", default: "Moisture (avg)") %></span>
                 <span class="font-semibold text-slate-800">
                   <%= avg_moist&.round&.to_i || '—' %><%= avg_moist ? '%' : '' %>
                 </span>
@@ -121,10 +113,9 @@
               </div>
             </div>
 
-            <!-- Bateria média -->
             <div class="col-span-1">
               <div class="flex items-center justify-between text-xs text-slate-600">
-                <span>🔋 Bateria média</span>
+                <span>🔋 <%= t("dashboard.field_status.battery_avg", default: "Battery (avg)") %></span>
                 <span class="font-semibold text-slate-800">
                   <%= avg_batt&.round&.to_i || '—' %><%= avg_batt ? '%' : '' %>
                 </span>
@@ -136,36 +127,34 @@
             </div>
           </div>
 
-          <!-- Extras (Lux, RSSI, Humidade do ar, Temperatura média) -->
           <div class="grid sm:grid-cols-4 gap-3">
             <div class="rounded-md bg-slate-50 border border-slate-200 p-3 text-xs">
-              <div class="text-slate-500">🌞 Lux (média)</div>
+              <div class="text-slate-500">🌞 <%= t("dashboard.field_status.lux_avg", default: "Lux (avg)") %></div>
               <div class="text-slate-900 font-semibold"><%= avg_lux&.round(0) || '—' %></div>
             </div>
             <div class="rounded-md bg-slate-50 border border-slate-200 p-3 text-xs">
-              <div class="text-slate-500">📶 RSSI médio</div>
+              <div class="text-slate-500">📶 <%= t("dashboard.field_status.rssi_avg", default: "RSSI (avg)") %></div>
               <div class="text-slate-900 font-semibold">
                 <%= avg_rssi ? avg_rssi.round : '—' %><%= avg_rssi ? ' dBm' : '' %>
               </div>
             </div>
             <div class="rounded-md bg-slate-50 border border-slate-200 p-3 text-xs">
-              <div class="text-slate-500">💨 Humidade do ar</div>
+              <div class="text-slate-500">💨 <%= t("dashboard.field_status.air_humidity", default: "Air Humidity") %></div>
               <div class="text-slate-900 font-semibold">
                 <%= avg_air_hum ? avg_air_hum.round : '—' %><%= avg_air_hum ? '%' : '' %>
               </div>
             </div>
             <div class="rounded-md bg-slate-50 border border-slate-200 p-3 text-xs">
-              <div class="text-slate-500">🌡️ Temperatura média</div>
+              <div class="text-slate-500">🌡️ <%= t("dashboard.field_status.temperature_avg", default: "Temperature (avg)") %></div>
               <div class="text-slate-900 font-semibold">
                 <%= avg_temp ? avg_temp.round(1) : '—' %><%= avg_temp ? ' °C' : '' %>
               </div>
             </div>
           </div>
 
-          <!-- Linha inferior -->
           <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
             <div class="text-xs text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span>🗓️ Última irrigação: <%= last_irrig ? l(last_irrig, format: '%d/%m/%Y %H:%M') : 'Sem registo' %></span>
+              <span>🗓️ <%= t("dashboard.field_status.last_irrigation", default: "Last Irrigation") %>: <%= last_irrig ? l(last_irrig, format: '%d/%m/%Y %H:%M') : t("dashboard.field_status.no_record", default: "No record") %></span>
               <span>📍 <%= field.latitude.presence || '—' %>, <%= field.longitude.presence || '—' %></span>
             </div>
 
@@ -174,7 +163,7 @@
               @click="document.getElementById('viewDetailsModal-<%= field.id %>')?.classList.remove('hidden')"
               class="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 transition"
             >
-              <i class="lucide lucide-eye w-4 h-4"></i> Detalhes
+              <i class="lucide lucide-eye w-4 h-4"></i> <%= t("dashboard.field_status.details", default: "Details") %>
             </button>
           </div>
         </section>
@@ -187,6 +176,6 @@
   <% end %>
 <% else %>
   <div class="p-4 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
-    🚨 Nenhum campo registado ainda. Adicione um campo para visualizar o estado.
+    <%= t("dashboard.field_status.no_fields", default: "No fields registered yet. Please add one to view status.") %>
   </div>
 <% end %>

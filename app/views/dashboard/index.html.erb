@@ -37,7 +37,7 @@
         <%= t("dashboard.heading", default: "Farm Dashboard") %>
       </h1>
       <p class="text-gray-600 text-sm">
-        <%= t("dashboard.subtitle", default: "Overview de operações, sensores e tarefas.") %>
+        <%= t("dashboard.subtitle", default: "Overview of operations, sensors and tasks.") %>
       </p>
     </div>
     <div class="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-xs px-3 py-1 text-emerald-700 shadow-soft ring-1 ring-emerald-100">
@@ -56,31 +56,31 @@
 
     <!-- Campos -->
     <%= render "kpi_card",
-        title: t("dashboard.kpis.fields", default: "Campos"),
+        title: t("dashboard.kpis.fields", default: "Fields"),
         icon: "map-pin",
         value: kpis[:fields],
         subtitle: t("dashboard.kpis.total", default: "Total") %>
 
     <!-- Sensores -->
     <%= render "kpi_card",
-        title: t("dashboard.kpis.sensors", default: "Sensores"),
+        title: t("dashboard.kpis.sensors", default: "Sensors"),
         icon: "radar",
         value: kpis[:sensors_total],
         subtitle: "#{t('dashboard.kpis.online', default: 'Online')}: #{kpis[:sensors_online].to_i}" %>
 
     <!-- Rega Hoje -->
     <%= render "kpi_card",
-        title: t("dashboard.kpis.irrigation", default: "Rega hoje"),
+        title: t("dashboard.kpis.irrigation", default: "Irrigations Today"),
         icon: "droplets",
         value: kpis[:irrigations_today],
-        subtitle: t("dashboard.kpis.scheduled", default: "Agendadas") %>
+        subtitle: t("dashboard.kpis.scheduled", default: "Scheduled") %>
 
-    <!-- Alertas (perigoso quando > 0) -->
+    <!-- Alertas -->
     <%= render "kpi_card",
-        title: t("dashboard.kpis.alerts", default: "Alertas"),
+        title: t("dashboard.kpis.alerts", default: "Alerts"),
         icon: "bell-ring",
         value: kpis[:alerts_open],
-        subtitle: t("dashboard.kpis.open", default: "Abertos"),
+        subtitle: t("dashboard.kpis.open", default: "Open"),
         danger_when_positive: true %>
 
   </div>
@@ -89,9 +89,7 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Meteo -->
     <div class="relative overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
-      <div class="flex items-center justify-between mb-3">
-      </div>
-
+      <div class="flex items-center justify-between mb-3"></div>
       <%= render "dashboard/weather_forecast" %>
     </div>
 
@@ -100,7 +98,7 @@
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <i data-lucide="activity" class="h-5 w-5 text-emerald-700"></i>
-          <%= t("dashboard.irrigation.title", default: "Estado de Irrigação") %>
+          <%= t("dashboard.irrigation.title", default: "Irrigation Status") %>
         </h2>
       </div>
 
@@ -117,10 +115,10 @@
           <% end %>
 
           <% if fields.none? { |f| f&.sensors&.any? { |s| s.sensor_type == "irrigation" } } %>
-            <p class="text-sm text-gray-500"><%= t("dashboard.irrigation.empty", default: "Sem sensores de irrigação associados aos campos.") %></p>
+            <p class="text-sm text-gray-500"><%= t("dashboard.irrigation.empty", default: "No irrigation sensors linked to fields.") %></p>
           <% end %>
         <% else %>
-          <p class="text-sm text-gray-500"><%= t("dashboard.fields.empty", default: "Sem campos associados à sua conta.") %></p>
+          <p class="text-sm text-gray-500"><%= t("dashboard.fields.empty", default: "No fields linked to your account.") %></p>
         <% end %>
       </div>
     </div>
@@ -131,7 +129,7 @@
     <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
       <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
         <i data-lucide="leaf" class="h-5 w-5 text-emerald-700"></i>
-        <%= t("dashboard.fields.title", default: "Estado dos Campos") %>
+        <%= t("dashboard.field_status.title", default: "Fields Status") %>
       </h2>
       <%= render "dashboard/field_status" %>
     </div>
@@ -139,7 +137,7 @@
     <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
       <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
         <i data-lucide="calendar-check" class="h-5 w-5 text-emerald-700"></i>
-        <%= t("dashboard.tasks.title", default: "Próximas Tarefas") %>
+        <%= t("dashboard.upcoming_tasks.title", default: "Planned Events") %>
       </h2>
       <%= render "dashboard/upcoming_tasks" %>
     </div>
@@ -149,7 +147,7 @@
   <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
     <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
       <i data-lucide="zap" class="h-5 w-5 text-emerald-700"></i>
-      <%= t("dashboard.actions.title", default: "Ações Rápidas") %>
+      <%= t("dashboard.quick_actions.title", default: "Quick Actions") %>
     </h2>
     <%= render "dashboard/quick_actions" %>
   </div>
@@ -165,7 +163,7 @@
     <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-soft">
       <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
         <i data-lucide="timeline" class="h-5 w-5 text-emerald-700"></i>
-        <%= t("dashboard.activity.title", default: "Atividade Recente") %>
+        <%= t("dashboard.activity.title", default: "Recent Activity") %>
       </h2>
       <% if sensor_readings.any? %>
         <ul class="divide-y divide-gray-100">
@@ -174,7 +172,7 @@
               <div class="flex items-center gap-3">
                 <i data-lucide="dot" class="h-4 w-4 text-emerald-600"></i>
                 <div class="text-sm">
-                  <span class="font-medium text-gray-800"><%= r.sensor&.name || r.sensor&.device_id || "Sensor" %></span>
+                  <span class="font-medium text-gray-800"><%= r.sensor&.name || r.sensor&.device_id || t("dashboard.activity.sensor", default: "Sensor") %></span>
                   <span class="text-gray-500">· <%= r.created_at.strftime("%d/%m %H:%M") %></span>
                 </div>
               </div>
@@ -185,7 +183,7 @@
           <% end %>
         </ul>
       <% else %>
-        <p class="text-sm text-gray-500"><%= t("dashboard.activity.empty", default: "Sem atividade recente.") %></p>
+        <p class="text-sm text-gray-500"><%= t("dashboard.activity.empty", default: "No recent activity.") %></p>
       <% end %>
     </div>
   <% end %>
@@ -228,24 +226,26 @@
         }
       }
 
-      if ($("daily-forecast")) {
-        const d = $("daily-forecast");
-        d.innerHTML = "";
-        for (let i = 0; i < data.daily.time.length; i++) {
-          const dia = new Date(data.daily.time[i]).toLocaleDateString('<%= I18n.locale %>', { weekday: 'short' });
-          const max = Math.round(data.daily.temperature_2m_max[i]);
-          const min = Math.round(data.daily.temperature_2m_min[i]);
-          const icon = weatherIcon(data.daily.weathercode[i]);
-          d.innerHTML += `
-            <div class="bg-white rounded p-2 shadow text-center min-w-[3.5rem]">
-              <p class="font-bold text-[11px] uppercase">${dia}</p>
-              <p class="text-xl">${icon}</p>
-              <p class="text-[11px] text-gray-700">${max}° / ${min}°</p>
-            </div>`;
+      if ("daily-forecast") {
+        const d = document.getElementById("daily-forecast");
+        if (d) {
+          d.innerHTML = "";
+          for (let i = 0; i < data.daily.time.length; i++) {
+            const dia = new Date(data.daily.time[i]).toLocaleDateString('<%= I18n.locale %>', { weekday: 'short' });
+            const max = Math.round(data.daily.temperature_2m_max[i]);
+            const min = Math.round(data.daily.temperature_2m_min[i]);
+            const icon = weatherIcon(data.daily.weathercode[i]);
+            d.innerHTML += `
+              <div class="bg-white rounded p-2 shadow text-center min-w-[3.5rem]">
+                <p class="font-bold text-[11px] uppercase">${dia}</p>
+                <p class="text-xl">${icon}</p>
+                <p class="text-[11px] text-gray-700">${max}° / ${min}°</p>
+              </div>`;
+          }
         }
       }
     } catch (err) {
-      console.error("Erro ao obter meteo:", err);
+      console.error("Weather error:", err);
     }
   }
 
@@ -253,14 +253,31 @@
     const map = {0:"☀️",1:"🌤",2:"⛅",3:"☁️",45:"🌫",48:"🌫",51:"🌦",53:"🌦",55:"🌧",61:"🌧",63:"🌧",65:"🌧",66:"❄️",67:"❄️",71:"❄️",73:"❄️",75:"❄️",95:"⛈",96:"⛈",99:"⛈"};
     return map[code] || "❓";
   }
+
   function weatherText(code) {
     const map = {
-      0:"Céu limpo",1:"Poucas nuvens",2:"Nuvens dispersas",3:"Céu nublado",45:"Nevoeiro",48:"Nevoeiro com geada",
-      51:"Chuviscos",53:"Chuviscos",55:"Chuviscos",61:"Chuva fraca",63:"Chuva",65:"Chuva forte",
-      66:"Chuva gelada",67:"Chuva gelada forte",71:"Neve leve",73:"Neve",75:"Neve intensa",
-      95:"Trovoada",96:"Trovoada com granizo",99:"Tempestade severa"
+      0: "<%= j t('dashboard.weather.code.0',   default: 'Clear sky') %>",
+      1: "<%= j t('dashboard.weather.code.1',   default: 'Mostly clear') %>",
+      2: "<%= j t('dashboard.weather.code.2',   default: 'Partly cloudy') %>",
+      3: "<%= j t('dashboard.weather.code.3',   default: 'Overcast') %>",
+      45:"<%= j t('dashboard.weather.code.45',  default: 'Fog') %>",
+      48:"<%= j t('dashboard.weather.code.48',  default: 'Depositing rime fog') %>",
+      51:"<%= j t('dashboard.weather.code.51',  default: 'Light drizzle') %>",
+      53:"<%= j t('dashboard.weather.code.53',  default: 'Moderate drizzle') %>",
+      55:"<%= j t('dashboard.weather.code.55',  default: 'Dense drizzle') %>",
+      61:"<%= j t('dashboard.weather.code.61',  default: 'Slight rain') %>",
+      63:"<%= j t('dashboard.weather.code.63',  default: 'Rain') %>",
+      65:"<%= j t('dashboard.weather.code.65',  default: 'Heavy rain') %>",
+      66:"<%= j t('dashboard.weather.code.66',  default: 'Freezing rain') %>",
+      67:"<%= j t('dashboard.weather.code.67',  default: 'Heavy freezing rain') %>",
+      71:"<%= j t('dashboard.weather.code.71',  default: 'Slight snow') %>",
+      73:"<%= j t('dashboard.weather.code.73',  default: 'Snow') %>",
+      75:"<%= j t('dashboard.weather.code.75',  default: 'Heavy snow') %>",
+      95:"<%= j t('dashboard.weather.code.95',  default: 'Thunderstorm') %>",
+      96:"<%= j t('dashboard.weather.code.96',  default: 'Thunderstorm with hail') %>",
+      99:"<%= j t('dashboard.weather.code.99',  default: 'Severe thunderstorm') %>"
     };
-    return map[code] || "—";
+    return map[code] || "<%= j t('dashboard.weather.unknown', default: 'Unknown') %>";
   }
 
   // carregar previsão do 1.º campo automaticamente

@@ -1,16 +1,14 @@
-<%# app/views/dashboard/_upcoming_tasks.html.erb %>
-
 <div class="space-y-4">
   <!-- Título -->
   <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
     <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">📅</span>
-    Próximas Tarefas
+    <%= t("dashboard.upcoming_tasks.title", default: "Planned Events") %>
   </h3>
 
   <!-- Subtítulo -->
   <h4 class="text-base font-semibold text-slate-800 flex items-center gap-2">
     <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-sky-100 text-sky-700">📆</span>
-    Eventos Planeados
+    <%= t("dashboard.upcoming_tasks.subtitle", default: "Scheduled") %>
   </h4>
 
   <!-- Lista -->
@@ -33,7 +31,6 @@
 
         <li id="<%= dom_id_str %>"
             class="relative overflow-hidden rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition">
-          <!-- Acento lateral -->
           <span class="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-emerald-400 via-sky-400 to-cyan-400"></span>
 
           <div class="px-4 py-3 sm:px-5 sm:py-4">
@@ -42,7 +39,7 @@
                 <%= event[:title] %>
               </p>
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium <%= type_badge %>">
-                <%= event[:type] == :task ? "✓ Tarefa" : "🚿 Irrigação" %>
+                <%= event[:type] == :task ? t("dashboard.upcoming_tasks.labels.task", default: "✓ Task") : t("dashboard.upcoming_tasks.labels.irrigation", default: "🚿 Irrigation") %>
               </span>
             </div>
 
@@ -68,13 +65,12 @@
       <% end %>
     <% else %>
       <p id="no-events-msg" class="text-sm text-slate-500 italic">
-        Nenhum evento planeado para hoje.
+        <%= t("dashboard.upcoming_tasks.none", default: "No planned events for today.") %>
       </p>
     <% end %>
   </ul>
 </div>
 
-<!-- Polling JS (sem duplicar, atualiza/insere e mostra mensagem quando vazio) -->
 <script>
   (() => {
     const ROOT = "#planned-events-list";
@@ -103,8 +99,8 @@
 
     function typeBadge(type) {
       return type === "task"
-        ? { cls: "bg-slate-100 text-slate-700 ring-1 ring-slate-200", text: "✓ Tarefa" }
-        : { cls: "bg-sky-50 text-sky-700 ring-1 ring-sky-200", text: "🚿 Irrigação" };
+        ? { cls: "bg-slate-100 text-slate-700 ring-1 ring-slate-200", text: "<%= j t('dashboard.upcoming_tasks.labels.task', default: '✓ Task') %>" }
+        : { cls: "bg-sky-50 text-sky-700 ring-1 ring-sky-200", text: "<%= j t('dashboard.upcoming_tasks.labels.irrigation', default: '🚿 Irrigation') %>" };
     }
 
     function renderEventHTML(e) {
@@ -140,7 +136,6 @@
       const ul = document.querySelector(ROOT);
       if (!ul) return;
 
-      // remover mensagem vazio se existir
       const emptyMsg = document.getElementById(NO_MSG_ID);
       if (emptyMsg) emptyMsg.remove();
 
@@ -164,21 +159,18 @@
 
       const keep = new Set(events.map(keyFor));
 
-      // remover itens que já não existem
       ul.querySelectorAll("li[id]").forEach(li => {
         if (!keep.has(li.id)) li.remove();
       });
 
-      // inserir/atualizar itens
       events.forEach(upsertEvent);
 
-      // se ficou vazio, mostrar mensagem
       if (ul.querySelectorAll("li").length === 0) {
         if (!document.getElementById(NO_MSG_ID)) {
           const p = document.createElement("p");
           p.id = NO_MSG_ID;
           p.className = "text-sm text-slate-500 italic";
-          p.textContent = "Nenhum evento planeado para hoje.";
+          p.textContent = "<%= j t('dashboard.upcoming_tasks.none', default: 'No planned events for today.') %>";
           ul.parentElement.appendChild(p);
         }
       }
@@ -194,7 +186,7 @@
         const data = await res.json();
         syncList(data.events || []);
       } catch (err) {
-        console.error("Erro ao buscar eventos:", err);
+        console.error("Error fetching events:", err);
       }
     }
 

@@ -1,83 +1,66 @@
-<!-- app/views/team/users/new.html.erb -->
-
+<%# app/views/team/users/new.html.erb %>
 <div class="min-h-screen flex items-center justify-center px-4">
   <div class="w-full max-w-5xl">
-
-    <!-- Título (centrado) -->
     <h1 class="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-slate-900">
       <i class="lucide lucide-user-plus w-6 h-6 text-emerald-600"></i>
-      Novo Utilizador
+      <%= t("team.users.new.title", default: "New User") %>
     </h1>
 
-    <!-- Conteúdo (cartões) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- =========== FORM =========== -->
       <div class="lg:col-span-2">
         <div class="bg-white border border-slate-200 rounded-2xl shadow p-6">
-
           <% if @user.errors.any? %>
             <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg p-4">
-              <p class="font-semibold mb-2">⚠️ Erros ao criar utilizador:</p>
+              <p class="font-semibold mb-2">⚠️ <%= t("team.users.form.errors_title", default: "Errors creating user:") %></p>
               <ul class="list-disc list-inside text-sm space-y-0.5">
-                <% @user.errors.full_messages.each do |msg| %>
-                  <li><%= msg %></li>
-                <% end %>
+                <% @user.errors.full_messages.each { |msg| %><li><%= msg %></li><% } %>
               </ul>
             </div>
           <% end %>
 
-          <%= form_with model: @user, url: team_users_path, local: true,
-                        html: { multipart: true }, class: "space-y-6" do |f| %>
-
-            <!-- Foto + upload -->
+          <%= form_with model: @user, url: team_users_path, local: true, html: { multipart: true }, class: "space-y-6" do |f| %>
+            <!-- Foto -->
             <div class="flex items-center gap-4">
               <div class="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
-                <img id="avatarPreview" alt="Preview da foto" class="w-full h-full object-cover hidden" />
-                <span id="avatarFallback" class="text-slate-400 text-sm">Foto</span>
+                <img id="avatarPreview" alt="avatar preview" class="w-full h-full object-cover hidden" />
+                <span id="avatarFallback" class="text-slate-400 text-sm"><%= t("team.users.form.photo_short", default: "Photo") %></span>
               </div>
-
               <div class="flex-1">
-                <label class="block text-sm font-medium text-slate-700 mb-1">Foto de perfil (opcional)</label>
-                <%= f.file_field :photo,
-                      accept: "image/*",
-                      class: "w-full rounded-md border-slate-300 shadow-sm text-sm file:bg-emerald-50 file:text-emerald-700 file:font-semibold file:border-0 file:px-4 file:py-2 file:rounded file:cursor-pointer hover:file:bg-emerald-100" %>
-                <p class="text-xs text-slate-500 mt-1">PNG, JPG até ~5MB.</p>
+                <label class="block text-sm font-medium text-slate-700 mb-1"><%= t("team.users.form.photo", default: "Profile photo (optional)") %></label>
+                <%= f.file_field :photo, accept: "image/*",
+                    class: "w-full rounded-md border-slate-300 shadow-sm text-sm file:bg-emerald-50 file:text-emerald-700 file:font-semibold file:border-0 file:px-4 file:py-2 file:rounded file:cursor-pointer hover:file:bg-emerald-100" %>
+                <p class="text-xs text-slate-500 mt-1">PNG, JPG ~5MB</p>
               </div>
             </div>
 
             <!-- Nome -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1" for="user_name">Nome</label>
+              <label class="block text-sm font-medium text-slate-700 mb-1" for="user_name"><%= t("team.users.form.name", default: "Name") %></label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
                   <i class="lucide lucide-user w-4 h-4"></i>
                 </div>
-                <%= f.text_field :name,
-                      placeholder: "Ex.: João Silva",
-                      class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
-                      required: true %>
+                <%= f.text_field :name, placeholder: t("team.users.form.name_placeholder", default: "e.g., John Smith"),
+                      class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600", required: true %>
               </div>
             </div>
 
             <!-- Email -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1" for="user_email">Email</label>
+              <label class="block text-sm font-medium text-slate-700 mb-1" for="user_email"><%= t("team.users.form.email", default: "Email") %></label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
                   <i class="lucide lucide-mail w-4 h-4"></i>
                 </div>
-                <%= f.email_field :email,
-                      placeholder: "nome@empresa.com",
-                      autocomplete: "email",
-                      class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
-                      required: true %>
+                <%= f.email_field :email, placeholder: "user@company.com", autocomplete: "email",
+                      class: "pl-9 w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600", required: true %>
               </div>
-              <p class="text-xs text-slate-500 mt-1">Será usado para login e notificações.</p>
+              <p class="text-xs text-slate-500 mt-1"><%= t("team.users.form.email_hint", default: "Used for login and notifications.") %></p>
             </div>
 
-            <!-- Função -->
+            <!-- Role -->
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1" for="user_role">Função</label>
+              <label class="block text-sm font-medium text-slate-700 mb-1" for="user_role"><%= t("team.users.form.role", default: "Role") %></label>
               <% role_options =
                    if current_user.owner?
                      User.roles.map { |r, _| [r.capitalize, r] }
@@ -86,86 +69,75 @@
                    else
                      User.roles.except("owner", "admin").map { |r, _| [r.capitalize, r] }
                    end %>
-              <%= f.select :role, role_options, {},
-                    class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
-                    id: "user_role" %>
+              <%= f.select :role, role_options, {}, class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600", id: "user_role" %>
 
-              <!-- dica dinâmica -->
               <input type="text" id="roleHint"
                      class="mt-2 w-full text-xs px-3 py-2 rounded-md bg-slate-50 border border-slate-200 text-slate-600"
-                     value="Acesso total: gerir conta, equipa, campos e configurações."
+                     value="<%= t('team.users.form.role_hint_default', default: 'Full access: account, team, fields and settings.') %>"
                      readonly>
             </div>
 
-            <!-- Password (opcional) -->
+            <!-- Password opcional -->
             <div class="rounded-xl border border-slate-200 p-4">
               <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-slate-700">Definir password agora (opcional)</p>
+                <p class="text-sm font-medium text-slate-700"><%= t("team.users.form.set_password_now", default: "Set password now (optional)") %></p>
                 <label class="inline-flex items-center gap-2 text-sm">
-                  <input id="togglePwd" type="checkbox" class="toggle-switch">
-                  <span>Ativar</span>
+                  <input id="togglePwd" type="checkbox" class="toggle-switch"><span><%= t("common.enable", default: "Enable") %></span>
                 </label>
               </div>
 
               <div id="pwdBlock" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 hidden">
                 <div>
-                  <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password">Password</label>
-                  <%= f.password_field :password,
-                        placeholder: "Deixar vazio para enviar convite depois",
-                        class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600",
-                        id: "user_password" %>
+                  <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password"><%= t("team.users.form.password", default: "Password") %></label>
+                  <%= f.password_field :password, placeholder: t("team.users.form.password_placeholder", default: "Leave blank to send invite later"),
+                        class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600", id: "user_password" %>
                   <div class="mt-2 h-2 bg-slate-200 rounded-full overflow-hidden">
                     <div id="pwdStrength" class="h-full w-0 bg-rose-500 transition-[width]"></div>
                   </div>
-                  <p id="pwdStrengthLabel" class="mt-1 text-[11px] text-slate-500">Força: —</p>
+                  <p id="pwdStrengthLabel" class="mt-1 text-[11px] text-slate-500"><%= t("team.users.form.strength", default: "Strength") %>: —</p>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password_confirmation">Confirmação</label>
-                  <%= f.password_field :password_confirmation,
-                        class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
+                  <label class="block text-sm font-medium text-slate-700 mb-1" for="user_password_confirmation"><%= t("team.users.form.password_confirmation", default: "Confirmation") %></label>
+                  <%= f.password_field :password_confirmation, class: "w-full rounded-md border-slate-300 shadow-sm text-sm focus:ring-emerald-600 focus:border-emerald-600" %>
                 </div>
               </div>
             </div>
 
             <!-- Notificações -->
             <div>
-              <p class="text-sm font-medium text-slate-700 mb-2">Notificações</p>
+              <p class="text-sm font-medium text-slate-700 mb-2"><%= t("team.users.form.notifications", default: "Notifications") %></p>
               <div class="flex flex-col sm:flex-row gap-4">
                 <label class="inline-flex items-center gap-3">
                   <%= f.check_box :notif_email, checked: true, class: "toggle-switch" %>
-                  <span class="text-sm text-slate-700">Receber notificações por email</span>
+                  <span class="text-sm text-slate-700"><%= t("team.users.form.notif_email", default: "Receive email notifications") %></span>
                 </label>
                 <label class="inline-flex items-center gap-3">
                   <%= f.check_box :notif_sms, class: "toggle-switch" %>
-                  <span class="text-sm text-slate-700">Receber notificações por SMS</span>
+                  <span class="text-sm text-slate-700"><%= t("team.users.form.notif_sms", default: "Receive SMS notifications") %></span>
                 </label>
               </div>
             </div>
 
             <!-- Ações -->
             <div class="flex justify-between items-center pt-2">
-              <%= link_to "← Voltar", team_users_path, class: "text-sm text-slate-600 hover:underline" %>
-              <button type="submit"
-                      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm">
+              <%= link_to "← " + t("common.back", default: "Back"), team_users_path, class: "text-sm text-slate-600 hover:underline" %>
+              <button type="submit" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm">
                 <i class="lucide lucide-save w-4 h-4"></i>
-                Criar Utilizador
+                <%= t("team.users.new.submit", default: "Create User") %>
               </button>
             </div>
-
           <% end %>
         </div>
       </div>
 
-      <!-- =========== PREVIEW / RESUMO =========== -->
+      <!-- Preview -->
       <aside class="lg:col-span-1">
         <div class="sticky top-6 space-y-6">
-          <!-- Cartão de preview -->
           <div class="bg-white border border-slate-200 rounded-2xl shadow p-5">
             <h3 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
               <i class="lucide lucide-id-card w-4 h-4 text-emerald-600"></i>
-              Preview do Utilizador
+              <%= t("team.users.new.preview.title", default: "User Preview") %>
             </h3>
-
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
                 <img id="previewThumb" class="w-full h-full object-cover hidden" />
@@ -176,23 +148,21 @@
                 <p id="previewEmail" class="text-slate-500 text-sm truncate">—</p>
               </div>
             </div>
-
             <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div class="rounded-lg bg-slate-50 p-2">
-                <p class="text-[11px] uppercase tracking-wide text-slate-500">Função</p>
+                <p class="text-[11px] uppercase tracking-wide text-slate-500"><%= t("team.users.form.role", default: "Role") %></p>
                 <p id="previewRole" class="mt-0.5 font-medium text-slate-900">—</p>
               </div>
               <div class="rounded-lg bg-slate-50 p-2">
-                <p class="text-[11px] uppercase tracking-wide text-slate-500">Notificações</p>
+                <p class="text-[11px] uppercase tracking-wide text-slate-500"><%= t("team.users.form.notifications", default: "Notifications") %></p>
                 <p id="previewNotifs" class="mt-0.5 font-medium text-slate-900">—</p>
               </div>
             </div>
           </div>
 
-          <!-- Dicas -->
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-sm text-emerald-800">
-            <p class="font-semibold mb-1">💡 Dica</p>
-            <p>Se não definir password agora, será gerada uma automaticamente e (se o e-mail estiver ativo) o utilizador recebe um convite.</p>
+            <p class="font-semibold mb-1">💡 <%= t("team.users.new.tip.title", default: "Tip") %></p>
+            <p><%= t("team.users.new.tip.body", default: "If you don't set a password now, one can be generated and an invite sent (if email notifications are enabled).") %></p>
           </div>
         </div>
       </aside>
@@ -200,46 +170,34 @@
   </div>
 </div>
 
-<!-- Toggles CSS -->
 <style>
-  .toggle-switch {
-    appearance: none; -webkit-appearance: none;
-    position: relative; width: 42px; height: 24px;
-    background: #d1d5db; border-radius: 9999px; cursor: pointer; outline: none;
-    transition: background .2s ease;
-  }
-  .toggle-switch:checked { background: #10b981; }
-  .toggle-switch::before {
-    content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
-    background: #fff; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,.15);
-    transition: transform .2s ease;
-  }
-  .toggle-switch:checked::before { transform: translateX(18px); }
+  .toggle-switch{appearance:none;-webkit-appearance:none;position:relative;width:42px;height:24px;background:#d1d5db;border-radius:9999px;cursor:pointer;outline:none;transition:background .2s}
+  .toggle-switch:checked{background:#10b981}
+  .toggle-switch::before{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:9999px;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:transform .2s}
+  .toggle-switch:checked::before{transform:translateX(18px)}
 </style>
 
-<!-- Scripts: lucide, preview, role hints, password strength, live preview -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
   lucide.createIcons();
 
-  // Role hints
   const ROLE_HINTS = {
-    owner:      "Super-utilizador: tudo.",
-    admin:      "Acesso total: gerir conta, equipa, campos e configurações.",
-    manager:    "Gestão de equipa e campos. Sem gestão global da conta.",
-    technician: "Executa tarefas, vê sensores e registos. Sem gestão de equipa.",
-    viewer:     "Acesso de leitura: vê painéis, campos e relatórios."
+    owner:      "<%= j t('team.users.role_hints.owner', default: 'Super-user: everything.') %>",
+    admin:      "<%= j t('team.users.role_hints.admin', default: 'Full access: account, team, fields & settings.') %>",
+    manager:    "<%= j t('team.users.role_hints.manager', default: 'Manages team and fields. No global account management.') %>",
+    technician: "<%= j t('team.users.role_hints.technician', default: 'Executes tasks, views sensors and logs. No team management.') %>",
+    viewer:     "<%= j t('team.users.role_hints.viewer', default: 'Read-only access: dashboards, fields and reports.') %>"
   };
 
   const roleSelect = document.getElementById('user_role');
-  const roleHint   = document.getElementById('roleHint');
-  function updateRoleHint() {
+  const roleHint = document.getElementById('roleHint');
+  function updateRoleHint(){
     const v = roleSelect?.value || '';
     roleHint.value = ROLE_HINTS[v] || "—";
-    document.getElementById('previewRole').textContent = (v ? v.charAt(0).toUpperCase()+v.slice(1) : '—');
+    const pr = document.getElementById('previewRole');
+    if (pr) pr.textContent = v ? v.charAt(0).toUpperCase()+v.slice(1) : '—';
   }
-  roleSelect?.addEventListener('change', updateRoleHint);
-  updateRoleHint();
+  roleSelect?.addEventListener('change', updateRoleHint); updateRoleHint();
 
   // Avatar preview
   const inputPhoto = document.getElementById('user_photo');
@@ -247,74 +205,34 @@
   const avatarFallback = document.getElementById('avatarFallback');
   const previewThumb = document.getElementById('previewThumb');
   const previewInitials = document.getElementById('previewInitials');
-
   inputPhoto?.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
-    if (!file) {
-      avatarPreview?.classList.add('hidden');
-      previewThumb?.classList.add('hidden');
-      avatarFallback?.classList.remove('hidden');
-      previewInitials.textContent = initialsFrom(document.getElementById('user_name')?.value);
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      [avatarPreview, previewThumb].forEach(img => { if (img){ img.src = evt.target.result; img.classList.remove('hidden'); }});
-      avatarFallback?.classList.add('hidden');
-      previewInitials.textContent = '';
-    };
+    if (!file){ [avatarPreview, previewThumb].forEach(img=>img?.classList.add('hidden')); avatarFallback?.classList.remove('hidden'); return; }
+    const reader=new FileReader();
+    reader.onload=(evt)=>{ [avatarPreview, previewThumb].forEach(img=>{ if(img){ img.src=evt.target.result; img.classList.remove('hidden'); } }); avatarFallback?.classList.add('hidden'); previewInitials.textContent=''; };
     reader.readAsDataURL(file);
   });
 
-  // Password block toggle
-  const togglePwd = document.getElementById('togglePwd');
-  const pwdBlock  = document.getElementById('pwdBlock');
-  togglePwd?.addEventListener('change', () => {
-    if (!pwdBlock) return;
-    pwdBlock.classList.toggle('hidden', !togglePwd.checked);
-  });
+  // Password block
+  const togglePwd=document.getElementById('togglePwd'); const pwdBlock=document.getElementById('pwdBlock');
+  togglePwd?.addEventListener('change',()=>{ pwdBlock?.classList.toggle('hidden', !togglePwd.checked); });
 
-  // Password strength (simples)
-  const pwdInput = document.getElementById('user_password');
-  const bar = document.getElementById('pwdStrength');
-  const label = document.getElementById('pwdStrengthLabel');
-  function scorePwd(pwd){
-    if (!pwd) return 0;
-    let s = 0;
-    if (pwd.length >= 8) s+=25;
-    if (/[A-Z]/.test(pwd)) s+=20;
-    if (/[a-z]/.test(pwd)) s+=20;
-    if (/\d/.test(pwd)) s+=20;
-    if (/[^A-Za-z0-9]/.test(pwd)) s+=15;
-    return Math.min(s,100);
-  }
-  function renderStrength(){
-    const val = pwdInput?.value || '';
-    const s = scorePwd(val);
-    if (!bar || !label) return;
-    bar.style.width = s + '%';
-    bar.className = 'h-full transition-[width] ' + (s<40 ? 'bg-rose-500' : s<70 ? 'bg-amber-500' : 'bg-emerald-500');
-    label.textContent = 'Força: ' + (s<40 ? 'Fraca' : s<70 ? 'Média' : 'Forte');
-  }
+  // Password strength
+  const pwdInput=document.getElementById('user_password'); const bar=document.getElementById('pwdStrength'); const label=document.getElementById('pwdStrengthLabel');
+  function scorePwd(p){ if(!p) return 0; let s=0; if(p.length>=8)s+=25; if(/[A-Z]/.test(p))s+=20; if(/[a-z]/.test(p))s+=20; if(/\d/.test(p))s+=20; if(/[^A-Za-z0-9]/.test(p))s+=15; return Math.min(s,100); }
+  function renderStrength(){ const v=pwdInput?.value||''; const s=scorePwd(v); if(!bar||!label) return; bar.style.width=s+'%'; bar.className='h-full transition-[width] '+(s<40?'bg-rose-500':s<70?'bg-amber-500':'bg-emerald-500'); label.textContent='<%= j t("team.users.form.strength", default: "Strength") %>: '+(s<40?'<%= j t("common.weak", default: "Weak") %>':s<70?'<%= j t("common.medium", default: "Medium") %>':'<%= j t("common.strong", default: "Strong") %>'); }
   pwdInput?.addEventListener('input', renderStrength);
 
-  // Live preview (nome/email/iniciais/notifs)
-  function initialsFrom(name){
-    if (!name) return '—';
-    const parts = name.trim().split(/\s+/);
-    return (parts[0]?.[0]||'').toUpperCase() + (parts[1]?.[0]||'').toUpperCase();
-  }
+  // Live preview (name/email/notifs)
+  function initialsFrom(name){ if(!name) return '—'; const ps=name.trim().split(/\s+/); return (ps[0]?.[0]||'').toUpperCase()+(ps[1]?.[0]||'').toUpperCase(); }
   function updatePreview(){
-    const name  = document.getElementById('user_name')?.value || '';
-    const email = document.getElementById('user_email')?.value || '';
-    document.getElementById('previewName').textContent = name || '—';
-    document.getElementById('previewEmail').textContent = email || '—';
-    if (previewThumb?.classList.contains('hidden')) {
-      document.getElementById('previewInitials').textContent = initialsFrom(name);
-    }
-    const em = document.getElementById('user_notif_email')?.checked ? 'Email' : null;
-    const sms = document.getElementById('user_notif_sms')?.checked ? 'SMS' : null;
-    document.getElementById('previewNotifs').textContent = [em, sms].filter(Boolean).join(' + ') || 'Nenhuma';
+    const name=document.getElementById('user_name')?.value||''; const email=document.getElementById('user_email')?.value||'';
+    document.getElementById('previewName').textContent=name||'—';
+    document.getElementById('previewEmail').textContent=email||'—';
+    if(previewThumb?.classList.contains('hidden')) previewInitials.textContent=initialsFrom(name);
+    const em=document.getElementById('user_notif_email')?.checked ? 'Email' : null;
+    const sms=document.getElementById('user_notif_sms')?.checked ? 'SMS' : null;
+    document.getElementById('previewNotifs').textContent=[em,sms].filter(Boolean).join(' + ')||'<%= j t("common.none", default: "None") %>';
   }
   ['user_name','user_email','user_notif_email','user_notif_sms'].forEach(id=>{
     document.getElementById(id)?.addEventListener('input', updatePreview);

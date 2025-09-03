@@ -2,43 +2,43 @@
   <!-- Campo: Nome -->
   <div>
     <label class="block text-sm font-medium text-gray-700 mb-1">
-      <i class="lucide lucide-type w-4 h-4 inline-block mr-1 text-blue-600"></i> Nome do Campo
+      <i class="lucide lucide-type w-4 h-4 inline-block mr-1 text-blue-600"></i> <%= t("fields.forms.aquaculture_sea.labels.name") %>
     </label>
-    <%= f.text_field :name, placeholder: "Ex: Viveiro Marinho Norte", class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
+    <%= f.text_field :name, placeholder: t("fields.forms.aquaculture_sea.placeholders.name"), class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
   </div>
 
   <!-- Área + Espécie -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Área Marinha (ha)</label>
-      <%= f.number_field :area, step: :any, placeholder: "Ex: 1.5", class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.forms.aquaculture_sea.labels.area") %></label>
+      <%= f.number_field :area, step: :any, placeholder: t("fields.forms.aquaculture_sea.placeholders.area"), class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Espécie Cultivada</label>
-      <%= f.text_field :species, placeholder: "Ex: Dourada", class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.forms.aquaculture_sea.labels.species") %></label>
+      <%= f.text_field :species, placeholder: t("fields.forms.aquaculture_sea.placeholders.species"), class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
     </div>
   </div>
 
   <!-- Densidade + Regime -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Densidade de Povoamento (kg/ha)</label>
-      <%= f.number_field :stocking_density, step: :any, placeholder: "Ex: 12.5", class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.forms.aquaculture_sea.labels.stocking_density") %></label>
+      <%= f.number_field :stocking_density, step: :any, placeholder: t("fields.forms.aquaculture_sea.placeholders.stocking_density"), class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Regime Alimentar</label>
-      <%= f.text_field :feeding_regime, placeholder: "Ex: 2x/dia, ração 2%", class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.forms.aquaculture_sea.labels.feeding_regime") %></label>
+      <%= f.text_field :feeding_regime, placeholder: t("fields.forms.aquaculture_sea.placeholders.feeding_regime"), class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
     </div>
   </div>
 
   <!-- Datas -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Data de Introdução</label>
+      <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.forms.aquaculture_sea.labels.fish_placement_date") %></label>
       <%= f.date_field :fish_placement_date, class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Previsão de Colheita</label>
+      <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.forms.aquaculture_sea.labels.estimated_harvest_date") %></label>
       <%= f.date_field :estimated_harvest_date, class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
     </div>
   </div>
@@ -46,23 +46,23 @@
   <!-- Coordenadas -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
-      <%= f.text_field :latitude, placeholder: "-37.123456", class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.forms.common.labels.latitude") %></label>
+      <%= f.text_field :latitude, placeholder: t("fields.forms.common.placeholders.latitude"), class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
-      <%= f.text_field :longitude, placeholder: "9.123456", class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
+      <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.forms.common.labels.longitude") %></label>
+      <%= f.text_field :longitude, placeholder: t("fields.forms.common.placeholders.longitude"), class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
     </div>
   </div>
 
   <!-- Notas -->
   <div>
-    <label class="block text-sm font-medium text-gray-700 mb-1">Notas / Observações</label>
-    <%= f.text_area :notes, rows: 4, placeholder: "Observações sobre o campo, qualidade da água, etc...", class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
+    <label class="block text-sm font-medium text-gray-700 mb-1"><%= t("fields.forms.common.labels.notes") %></label>
+    <%= f.text_area :notes, rows: 4, placeholder: t("fields.forms.aquaculture_sea.placeholders.notes"), class: "w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
   </div>
 
   <!-- Botão Submeter -->
   <div class="text-right mt-6">
-    <%= f.submit field.persisted? ? "Atualizar Campo" : "Criar Campo", class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition duration-200 shadow" %>
+    <%= f.submit(field.persisted? ? t("fields.forms.common.buttons.update") : t("fields.forms.common.buttons.create"), class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition duration-200 shadow") %>
   </div>
 <% end %>

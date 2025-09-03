@@ -5,10 +5,10 @@
     <!-- Cabeçalho -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-        <i class="lucide lucide-settings w-5 h-5 text-green-600"></i>
-        Configurar Sensor
+        <i class="lucide lucide-settings w-5 h-5 text-green-600" aria-hidden="true"></i>
+        <%= t("sensors.configure_modal.title") %>
       </h2>
-      <button onclick="toggleConfigureModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      <button onclick="toggleConfigureModal()" class="text-gray-500 hover:text-gray-700 text-2xl" aria-label="<%= t('common.close', default: 'Close') %>">&times;</button>
     </div>
 
     <!-- Conteúdo do Formulário -->
@@ -16,31 +16,31 @@
       <input type="hidden" name="sensor_id" id="sensorIdInput">
 
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Sensor</label>
+        <label for="sensorNameInput" class="block text-sm font-medium text-gray-700 mb-1"><%= t("sensors.configure_modal.labels.name") %></label>
         <input type="text" name="name" id="sensorNameInput" class="w-full rounded-md border-gray-300 shadow-sm" />
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+        <label for="sensorTypeInput" class="block text-sm font-medium text-gray-700 mb-1"><%= t("sensors.configure_modal.labels.type") %></label>
         <select name="sensor_type" id="sensorTypeInput" class="w-full rounded-md border-gray-300 shadow-sm">
-          <option value="temperature">Temperatura</option>
-          <option value="humidity">Humidade</option>
-          <option value="ph">pH</option>
-          <option value="irrigation">Irrigação</option>
+          <option value="temperature"><%= t("sensors.types.temperature") %></option>
+          <option value="humidity"><%= t("sensors.types.humidity", default: "Humidity") %></option>
+          <option value="ph"><%= t("sensors.types.ph", default: "pH") %></option>
+          <option value="irrigation"><%= t("sensors.types.irrigation") %></option>
         </select>
       </div>
 
       <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+        <label for="sensorStatusInput" class="block text-sm font-medium text-gray-700 mb-1"><%= t("sensors.configure_modal.labels.status") %></label>
         <select name="status" id="sensorStatusInput" class="w-full rounded-md border-gray-300 shadow-sm">
-          <option value="Active">Ativo</option>
-          <option value="Inactive">Inativo</option>
+          <option value="Active"><%= t("status.states.active") %></option>
+          <option value="Inactive"><%= t("status.states.inactive") %></option>
         </select>
       </div>
 
       <div class="flex justify-end gap-2">
-        <button type="button" onclick="toggleConfigureModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
-        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Guardar</button>
+        <button type="button" onclick="toggleConfigureModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"><%= t("sensors.configure_modal.buttons.cancel") %></button>
+        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"><%= t("sensors.configure_modal.buttons.save") %></button>
       </div>
     </form>
   </div>
@@ -48,11 +48,11 @@
 
 <!-- Dropdown Ações (usar dentro de cada linha da tabela de sensores) -->
 <div class="relative inline-block text-left" x-data="{ open: false }">
-  <button @click="open = !open" class="px-3 py-1 bg-gray-100 border rounded hover:bg-gray-200">Mais</button>
+  <button @click="open = !open" class="px-3 py-1 bg-gray-100 border rounded hover:bg-gray-200"><%= t("sensors.configure_modal.dropdown.more") %></button>
   <div x-show="open" @click.outside="open = false" x-transition class="absolute z-10 mt-1 right-0 w-40 bg-white rounded-md shadow-lg border">
-    <button onclick="openConfigureModal(sensorId)" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50">Configurar</button>
-    <button onclick="simulateSensor(sensorId)" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50">Simular</button>
-    <button onclick="deleteSensor(sensorId)" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Eliminar</button>
+    <button onclick="openConfigureModal(sensorId)" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"><%= t("sensors.configure_modal.dropdown.configure") %></button>
+    <button onclick="simulateSensor(sensorId)" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"><%= t("sensors.configure_modal.dropdown.simulate") %></button>
+    <button onclick="deleteSensor(sensorId)" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"><%= t("sensors.configure_modal.dropdown.delete") %></button>
   </div>
 </div>
 
@@ -67,9 +67,9 @@
       .then(res => res.json())
       .then(data => {
         document.getElementById('sensorIdInput').value = data.id;
-        document.getElementById('sensorNameInput').value = data.name;
-        document.getElementById('sensorTypeInput').value = data.sensor_type;
-        document.getElementById('sensorStatusInput').value = data.status;
+        document.getElementById('sensorNameInput').value = data.name || "";
+        document.getElementById('sensorTypeInput').value = data.sensor_type || "temperature";
+        document.getElementById('sensorStatusInput').value = data.status || "Inactive";
         toggleConfigureModal();
       });
   }
