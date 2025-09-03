@@ -273,19 +273,21 @@ en:
       empty: "No recent activity."
       sensor: "Sensor"
     quick_actions:
-      title: "Quick Actions"
       analytics:
-        title: "View Analytics"
-        description: "Detailed charts"
+        title: "Analytics"
+        description: "Detailed charts and metrics"
         button: "Open"
+        aria: "Open Analytics"
       fields:
         title: "Manage Fields"
-        description: "View & edit"
+        description: "View and edit your agricultural or aquaculture fields"
         button: "Open"
+        aria: "Manage Fields"
       settings:
         title: "Settings"
-        description: "System preferences"
+        description: "System preferences and account options"
         button: "Open"
+        aria: "Open Settings"
 
   # --- Field types
   field_types:
