@@ -8,32 +8,10 @@
 
       <!-- Controles do mapa -->
       <div class="absolute top-4 left-4 flex flex-col space-y-2 z-10">
-        <button onclick="setMapStyle('satellite-streets-v12')"
-                class="bg-gray-800 text-white rounded px-3 py-1.5 shadow hover:bg-gray-900 transition">Satellite</button>
-        <button onclick="setMapStyle('outdoors-v12')"
-                class="bg-white text-gray-800 rounded px-3 py-1.5 shadow hover:bg-gray-100 transition">Terrain</button>
-
-        <!-- Cluster ON/OFF -->
-        <button onclick="toggleCluster()"
-                class="bg-gray-800 text-white rounded px-3 py-1.5 shadow hover:bg-gray-900 transition">Cluster</button>
-
-        <!-- Sensores (marcadores simples) -->
-        <button onclick="toggleSensors()"
-                class="bg-white text-gray-800 rounded px-3 py-1.5 shadow hover:bg-gray-100 transition">Sensors</button>
-
-        <!-- Fit -->
-        <button onclick="fitAll()"
-                class="bg-white text-gray-800 rounded px-3 py-1.5 shadow hover:bg-gray-100 transition">Todos</button>
-      </div>
-
-      <!-- Painel de edição de polígono -->
-      <div class="absolute bottom-4 right-4 bg-white/95 backdrop-blur p-3 rounded shadow-md text-sm z-10 flex items-center gap-2">
-        <button onclick="startPolygonEdit()"
-                class="px-3 py-1.5 rounded border hover:bg-gray-50">Editar polígono</button>
-        <button onclick="savePolygonEdit()"
-                class="px-3 py-1.5 rounded bg-emerald-600 text-white hover:bg-emerald-700">Guardar</button>
-        <button onclick="cancelPolygonEdit()"
-                class="px-3 py-1.5 rounded border hover:bg-gray-50">Cancelar</button>
+        <button onclick="setMapStyle('satellite-streets-v12')" class="bg-gray-800 text-white rounded px-3 py-1.5 shadow hover:bg-gray-900 transition">Satellite</button>
+        <button onclick="setMapStyle('outdoors-v12')"          class="bg-white text-gray-800 rounded px-3 py-1.5 shadow hover:bg-gray-100 transition">Terrain</button>
+        <button onclick="toggleSensors()"                      class="bg-white text-gray-800 rounded px-3 py-1.5 shadow hover:bg-gray-100 transition">Sensors</button>
+        <button onclick="fitAll()"                             class="bg-white text-gray-800 rounded px-3 py-1.5 shadow hover:bg-gray-100 transition">Todos</button>
       </div>
 
       <!-- Legenda -->
@@ -41,8 +19,8 @@
         <p class="font-semibold mb-2">Legenda</p>
         <ul class="space-y-1">
           <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full"></span> Bom estado</li>
-          <li><span class="inline-block w-3 h-3 bg-amber-400 rounded-full"></span> Atenção</li>
-          <li><span class="inline-block w-3 h-3 bg-blue-500 rounded-full"></span> Sensor Humidade</li>
+          <li><span class="inline-block w-3 h-3 bg-amber-400  rounded-full"></span> Atenção</li>
+          <li><span class="inline-block w-3 h-3 bg-blue-500   rounded-full"></span> Sensor Humidade</li>
         </ul>
       </div>
     </div>
@@ -71,23 +49,16 @@
         </div>
 
         <div class="mb-3">
-          <input id="fieldSearch" type="text" placeholder="Procurar por nome..."
-                 class="w-full border rounded px-3 py-2 text-sm"
-                 oninput="filterFieldsList(this.value)">
+          <input id="fieldSearch" type="text" placeholder="Procurar por nome..." class="w-full border rounded px-3 py-2 text-sm" oninput="filterFieldsList(this.value)">
         </div>
 
         <ul id="fieldsList" class="divide-y divide-gray-200">
           <% @fields.each do |field| %>
-            <li class="py-2 flex justify-between items-center"
-                data-field-item="true" data-name="<%= field.name.to_s.downcase %>">
+            <li class="py-2 flex justify-between items-center" data-field-item="true" data-name="<%= field.name.to_s.downcase %>">
               <span class="text-gray-700 font-medium"><%= field.name %></span>
               <div class="flex items-center gap-2">
-                <button class="text-sm text-blue-500 hover:text-blue-700 transition"
-                        onclick="focusFieldById(<%= field.id %>)">
-                  Ver no mapa
-                </button>
-                <button class="text-sm text-gray-600 hover:text-gray-800"
-                        onclick="toggleSensors(true)">Sensores</button>
+                <button class="text-sm text-blue-500 hover:text-blue-700 transition" onclick="focusFieldById(<%= field.id %>)">Ver no mapa</button>
+                <button class="text-sm text-gray-600 hover:text-gray-800" onclick="toggleSensors(true)">Sensores</button>
               </div>
             </li>
           <% end %>
@@ -109,7 +80,7 @@
 <script>
   // ====== Dados e estado global ======
   window.fieldData = <%= raw @fields.to_json(only: [:id, :name, :field_type, :area, :latitude, :longitude, :updated_at], methods: [:polygon_coordinates]) %>;
-  // NORMALIZAR: id/latitude/longitude para Number (evita falhas no find)
+  // Normalizar: id/lat/lng -> Number
   window.fieldData = (window.fieldData || []).map(f => ({
     ...f,
     id:       Number(f.id),
@@ -117,70 +88,17 @@
     longitude:(f.longitude === null || f.longitude === undefined) ? null : Number(f.longitude)
   }));
 
-  <% sensors_json = defined?(@sensors) && @sensors.present? ? @sensors.to_json(only: [:id,:name,:latitude,:longitude,:status,:field_id]) : '[]' %>
-  window.sensorData = window.sensorData || <%= raw sensors_json %>;
-
-  window.__fieldMarkers     = new Map();
-  window.__polygonIds       = new Set();
-  window.__sensorMarkers    = [];
-  window.__sensorsVisible   = false;
-  window.__selectedFieldId  = null;
-  window.__clusterOn        = false;
-  window.__draw             = null;
-  window.__drawFeatureId    = null;
-
-  // ====== Carregar Mapbox Draw dinâmico (se necessário) ======
-  function ensureMapboxDrawLoaded(cb){
-    if (window.MapboxDraw) return cb && cb();
-    const css = document.createElement('link');
-    css.rel = 'stylesheet';
-    css.href = 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.css';
-    document.head.appendChild(css);
-    const s = document.createElement('script');
-    s.src = 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.js';
-    s.onload = () => cb && cb();
-    document.head.appendChild(s);
-  }
-
-  // ====== Controlo nativo Mapbox + estado persistente ======
-  const __attachNativeControls = (map) => {
-    if (map.__controlsAttached) return;
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'top-right');
-    map.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: { enableHighAccuracy: true },
-      trackUserLocation: false,
-      showUserHeading: true
-    }), 'top-right');
-    map.__controlsAttached = true;
-  };
-
-  const MAP_STATE_KEY = "fields_main_map_state";
-  function saveMapState(map){
-    try{
-      const c = map.getCenter();
-      localStorage.setItem(MAP_STATE_KEY, JSON.stringify({ lng: c.lng, lat: c.lat, zoom: map.getZoom() }));
-    } catch(e) {}
-  }
-  function restoreMapState(map){
-    try{
-      const raw = localStorage.getItem(MAP_STATE_KEY);
-      if (!raw) return false;
-      const s = JSON.parse(raw);
-      if (s && typeof s.lng === 'number' && typeof s.lat === 'number' && typeof s.zoom === 'number') {
-        map.jumpTo({ center: [s.lng, s.lat], zoom: s.zoom });
-        return true;
-      }
-    } catch(e) {}
-    return false;
-  }
+  window.__fieldMarkers   = new Map();
+  window.__polygonIds     = new Set();
+  window.__sensorMarkers  = [];
+  window.__sensorsVisible = false;
+  window.__selectedFieldId = null;
 
   // ====== Inicialização do mapa ======
   function onAfterStyleLoad(map){
     addTerrainAndShading(map);
-    renderFieldsOnMap(map);
+    renderFieldsOnMap(map);     // desenha todos os campos (fill + outline)
     if (window.__sensorsVisible) toggleSensors(true);
-    if (window.__clusterOn) renderSensorsCluster(map);
-    __attachNativeControls(map);
     map.resize();
   }
 
@@ -191,17 +109,16 @@
 
     const map = new mapboxgl.Map({
       container: "fields-main-map",
-      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      style: "mapbox://styles/mapbox/outdoors-v12",
       center: [-8.611, 41.145],
       zoom: 6,
-      pitch: 45,
-      bearing: -20,
       antialias: true
     });
 
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'top-right');
+    map.addControl(new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, showUserHeading: true }), 'top-right');
+
     map.on("style.load", () => onAfterStyleLoad(map));
-    map.on("load", () => { restoreMapState(map); });
-    map.on("moveend", () => saveMapState(map));
 
     window.mainFieldsMap = map;
     return map;
@@ -210,42 +127,33 @@
   // ====== Terreno/sombras ======
   function addTerrainAndShading(map) {
     if (!map.getSource("mapbox-dem")) {
-      map.addSource("mapbox-dem", {
-        type: "raster-dem",
-        url: "mapbox://mapbox.terrain-rgb",
-        tileSize: 512,
-        maxzoom: 14
-      });
-      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
-      if (!map.getLayer("hillshading")) {
-        map.addLayer({ id: "hillshading", source: "mapbox-dem", type: "hillshade" });
-      }
+      map.addSource("mapbox-dem", { type: "raster-dem", url: "mapbox://mapbox.terrain-rgb", tileSize: 512, maxzoom: 14 });
+      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.2 });
+      if (!map.getLayer("hillshading")) map.addLayer({ id: "hillshading", source: "mapbox-dem", type: "hillshade" });
     }
   }
 
-  // ====== Renderização dos campos ======
+  // ====== Renderização dos campos (marcador + polígono) ======
   function renderFieldsOnMap(map) {
-    // Limpa marcadores anteriores
+    // limpar anteriores
     window.__fieldMarkers.forEach(m => m.remove());
     window.__fieldMarkers.clear();
-
-    // Remove polígonos anteriores
     window.__polygonIds.forEach(pid => {
-      if (map.getLayer(pid + "-fill")) map.removeLayer(pid + "-fill");
-      if (map.getSource(pid)) map.removeSource(pid);
+      if (map.getLayer(pid + "-fill"))     map.removeLayer(pid + "-fill");
+      if (map.getLayer(pid + "-outline"))  map.removeLayer(pid + "-outline");
+      if (map.getSource(pid))              map.removeSource(pid);
     });
     window.__polygonIds.clear();
 
-    // Adiciona marcadores e polígonos
     let bounds = null;
 
     (window.fieldData || []).forEach(field => {
-      if (field.latitude && field.longitude) {
+      // marcador
+      if (typeof field.latitude === 'number' && typeof field.longitude === 'number') {
         const marker = new mapboxgl.Marker({ color: "#2563eb" })
           .setLngLat([field.longitude, field.latitude])
           .setPopup(new mapboxgl.Popup({ offset: 12 }).setText(field.name))
           .addTo(map);
-
         marker.getElement().addEventListener("click", () => showFieldDetails(field));
         window.__fieldMarkers.set(field.id, marker);
 
@@ -256,34 +164,37 @@
         }
       }
 
-      if (field.polygon_coordinates && field.polygon_coordinates.length >= 3) {
+      // polígono (fill + outline) com cor base
+      if (Array.isArray(field.polygon_coordinates) && field.polygon_coordinates.length >= 3) {
         const polygonId = `field-poly-${field.id}`;
         const polygonData = {
           type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [[...field.polygon_coordinates, field.polygon_coordinates[0]]]
-          }
+          geometry: { type: "Polygon", coordinates: [[...field.polygon_coordinates, field.polygon_coordinates[0]]] }
         };
 
         map.addSource(polygonId, { type: "geojson", data: polygonData });
+
         map.addLayer({
           id: `${polygonId}-fill`,
           type: "fill",
           source: polygonId,
-          paint: { "fill-color": "#f97316", "fill-opacity": 0.3 }
+          paint: {
+            "fill-color": "#3b82f6",     // azul suave
+            "fill-opacity": 0.20
+          }
         });
-        window.__polygonIds.add(polygonId);
 
-        // Centro do polígono com efeito pulsante (se diferente do ponto principal)
-        const c = getPolygonCenter(field.polygon_coordinates);
-        const sameAsMain = Math.abs(c[0] - (field.longitude || 0)) < 0.00001 &&
-                           Math.abs(c[1] - (field.latitude  || 0)) < 0.00001;
-        if (!sameAsMain) {
-          const centerEl = document.createElement("div");
-          centerEl.className = "center-marker pulse-marker";
-          new mapboxgl.Marker(centerEl).setLngLat(c).addTo(map);
-        }
+        map.addLayer({
+          id: `${polygonId}-outline`,
+          type: "line",
+          source: polygonId,
+          paint: {
+            "line-color": "#1e40af",
+            "line-width": 2
+          }
+        });
+
+        window.__polygonIds.add(polygonId);
       }
     });
 
@@ -295,8 +206,8 @@
     document.getElementById("fieldName").innerText    = field.name || '—';
     document.getElementById("fieldCrop").innerText    = (field.field_type || '—');
     document.getElementById("fieldArea").innerText    = (field.area || '—');
-    document.getElementById("fieldLat").innerText     = (field.latitude || '—');
-    document.getElementById("fieldLng").innerText     = (field.longitude || '—');
+    document.getElementById("fieldLat").innerText     = (field.latitude ?? '—');
+    document.getElementById("fieldLng").innerText     = (field.longitude ?? '—');
     document.getElementById("fieldUpdated").innerText = field.updated_at ? new Date(field.updated_at).toLocaleString() : '—';
   }
 
@@ -314,26 +225,43 @@
     return [lngSum / coords.length, latSum / coords.length];
   }
 
-  // ====== Foco/realce de campo por ID (robusto a tipos) ======
-  function highlightSelectionOnMap(field){
-    const map = initMainMapIfNeeded();
+  // ====== Realçar polígono do campo selecionado ======
+  function highlightFieldPolygon(map, field) {
+    // remover highlight anterior
+    ["field-highlight-fill","field-highlight-outline"].forEach(id => {
+      if (map.getLayer(id)) map.removeLayer(id);
+    });
+    if (map.getSource("field-highlight")) map.removeSource("field-highlight");
 
-    const HL_POLY_ID = "selected-poly-outline";
-    if (map.getLayer(HL_POLY_ID))  map.removeLayer(HL_POLY_ID);
-    if (map.getSource(HL_POLY_ID)) map.removeSource(HL_POLY_ID);
-
-    if (field.polygon_coordinates?.length >= 3) {
+    if (Array.isArray(field.polygon_coordinates) && field.polygon_coordinates.length >= 3) {
       const poly = {
         type: "Feature",
         geometry: { type: "Polygon", coordinates: [[...field.polygon_coordinates, field.polygon_coordinates[0]]] }
       };
-      map.addSource(HL_POLY_ID, { type: "geojson", data: poly });
+      map.addSource("field-highlight", { type: "geojson", data: poly });
+
       map.addLayer({
-        id: HL_POLY_ID, type: "line", source: HL_POLY_ID,
-        paint: { "line-color": "#10b981", "line-width": 3, "line-dasharray": [2, 2] }
+        id: "field-highlight-fill",
+        type: "fill",
+        source: "field-highlight",
+        paint: {
+          "fill-color": "#10b981",   // verde
+          "fill-opacity": 0.40
+        }
+      });
+
+      map.addLayer({
+        id: "field-highlight-outline",
+        type: "line",
+        source: "field-highlight",
+        paint: {
+          "line-color": "#065f46",
+          "line-width": 2
+        }
       });
     }
 
+    // brilho no marcador
     const m = window.__fieldMarkers.get(field.id);
     if (m && m.getElement) {
       const el = m.getElement();
@@ -342,13 +270,17 @@
     }
   }
 
+  // ====== Focar campo por ID (robusto) ======
   function focusFieldById(fieldId, opts = {}) {
     const map = initMainMapIfNeeded();
     if (!map) return;
 
     const idNum = Number(fieldId);
     const f = (window.fieldData || []).find(x => Number(x.id) === idNum);
-    if (!f) { console.warn('[focusFieldById] Campo não encontrado:', fieldId); return; }
+    if (!f) {
+      console.warn("[focusFieldById] Campo não encontrado:", fieldId);
+      return;
+    }
 
     let center = null;
     if (typeof f.longitude === 'number' && typeof f.latitude === 'number' &&
@@ -357,23 +289,62 @@
     } else if (Array.isArray(f.polygon_coordinates) && f.polygon_coordinates.length >= 3) {
       center = getPolygonCenter(f.polygon_coordinates);
     }
-    if (!center) { console.warn('[focusFieldById] Sem coordenadas para o campo:', f); return; }
 
-    const zoom = (typeof opts.zoom === 'number') ? opts.zoom : 15;
-    try { map.stop(); } catch(_) {} // pára animações anteriores
-    map.flyTo({ center, zoom, essential: true });
+    if (!center) {
+      console.warn("[focusFieldById] Sem coordenadas para o campo:", f);
+      return;
+    }
+
+    try { map.stop(); } catch(_) {}
+    map.flyTo({ center, zoom: (typeof opts.zoom === 'number' ? opts.zoom : 15), essential: true });
 
     showFieldDetails(f);
     window.__selectedFieldId = idNum;
-    highlightSelectionOnMap(f);
+    highlightFieldPolygon(map, f);
 
-    // sincroniza URL
+    // sincronizar URL
     const url = new URL(location);
     url.searchParams.set('view', 'map');
     url.searchParams.set('field', String(idNum));
     history.replaceState({}, '', url);
   }
   window.focusFieldById = focusFieldById;
+
+  // ====== Fit a todos os campos ======
+  function fitAll() {
+    const map = initMainMapIfNeeded();
+    let b = null;
+    (window.fieldData || []).forEach(f => {
+      if (typeof f.latitude === 'number' && typeof f.longitude === 'number') {
+        if (!b) b = new mapboxgl.LngLatBounds([f.longitude, f.latitude], [f.longitude, f.latitude]);
+        else b.extend([f.longitude, f.latitude]);
+      }
+    });
+    if (b) map.fitBounds(b, { padding: 32, duration: 700 });
+  }
+  window.fitAll = fitAll;
+
+  // ====== Sensores simples (demo) ======
+  function initializeSensors() {
+    if (window.__sensorMarkers.length) return;
+    (window.fieldData || []).forEach(f => {
+      if (typeof f.latitude === 'number' && typeof f.longitude === 'number') {
+        const el = document.createElement("div");
+        el.className = "w-3.5 h-3.5 rounded-full";
+        el.style.backgroundColor = "#22c55e";
+        const m = new mapboxgl.Marker(el).setLngLat([f.longitude + 0.002, f.latitude + 0.002]);
+        window.__sensorMarkers.push(m);
+      }
+    });
+  }
+  function toggleSensors(forceOn) {
+    const map = initMainMapIfNeeded();
+    initializeSensors();
+    const turnOn = forceOn === true ? true : !window.__sensorsVisible;
+    if (turnOn) { window.__sensorMarkers.forEach(m => m.addTo(map)); window.__sensorsVisible = true; }
+    else       { window.__sensorMarkers.forEach(m => m.remove());  window.__sensorsVisible = false; }
+  }
+  window.toggleSensors = toggleSensors;
 
   // ====== Pesquisa na lista ======
   function filterFieldsList(q){
@@ -385,188 +356,9 @@
   }
   window.filterFieldsList = filterFieldsList;
 
-  // ====== Sensores (marcadores simples) ======
-  function initializeSensors() {
-    if (window.__sensorMarkers.length) return;
-
-    const base = (window.sensorData && window.sensorData.length) ? window.sensorData : (window.fieldData || []).flatMap(f => {
-      if (!f.latitude || !f.longitude) return [];
-      return [
-        { id:`fake-${f.id}-1`, latitude: f.latitude + 0.002, longitude: f.longitude + 0.001, name: `S-${f.id}-1`, status: 'ok', field_id: f.id },
-        { id:`fake-${f.id}-2`, latitude: f.latitude - 0.0015, longitude: f.longitude - 0.002, name: `S-${f.id}-2`, status: 'ok', field_id: f.id }
-      ];
-    });
-
-    base.slice(0, 200).forEach(s => {
-      if (s.latitude && s.longitude) {
-        const el = document.createElement("div");
-        el.className = "w-3.5 h-3.5 rounded-full";
-        el.style.backgroundColor = "#22c55e";
-        const m = new mapboxgl.Marker(el).setLngLat([Number(s.longitude), Number(s.latitude)]);
-        window.__sensorMarkers.push(m);
-      }
-    });
-  }
-
-  function toggleSensors(forceOn) {
-    const map = initMainMapIfNeeded();
-    initializeSensors();
-    const turnOn = forceOn === true ? true : !window.__sensorsVisible;
-
-    if (turnOn) {
-      window.__sensorMarkers.forEach(m => m.addTo(map));
-      window.__sensorsVisible = true;
-      if (window.__clusterOn) { window.__clusterOn = false; removeSensorsCluster(map); }
-    } else {
-      window.__sensorMarkers.forEach(m => m.remove());
-      window.__sensorsVisible = false;
-    }
-  }
-
-  // ====== Cluster de sensores ======
-  function sensorsToGeoJSON(){
-    const base = (window.sensorData && window.sensorData.length) ? window.sensorData : [];
-    return {
-      type: "FeatureCollection",
-      features: base.filter(s => s.latitude && s.longitude).map(s => ({
-        type: "Feature",
-        properties: { id: s.id, name: s.name || `Sensor ${s.id}`, status: s.status || 'ok' },
-        geometry: { type: "Point", coordinates: [Number(s.longitude), Number(s.latitude)] }
-      }))
-    };
-  }
-
-  function renderSensorsCluster(map){
-    removeSensorsCluster(map);
-    const data = sensorsToGeoJSON();
-    if (!data.features.length) return;
-
-    map.addSource('sensors', { type: 'geojson', data, cluster: true, clusterMaxZoom: 14, clusterRadius: 50 });
-
-    map.addLayer({
-      id: 'clusters', type: 'circle', source: 'sensors', filter: ['has', 'point_count'],
-      paint: {
-        'circle-color': ['step', ['get', 'point_count'], '#A7F3D0', 10, '#34D399', 30, '#059669'],
-        'circle-radius': ['step', ['get', 'point_count'], 14, 10, 18, 30, 24]
-      }
-    });
-
-    map.addLayer({
-      id: 'cluster-count', type: 'symbol', source: 'sensors', filter: ['has', 'point_count'],
-      layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 12 }
-    });
-
-    map.addLayer({
-      id: 'unclustered-point', type: 'circle', source: 'sensors', filter: ['!', ['has', 'point_count']],
-      paint: { 'circle-color': '#1D4ED8', 'circle-radius': 5, 'circle-stroke-width': 1, 'circle-stroke-color': '#fff' }
-    });
-
-    if (window.__sensorsVisible) toggleSensors(false);
-  }
-
-  function removeSensorsCluster(map){
-    ['clusters','cluster-count','unclustered-point'].forEach(id => { if (map.getLayer(id)) map.removeLayer(id); });
-    if (map.getSource('sensors')) map.removeSource('sensors');
-  }
-
-  function toggleCluster(){
-    const map = initMainMapIfNeeded();
-    window.__clusterOn = !window.__clusterOn;
-    if (window.__clusterOn) renderSensorsCluster(map); else removeSensorsCluster(map);
-  }
-  window.toggleCluster = toggleCluster;
-
-  // ====== Mapbox Draw: edição de polígonos ======
-  function ensureDraw(map, cb){
-    ensureMapboxDrawLoaded(() => {
-      if (!window.__draw) {
-        window.__draw = new MapboxDraw({
-          displayControlsDefault: false,
-          controls: { polygon: true, trash: true },
-          defaultMode: 'draw_polygon',
-          styles: [
-            { id:'gl-draw-polygon-fill', type:'fill', filter:['all',['==','$type','Polygon'],['!=','mode','static']],
-              paint:{ 'fill-color':'#10b981','fill-outline-color':'#10b981','fill-opacity':0.2 } },
-            { id:'gl-draw-polygon-stroke-active', type:'line', filter:['all',['==','$type','Polygon'],['!=','mode','static']],
-              paint:{ 'line-color':'#10b981','line-width':2 } }
-          ]
-        });
-        map.addControl(window.__draw, 'top-left');
-      }
-      cb && cb();
-    });
-  }
-
-  function loadFieldPolygonIntoDraw(field){
-    if (!window.__draw) return;
-    try { window.__draw.deleteAll(); } catch(_) {}
-    window.__drawFeatureId = null;
-
-    if (field.polygon_coordinates && field.polygon_coordinates.length >= 3) {
-      const feature = {
-        type: 'Feature',
-        properties: {},
-        geometry: { type: 'Polygon', coordinates: [[...field.polygon_coordinates, field.polygon_coordinates[0]]] }
-      };
-      const ids = window.__draw.add(feature);
-      window.__drawFeatureId = Array.isArray(ids) ? ids[0] : ids;
-    }
-  }
-
-  function startPolygonEdit(){
-    const map = initMainMapIfNeeded();
-    const fid = window.__selectedFieldId;
-    if (!fid) { alert('Seleciona primeiro um campo na lista.'); return; }
-    const field = (window.fieldData || []).find(x => Number(x.id) === Number(fid));
-    ensureDraw(map, () => { loadFieldPolygonIntoDraw(field); map.resize(); });
-  }
-
-  async function savePolygonEdit(){
-    const fid = window.__selectedFieldId;
-    if (!fid || !window.__draw) { alert('Nada para guardar.'); return; }
-
-    const fc = window.__draw.getAll();
-    let ring = null;
-    if (fc.features.length) {
-      const geom = fc.features[0].geometry;
-      if (geom.type === 'Polygon' && geom.coordinates.length) ring = geom.coordinates[0];
-    }
-    if (!ring || ring.length < 4) { alert('Desenha um polígono válido.'); return; }
-    const clean = ring.slice(0, -1); // remove ponto repetido final
-
-    const token = document.querySelector('meta[name="csrf-token"]')?.content;
-    const resp = await fetch(`/fields/${fid}/update_polygon`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
-      body: JSON.stringify({ polygon_coordinates: clean })
-    });
-
-    if (resp.ok) {
-      const f = (window.fieldData || []).find(x => Number(x.id) === Number(fid));
-      if (f) f.polygon_coordinates = clean;
-      const map = initMainMapIfNeeded();
-      onAfterStyleLoad(map);
-      focusFieldById(fid, { zoom: 16 });
-      alert('Polígono guardado ✅');
-    } else {
-      const txt = await resp.text().catch(() => '');
-      alert('Falha ao guardar polígono ❌ ' + txt);
-    }
-  }
-
-  function cancelPolygonEdit(){
-    if (window.__draw) { try { window.__draw.deleteAll(); } catch(_) {} }
-  }
-
-  window.startPolygonEdit   = startPolygonEdit;
-  window.savePolygonEdit    = savePolygonEdit;
-  window.cancelPolygonEdit  = cancelPolygonEdit;
-
-  // ====== Exportar helpers globais ======
-  window.setMapStyle         = setMapStyle;
-  window.toggleSensors       = toggleSensors;
-  window.fitAll              = fitAll;
-  window.initializeMapbox    = initMainMapIfNeeded;
+  // ====== Export global helpers ======
+  window.setMapStyle = setMapStyle;
+  window.initializeMapbox = initMainMapIfNeeded;
   window.initMainMapIfNeeded = initMainMapIfNeeded;
 
   // ====== Deep-link: ?view=map&field=ID ======
