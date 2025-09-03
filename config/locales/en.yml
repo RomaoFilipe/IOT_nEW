@@ -30,6 +30,24 @@ en:
       short: "%d %b"
       long: "%d %B %Y"
 
+  enums:
+    account:
+      farm_type:
+        agriculture: "Agriculture"
+        aquaculture_sea: "Aquaculture (Marine)"
+        aquaculture_tank: "Aquaculture (Tank)"
+        undefined: "Undefined"
+  
+    user:
+      role:
+        owner: "Owner"
+        admin: "Admin"
+        manager: "Manager"
+        technician: "Technician"
+        viewer: "Viewer"
+
+  
+
   time:
     formats:
       default: "%d/%m/%Y %H:%M"
@@ -1013,6 +1031,8 @@ en:
         manager: "Manages team and fields. No global account management."
         technician: "Executes tasks, views sensors and logs. No team management."
         viewer: "Read-only access: dashboards, fields and reports."
+
+
 
   # --- Misc
 time:
