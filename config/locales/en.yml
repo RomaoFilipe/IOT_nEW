@@ -185,8 +185,8 @@ en:
             - "Privacy"
       copyright: "© 2025 AgriloT Synergy. All rights reserved."
 
-  # --- Dashboard
- dashboard:
+  
+  dashboard:
     heading: "Farm Dashboard"
     subtitle: "Overview of operations, sensors and tasks."
     title: "Farm Dashboard"
