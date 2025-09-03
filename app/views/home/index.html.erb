@@ -2,8 +2,11 @@
 <html lang="<%= I18n.locale %>">
 <head>
   <meta charset="UTF-8">
+  <meta name="turbo-cache-control" content="no-cache">
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= t("landing.title") %></title>
+  <meta name="turbo-cache-control" content="no-cache">
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -272,6 +275,8 @@
     </section>
 
     <!-- CTA FINAL -->
+<% unless user_signed_in? %>
+  <!-- CTA FINAL (apenas para visitantes) -->
   <section class="relative overflow-hidden">
     <div aria-hidden="true" class="pointer-events-none absolute inset-0 bg-gradient-to-br from-emerald-700 via-emerald-600 to-cyan-600"></div>
     <div class="relative mx-auto max-w-7xl px-6 py-20 text-center text-white">
@@ -287,6 +292,7 @@
       </div>
     </div>
   </section>
+<% end %>
 
   </main>
 
