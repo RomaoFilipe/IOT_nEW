@@ -66,7 +66,7 @@ en:
       title: "Smart Agriculture"
       description: "Transform your operation with our IoT platform. Monitor soil, automate irrigation, and make data-driven decisions."
       cta:
-        get_started: "Get Started"
+        go_to_app: "Ir para a aplicação"
     trust_bar:
       - "IoT"
       - "AI Forecast"
