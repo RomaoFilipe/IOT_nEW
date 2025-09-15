@@ -2,11 +2,11 @@
   <div x-data="{ showNotes: false }" class="space-y-6">
 
     <!-- Mapa do Campo -->
-    <div
-      id="map-agriculture-<%= field.id %>"
-      class="w-full h-60 rounded-xl shadow border overflow-hidden"
-      data-lat="<%= field.latitude %>"
-      data-lng="<%= field.longitude %>"></div>
+<div
+  id="map-agriculture-<%= field.id %>"
+  class="relative w-full h-64 min-h-[260px] rounded-xl shadow border overflow-hidden"
+  data-lat="<%= field.latitude %>"
+  data-lng="<%= field.longitude %>"></div>
 
     <!-- Cabeçalho + Botão Editar -->
     <div class="flex justify-between items-center">
@@ -184,18 +184,26 @@
     const lng = parseFloat(el.dataset.lng);
     if (Number.isNaN(lat) || Number.isNaN(lng)) return;
 
+    // Já existe? só resize
     if (window.agriMaps[fieldId]) {
       try { window.agriMaps[fieldId].resize(); } catch(_) {}
       return;
     }
 
     mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+
     const map = new mapboxgl.Map({
       container: el,
       style: 'mapbox://styles/mapbox/outdoors-v12',
       center: [lng, lat],
       zoom: 13,
       cooperativeGestures: true
+    });
+
+    map.on('load', () => {
+      // garante pintura após os tiles chegarem
+      try { map.resize(); } catch(_) {}
+      setTimeout(() => { try { map.resize(); } catch(_) {} }, 150);
     });
 
     new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
@@ -211,6 +219,7 @@
     });
   };
 </script>
+
 
 
 
