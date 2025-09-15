@@ -2,14 +2,11 @@
   <div x-data="{ showNotes: false }" class="space-y-6">
 
     <!-- Mapa do Campo -->
-    <div class="relative">
-      <div id="map-agriculture-<%= field.id %>" class="w-full h-60 rounded-xl shadow border overflow-hidden"></div>
-      <% unless field.latitude.present? && field.longitude.present? %>
-        <div class="absolute inset-0 flex items-center justify-center bg-white/70">
-          <span class="text-sm text-slate-600"><%= t("fields.overviews.agriculture.no_coords") %></span>
-        </div>
-      <% end %>
-    </div>
+    <div
+      id="map-agriculture-<%= field.id %>"
+      class="w-full h-60 rounded-xl shadow border overflow-hidden"
+      data-lat="<%= field.latitude %>"
+      data-lng="<%= field.longitude %>"></div>
 
     <!-- Cabeçalho + Botão Editar -->
     <div class="flex justify-between items-center">
@@ -175,39 +172,82 @@
   </div>
 
   <script>
-
-    // Guardamos as instâncias para cada campo
+  // Guarda instâncias por campo
   window.agriMaps ||= {};
 
-    // Cria (lazy) ou apenas faz resize do mapa de um campo
-    function ensureAgricultureMap(fieldId, lat, lng) {
+  // Cria (lazy) ou faz resize do mapa
+  function ensureAgricultureMap(fieldId) {
     if (!window.mapboxgl) return;
 
     const el = document.getElementById(`map-agriculture-${fieldId}`);
     if (!el) return;
 
-    // Se já existe, só resize
+    // Lê coords do próprio elemento
+    const lat = parseFloat(el.dataset.lat);
+    const lng = parseFloat(el.dataset.lng);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+
+    // Se já existe, apenas resize
     if (window.agriMaps[fieldId]) {
-      try { window.agriMaps[fieldId].resize(); } catch(_) {}
+      try { window.agriMaps[fieldId].resize(); } catch (_) {}
       return;
     }
-    document.addEventListener("DOMContentLoaded", function () {
-      if (!(<%= field.latitude.present?.to_s %> && <%= field.longitude.present?.to_s %>)) return;
 
-      mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
-
-      const map = new mapboxgl.Map({
-        container: 'map-agriculture-<%= field.id %>',
-        style: 'mapbox://styles/mapbox/outdoors-v12',
-        center: [<%= field.longitude %>, <%= field.latitude %>],
-        zoom: 13
-      });
-
-      new mapboxgl.Marker()
-        .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
-        .addTo(map);
+    // Criar mapa (agora que o modal já está visível)
+    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+    const map = new mapboxgl.Map({
+      container: el,
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: [lng, lat],
+      zoom: 13,
+      cooperativeGestures: true
     });
-  </script>
+
+    new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+    window.agriMaps[fieldId] = map;
+  }
+
+  // Redimensiona todos os mapas dentro de um nó
+  function resizeMapsInside(rootEl){
+    if (!rootEl) return;
+    rootEl.querySelectorAll('[id^="map-agriculture-"]').forEach(node => {
+      const id = node.id.replace('map-agriculture-', '');
+      const m = window.agriMaps[id];
+      if (m) { try { m.resize(); } catch (_) {} }
+    });
+  }
+
+  // ——— integra com o teu modal ———
+  function openFieldModal(id){
+    const m = document.getElementById(`viewDetailsModal-${id}`);
+    if (!m) return;
+    m.classList.remove('hidden');
+    showFieldTab(id, 'overview');
+
+    // Cria/ajusta o mapa só depois do modal estar visível
+    requestAnimationFrame(() => {
+      ensureAgricultureMap(id);
+      requestAnimationFrame(() => resizeMapsInside(m));
+    });
+  }
+
+  function showFieldTab(id, tab){
+    const root = document.getElementById(`viewDetailsModal-${id}`);
+    if (!root) return;
+
+    root.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    const current = root.querySelector(`#${tab}-${id}`);
+    if (current) current.classList.remove('hidden');
+
+    root.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    const btn = root.querySelector(`#tab-${tab}-${id}`);
+    if (btn) btn.classList.add('active');
+
+    // Se a tab agora visível tem mapa, ajusta
+    requestAnimationFrame(() => resizeMapsInside(current));
+  }
+</script>
+
 <% end %>
 
 <%#
