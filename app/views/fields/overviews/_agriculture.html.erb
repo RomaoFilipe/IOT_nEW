@@ -175,6 +175,22 @@
   </div>
 
   <script>
+
+    // Guardamos as instâncias para cada campo
+  window.agriMaps ||= {};
+
+    // Cria (lazy) ou apenas faz resize do mapa de um campo
+    function ensureAgricultureMap(fieldId, lat, lng) {
+    if (!window.mapboxgl) return;
+
+    const el = document.getElementById(`map-agriculture-${fieldId}`);
+    if (!el) return;
+
+    // Se já existe, só resize
+    if (window.agriMaps[fieldId]) {
+      try { window.agriMaps[fieldId].resize(); } catch(_) {}
+      return;
+    }
     document.addEventListener("DOMContentLoaded", function () {
       if (!(<%= field.latitude.present?.to_s %> && <%= field.longitude.present?.to_s %>)) return;
 
