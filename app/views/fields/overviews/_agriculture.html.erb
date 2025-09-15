@@ -3,13 +3,7 @@
 
     <!-- Mapa do Campo -->
     <div class="relative">
-      <div
-        id="field-map-<%= field.id %>"
-        class="w-full h-60 md:h-64 rounded-xl shadow border overflow-hidden"
-        data-field-id="<%= field.id %>"
-        data-lat="<%= field.latitude %>"
-        data-lng="<%= field.longitude %>"></div>
-
+      <div id="map-agriculture-<%= field.id %>" class="w-full h-60 rounded-xl shadow border overflow-hidden"></div>
       <% unless field.latitude.present? && field.longitude.present? %>
         <div class="absolute inset-0 flex items-center justify-center bg-white/70">
           <span class="text-sm text-slate-600"><%= t("fields.overviews.agriculture.no_coords") %></span>
