@@ -145,12 +145,11 @@
     if (!m) return;
 
     m.classList.remove('hidden');
-    showFieldTab(id, 'overview'); // abre sempre na primeira tab
+    showFieldTab(id, 'overview');
 
-    // === IMPORTANTE: criar/redimensionar o mapa depois do modal ficar visível ===
     requestAnimationFrame(() => {
-      if (window.ensureAgricultureMap) window.ensureAgricultureMap(id);
-      if (window.resizeMapsInside) window.resizeMapsInside(m);
+      window.ensureAgricultureMap && window.ensureAgricultureMap(id);
+      window.resizeMapsInside   && window.resizeMapsInside(m);
     });
   }
 

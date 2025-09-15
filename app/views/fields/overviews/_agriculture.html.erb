@@ -171,12 +171,10 @@
 
   </div>
 
-  <script>
-  // Guarda instâncias por campo
+<script>
   window.agriMaps ||= {};
 
-  // Cria (lazy) ou faz resize do mapa
-  window.ensureAgricultureMap = function(fieldId) {
+  window.ensureAgricultureMap ||= function(fieldId) {
     if (!window.mapboxgl) return;
 
     const el = document.getElementById(`map-agriculture-${fieldId}`);
@@ -186,9 +184,8 @@
     const lng = parseFloat(el.dataset.lng);
     if (Number.isNaN(lat) || Number.isNaN(lng)) return;
 
-    // Se já existe, apenas resize
     if (window.agriMaps[fieldId]) {
-      try { window.agriMaps[fieldId].resize(); } catch (_) {}
+      try { window.agriMaps[fieldId].resize(); } catch(_) {}
       return;
     }
 
@@ -205,16 +202,16 @@
     window.agriMaps[fieldId] = map;
   };
 
-  // Redimensiona todos os mapas dentro de um nó
-  window.resizeMapsInside = function(rootEl){
+  window.resizeMapsInside ||= function(rootEl){
     if (!rootEl) return;
     rootEl.querySelectorAll('[id^="map-agriculture-"]').forEach(node => {
       const id = node.id.replace('map-agriculture-', '');
-      const m = window.agriMaps[id];
-      if (m) { try { m.resize(); } catch (_) {} }
+      const m  = window.agriMaps[id];
+      if (m) { try { m.resize(); } catch(_) {} }
     });
   };
 </script>
+
 
 
 <% end %>
