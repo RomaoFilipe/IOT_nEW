@@ -5,18 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AgriloT Synergy</title>
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Alpine.js (dropdowns, toggle menus etc) -->
-  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
-  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
-  <%= javascript_include_tag 'application', 'data-turbo-track': 'reload', defer: true %>
+  <%# --- Tailwind (CDN só para DEV; em produção usa PostCSS/Build) --- %>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <%# Alpine (ok em UMD) %>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
+
+  <%# IMPORTANTE: servir como ESModule, não script clássico %>
+  <%= javascript_importmap_tags %>
+
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
 </head>
+
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
 
   <!-- 🔝 Navbar -->

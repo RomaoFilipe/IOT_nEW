@@ -130,7 +130,7 @@
   [id^="viewDetailsModal-"] .mapboxgl-control-container,
   [id^="viewDetailsModal-"] .mapboxgl-canvas-container,
   [id^="viewDetailsModal-"] .mapboxgl-marker,
-  }
+  [id^="viewDetailsModal-"] .mapboxgl-popup{ z-index: 0 !important; }
 </style>
 
 <script>
@@ -139,18 +139,11 @@
     const m = document.getElementById(`viewDetailsModal-${id}`);
     if (m) m.classList.add('hidden');
   }
-
   function openFieldModal(id){
     const m = document.getElementById(`viewDetailsModal-${id}`);
     if (!m) return;
-
     m.classList.remove('hidden');
-    showFieldTab(id, 'overview');
-
-    requestAnimationFrame(() => {
-      window.ensureAgricultureMap && window.ensureAgricultureMap(id);
-      window.resizeMapsInside   && window.resizeMapsInside(m);
-    });
+    showFieldTab(id, 'overview'); // abre sempre na primeira tab
   }
 
   // Tabs
@@ -168,10 +161,13 @@
     const btn = root.querySelector(`#tab-${tab}-${id}`);
     if (btn) btn.classList.add('active');
 
-    // se houver mapas nesta tab agora visível, faz resize
-    requestAnimationFrame(() => {
-      if (window.resizeMapsInside) window.resizeMapsInside(current);
-    });
+    // se houver mapas nesta tab, faz resize
+    setTimeout(() => {
+      if (window.mapboxgl) {
+        if (window.mainMap) { try { window.mainMap.resize(); } catch(_){} }
+        if (window.mainFieldsMap) { try { window.mainFieldsMap.resize(); } catch(_){} }
+      }
+    }, 100);
   }
 
   // Fechar com ESC
@@ -181,6 +177,3 @@
     }
   });
 </script>
-
-<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
