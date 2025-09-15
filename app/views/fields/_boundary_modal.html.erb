@@ -24,7 +24,11 @@
 </div>
 
 <script>
-let boundaryMap, boundaryMarkers = [], boundaryCoords = [], boundaryPolygon;
+window.boundaryMap      ??= null;
+window.boundaryMarkers  ??= [];
+window.boundaryCoords   ??= [];
+window.boundaryPolygon  ??= null;
+
 
 function openBoundaryModal() {
   const modal = document.getElementById("boundaryModal");

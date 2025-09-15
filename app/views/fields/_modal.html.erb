@@ -125,7 +125,10 @@
   // expects the following IDs to exist (from boundary_modal partial):
   // boundaryModal, boundaryMap, boundaryStatus, boundaryResetBtn, boundarySaveBtn
   // plus the hidden input in the main form: polygonCoordinates
-  let boundaryMap, boundaryLineId = "boundary-line", boundarySourceId = "boundary-geojson";
+  window.boundaryMap ??= null; // evita redeclaração
+const boundaryLineId   = "boundary-line";
+const boundarySourceId = "boundary-geojson";
+
   let boundaryPoints = [];
   let boundaryMarkers = [];
 
