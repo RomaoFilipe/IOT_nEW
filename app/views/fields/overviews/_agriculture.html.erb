@@ -181,64 +181,22 @@
   </div>
 
   <script>
-    (function(){
-      // só corre se tiver coords válidas
-      const hasCoords = <%= (field.latitude.present? && field.longitude.present?).to_s %>;
-      if (!hasCoords) return;
+    document.addEventListener("DOMContentLoaded", function () {
+      if (!(<%= field.latitude.present?.to_s %> && <%= field.longitude.present?.to_s %>)) return;
 
-      // define helpers globais uma única vez
-      if (!window.fieldMaps) window.fieldMaps = {};
-      if (!window.initFieldMap) {
-        window.initFieldMap = function(fieldId){
-          if (!window.mapboxgl) return;
-          const el = document.getElementById(`field-map-${fieldId}`);
-          if (!el) return;
+      mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
 
-          if (window.fieldMaps[fieldId]) {
-            try { window.fieldMaps[fieldId].resize(); } catch(_) {}
-            return;
-          }
+      const map = new mapboxgl.Map({
+        container: 'map-agriculture-<%= field.id %>',
+        style: 'mapbox://styles/mapbox/outdoors-v12',
+        center: [<%= field.longitude %>, <%= field.latitude %>],
+        zoom: 13
+      });
 
-          mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
-          const lat = parseFloat(el.dataset.lat);
-          const lng = parseFloat(el.dataset.lng);
-
-          const map = new mapboxgl.Map({
-            container: el,
-            style: 'mapbox://styles/mapbox/outdoors-v12',
-            center: [lng, lat],
-            zoom: 13,
-            cooperativeGestures: true
-          });
-
-          new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
-          window.fieldMaps[fieldId] = map;
-        };
-
-        window.resizeMapsInside = function(rootEl){
-          if (!rootEl) return;
-          rootEl.querySelectorAll('[id^="field-map-"]').forEach(node => {
-            const id = node.id.replace('field-map-', '');
-            const m = window.fieldMaps[id];
-            if (m) { try { m.resize(); } catch(_) {} }
-          });
-        };
-
-        // listeners globais (uma vez): quando o modal/tab é mostrado
-        window.addEventListener('field:modal:shown', (e) => {
-          const { fieldId, root } = e.detail || {};
-          requestAnimationFrame(() => {
-            window.initFieldMap(fieldId);
-            requestAnimationFrame(() => window.resizeMapsInside(root));
-          });
-        });
-
-        window.addEventListener('field:tab:shown', (e) => {
-          const { root } = e.detail || {};
-          requestAnimationFrame(() => window.resizeMapsInside(root));
-        });
-      }
-    })();
+      new mapboxgl.Marker()
+        .setLngLat([<%= field.longitude %>, <%= field.latitude %>])
+        .addTo(map);
+    });
   </script>
 <% end %>
 
