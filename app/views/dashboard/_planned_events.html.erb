@@ -1,0 +1,11 @@
+<div class="space-y-3">
+  <% if @events.present? %>
+    <ul class="space-y-3">
+      <%= render partial: "dashboard/event", collection: @events, as: :event %>
+    </ul>
+  <% else %>
+    <p class="text-sm text-slate-500 italic">
+      <%= t("dashboard.upcoming_tasks.none", default: "No planned events for today.") %>
+    </p>
+  <% end %>
+</div>

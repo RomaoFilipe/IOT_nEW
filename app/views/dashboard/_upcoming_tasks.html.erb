@@ -1,10 +1,19 @@
 <div class="space-y-4">
-
   <!-- Lista -->
   <ul id="planned-events-list" class="space-y-3">
     <% if @events.present? %>
       <% @events.each do |event| %>
-        <% dom_id_str = event[:type] == :task ? "planned_task_#{event[:id]}" : "irrigation_schedule_#{event[:id]}" %>
+        <% is_task = event[:type].to_s == 'task' %>
+        <% dom_id_str = is_task ? "planned_task_#{event[:id]}" : "irrigation_schedule_#{event[:id]}" %>
+
+        <% # formata tempo quer venha como Time/DateTime quer como String ISO %>
+        <% time_obj =
+             if event[:time].respond_to?(:to_time)
+               event[:time].to_time
+             else
+               (Time.zone.parse(event[:time].to_s) rescue nil)
+             end %>
+
         <% priority = (event[:priority] || "").to_s.downcase %>
         <% priority_class =
              case priority
@@ -13,10 +22,10 @@
              when "low"    then "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
              else                "bg-slate-50 text-slate-600 ring-1 ring-slate-200"
              end %>
-        <% type_badge =
-             (event[:type] == :task ?
-               'bg-slate-100 text-slate-700 ring-1 ring-slate-200' :
-               'bg-sky-50 text-sky-700 ring-1 ring-sky-200') %>
+
+        <% type_badge = is_task ?
+             'bg-slate-100 text-slate-700 ring-1 ring-slate-200' :
+             'bg-sky-50 text-sky-700 ring-1 ring-sky-200' %>
 
         <li id="<%= dom_id_str %>"
             class="relative overflow-hidden rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition">
@@ -28,13 +37,13 @@
                 <%= event[:title] %>
               </p>
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium <%= type_badge %>">
-                <%= event[:type] == :task ? t("dashboard.upcoming_tasks.labels.task", default: "✓ Task") : t("dashboard.upcoming_tasks.labels.irrigation", default: "🚿 Irrigation") %>
+                <%= is_task ? t("dashboard.upcoming_tasks.labels.task", default: "✓ Task") : t("dashboard.upcoming_tasks.labels.irrigation", default: "🚿 Irrigation") %>
               </span>
             </div>
 
             <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 text-slate-700 ring-1 ring-slate-200">
-                🕒 <%= l(event[:time], format: "%d/%m/%Y %H:%M") %>
+                🕒 <%= time_obj ? l(time_obj, format: "%d/%m/%Y %H:%M") : event[:time] %>
               </span>
 
               <% if event[:field].present? %>
@@ -43,7 +52,7 @@
                 </span>
               <% end %>
 
-              <% if event[:type] == :task && event[:priority].present? %>
+              <% if is_task && event[:priority].present? %>
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full <%= priority_class %> capitalize">
                   ⚑ <%= event[:priority] %>
                 </span>
@@ -64,15 +73,17 @@
   (() => {
     const ROOT = "#planned-events-list";
     const NO_MSG_ID = "no-events-msg";
-    const POLL_MS = 20000;
     const LOCALE = document.documentElement.lang || "pt-PT";
+    const POLL_MS = <%= (ENV["UPCOMING_POLL_MS"] || 20000).to_i %>;
 
     function keyFor(e) {
-      return (e.type === "task" ? "planned_task_" : "irrigation_schedule_") + e.id;
+      const t = (e.type || '').toString().toLowerCase();
+      return (t === "task" ? "planned_task_" : "irrigation_schedule_") + e.id;
     }
 
     function fmtWhen(iso) {
-      return new Date(iso).toLocaleString(LOCALE, {
+      const d = new Date(iso);
+      return isNaN(d) ? iso : d.toLocaleString(LOCALE, {
         day: "2-digit", month: "2-digit", year: "numeric",
         hour: "2-digit", minute: "2-digit"
       });
@@ -87,9 +98,10 @@
     }
 
     function typeBadge(type) {
-      return type === "task"
+      const t = (type || '').toString().toLowerCase();
+      return t === "task"
         ? { cls: "bg-slate-100 text-slate-700 ring-1 ring-slate-200", text: "<%= j t('dashboard.upcoming_tasks.labels.task', default: '✓ Task') %>" }
-        : { cls: "bg-sky-50 text-sky-700 ring-1 ring-sky-200", text: "<%= j t('dashboard.upcoming_tasks.labels.irrigation', default: '🚿 Irrigation') %>" };
+        : { cls: "bg-sky-50 text-sky-700 ring-1 ring-sky-200",         text: "<%= j t('dashboard.upcoming_tasks.labels.irrigation', default: '🚿 Irrigation') %>" };
     }
 
     function renderEventHTML(e) {
@@ -112,7 +124,7 @@
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-pink-50 text-pink-700 ring-1 ring-pink-200">
                 📍 ${e.field}
               </span>` : ``}
-            ${(e.type === "task" && e.priority) ? `
+            ${(String(e.type).toLowerCase() === "task" && e.priority) ? `
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${prCls} capitalize">
                 ⚑ ${e.priority}
               </span>` : ``}
@@ -136,7 +148,7 @@
         li.id = id;
         li.className = "relative overflow-hidden rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition";
         li.innerHTML = renderEventHTML(e);
-        ul.prepend(li);
+        ul.appendChild(li); // mantém ordem cronológica
       } else {
         li.innerHTML = renderEventHTML(e);
       }
@@ -146,13 +158,18 @@
       const ul = document.querySelector(ROOT);
       if (!ul) return;
 
-      const keep = new Set(events.map(keyFor));
-
+      const keep = events.map(keyFor);
+      // remove os que já não existem
       ul.querySelectorAll("li[id]").forEach(li => {
-        if (!keep.has(li.id)) li.remove();
+        if (!keep.includes(li.id)) li.remove();
       });
 
+      // upsert e reordenar conforme o array recebido
       events.forEach(upsertEvent);
+      keep.forEach(id => {
+        const li = document.getElementById(id);
+        if (li) ul.appendChild(li); // mover para o fim na ordem correta
+      });
 
       if (ul.querySelectorAll("li").length === 0) {
         if (!document.getElementById(NO_MSG_ID)) {
@@ -179,13 +196,23 @@
       }
     }
 
-    const start = () => {
+    function start() {
       poll();
-      window.__upcomingTasksTimer && clearInterval(window.__upcomingTasksTimer);
-      window.__upcomingTasksTimer = setInterval(poll, <%= (ENV["UPCOMING_POLL_MS"] || 20000).to_i %>);
-    };
+      if (window.__upcomingTasksTimer) clearInterval(window.__upcomingTasksTimer);
+      window.__upcomingTasksTimer = setInterval(poll, POLL_MS);
+    }
 
-    document.addEventListener("turbo:load", start, { once: true });
-    document.readyState !== "loading" && start();
+    // Turbo lifecycle
+    document.addEventListener("turbo:load", start);
+    document.addEventListener("turbo:render", start);
+    document.addEventListener("turbo:before-cache", () => {
+      if (window.__upcomingTasksTimer) {
+        clearInterval(window.__upcomingTasksTimer);
+        window.__upcomingTasksTimer = null;
+      }
+    });
+
+    // se já carregou
+    if (document.readyState !== "loading") start();
   })();
 </script>

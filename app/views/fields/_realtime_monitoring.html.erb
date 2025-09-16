@@ -1,0 +1,69 @@
+<%# app/views/fields/_realtime_monitoring.html.erb %>
+<%= turbo_stream_from "field:#{field.id}:realtime" %>
+
+<div id="<%= dom_id(field, :realtime_monitoring) %>">
+  <!-- Monitorização (médias últimas 24h) -->
+  <% begin
+       range_24h = 24.hours.ago..Time.current
+       scope = field.sensors.joins(:sensor_readings).where(sensor_readings: { read_at: range_24h })
+
+       avg_temp     = scope.average(:temperature)&.to_f&.round(1)
+       avg_moist    = scope.average(:moisture)&.to_f&.round(1)
+       avg_hum_air  = scope.average(:air_humidity)&.to_f&.round(0)
+       avg_lux      = scope.average(:light_intensity)&.to_f&.round(0)
+     rescue
+       avg_temp = avg_moist = avg_hum_air = avg_lux = nil
+     end %>
+
+  <h3 class="text-lg font-semibold text-gray-700 mt-4">📡 <%= t("fields.overviews.agriculture.realtime_monitoring") %></h3>
+
+  <% if field.sensors.exists? %>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+      <!-- Humidade do solo -->
+      <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
+        <span class="block text-blue-500 text-2xl">💧</span>
+        <p class="text-gray-600 text-sm"><%= t("fields.overviews.agriculture.metrics.moisture") %></p>
+        <p class="font-bold text-lg text-gray-800 mt-2">
+          <%= avg_moist || "-" %> <span class="text-sm text-gray-500"><%= t("units.percent") %></span>
+        </p>
+        <% moist_ok = avg_moist && (40..80).cover?(avg_moist) %>
+        <span class="inline-block mt-2 px-2 py-0.5 text-xs rounded-full <%= moist_ok ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600' %> font-medium">
+          <%= moist_ok ? t("common.normal") : t("common.attention") %>
+        </span>
+      </div>
+
+      <!-- Temperatura -->
+      <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
+        <span class="block text-orange-500 text-2xl">🌡️</span>
+        <p class="text-gray-600 text-sm"><%= t("fields.overviews.agriculture.metrics.temperature") %></p>
+        <p class="font-bold text-lg text-gray-800 mt-2">
+          <%= avg_temp || "-" %> <span class="text-sm text-gray-500"><%= t("units.celsius") %></span>
+        </p>
+        <% temp_ok = avg_temp && (10..40).cover?(avg_temp) %>
+        <span class="inline-block mt-2 px-2 py-0.5 text-xs rounded-full <%= temp_ok ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600' %> font-medium">
+          <%= temp_ok ? t("common.normal") : t("common.attention") %>
+        </span>
+      </div>
+
+      <!-- Humidade do ar -->
+      <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
+        <span class="block text-cyan-600 text-2xl">🌬️</span>
+        <p class="text-gray-600 text-sm"><%= t("fields.overviews.agriculture.metrics.air_humidity") %></p>
+        <p class="font-bold text-lg text-gray-800 mt-2">
+          <%= avg_hum_air || "-" %> <span class="text-sm text-gray-500"><%= t("units.percent") %></span>
+        </p>
+      </div>
+
+      <!-- Intensidade da luz -->
+      <div class="bg-white border rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-transform duration-200 transform hover:scale-105">
+        <span class="block text-amber-500 text-2xl">🔆</span>
+        <p class="text-gray-600 text-sm"><%= t("fields.overviews.agriculture.metrics.light") %></p>
+        <p class="font-bold text-lg text-gray-800 mt-2">
+          <%= avg_lux || "-" %> <span class="text-sm text-gray-500"><%= t("units.lux") %></span>
+        </p>
+      </div>
+    </div>
+  <% else %>
+    <p class="text-sm text-gray-500 mt-2"><%= t("common.none") %></p>
+  <% end %>
+</div>

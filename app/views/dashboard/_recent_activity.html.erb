@@ -1,0 +1,48 @@
+<%# locals: sensor_readings (opcional) %>
+<% readings =
+     (local_assigns[:sensor_readings].presence ||
+      @sensor_readings.presence ||
+      SensorReading
+        .joins(sensor: :field)
+        .where(fields: { account_id: current_user.account_id })
+        .order(Arel.sql("COALESCE(sensor_readings.measured_at, sensor_readings.read_at, sensor_readings.created_at) DESC"))
+        .limit(24)) %>
+
+<%# helper local p/ cabecalho de dia %>
+<% day_label = ->(ts) do
+     d = ts.to_date
+     if d == Time.zone.today
+       t("today", default: "Today")
+     elsif d == Time.zone.yesterday
+       t("yesterday", default: "Yesterday")
+     else
+       l(d, format: "%d/%m/%Y")
+     end
+   end %>
+
+<% if readings.any? %>
+  <div class="space-y-5">
+    <% readings
+         .group_by { |r| (r.measured_at || r.read_at || r.created_at).to_date }
+         .sort_by { |d,_| d }
+         .reverse_each do |_, items| %>
+
+      <div>
+        <h3 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+          <span class="inline-block w-1.5 h-4 rounded bg-gradient-to-b from-emerald-400 via-sky-400 to-cyan-400"></span>
+          <%= day_label.call(items.first.measured_at || items.first.read_at || items.first.created_at) %>
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          <% items.each do |r| %>
+            <%= render "dashboard/activity_card", reading: r %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p class="text-sm text-gray-500 italic">
+    <%= t("dashboard.activity.empty", default: "No recent activity.") %>
+  </p>
+<% end %>

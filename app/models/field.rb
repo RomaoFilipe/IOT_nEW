@@ -46,7 +46,7 @@ class Field < ApplicationRecord
             allow_nil: true
 
   # ───────────── Callbacks ─────────────
-  before_validation :apply_defaults_from_account
+before_validation :apply_defaults_from_account, on: :create
 
   # ───────────── Scopes ─────────────
   scope :recent,      -> { order(updated_at: :desc) }

@@ -1,0 +1,101 @@
+<%# Espera local: reading %>
+<% r = local_assigns[:reading] || reading %>
+<% ts = r.measured_at || r.read_at || r.created_at %>
+<% sensor = r.sensor %>
+<% field  = sensor&.field %>
+
+<%# Normalização de valores (colunas novas/antigas) %>
+<% temp = r.try(:temp_c) || r.try(:air_temperature) %>
+<% hum  = r.try(:hum_air) || r.try(:air_humidity) %>
+<% soil = r.try(:soil_pct) || r.try(:moisture) %>
+<% lux  = r.try(:lux)      || r.try(:light_intensity) %>
+
+<%# Tipo heurístico para os filtros %>
+<%
+  raw_status = r.try(:status).to_s.downcase
+  kind =
+    if raw_status == "irrigando" || raw_status == "parado"
+      "irrigation"
+    elsif r.respond_to?(:level) || r.try(:alert) || raw_status == "alert"
+      "alert"
+    else
+      "reading"
+    end
+%>
+
+<li data-kind="<%= kind %>" class="py-3 px-3 sm:px-4 flex items-start justify-between gap-3">
+  <div class="flex items-start gap-3 min-w-0">
+    <div class="mt-0.5 shrink-0">
+      <%# Ícone dinâmico consoante o tipo %>
+      <% if kind == "irrigation" %>
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-600">🚿</span>
+      <% elsif kind == "alert" %>
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-700">⚠️</span>
+      <% else %>
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">📈</span>
+      <% end %>
+    </div>
+
+    <div class="min-w-0">
+      <div class="text-sm text-slate-800 font-medium truncate">
+        <%= sensor&.name || sensor&.device_id || t("dashboard.activity.sensor", default: "Sensor") %>
+      </div>
+
+      <div class="mt-1 flex flex-wrap items-center gap-2 text-[11px] leading-5">
+        <% if field %>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-pink-50 text-pink-700 ring-1 ring-pink-200">
+            📍 <%= field.name %>
+          </span>
+        <% end %>
+
+        <% if raw_status.present? %>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full <%= raw_status == "irrigando" ? "bg-sky-50 text-sky-700 ring-1 ring-sky-200" : "bg-slate-50 text-slate-600 ring-1 ring-slate-200" %>">
+            <%= raw_status.capitalize %>
+          </span>
+        <% end %>
+
+        <%# Chips de métricas, só se houver valor %>
+        <% if soil %>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+            💧 <%= soil.to_f.round(1) %>%
+          </span>
+        <% end %>
+        <% if temp %>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-orange-50 text-orange-700 ring-1 ring-orange-200">
+            🌡️ <%= temp.to_f.round(1) %>°C
+          </span>
+        <% end %>
+        <% if hum %>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200">
+            🌬️ <%= hum.to_f.round(0) %>%
+          </span>
+        <% end %>
+        <% if lux %>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 text-amber-700 ring-1 ring-amber-200">
+            🔆 <%= lux.to_f.round(0) %> lx
+          </span>
+        <% end %>
+
+        <%# Botão para ver payload bruto (se existir) %>
+        <% if r.respond_to?(:payload) && r.payload.present? %>
+          <button type="button"
+                  class="ml-1 underline text-slate-500 hover:text-slate-700"
+                  onclick="this.nextElementSibling.classList.toggle('hidden')">
+            detalhes
+          </button>
+          <pre class="hidden mt-1 bg-slate-50 text-[11px] p-2 rounded ring-1 ring-slate-200 max-w-full overflow-x-auto"><%= JSON.pretty_generate(r.payload) rescue r.payload.to_s %></pre>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="shrink-0 text-right">
+    <%= time_tag ts, ts.strftime("%d/%m %H:%M"),
+          class: "text-xs text-slate-500",
+          title: l(ts, format: "%d/%m/%Y %H:%M"),
+          data: { controller: "local-time" } %>
+    <div class="text-[11px] text-slate-400">
+      <%= time_ago_in_words(ts) %> <%= t("ago", default: "ago") %>
+    </div>
+  </div>
+</li>

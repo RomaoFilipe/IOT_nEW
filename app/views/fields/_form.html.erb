@@ -88,20 +88,31 @@
 
 <!-- Mostrar/ocultar campos de aquacultura dinamicamente -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const fieldTypeInput = document.querySelector("[name='field[field_type]']");
-    const aquaFields = document.getElementById("aquaculture_fields");
-    if (!fieldTypeInput || !aquaFields) return;
+(function () {
+  function selectEl() {
+    // aceita field_type OU production_kind, conforme o teu form
+    return document.querySelector("[name='field[field_type]'], [name='field[production_kind]']");
+  }
 
-    function toggleAquaFields() {
-      if (fieldTypeInput.value === "aquaculture_tank") {
-        aquaFields.style.display = "";
-      } else {
-        aquaFields.style.display = "none";
-      }
-    }
+  function toggleAquaFields() {
+    var sel = selectEl();
+    var block = document.getElementById("aquaculture_fields");
+    if (!sel || !block) return;
+    var v = sel.value;
+    var show = (v === "aquaculture_tank" || v === "aquaculture_sea");
+    // usa classList para não conflitar com estilos inline
+    block.classList.toggle("hidden", !show);
+  }
 
-    fieldTypeInput.addEventListener("change", toggleAquaFields);
+  function bind() {
+    var sel = selectEl();
+    if (!sel) return;
+    sel.removeEventListener("change", toggleAquaFields);
+    sel.addEventListener("change", toggleAquaFields);
     toggleAquaFields();
-  });
+  }
+
+  ["DOMContentLoaded", "turbo:load", "turbo:render", "turbo:frame-load"]
+    .forEach(function (evt) { document.addEventListener(evt, bind); });
+})();
 </script>

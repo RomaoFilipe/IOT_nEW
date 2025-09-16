@@ -1,128 +1,192 @@
-<%= tag.meta name: "sensor-id", content: sensor.id %>
+<% sid   = sensor.id %>
+<% fname = field.name %>
 
-<div class="border p-4 rounded-xl shadow bg-gray-50">
-  <h4 class="text-md font-semibold text-gray-700 mb-3">📍 <%= field.name %></h4>
+<div id="sensor-card-<%= sid %>"
+     class="border p-4 rounded-xl shadow bg-gray-50"
+     data-sensor-id="<%= sid %>"
+     data-init-status="<%= sensor.status.to_s.downcase %>"
+     data-init-remaining="<%= sensor.remaining_time.to_i %>"
+     data-init-total="<%= sensor.last_duration.to_i %>"
+     data-started-at="<%= sensor.irrigation_started_at&.to_i %>">
 
-  <!-- Estado da Irrigação + Barra -->
-  <div class="irrigation-status mb-2">
-    <div class="flex justify-between items-center text-sm font-medium text-gray-600 mb-1">
-      <span>💦 <%= t("dashboard.sensor_status.irrigation_status", default: "Irrigation Status") %>: <%= sensor.status.to_s.capitalize %></span>
-      <span class="irrigation-progress-text text-gray-700"><%= t("dashboard.sensor_status.remaining", default: "Remaining:") %> 0h 0m 0s</span>
-    </div>
+  <h4 class="text-md font-semibold text-gray-700 mb-3">📍 <%= fname %></h4>
 
-    <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-      <div class="irrigation-progress-bar bg-green-500 h-full transition-all duration-500 ease-linear"
-           style="width: 0%;"></div>
-    </div>
-  </div>
-
-  <% temp_sensor = field.sensors.find { |s| s.sensor_type == "temperature" } %>
-  <% sensor_id = sensor.id %>
-
-  <!-- Humidade -->
-  <div class="mt-3">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <span>💧</span>
-        <p class="text-sm font-medium text-gray-600"><%= t("dashboard.sensor_status.soil_moisture", default: "Soil Moisture") %></p>
-      </div>
-      <span class="text-blue-600 text-sm font-medium">
-        <span id="moisture-<%= sensor_id %>"><%= temp_sensor&.moisture || "N/A" %></span> %
+  <!-- Estado + temporizador circular -->
+  <div class="mb-4">
+    <div class="flex items-center justify-between text-sm font-medium text-gray-600 mb-2">
+      <span>💦 Estado da irrigação:
+        <strong id="state-<%= sid %>"><%= sensor.status.to_s.capitalize %></strong>
       </span>
+      <span id="remain-text-<%= sid %>" class="text-gray-700">Faltam: 00h 00m 00s</span>
     </div>
-    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= temp_sensor&.moisture.to_i %>%"></div>
-    </div>
-  </div>
 
-  <!-- Temperatura -->
-  <div class="mt-3">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <span>🌡️</span>
-        <p class="text-sm font-medium text-gray-600"><%= t("dashboard.sensor_status.temperature", default: "Temperature") %></p>
+    <div class="w-full flex items-center justify-center">
+      <div class="w-28 h-28 relative">
+        <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+          <circle cx="60" cy="60" r="54" stroke="#e5e7eb" stroke-width="12" fill="none"/>
+          <circle id="ring-irrig-<%= sid %>" cx="60" cy="60" r="54"
+                  stroke="#22c55e" stroke-linecap="round" stroke-width="12"
+                  stroke-dasharray="339.292" stroke-dashoffset="339.292" fill="none"/>
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center font-semibold text-gray-900">
+          <span id="ring-irrig-label-<%= sid %>">00h 00m 00s</span>
+        </div>
       </div>
-      <span class="text-blue-600 text-sm font-medium">
-        <span id="temperature-<%= sensor_id %>"><%= temp_sensor&.temperature || "N/A" %></span> °C
-      </span>
-    </div>
-    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= temp_sensor&.temperature.to_i %>%"></div>
-    </div>
-  </div>
-
-  <!-- Bateria -->
-  <div class="mt-3">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <span>🔋</span>
-        <p class="text-sm font-medium text-gray-600"><%= t("dashboard.sensor_status.battery", default: "Battery") %></p>
-      </div>
-      <span class="text-blue-600 text-sm font-medium">
-        <span id="battery-<%= sensor_id %>"><%= temp_sensor&.battery || 0 %></span> %
-      </span>
-    </div>
-    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= temp_sensor&.battery.to_i %>%"></div>
     </div>
   </div>
 </div>
 
-<!-- Botões de navegação entre sensores -->
+<!-- Navegação -->
 <div class="flex justify-between items-center mt-4">
-  <button id="prevSlide" class="text-gray-600 hover:text-gray-900"><%= t("dashboard.sensor_status.previous", default: "« Previous") %></button>
-  <button id="nextSlide" class="text-gray-600 hover:text-gray-900"><%= t("dashboard.sensor_status.next", default: "Next »") %></button>
+  <button id="prevSlide" class="text-gray-600 hover:text-gray-900">« Anterior</button>
+  <button id="nextSlide" class="text-gray-600 hover:text-gray-900">Seguinte »</button>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const sensorId = document.querySelector("meta[name='sensor-id']")?.content;
-    if (!sensorId) return;
+(() => {
+  const card = document.getElementById("sensor-card-<%= sid %>");
+  if (!card) return;
 
-    let remainingTime = 0;
-    let totalTime = 0;
+  const sid   = Number(card.dataset.sensorId);
+  let remaining = Number(card.dataset.initRemaining || 0);
+  let total     = Number(card.dataset.initTotal || 0);
+  let started   = Number(card.dataset.startedAt || 0);
+  let statusStr = (card.dataset.initStatus || "parado").toLowerCase();
 
-    const progressBar = document.querySelector(".irrigation-progress-bar");
-    const progressText = document.querySelector(".irrigation-progress-text");
+  // elementos do cartão
+  const irrRing  = card.querySelector("#ring-irrig-<%= sid %>");
+  const irrLbl   = card.querySelector("#ring-irrig-label-<%= sid %>");
+  const irrText  = card.querySelector("#remain-text-<%= sid %>");
+  const irrState = card.querySelector("#state-<%= sid %>");
 
-    function formatTime(seconds) {
-      const m = Math.floor(seconds / 60);
-      const h = Math.floor(m / 60);
-      const min = m % 60;
-      const s = seconds % 60;
-      return `${h}h ${min}m ${s}s`;
+  // helpers
+  const pad = (n)=> String(n).padStart(2,"0");
+  const fmt = (s)=> {
+    s = Math.max(0, Math.floor(Number(s)||0));
+    return `${pad(Math.floor(s/3600))}h ${pad(Math.floor((s%3600)/60))}m ${pad(s%60)}s`;
+  };
+  const clamp01 = (x)=> Math.max(0, Math.min(1, x));
+  const C_IRR = 339.292; // 2πr, r=54
+
+  function setRing(circle, circ, pct01) {
+    if (!circle) return;
+    circle.style.strokeDasharray = `${circ}`;
+    circle.style.strokeDashoffset = `${circ * (1 - clamp01(pct01))}`;
+  }
+  function setIrrColor(circle, pctRem01){
+    if (!circle) return;
+    const c = pctRem01 >= 0.66 ? "#22c55e" : (pctRem01 >= 0.33 ? "#f59e0b" : "#ef4444");
+    circle.style.stroke = c;
+  }
+
+  // Se está a regar e não veio remaining, calcula com started_at + total
+  function fallbackFromStarted() {
+    const isOn = ["irrigando","on","running","ativo","a_regar"].includes(statusStr);
+    if (isOn && total > 0 && (!remaining || remaining <= 0) && started > 0) {
+      const elapsed = Math.max(0, Math.floor(Date.now()/1000 - started));
+      remaining = Math.max(total - elapsed, 0);
     }
+  }
 
-    function updateUI() {
-      const percent = totalTime > 0 ? (remainingTime / totalTime) * 100 : 0;
-      progressBar.style.width = `${percent}%`;
-      progressText.textContent = "<%= j t('dashboard.sensor_status.remaining', default: 'Remaining:') %> " + formatTime(remainingTime);
+  function paintIrrigation(){
+    const pctDone = (total > 0) ? (total - Math.max(remaining,0)) / total : 0; // 0..1
+    const pctRem  = 1 - pctDone;
+    setRing(irrRing, C_IRR, pctDone);
+    setIrrColor(irrRing, pctRem);
+    if (irrLbl)   irrLbl.textContent  = fmt(remaining);
+    if (irrText)  irrText.textContent = "Faltam: " + fmt(remaining);
+    if (irrState) irrState.textContent = (remaining > 0 ? "Irrigando" : "Parado");
+  }
+
+  // tick local
+  let tick = null;
+  function startTick(){
+    if (tick) clearInterval(tick);
+    if (remaining > 0 && total > 0) {
+      tick = setInterval(() => {
+        remaining = Math.max(remaining - 1, 0);
+        paintIrrigation();
+        if (remaining === 0) { clearInterval(tick); tick = null; }
+      }, 1000);
+    } else {
+      paintIrrigation();
     }
+  }
 
-    async function checkStatus() {
-      try {
-        const response = await fetch(`/sensors/${sensorId}/irrigation_status`);
-        const data = await response.json();
-        remainingTime = data.remaining_time;
-        totalTime = data.total_time;
+  // bootstrap via endpoints
+  async function fetchIrrigation(){
+    try {
+      const r = await fetch(`/sensors/${sid}/irrigation_status`, { headers:{'Accept':'application/json'} });
+      const j = await r.json();
+      // aceitar várias chaves
+      const rem = Number(j.remaining_time ?? j.remaining ?? j.seconds_left ?? j.remainingSeconds ?? j.remaining_secs);
+      const tot = Number(j.total_time     ?? j.total     ?? j.duration     ?? j.totalSeconds    ?? j.total_secs);
+      const sta = (j.status || statusStr || "").toString().toLowerCase();
+      const stA = Number(j.started_at ?? j.startedAt ?? started);
 
-        if (remainingTime > 0) {
-          updateUI();
-        } else {
-          progressBar.style.width = `0%`;
-          progressText.textContent = "<%= j t('dashboard.sensor_status.done', default: 'Irrigation completed') %>";
+      if (!isNaN(tot) && tot > 0) total = tot;
+      if (!isNaN(stA) && stA > 0) started = stA;
+      statusStr = sta || statusStr;
+
+      if (!isNaN(rem)) remaining = rem;
+
+      // fallback se servidor não enviar remaining mas temos started+total
+      fallbackFromStarted();
+
+      paintIrrigation();
+      startTick();
+    } catch(e) {
+      // último recurso: tenta fallback local
+      fallbackFromStarted();
+      paintIrrigation();
+    }
+  }
+
+  // (opcional) gauges — ficam no-op se não existirem no DOM
+  async function fetchMetrics(){
+    try {
+      const r = await fetch(`/sensors/${sid}/status_info`, { headers:{'Accept':'application/json'} });
+      const j = await r.json();
+      // aqui só atualizaríamos outros rings/labels se existirem…
+    } catch(_) {}
+  }
+
+  // ActionCable (se existir)
+  (function subscribeCable(){
+    const consumer =
+      window.App?.cable ||
+      window.actionCable ||
+      (window.ActionCable && window.ActionCable.createConsumer && window.ActionCable.createConsumer());
+    if (!consumer || !consumer.subscriptions) return;
+    consumer.subscriptions.create(
+      { channel: "IrrigationChannel", sensor_id: sid },
+      { received(data){
+          if (typeof data.total_time     !== "undefined") total     = Number(data.total_time)     || total;
+          if (typeof data.remaining_time !== "undefined") remaining = Number(data.remaining_time) || remaining;
+          if (typeof data.started_at     !== "undefined") started   = Number(data.started_at)     || started;
+          if (typeof data.status         !== "undefined") statusStr = String(data.status).toLowerCase();
+          fallbackFromStarted();
+          paintIrrigation(); startTick();
         }
-      } catch (e) {
-        console.error("Status fetch error:", e);
       }
-    }
+    );
+  })();
 
-    setInterval(() => {
-      if (remainingTime > 0) remainingTime--;
-      updateUI();
-    }, 1000);
+  // ===== init + fallbacks =====
+  fallbackFromStarted();
+  paintIrrigation();
+  startTick();
+  fetchIrrigation();                  // snapshot inicial (tempo restante)
+  fetchMetrics();                     // snapshot inicial (se necessário)
 
-    setInterval(checkStatus, 5000);
-    checkStatus();
-  });
+  const metricsTimer   = setInterval(fetchMetrics,    10000);
+  const irrigPollTimer = setInterval(fetchIrrigation, 5000);
+
+  // limpar timers antes do Turbo cache
+  document.addEventListener("turbo:before-cache", () => {
+    if (tick) { clearInterval(tick); tick = null; }
+    clearInterval(metricsTimer);
+    clearInterval(irrigPollTimer);
+  }, { once: true });
+})();
 </script>

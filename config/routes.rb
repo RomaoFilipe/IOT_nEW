@@ -83,6 +83,7 @@ Rails.application.routes.draw do
         patch :toggle_status,   to: "api/sensors#toggle_status", as: :toggle_status_api
 
         # Membros no controller web
+	patch :assign_field,   on: :member
         patch :unassign_field,  on: :member
         post  :stop_irrigation, on: :member
         post  :start_irrigation,on: :member
@@ -100,6 +101,7 @@ Rails.application.routes.draw do
 
       # 📅 Eventos
       get "/events/upcoming",           to: "events#upcoming"
+get "/dashboard/activity", to: "dashboard#activity_feed", as: :dashboard_activity
       get "/dashboard/upcoming_events", to: "dashboard#upcoming_events", as: :dashboard_upcoming_events
 
       # ⚙️ Configurações pessoais

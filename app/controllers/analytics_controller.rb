@@ -17,13 +17,13 @@ class AnalyticsController < ApplicationController
     # Campos desta conta (com filtro tolerante ao formato guardado na BD)
     fields = Field.where(account_id: @account.id)
     if Field.column_names.include?("production_kind") && @kind.present?
-      # normaliza na query: lower(replace(production_kind,' ','_')) = @kind
       fields = fields.where(Arel.sql("LOWER(REPLACE(production_kind,' ','_')) = ?"), @kind)
     end
+
     fids = fields.pluck(:id)
     return render json: empty_payload, status: :ok if fids.empty?
 
-    # Domínios a partir do @kind (normalizado)
+    # Domínio atual
     has_agri      = (@kind == "agriculture")
     has_aqua_tank = (@kind == "aquaculture_tank")
     has_aqua_sea  = (@kind == "aquaculture_sea")
@@ -31,7 +31,7 @@ class AnalyticsController < ApplicationController
     # Sensores desses campos
     sids = Sensor.where(field_id: fids).pluck(:id)
 
-    # --------- AGRICULTURA (só se for o domínio atual) ----------
+    # ---------- AGRICULTURA ----------
     kpi_soil = kpi_airt = kpi_airh = nil
     last_soil = nil
     line  = { categories: [], series: [] }
@@ -42,20 +42,27 @@ class AnalyticsController < ApplicationController
       readings = SensorReading.where(sensor_id: sids)
                               .where(Arel.sql("#{SensorReading.ts_sql} BETWEEN :from AND :to"), from: from, to: to)
 
-      kpi_soil = readings.average(:soil_pct)&.to_f&.round(2)
+      # KPIs com COALESCE (colunas antigas/novas)
+      kpi_soil = readings.average(Arel.sql(SensorReading.soil_sql))&.to_f&.round(2)
       kpi_airt = readings.average(Arel.sql(SensorReading.air_temp_sql))&.to_f&.round(2)
       kpi_airh = readings.average(Arel.sql(SensorReading.air_hum_sql))&.to_f&.round(2)
 
-      last_soil = readings.order(Arel.sql("#{SensorReading.ts_sql} DESC")).limit(1).pick(:soil_pct)&.to_f&.round(2)
+      # Última humidade do solo (para o gauge)
+      last_soil = readings
+                    .order(Arel.sql("#{SensorReading.ts_sql} DESC"))
+                    .limit(1)
+                    .pluck(Arel.sql(SensorReading.soil_sql))
+                    .first&.to_f&.round(2)
 
+      # Série diária (tudo com COALESCE)
       daily_rows = readings
         .group(Arel.sql("DATE(#{SensorReading.ts_sql})"))
         .pluck(
           Arel.sql("DATE(#{SensorReading.ts_sql}) AS day"),
-          Arel.sql("AVG(soil_pct)"),
+          Arel.sql("AVG(#{SensorReading.soil_sql})"),
           Arel.sql("AVG(#{SensorReading.air_temp_sql})"),
           Arel.sql("AVG(#{SensorReading.air_hum_sql})"),
-          Arel.sql("AVG(lux)")
+          Arel.sql("AVG(#{SensorReading.lux_sql})")
         ).sort_by { |d, *_| d }
 
       line = {
@@ -68,7 +75,7 @@ class AnalyticsController < ApplicationController
         ]
       }
 
-      # Barras de rega: prefere IrrigationLog (histórico real). Fallback: executed_at em schedule.
+      # Barras de rega (histórico real se existir)
       if ActiveRecord::Base.connection.data_source_exists?("irrigation_logs")
         irrig_rows = IrrigationLog.joins(:sensor)
                                   .where(sensors: { field_id: fids })
@@ -89,7 +96,9 @@ class AnalyticsController < ApplicationController
         series: [{ name: "Minutos de rega", data: irrig_rows.map { |_, m| m.to_i } }]
       }
 
-      donut_dist   = readings.group(:sensor_id).pluck(:sensor_id, Arel.sql("AVG(soil_pct)"))
+      # Donut: média de solo por sensor (com COALESCE)
+      donut_dist   = readings.group(:sensor_id)
+                             .pluck(:sensor_id, Arel.sql("AVG(#{SensorReading.soil_sql})"))
       sensor_names = Sensor.where(id: donut_dist.map(&:first)).pluck(:id, :name).to_h
       donut = {
         labels: donut_dist.map { |sid, _| sensor_names[sid].presence || "Sensor ##{sid}" },
@@ -97,10 +106,10 @@ class AnalyticsController < ApplicationController
       }
     end
 
-    # --------- AQUACULTURA: TANQUES ----------
+    # ---------- AQUACULTURA: TANQUES ----------
     aqua_tank_line = { categories: [], series: [] }
     if has_aqua_tank
-      tank_fids  = fields.pluck(:id) # já estão filtrados ao domínio
+      tank_fids  = fields.pluck(:id)
       tank_scope = AquacultureReading.for_fields(tank_fids).between(from, to)
       if tank_scope.exists?
         rows = tank_scope.group(Arel.sql("DATE(measured_at)"))
@@ -123,10 +132,10 @@ class AnalyticsController < ApplicationController
       end
     end
 
-    # --------- AQUACULTURA: MAR ----------
+    # ---------- AQUACULTURA: MAR ----------
     aqua_sea_line = { categories: [], series: [] }
     if has_aqua_sea
-      sea_fids  = fields.pluck(:id) # já filtrados ao domínio
+      sea_fids  = fields.pluck(:id)
       sea_scope = AquacultureReading.for_fields(sea_fids).between(from, to)
       if sea_scope.exists?
         rows = sea_scope.group(Arel.sql("DATE(measured_at)"))
@@ -149,7 +158,7 @@ class AnalyticsController < ApplicationController
       end
     end
 
-    # Próximas regas (apenas faz sentido em agricultura; mas enviamos sempre)
+    # Próximas regas
     upcoming = IrrigationSchedule.for_fields(fids).upcoming.first(5).map do |ir|
       { day_of_week: ir.day_of_week, time: ir.time_hhmm, duration: ir.duration, sensor_id: ir.sensor_id }
     end
@@ -196,51 +205,50 @@ class AnalyticsController < ApplicationController
     send_data csv, filename: "analytics_#{Time.zone.now.strftime('%Y%m%d_%H%M')}.csv"
   end
 
-private
+  private
 
   def current_domain
     @kind
   end
 
-def normalize_kind(value)
-  v = value.to_s.strip.downcase.tr(" ", "_")
-  case v
-  when "agricultura"       then "agriculture"
-  when "aquacultura_tank"  then "aquaculture_tank"
-  when "aquacultura_sea"   then "aquaculture_sea"
-  else v
+  def normalize_kind(value)
+    v = value.to_s.strip.downcase.tr(" ", "_")
+    case v
+    when "agricultura"       then "agriculture"
+    when "aquacultura_tank"  then "aquaculture_tank"
+    when "aquacultura_sea"   then "aquaculture_sea"
+    else v
+    end
   end
-end
 
-def infer_kind_from_fields
-  return nil unless Field.column_names.include?("production_kind")
-  kinds = Field.where(account_id: @account.id)
-               .pluck(:production_kind)
-               .compact
-               .map { |v| normalize_kind(v) }
-  return nil if kinds.empty?
-  kinds.group_by(&:itself).max_by { |_k, v| v.size }&.first
-end
-
-def set_account!
-  @account = current_user.account
-  head :forbidden unless @account
-end
-
-def set_kind!
-  acc_kind   = normalize_kind(@account&.production_kind)
-  inferred   = infer_kind_from_fields
-
-  if acc_kind.present? && Field.column_names.include?("production_kind")
-    has_for_acc = Field.where(account_id: @account.id)
-                       .where(Arel.sql("LOWER(REPLACE(production_kind,' ','_')) = ?"), acc_kind)
-                       .exists?
-    @kind = has_for_acc ? acc_kind : (inferred || "agriculture")
-  else
-    @kind = acc_kind.presence || inferred || "agriculture"
+  def infer_kind_from_fields
+    return nil unless Field.column_names.include?("production_kind")
+    kinds = Field.where(account_id: @account.id)
+                 .pluck(:production_kind)
+                 .compact
+                 .map { |v| normalize_kind(v) }
+    return nil if kinds.empty?
+    kinds.group_by(&:itself).max_by { |_k, v| v.size }&.first
   end
-end
 
+  def set_account!
+    @account = current_user.account
+    head :forbidden unless @account
+  end
+
+  def set_kind!
+    acc_kind   = normalize_kind(@account&.production_kind)
+    inferred   = infer_kind_from_fields
+
+    if acc_kind.present? && Field.column_names.include?("production_kind")
+      has_for_acc = Field.where(account_id: @account.id)
+                         .where(Arel.sql("LOWER(REPLACE(production_kind,' ','_')) = ?"), acc_kind)
+                         .exists?
+      @kind = has_for_acc ? acc_kind : (inferred || "agriculture")
+    else
+      @kind = acc_kind.presence || inferred || "agriculture"
+    end
+  end
 
   # --------- Payload vazio ---------
   def empty_payload

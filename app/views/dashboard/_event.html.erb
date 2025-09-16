@@ -1,37 +1,165 @@
-<li id="<%= dom_id(event[:type] == :task ? PlannedTask.new(id: event[:id]) : IrrigationSchedule.new(id: event[:id])) %>"
-    class="border rounded-lg px-4 py-3 bg-white hover:shadow-sm transition">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-    <div class="flex items-start gap-3">
-      <div class="mt-1 shrink-0">
-        <% if event[:type] == :task %>
-          <div class="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center text-xs text-gray-400">✓</div>
-        <% else %>
-          <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600">🚿</div>
-        <% end %>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="font-semibold text-sm text-gray-800 break-words"><%= event[:title] %></p>
-        <div class="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500">
-          <span class="flex items-center gap-1">🕒 <%= l(event[:time], format: "%d/%m/%Y %H:%M") %></span>
-          <% if event[:type] == :task && event[:priority].present? %>
-            <% priority_color = case event[:priority].to_s.downcase
-              when "high" then "text-red-600"
-              when "medium" then "text-yellow-600"
-              else "text-green-600"
-            end %>
-            <span class="<%= priority_color %> font-semibold capitalize"><%= event[:priority] %></span>
-          <% end %>
-          <span><%= event[:field] %></span>
+<%# app/views/dashboard/_event.html.erb %>
+<% is_task = event[:type].to_s == 'task' %>
+<% dom_id_str = is_task ? "planned_task_#{event[:id]}" : "irrigation_schedule_#{event[:id]}" %>
+
+<%# garantir um Time válido + ISO para JS %>
+<%
+  start_at =
+    if event[:time].respond_to?(:in_time_zone)
+      event[:time].in_time_zone
+    else
+      (Time.zone.parse(event[:time].to_s) rescue nil)
+    end
+%>
+
+<li id="<%= dom_id_str %>"
+    class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white/90 backdrop-blur ring-1 ring-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 animate-card-in"
+    data-start-at="<%= start_at&.iso8601 %>"
+    data-kind="<%= is_task ? 'task' : 'irrigation' %>">
+
+  <!-- filete lateral -->
+  <span class="pointer-events-none absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-emerald-400 via-sky-400 to-cyan-400 opacity-80"></span>
+
+  <div class="p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex items-start gap-3 min-w-0">
+        <!-- ícone circular -->
+        <div class="h-10 w-10 rounded-full flex items-center justify-center
+                    <%= is_task ? 'bg-slate-100' : 'bg-sky-100' %>">
+          <span class="<%= is_task ? 'text-slate-700' : 'text-sky-700' %> text-lg">
+            <%= is_task ? '✓' : '🚿' %>
+          </span>
+        </div>
+
+        <div class="min-w-0">
+          <p class="font-semibold text-slate-900 text-sm sm:text-base truncate">
+            <%= event[:title] %>
+          </p>
+
+          <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[12px] leading-5">
+            <!-- quando -->
+            <% if start_at %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 text-slate-700 ring-1 ring-slate-200">
+                🕒 <%= l(start_at, format: "%d/%m/%Y %H:%M") %>
+              </span>
+              <span data-role="countdown"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+                <%= t("dashboard.upcoming_tasks.starts_in", default: "starts in") %> …
+              </span>
+            <% end %>
+
+            <!-- campo -->
+            <% if event[:field].present? %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-pink-50 text-pink-700 ring-1 ring-pink-200">
+                📍 <%= event[:field] %>
+              </span>
+            <% end %>
+
+            <!-- prioridade (apenas tarefas) -->
+            <% if is_task && event[:priority].present? %>
+              <% pr = event[:priority].to_s.downcase %>
+              <% pr_classes =
+                   case pr
+                   when "high"   then "bg-red-50 text-red-700 ring-1 ring-red-200"
+                   when "medium" then "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+                   else               "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                   end %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full <%= pr_classes %> capitalize">
+                ⚑ <%= pr %>
+              </span>
+            <% end %>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="sm:mt-1 sm:ml-2">
-      <% if event[:type] == :task %>
-        <%= button_to "✖", planned_task_path(event[:id]), method: :delete, form_class: "inline", class: "text-red-500 text-sm hover:underline", data: { turbo_confirm: t("dashboard.upcoming_tasks.cancel_task", default: "Cancel this task?") }, role: "button", title: t("dashboard.upcoming_tasks.cancel_task", default: "Cancel this task?") %>
-      <% else %>
-        <%= button_to "✖", field_irrigation_schedule_path(event[:field_id], event[:id]), method: :delete, form_class: "inline", class: "text-red-500 text-sm hover:underline", data: { turbo_confirm: t("dashboard.upcoming_tasks.cancel_irrigation", default: "Cancel this irrigation?") }, role: "button", title: t("dashboard.upcoming_tasks.cancel_irrigation", default: "Cancel this irrigation?") %>
-      <% end %>
+      <!-- ações -->
+      <div class="mt-1 shrink-0">
+        <% if is_task %>
+          <%= button_to "✖",
+                planned_task_path(event[:id]),
+                method: :delete,
+                form_class: "inline",
+                class: "rounded-md px-2 py-1 text-[12px] text-red-600 hover:bg-red-50 transition",
+                data: { turbo_confirm: t("dashboard.upcoming_tasks.cancel_task", default: "Cancel this task?") } %>
+        <% else %>
+          <%= button_to "✖",
+                field_irrigation_schedule_path(event[:field_id], event[:id]),
+                method: :delete,
+                form_class: "inline",
+                class: "rounded-md px-2 py-1 text-[12px] text-red-600 hover:bg-red-50 transition",
+                data: { turbo_confirm: t("dashboard.upcoming_tasks.cancel_irrigation", default: "Cancel this irrigation?") } %>
+        <% end %>
+      </div>
     </div>
   </div>
 </li>
+
+<!-- animações suaves + “quase a começar” -->
+<style>
+  @keyframes card-in { from {opacity:0; transform: translateY(8px)} to {opacity:1; transform: translateY(0)} }
+  @keyframes card-out{ to   {opacity:0; transform: translateY(-6px)} }
+  .animate-card-in   { animation: card-in .35s ease-out both }
+  .animate-card-out  { animation: card-out .25s ease-in  forwards }
+  @keyframes pulse-soft {
+    0%,100% { box-shadow: 0 0 0 0 rgba(250,204,21,.35) }
+    50%     { box-shadow: 0 0 0 10px rgba(250,204,21,0) }
+  }
+  .soon { animation: pulse-soft 2s ease-in-out infinite }
+</style>
+
+<script>
+  // contador e micro-interações
+  (function () {
+    const root = document.getElementById("<%= dom_id_str %>");
+    if (!root) return;
+
+    const iso = root.dataset.startAt;
+    const countdown = root.querySelector("[data-role='countdown']");
+    let timer = null;
+
+    function fmt(ms) {
+      const sign = ms >= 0 ? 1 : -1;
+      ms = Math.abs(ms);
+      const h = Math.floor(ms / 3_600_000);
+      const m = Math.floor((ms % 3_600_000) / 60_000);
+      const s = Math.floor((ms % 60_000) / 1000);
+      return { sign, h, m, s };
+    }
+
+    function tick() {
+      if (!iso || !countdown) return;
+      const now = Date.now();
+      const diff = new Date(iso).getTime() - now;
+      const { sign, h, m, s } = fmt(diff);
+
+      if (sign > 0) {
+        countdown.textContent =
+          "<%= j t('dashboard.upcoming_tasks.starts_in', default: 'starts in') %> " +
+          `${h}h ${m}m ${s}s`;
+      } else {
+        countdown.textContent =
+          "<%= j t('dashboard.upcoming_tasks.started', default: 'started') %> " +
+          `${h}h ${m}m ${s}s`;
+      }
+
+      // realce quando faltam < 15 min
+      const soon = (new Date(iso).getTime() - now) <= 15 * 60_000 && sign > 0;
+      root.classList.toggle("soon", soon);
+    }
+
+    tick();
+    timer = setInterval(tick, 1000);
+
+    // suaviza remoção quando o botão é clicado
+    root.querySelectorAll("form").forEach(f => {
+      f.addEventListener("submit", () => {
+        root.classList.add("animate-card-out");
+      });
+    });
+
+    // limpar antes do Turbo cache
+    document.addEventListener("turbo:before-cache", () => {
+      if (timer) clearInterval(timer);
+    }, { once: true });
+  })();
+</script>
