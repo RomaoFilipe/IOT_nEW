@@ -101,154 +101,152 @@
 </div>
 
 <script>
-  // i18n strings for JS
-  const I18N = {
-    boundary: {
-      missing_modal: "<%= j t('fields.boundary.errors.missing_modal', default: 'Boundary modal not found.') %>",
-      mapbox_unavailable: "<%= j t('fields.boundary.errors.mapbox_unavailable', default: 'Mapbox GL not available.') %>",
-      too_few_points: "<%= j t('fields.boundary.errors.too_few_points', default: 'The polygon needs at least 3 points.') %>",
-      saved: "<%= j t('fields.boundary.saved', default: 'Area saved successfully!') %>",
-      points_suffix: "<%= j t('fields.boundary.points_suffix', default: 'points') %>"
+(function () {
+  /* ========== MODAL addFieldModal ========== */
+  function modal() { return document.getElementById("addFieldModal"); }
+  function isOpen() { var m = modal(); return m && !m.classList.contains("hidden"); }
+  function open()  { var m = modal(); if (m) m.classList.remove("hidden"); }
+  function close() { var m = modal(); if (m) m.classList.add("hidden"); }
+
+  // Expor para botões/links: toggleModal(), toggleModal(true|false)
+  window.toggleModal = function (force) {
+    if (typeof force === "boolean") { force ? open() : close(); }
+    else { isOpen() ? close() : open(); }
+  };
+
+  // Fechar no backdrop ou em qualquer [data-close-modal] (inclui o X e "Cancelar")
+  document.addEventListener("click", function (e) {
+    var m = modal(); if (!m || m.classList.contains("hidden")) return;
+    if (e.target === m || e.target.closest("[data-close-modal]")) {
+      e.preventDefault();
+      close();
+    }
+  });
+
+  // Fechar com ESC
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && isOpen()) close();
+  });
+
+  // Stub opcional para abrir o modal de limites se não existir outra definição
+  if (!window.openBoundaryModal) {
+    window.openBoundaryModal = function () {
+      var bm = document.getElementById("boundaryModal");
+      if (bm) bm.classList.remove("hidden");
+    };
+  }
+
+  /* ========== MAPBOX: POLÍGONO ========== */
+  var polygonMap, polygonPoints = [], polygonLine = null, polygonMarkers = [];
+
+  function coordsInputEl() {
+    return document.getElementById("polygonCoordinates") ||
+           document.getElementById("polygonCoordinatesInput");
+  }
+
+  // Expor para botão "Definir Limites" se usares togglePolygonMap()
+  window.togglePolygonMap = function () {
+    var container = document.getElementById("polygonMapContainer");
+    if (!container) return;
+
+    container.classList.toggle("hidden");
+
+    if (!polygonMap) {
+      if (typeof mapboxgl === "undefined") {
+        console.warn("Mapbox GL JS não encontrado.");
+        return;
+      }
+      mapboxgl.accessToken = "pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA";
+      polygonMap = new mapboxgl.Map({
+        container: "polygonMap",
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: [-8.611, 41.145],
+        zoom: 13
+      });
+
+      polygonMap.on("click", function (e) {
+        if (polygonPoints.length >= 8) return;
+        var point = [e.lngLat.lng, e.lngLat.lat];
+        polygonPoints.push(point);
+
+        var marker = new mapboxgl.Marker({ color: "orange" })
+          .setLngLat(point).addTo(polygonMap);
+        polygonMarkers.push(marker);
+
+        updatePolygon();
+      });
+    }
+
+    // ao mostrar, força o resize para render correto
+    if (!container.classList.contains("hidden") && polygonMap) {
+      polygonMap.resize();
     }
   };
 
-  // —— Main modal (add field)
-  function toggleAddFieldModal(show = null) {
-    const el = document.getElementById("addFieldModal");
-    if (!el) return;
-    if (show === true)      el.classList.remove("hidden");
-    else if (show === false) el.classList.add("hidden");
-    else                     el.classList.toggle("hidden");
-  }
+  function updatePolygon() {
+    var status = document.getElementById("polygonStatus");
+    if (status) status.textContent = (polygonPoints.length + "/8 pontos");
 
-  // —— Boundary / polygon capture
-  // expects the following IDs to exist (from boundary_modal partial):
-  // boundaryModal, boundaryMap, boundaryStatus, boundaryResetBtn, boundarySaveBtn
-  // plus the hidden input in the main form: polygonCoordinates
-  let boundaryMap, boundaryLineId = "boundary-line", boundarySourceId = "boundary-geojson";
-  let boundaryPoints = [];
-  let boundaryMarkers = [];
-
-  function openBoundaryModal() {
-    const modal = document.getElementById("boundaryModal");
-    if (!modal) { alert(I18N.boundary.missing_modal); return; }
-    modal.classList.remove("hidden");
-
-    if (!(window.mapboxgl && mapboxgl.Map)) {
-      console.warn(I18N.boundary.mapbox_unavailable);
-      return;
+    // limpar camada anterior se existir
+    if (polygonMap) {
+      if (polygonMap.getLayer("polygon-line"))   polygonMap.removeLayer("polygon-line");
+      if (polygonMap.getSource("polygon-line"))  polygonMap.removeSource("polygon-line");
     }
+    polygonLine = null;
 
-    // init map once
-    if (!boundaryMap) {
-      mapboxgl.accessToken = window.MAPBOX_ACCESS_TOKEN || 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
-      boundaryMap = new mapboxgl.Map({
-        container: 'boundaryMap',
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [-8.611, 41.145],
-        zoom: 13,
-        attributionControl: false
-      });
-
-      boundaryMap.on('load', () => {
-        updateBoundary();
-        setTimeout(() => boundaryMap && boundaryMap.resize(), 100);
-      });
-
-      boundaryMap.on('click', function (e) {
-        if (boundaryPoints.length >= 8) return; // max 8
-        const pt = [e.lngLat.lng, e.lngLat.lat];
-        boundaryPoints.push(pt);
-
-        const marker = new mapboxgl.Marker({ color: "#f59e0b" }).setLngLat(pt).addTo(boundaryMap);
-        boundaryMarkers.push(marker);
-
-        updateBoundary();
-      });
-    } else {
-      setTimeout(() => boundaryMap && boundaryMap.resize(), 50);
-    }
-
-    // load from hidden if any
-    try {
-      const hidden = document.getElementById("polygonCoordinates");
-      if (hidden && hidden.value) {
-        const arr = JSON.parse(hidden.value);
-        boundaryPoints = (arr && arr.length > 2) ? arr.slice(0, -1) : (arr || []); // normalize to open list
-        redrawBoundaryMarkers();
-        updateBoundary();
-      }
-    } catch(_) {}
-  }
-
-  function closeBoundaryModal() {
-    const modal = document.getElementById("boundaryModal");
-    if (modal) modal.classList.add("hidden");
-  }
-
-  function redrawBoundaryMarkers() {
-    if (!boundaryMap) return;
-    boundaryMarkers.forEach(m => m.remove());
-    boundaryMarkers = [];
-    boundaryPoints.forEach(pt => {
-      boundaryMarkers.push(new mapboxgl.Marker({ color: "#f59e0b" }).setLngLat(pt).addTo(boundaryMap));
-    });
-  }
-
-  function updateBoundary() {
-    const status = document.getElementById("boundaryStatus");
-    if (status) status.textContent = `${boundaryPoints.length}/8 ${I18N.boundary.points_suffix}`;
-
-    if (!boundaryMap) return;
-
-    if (boundaryMap.getLayer(boundaryLineId)) boundaryMap.removeLayer(boundaryLineId);
-    if (boundaryMap.getSource(boundarySourceId)) boundaryMap.removeSource(boundarySourceId);
-
-    if (boundaryPoints.length > 1) {
-      const closed = [...boundaryPoints, boundaryPoints[0]];
-      boundaryMap.addSource(boundarySourceId, {
-        type: 'geojson',
+    // desenhar nova
+    if (polygonPoints.length > 1 && polygonMap) {
+      polygonMap.addSource("polygon-line", {
+        type: "geojson",
         data: {
-          type: 'Feature',
-          geometry: { type: 'Polygon', coordinates: [closed] }
+          type: "Feature",
+          geometry: {
+            type: "Polygon",
+            coordinates: [[].concat(polygonPoints, [polygonPoints[0]])]
+          }
         }
       });
-      boundaryMap.addLayer({
-        id: boundaryLineId,
-        type: 'line',
-        source: boundarySourceId,
-        paint: { 'line-color': '#f97316', 'line-width': 3 }
+      polygonMap.addLayer({
+        id: "polygon-line",
+        type: "line",
+        source: "polygon-line",
+        paint: { "line-color": "#f97316", "line-width": 3 }
       });
+      polygonLine = true;
     }
   }
 
-  function resetBoundary() {
-    boundaryPoints = [];
-    redrawBoundaryMarkers();
-    updateBoundary();
-    const hidden = document.getElementById("polygonCoordinates");
-    if (hidden) hidden.value = "";
-  }
+  // Expor resets e save
+  window.resetPolygon = function () {
+    polygonPoints = [];
+    polygonMarkers.forEach(function (m) { m.remove(); });
+    polygonMarkers = [];
 
-  function saveBoundary() {
-    if (boundaryPoints.length < 3) {
-      alert(I18N.boundary.too_few_points);
+    if (polygonMap) {
+      if (polygonMap.getLayer("polygon-line"))  polygonMap.removeLayer("polygon-line");
+      if (polygonMap.getSource("polygon-line")) polygonMap.removeSource("polygon-line");
+    }
+    polygonLine = null;
+
+    var status = document.getElementById("polygonStatus");
+    if (status) status.textContent = "0/8 pontos";
+
+    var input = coordsInputEl();
+    if (input) input.value = "";
+  };
+
+  window.savePolygon = function () {
+    if (polygonPoints.length < 3) {
+      alert("O polígono precisa de pelo menos 3 pontos.");
       return;
     }
-    const closed = [...boundaryPoints, boundaryPoints[0]];
-    const hidden = document.getElementById("polygonCoordinates");
-    if (hidden) hidden.value = JSON.stringify(closed);
-    alert(I18N.boundary.saved);
-    closeBoundaryModal();
-  }
+    var closed = polygonPoints.slice();
+    closed.push(polygonPoints[0]);
 
-  // Turbo: free resources before caching
-  document.addEventListener("turbo:before-cache", () => {
-    try {
-      if (boundaryMap) {
-        boundaryMap.remove();
-        boundaryMap = null;
-      }
-    } catch(_) {}
-  });
+    var input = coordsInputEl();
+    if (input) input.value = JSON.stringify(closed);
+
+    alert("Área guardada com sucesso!");
+  };
+})();
 </script>

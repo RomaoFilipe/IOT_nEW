@@ -1,50 +1,49 @@
 
 <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
-  <!-- Account -->
-  <div class="bg-white shadow-soft rounded-2xl p-6 border border-slate-200">
-    <div class="flex items-center justify-between mb-5">
-      <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-        <i class="lucide lucide-building-2 w-5 h-5 text-blue-600"></i>
-        <%= t("team.account.title", default: "Edit Company Account") %>
-      </h2>
-    </div>
+<!-- 🔧 Informações da Empresa -->
+  <div class="mb-10 bg-white shadow-lg rounded-2xl p-6">
+    <h2 class="text-xl font-bold text-gray-900 mb-5 flex items-center gap-2">
+      <i class="lucide lucide-building-2 w-5 h-5 text-blue-600"></i>
+      Editar Conta da Empresa
+    </h2>
 
-    <%= form_with model: @account, url: update_account_team_users_path, method: :patch, local: true, class: "space-y-4" do |f| %>
+    <%= form_with model: @account, url: update_account_team_users_path, method: :patch, local: true do |f| %>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Nome da Empresa -->
         <div>
-          <%= f.label :name, t("team.account.company_name", default: "Company Name"), class: "block text-sm font-medium text-slate-700 mb-1" %>
-          <%= f.text_field :name, class: "w-full rounded-lg border-slate-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
+          <%= f.label :name, "Nome da Empresa", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :name, class: "w-full rounded-lg border-gray-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
         </div>
 
-        <% if @account.respond_to?(:nif) %>
-          <div>
-            <%= f.label :nif, "NIF", class: "block text-sm font-medium text-slate-700 mb-1" %>
-            <%= f.text_field :nif, value: @account.nif, disabled: true, class: "w-full bg-slate-100 text-slate-600 border border-slate-300 rounded-lg px-4 py-2 text-sm cursor-not-allowed" %>
-          </div>
-        <% end %>
+        <!-- NIF (não editável) -->
+        <div>
+          <%= f.label :nif, "NIF", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :nif, value: @account.nif, disabled: true,
+                class: "w-full bg-gray-100 text-gray-600 border border-gray-300 rounded-lg px-4 py-2 text-sm cursor-not-allowed" %>
+        </div>
 
+        <!-- Tipo de Produção -->
         <div class="md:col-span-2">
-          <%= f.label :production_kind, t("team.account.production_kind", default: "Production Type"), class: "block text-sm font-medium text-slate-700 mb-1" %>
-          <% options = [
-  [t("field_types.agriculture", default: "Agriculture"), "agriculture"],
-  [t("field_types.aquaculture_tank", default: "Aquaculture (Tank)"), "aquaculture_tank"],
-  [t("field_types.aquaculture_sea", default: "Aquaculture (Sea)"), "aquaculture_sea"]
-] %>
+          <%= f.label :farm_type, "Tipo de Produção", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :farm_type,
+                Account.farm_types.keys.map { |type| [type.humanize.capitalize, type] },
+                {}, disabled: @account.fields.exists?,
+                class: "w-full rounded-lg border-gray-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
 
-          <%= f.select :production_kind, options, { selected: @account.production_kind },
-                disabled: (@account.respond_to?(:fields) && @account.fields.exists?),
-                class: "w-full rounded-lg border-slate-300 shadow-sm px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" %>
-          <% if @account.respond_to?(:fields) && @account.fields.exists? %>
-            <p class="text-xs text-rose-600 mt-1">⚠ <%= t("team.account.locked_prod_kind", default: "You cannot change the production type with existing fields.") %></p>
+          <% if @account.fields.exists? %>
+            <p class="text-xs text-red-500 mt-1">⚠ Não é possível alterar o tipo de produção com campos existentes.</p>
           <% end %>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-3 pt-4">
-        <%= f.submit t("team.account.save", default: "Save Changes"), class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm" %>
+      <!-- Ações -->
+      <div class="flex justify-between items-center pt-6">
+        <%= link_to "← Voltar", team_users_path, class: "text-sm text-gray-600 hover:underline" %>
+        <%= f.submit "💾 Guardar Alterações", class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md text-sm transition shadow-sm" %>
       </div>
     <% end %>
   </div>
+
 
   <!-- Team -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

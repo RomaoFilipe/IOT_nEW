@@ -3,21 +3,22 @@ class Team::UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin_or_manager
   before_action :set_account, only: [:index, :update_account]
-  before_action :set_user, only: [:edit, :update, :destroy, :impersonate]
+  before_action :set_user,    only: [:edit, :update, :destroy, :impersonate]
 
   # Lista de utilizadores + cartão de edição da conta
   def index
-    @users = current_user.account.users.order(:name)
+    @users = @account.users.order(:name)
   end
 
   # Formulário de novo utilizador
   def new
-    @user = current_user.account.users.new
+    @user = @account.users.new
   end
 
   # Criação (com convite opcional)
   def create
-    @user = current_user.account.users.new(user_params)
+    @user = @account.users.new(user_params)
+
     # Validação de papel permitido pela hierarquia
     unless role_allowed_for_current?(user_params[:role])
       return redirect_to new_team_user_path, alert: "Não tens permissão para atribuir esse papel."
@@ -34,7 +35,7 @@ class Team::UsersController < ApplicationController
     @user.status = "active" if @user.respond_to?(:status) && @user.status.blank?
 
     if @user.save
-      # Envio de e-mail de boas-vindas + password (se aplicável e notificação por email ativa)
+      # Envio de e-mail de boas-vindas (se aplicável)
       if @user.try(:notif_email) && defined?(UserMailer)
         begin
           UserMailer.welcome_email(@user, generated_password).deliver_later
@@ -42,6 +43,7 @@ class Team::UsersController < ApplicationController
           Rails.logger.warn("[Users#create] Falhou envio do email de boas-vindas: #{e.message}")
         end
       end
+
       msg = "Utilizador criado com sucesso"
       msg += @user.try(:notif_email) ? " e notificado por email." : "."
       redirect_to team_users_path, notice: msg
@@ -51,8 +53,7 @@ class Team::UsersController < ApplicationController
   end
 
   # Editar
-  def edit
-  end
+  def edit; end
 
   # Atualizar (respeita hierarquia)
   def update
@@ -84,21 +85,25 @@ class Team::UsersController < ApplicationController
     redirect_to team_users_path, notice: "Utilizador eliminado com sucesso."
   end
 
-  # Atualizar dados da conta (nome + production_kind)
+  # Atualizar dados da conta (nome + farm_type)
   def update_account
-    # Bloqueia alterar o tipo de produção se já existir pelo menos um campo
-    has_fields = @account.respond_to?(:fields) && @account.fields.exists?
+    attrs = account_params_with_alias # aceita farm_type e/ou production_kind
 
-    if has_fields && account_params[:production_kind].present? &&
-       account_params[:production_kind] != @account.production_kind
+    has_fields     = @account.respond_to?(:fields) && @account.fields.exists?
+    changing_farm  = attrs.key?(:farm_type) && attrs[:farm_type].present? && attrs[:farm_type] != @account.farm_type
+
+    # Se quiseres bloquear alteração com fields existentes, mantém este guard
+    if has_fields && changing_farm
       flash[:alert] = "❌ Não é possível alterar o tipo de produção com campos já criados."
       return redirect_to team_users_path
     end
 
-    if @account.update(account_params)
+    if @account.update(attrs)
       redirect_to team_users_path, notice: "Dados da empresa atualizados com sucesso."
     else
-      redirect_to team_users_path, alert: "Erro ao atualizar os dados da empresa."
+      @users = @account.users.order(:name)
+      flash.now[:alert] = "Erro ao atualizar os dados da empresa."
+      render :index, status: :unprocessable_entity
     end
   end
 
@@ -130,7 +135,7 @@ class Team::UsersController < ApplicationController
 
   # --- Autorização de acesso à secção ---
   def ensure_admin_or_manager
-    unless current_user.admin? || current_user.manager? || current_user.owner?
+    unless current_user.owner? || current_user.admin? || current_user.manager?
       redirect_to root_path, alert: "Acesso não autorizado."
     end
   end
@@ -141,13 +146,21 @@ class Team::UsersController < ApplicationController
   end
 
   def set_user
-    @user = current_user.account.users.find_by(id: params[:id])
+    @user = @account.users.find_by(id: params[:id])
     return redirect_to team_users_path, alert: "Utilizador não encontrado." unless @user
   end
 
   # --- Strong params ---
-  def account_params
-    params.require(:account).permit(:name, :production_kind)
+  # Permite farm_type (enum do Account) e aceita production_kind como alias.
+  def account_params_with_alias
+    p = params.require(:account).permit(:name, :farm_type, :production_kind).to_h.symbolize_keys
+    # se vier production_kind (views antigas), mapeia para farm_type
+    if p[:farm_type].blank? && p[:production_kind].present?
+      p[:farm_type] = p.delete(:production_kind)
+    else
+      p.delete(:production_kind)
+    end
+    p
   end
 
   def user_params
@@ -176,8 +189,6 @@ class Team::UsersController < ApplicationController
     target_idx  = role_order.index(target_role.to_s)
     return false if current_idx.nil? || target_idx.nil?
 
-    # Só podes criar/atribuir papéis com índice >= ao teu (menos poder ou igual).
-    # Dono pode tudo, admin não pode criar owner, manager não pode criar admin/owner.
     return true if current_user.owner?
     return (target_role != "owner") if current_user.admin?
     return !%w[admin owner].include?(target_role) if current_user.manager?
@@ -185,7 +196,6 @@ class Team::UsersController < ApplicationController
   end
 
   def can_impersonate?(from_user, target_user)
-    # Só se o teu poder for superior ao do alvo
-    role_order.index(from_user.role) < role_order.index(target_user.role)
+    role_order.index(from_user.role.to_s) < role_order.index(target_user.role.to_s)
   end
 end
