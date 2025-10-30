@@ -47,6 +47,10 @@ Rails.application.routes.draw do
 
       # 🌾 Campos & Sensores (aninhados em campo)
       resources :fields do
+	  member do
+    get :analytics   # GET /fields/:id/analytics
+  end
+
         resources :sensors, only: [:create, :destroy] do
           post  :simulate,      on: :member
           patch :toggle_status, on: :member

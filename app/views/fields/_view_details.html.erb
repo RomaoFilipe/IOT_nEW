@@ -67,10 +67,14 @@
       <div id="iot-equipment-<%= field_id %>" class="tab-content mt-5 hidden">
         <%= render partial: "fields/tabs/iot_equipment", locals: { field: field } %>
       </div>
-
-      <div id="analytics-<%= field_id %>" class="tab-content mt-5 hidden">
-        <%= render partial: "fields/tabs/analytics", locals: { field: field } %>
-      </div>
+<div id="analytics-<%= field_id %>" class="tab-content mt-5 hidden">
+  <%= render "fields/tabs/analytics",
+             field: field,
+             analytics: (local_assigns[:analytics] rescue nil),
+             from: (local_assigns[:from] rescue nil),
+             to:   (local_assigns[:to]   rescue nil) %>
+</div>
+</div>
 
       <!-- actions -->
       <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
@@ -160,6 +164,15 @@
     root.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
     const btn = root.querySelector(`#tab-${tab}-${id}`);
     if (btn) btn.classList.add('active');
+
+    // 👉 lazy-load do analytics (AGORA dentro da função)
+    if (tab === 'analytics' && current) {
+      const frame = current.querySelector(`#field_analytics_${id}`);
+      if (frame && !frame.src) {
+        const url = frame.dataset.url;
+        if (url) frame.src = url;
+      }
+    }
 
     // se houver mapas nesta tab, faz resize
     setTimeout(() => {

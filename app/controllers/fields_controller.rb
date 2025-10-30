@@ -1,6 +1,9 @@
 # app/controllers/fields_controller.rb
 class FieldsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_field, only: %i[
+    edit update destroy show_details analytics update_polygon
+  ]
 
   def index
     @fields = current_account.fields
@@ -97,10 +100,30 @@ end
     redirect_to fields_path, notice: "Campo eliminado com sucesso."
   end
 
-  def show_details
-    @field = current_account.fields.find(params[:id])
-    render partial: "fields/view_details", locals: { field: @field }
+def show_details
+  @field = current_account.fields.find(params[:id])
+
+  from       = (params[:from].presence || 7.days.ago.to_date).to_date
+  to         = (params[:to].presence   || Date.today).to_date
+  sensor_id  = params[:sensor_id].presence # opcional
+
+  @analytics = FieldAnalyticsService.new(@field, from:, to:, sensor_id:).call
+
+  render partial: "fields/view_details",
+         locals: { field: @field, analytics: @analytics, from:, to:, sensor_id: }
+end
+def analytics
+  from = params[:from]
+  to   = params[:to]
+  @analytics = FieldAnalyticsService.new(@field, from:, to:).call
+
+  respond_to do |format|
+    format.turbo_stream
+    format.html { render partial: "fields/tabs/analytics",
+                         locals: { field: @field, analytics: @analytics } }
+    format.json { render json: @analytics }
   end
+end
 
   private
 
@@ -159,5 +182,9 @@ end
     end
 
     permitted
+  end
+  def set_field
+    # multi-tenant? use current_account/tenant para garantir isolamento
+    @field = current_account.fields.find(params[:id])
   end
 end

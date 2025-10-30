@@ -2,11 +2,14 @@
   <div x-data="{ showNotes: false }" class="space-y-6">
 
     <!-- Mapa do Campo -->
-<div
-  id="map-agriculture-<%= field.id %>"
-  class="relative w-full h-64 min-h-[260px] rounded-xl shadow border overflow-hidden"
-  data-lat="<%= field.latitude %>"
-  data-lng="<%= field.longitude %>"></div>
+    <div class="relative">
+      <div id="map-agriculture-<%= field.id %>" class="w-full h-60 rounded-xl shadow border overflow-hidden"></div>
+      <% unless field.latitude.present? && field.longitude.present? %>
+        <div class="absolute inset-0 flex items-center justify-center bg-white/70">
+          <span class="text-sm text-slate-600"><%= t("fields.no_coords", default: "Sem coordenadas para este campo") %></span>
+        </div>
+      <% end %>
+    </div>
 
     <!-- Cabeçalho + Botão Editar -->
     <div class="flex justify-between items-center">
@@ -172,61 +175,85 @@
   </div>
 
 <script>
-  window.agriMaps ||= {};
+(function () {
+  const containerId = "map-agriculture-<%= field.id %>";
+  const lng = <%= field.longitude || -8.611 %>;
+  const lat = <%= field.latitude  || 41.145 %>;
+  const hasCoords = <%= (field.latitude.present? && field.longitude.present?).to_s %>;
 
-  window.ensureAgricultureMap ||= function(fieldId) {
-    if (!window.mapboxgl) return;
+  if (!hasCoords) return;
 
-    const el = document.getElementById(`map-agriculture-${fieldId}`);
-    if (!el) return;
+  // guarda local para evitar double init por eventos Turbo
+  let inited = false;
+  let map;
 
-    const lat = parseFloat(el.dataset.lat);
-    const lng = parseFloat(el.dataset.lng);
-    if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+  function visible(el) {
+    return el && el.offsetWidth > 0 && el.offsetHeight > 0;
+  }
 
-    // Já existe? só resize
-    if (window.agriMaps[fieldId]) {
-      try { window.agriMaps[fieldId].resize(); } catch(_) {}
-      return;
-    }
+  function reallyInit() {
+    if (inited) return true;
 
-    mapboxgl.accessToken = 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+    const el = document.getElementById(containerId);
+    if (!el || !visible(el)) return false;
+    if (!(window.mapboxgl && mapboxgl.Map)) return false;
 
-    const map = new mapboxgl.Map({
-      container: el,
+    mapboxgl.accessToken = window.MAPBOX_ACCESS_TOKEN || 'pk.eyJ1Ijoicm9tYW9maWxpcGUiLCJhIjoiY204cmpmYzNnMHhkbDJqc2F2enFsZDRxYSJ9.lzMeVTGloDJlV1RHoitdjA';
+
+    map = new mapboxgl.Map({
+      container: containerId,
       style: 'mapbox://styles/mapbox/outdoors-v12',
       center: [lng, lat],
       zoom: 13,
-      cooperativeGestures: true
+      attributionControl: false
     });
 
     map.on('load', () => {
-      // garante pintura após os tiles chegarem
-      try { map.resize(); } catch(_) {}
-      setTimeout(() => { try { map.resize(); } catch(_) {} }, 150);
+      new mapboxgl.Marker({ color: '#059669' }).setLngLat([lng, lat]).addTo(map);
+      map.resize();
     });
 
-    new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
-    window.agriMaps[fieldId] = map;
-  };
+    // cleanup quando Turbo faz cache
+    document.addEventListener("turbo:before-cache", () => {
+      try { map && map.remove(); } catch(_) {}
+      inited = false;
+    }, { once: true });
 
-  window.resizeMapsInside ||= function(rootEl){
-    if (!rootEl) return;
-    rootEl.querySelectorAll('[id^="map-agriculture-"]').forEach(node => {
-      const id = node.id.replace('map-agriculture-', '');
-      const m  = window.agriMaps[id];
-      if (m) { try { m.resize(); } catch(_) {} }
+    inited = true;
+    return true;
+  }
+
+  function initWhenVisible() {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+
+    if (reallyInit()) return;
+
+    // observa até ganhar tamanho (útil se estiver dentro de modal/turbo-frame)
+    const ro = new ResizeObserver(() => {
+      if (reallyInit()) ro.disconnect();
     });
-  };
+    ro.observe(el);
+
+    // fallback por tentativas (caso falhe o ResizeObserver)
+    let tries = 0;
+    const iv = setInterval(() => {
+      if (reallyInit() || ++tries > 15) clearInterval(iv);
+    }, 150);
+  }
+
+  const handler = () => initWhenVisible();
+  ["turbo:load", "turbo:render", "turbo:frame-load"].forEach(evt =>
+    document.addEventListener(evt, handler)
+  );
+
+  // tentativa imediata (se o frame já estiver no DOM)
+  handler();
+})();
 </script>
-
-
 
 <% end %>
 
-<%#
-  Dependências no layout (se ainda não estiverem incluídas):
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
   <link   href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-%>

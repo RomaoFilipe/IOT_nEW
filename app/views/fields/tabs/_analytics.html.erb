@@ -1,1 +1,328 @@
+<%# app/views/fields/tabs/_analytics.html.erb
+    Espera locals: field:, analytics:, from:, to:
+    Estrutura de analytics (ex.): 
+    {
+      avg_humidity:, max_temp:, min_temp:, uptime_pct:, alerts_count:,
+      series: { times:[], temperature:[], humidity:[], soil_moisture:[], days:[], count_per_day:[] },
+      alerts_by_type: [ {label:, value:}, ... ],
+      last_events: [ {timestamp:, type:, message:}, ... ]
+    }
+%>
+<% analytics = local_assigns[:analytics] %>
+<% data = (analytics.present? ? analytics : {}).deep_symbolize_keys rescue {} %>
+<% from_date = (local_assigns[:from] || 7.days.ago.to_date) %>
+<% to_date   = (local_assigns[:to]   || Date.today) %>
 
+<% kpis = {
+  avg_humidity: (data[:avg_humidity] || 0).to_f,
+  max_temp:     (data[:max_temp]     || 0).to_f,
+  min_temp:     (data[:min_temp]     || 0).to_f,
+  uptime_pct:   (data[:uptime_pct]   || 0).to_f,
+  alerts_count: (data[:alerts_count] || 0).to_i
+} %>
+
+<div id="analytics-root-<%= field.id %>" class="space-y-6">
+
+  <!-- Cabeçalho + filtros -->
+  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div>
+      <h3 class="text-lg font-semibold text-slate-900">Analytics — <%= field.name %></h3>
+      <p class="text-slate-500 text-sm">Indicadores e gráficos apenas deste campo.</p>
+    </div>
+
+    <div class="flex flex-wrap items-end gap-2">
+      <%= form_with url: show_field_details_path(field),
+                    method: :get,
+                    class: "flex flex-wrap items-end gap-2" do |f| %>
+
+        <% if field.respond_to?(:sensors) && field.sensors.any? %>
+          <div class="flex flex-col">
+            <label class="text-xs text-slate-500 mb-1">Sensor</label>
+            <%= f.select :sensor_id,
+                  options_for_select(
+                    [["Todos os sensores", nil]] + field.sensors.order(:name).pluck(:name, :id),
+                    params[:sensor_id]
+                  ),
+                  {}, class: "rounded-md border px-2 py-2 text-sm" %>
+          </div>
+        <% end %>
+
+        <div class="flex items-center gap-2 bg-slate-50 border rounded-lg px-2 py-1">
+          <div class="flex flex-col">
+            <label class="text-xs text-slate-500">De</label>
+            <%= f.date_field :from, value: from_date, class: "bg-transparent text-sm px-1 py-1" %>
+          </div>
+          <div class="flex flex-col ml-2">
+            <label class="text-xs text-slate-500">Até</label>
+            <%= f.date_field :to, value: to_date, class: "bg-transparent text-sm px-1 py-1" %>
+          </div>
+        </div>
+
+        <%= f.submit "Aplicar", class: "h-9 px-3 rounded-md bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 shadow" %>
+      <% end %>
+
+      <!-- Intervalos rápidos -->
+      <div class="flex gap-1">
+        <% [["7 dias",7],["30 dias",30],["90 dias",90],["Ano atual","ytd"]].each do |label,val| %>
+          <button type="button"
+                  class="h-9 px-3 rounded-md border text-sm hover:bg-slate-50"
+                  data-range="<%= val %>"><%= label %></button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+    <%= render partial: "fields/tabs/kpi_card",
+               locals: { title: "Média Humidade", value: "#{format('%.1f', kpis[:avg_humidity])}%", hint: nil } %>
+    <%= render partial: "fields/tabs/kpi_card",
+               locals: { title: "Temp. Máx.", value: "#{format('%.1f', kpis[:max_temp])} °C", hint: nil } %>
+    <%= render partial: "fields/tabs/kpi_card",
+               locals: { title: "Temp. Mín.", value: "#{format('%.1f', kpis[:min_temp])} °C", hint: nil } %>
+    <%= render partial: "fields/tabs/kpi_card",
+               locals: { title: "Uptime", value: "#{format('%.0f', kpis[:uptime_pct])}%", hint: "disponibilidade" } %>
+    <%= render partial: "fields/tabs/kpi_card",
+               locals: { title: "Alarmes", value: kpis[:alerts_count].to_s, hint: "no período" } %>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+    <!-- Temp + Hum -->
+    <div class="rounded-2xl border bg-white p-4 shadow-sm xl:col-span-2">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="font-medium text-slate-800">Temperatura & Humidade</h4>
+        <span class="text-xs text-slate-400">últimas leituras</span>
+      </div>
+      <div class="<%= (data.dig(:series, :temperature).present? || data.dig(:series, :humidity).present?) ? '' : 'hidden' %>">
+        <canvas id="chart-th-<%= field.id %>" height="110"></canvas>
+      </div>
+      <% if !(data.dig(:series, :temperature).present? || data.dig(:series, :humidity).present?) %>
+        <%= render "fields/tabs/empty_state", title: "Sem dados de temperatura/humidade." %>
+      <% end %>
+    </div>
+
+    <!-- Alertas -->
+    <div class="rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="font-medium text-slate-800">Alertas por Tipo</h4>
+        <span class="text-xs text-slate-400">período selecionado</span>
+      </div>
+      <div class="<%= data[:alerts_by_type].present? ? '' : 'hidden' %>">
+        <canvas id="chart-alerts-<%= field.id %>" height="110"></canvas>
+      </div>
+      <% unless data[:alerts_by_type].present? %>
+        <%= render "fields/tabs/empty_state", title: "Sem alertas registados." %>
+      <% end %>
+    </div>
+
+    <!-- Solo -->
+    <div class="rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="font-medium text-slate-800">Solo (Humidade)</h4>
+        <span class="text-xs text-slate-400">amostragem</span>
+      </div>
+      <div class="<%= data.dig(:series, :soil_moisture).present? ? '' : 'hidden' %>">
+        <canvas id="chart-soil-<%= field.id %>" height="110"></canvas>
+      </div>
+      <% unless data.dig(:series, :soil_moisture).present? %>
+        <%= render "fields/tabs/empty_state", title: "Sem leituras de humidade do solo." %>
+      <% end %>
+    </div>
+
+    <!-- Leituras por dia -->
+    <div class="rounded-2xl border bg-white p-4 shadow-sm xl:col-span-2">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="font-medium text-slate-800">Leituras por Dia</h4>
+        <span class="text-xs text-slate-400">contagem</span>
+      </div>
+      <div class="<%= (data.dig(:series, :days).present? && data.dig(:series, :count_per_day).present?) ? '' : 'hidden' %>">
+        <canvas id="chart-count-<%= field.id %>" height="110"></canvas>
+      </div>
+      <% unless (data.dig(:series, :days).present? && data.dig(:series, :count_per_day).present?) %>
+        <%= render "fields/tabs/empty_state", title: "Sem contagem de leituras no período." %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Últimos eventos -->
+  <div class="rounded-2xl border bg-white p-4 shadow-sm">
+    <div class="flex items-center justify-between mb-2">
+      <h4 class="font-medium text-slate-800">Últimos Eventos</h4>
+      <span class="text-xs text-slate-400"><%= (data.dig(:last_events)&.size || 0) %> registos</span>
+    </div>
+
+    <% if data[:last_events].present? %>
+      <div class="mt-2 overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="text-left text-slate-500">
+            <tr>
+              <th class="py-2 pr-4">Data/Hora</th>
+              <th class="py-2 pr-4">Tipo</th>
+              <th class="py-2 pr-4">Mensagem</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <% data[:last_events].each do |ev| %>
+              <tr>
+                <td class="py-2 pr-4 whitespace-nowrap"><%= ev[:timestamp].to_s %></td>
+                <td class="py-2 pr-4">
+                  <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs ring-1 ring-slate-200">
+                    <%= ev[:type].to_s.humanize %>
+                  </span>
+                </td>
+                <td class="py-2 pr-4"><%= ev[:message].to_s %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <%= render "fields/tabs/empty_state", title: "Sem eventos no intervalo selecionado." %>
+    <% end %>
+  </div>
+</div>
+
+<!-- Dados em data-attrs para o JS -->
+<div id="analytics-data-<%= field.id %>"
+     data-series="<%= (data[:series] || {}).to_json %>"
+     data-alerts-by-type="<%= (data[:alerts_by_type] || []).to_json %>">
+</div>
+
+<!-- Partials de apoio (KPI + vazio) -->
+<%# app/views/fields/tabs/_kpi_card.html.erb %>
+<%# locals: title:, value:, hint: %>
+<%# Mantém este sub-parcial num ficheiro separado em tabs/_kpi_card.html.erb %>
+
+<!-- Chart.js (garantir apenas 1 vez) -->
+<script>
+  (function ensureChartJS(){
+    if (window.Chart) return;
+    var s = document.createElement('script');
+    s.src = "https://cdn.jsdelivr.net/npm/chart.js";
+    s.defer = true;
+    document.head.appendChild(s);
+  })();
+</script>
+
+<!-- JS dos gráficos + UX -->
+<script>
+(function(){
+  const fid    = "<%= field.id %>";
+  const root   = document.getElementById("analytics-root-" + fid);
+  const dataEl = document.getElementById("analytics-data-" + fid);
+
+  // intervalos rápidos
+  root.querySelectorAll('button[data-range]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val  = btn.dataset.range;
+      const form = root.parentElement.querySelector('form');
+      if (!form) return;
+
+      let from = new Date(), to = new Date();
+      if (val === 'ytd') {
+        from = new Date(new Date().getFullYear(), 0, 1);
+      } else {
+        const days = parseInt(val, 10);
+        from.setDate(to.getDate() - days);
+      }
+      const fmt = (d) => d.toISOString().slice(0,10);
+      form.querySelector('input[name="from"]').value = fmt(from);
+      form.querySelector('input[name="to"]').value   = fmt(to);
+      form.requestSubmit();
+    });
+  });
+
+  function whenChartReady(cb){
+    if (window.Chart) return cb();
+    const iv = setInterval(() => { if (window.Chart){ clearInterval(iv); cb(); } }, 40);
+    setTimeout(() => clearInterval(iv), 5000);
+  }
+
+  function parseJSON(el, attr, fallback){
+    try { return JSON.parse(el.getAttribute(attr) || ""); } catch(_){ return fallback; }
+  }
+
+  // Guardar instâncias para destruir se re-renderizares o modal
+  window.__agrilotCharts = window.__agrilotCharts || {};
+  const charts = window.__agrilotCharts;
+
+  whenChartReady(() => {
+    const series       = parseJSON(dataEl, 'data-series', {});
+    const alertsByType = parseJSON(dataEl, 'data-alerts-by-type', []);
+
+    const labels    = (series.times || []).map(t => new Date(t));
+    const tempData  = (series.temperature || []);
+    const humData   = (series.humidity || []);
+    const soilData  = (series.soil_moisture || []);
+    const days      = (series.days || []);
+    const countData = (series.count_per_day || []);
+
+    const labelFmt = (d) => {
+      try { return new Intl.DateTimeFormat('pt-PT',{ day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}).format(d); }
+      catch(_){ return d?.toString() || ""; }
+    };
+
+    // helper para create/update safe
+    function mountChart(key, ctxId, cfg){
+      try { charts[key]?.destroy(); } catch(_){}
+      const ctx = document.getElementById(ctxId);
+      if (!ctx) return;
+      charts[key] = new Chart(ctx.getContext('2d'), cfg);
+    }
+
+    // Temp & Hum
+    if (tempData.length || humData.length){
+      mountChart(`th_${fid}`, `chart-th-${fid}`, {
+        type: 'line',
+        data: {
+          labels: labels.map(labelFmt),
+          datasets: [
+            { label: 'Temperatura (°C)', data: tempData, borderWidth: 2, pointRadius: 0, yAxisID: 'y1', tension: 0.3 },
+            { label: 'Humidade (%)',    data: humData,  borderWidth: 2, pointRadius: 0, yAxisID: 'y2', borderDash: [4,4], tension: 0.3 }
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            y1: { type: 'linear', position: 'left', title: { display: true, text: '°C' } },
+            y2: { type: 'linear', position: 'right', title: { display: true, text: '%' }, grid: { drawOnChartArea: false }, min: 0, max: 100 }
+          },
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    // Alertas
+    if (alertsByType.length){
+      mountChart(`alerts_${fid}`, `chart-alerts-${fid}`, {
+        type: 'doughnut',
+        data: {
+          labels: alertsByType.map(a => a.label || '—'),
+          datasets: [{ data: alertsByType.map(a => a.value || 0) }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } }, cutout: '60%' }
+      });
+    }
+
+    // Solo
+    if (soilData.length){
+      mountChart(`soil_${fid}`, `chart-soil-${fid}`, {
+        type: 'line',
+        data: { labels: labels.map(labelFmt), datasets: [{ label: 'Humidade do Solo (%)', data: soilData, borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { min: 0, max: 100 } } }
+      });
+    }
+
+    // Leituras por dia
+    if (days.length && countData.length){
+      mountChart(`count_${fid}`, `chart-count-${fid}`, {
+        type: 'bar',
+        data: { labels: days, datasets: [{ label: 'Leituras', data: countData }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+    }
+  });
+})();
+</script>
