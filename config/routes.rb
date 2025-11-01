@@ -14,12 +14,12 @@ Rails.application.routes.draw do
     authenticate :user do
       # 🌍 Navegação principal
       get "dashboard", to: "dashboard#index", as: :dashboard
-      # (REMOVIDO) get "settings" duplicado — o resource :settings já define GET /settings
 
       # 📈 Analytics
       get "analytics",        to: "analytics#index",  as: :analytics
       get "analytics/data",   to: "analytics#data",   as: :analytics_data,  defaults: { format: :json }
       get "analytics/export", to: "analytics#export", as: :export_analytics
+      get "analytics/report", to: "analytics#report", as: :report_analytics, defaults: { format: :pdf }
 
       # 👑 OWNER - Gestão de contas
       namespace :admin do
@@ -47,14 +47,14 @@ Rails.application.routes.draw do
 
       # 🌾 Campos & Sensores (aninhados em campo)
       resources :fields do
-	  member do
-    get :analytics   # GET /fields/:id/analytics
-  end
+        member do
+          get  :analytics          # ← adiciona isto
+          patch :update_polygon    # (já tens a action)
+        end
 
         resources :sensors, only: [:create, :destroy] do
           post  :simulate,      on: :member
           patch :toggle_status, on: :member
-          patch :update_polygon
         end
 
         resources :irrigation_schedules, only: [:create, :destroy] do
@@ -87,7 +87,7 @@ Rails.application.routes.draw do
         patch :toggle_status,   to: "api/sensors#toggle_status", as: :toggle_status_api
 
         # Membros no controller web
-	patch :assign_field,   on: :member
+	      patch :assign_field,   on: :member
         patch :unassign_field,  on: :member
         post  :stop_irrigation, on: :member
         post  :start_irrigation,on: :member
@@ -105,7 +105,7 @@ Rails.application.routes.draw do
 
       # 📅 Eventos
       get "/events/upcoming",           to: "events#upcoming"
-get "/dashboard/activity", to: "dashboard#activity_feed", as: :dashboard_activity
+      get "/dashboard/activity", to: "dashboard#activity_feed", as: :dashboard_activity
       get "/dashboard/upcoming_events", to: "dashboard#upcoming_events", as: :dashboard_upcoming_events
 
       # ⚙️ Configurações pessoais
@@ -125,6 +125,11 @@ get "/dashboard/activity", to: "dashboard#activity_feed", as: :dashboard_activit
 
     # 🌐 API
     namespace :api do
+
+      namespace :v1 do
+         # endpoint de ingestão sem field_id no caminho
+        post "ingest", to: "sensor_readings#create", defaults: { format: :json }
+      end
       get "sensors/identify",          to: "sensors#identify"
       get "sensors/find_by_device_id", to: "sensors#find_by_device_id"
 

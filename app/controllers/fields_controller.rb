@@ -1,3 +1,4 @@
+
 # app/controllers/fields_controller.rb
 class FieldsController < ApplicationController
   before_action :authenticate_user!
@@ -5,17 +6,13 @@ class FieldsController < ApplicationController
     edit update destroy show_details analytics update_polygon
   ]
 
-  def index
-    @fields = current_account.fields
-                             .includes(:sensors) # evita N+1 na listagem
-                             .order(updated_at: :desc)
-
-    # usado pelo modal "Adicionar Novo Campo"
-    @field  = current_account.fields.build(user: current_user)
-    assign_company_safely(@field)
-    apply_field_type_from_account(@field)
-  end
-
+# app/controllers/fields_controller.rb
+def index
+  @fields = current_account.fields.includes(:sensors).order(updated_at: :desc)
+  @field  = current_account.fields.build(user: current_user)
+  assign_company_safely(@field)
+  apply_field_type_from_account(@field)
+end
   def new
     @field = current_account.fields.build(user: current_user)
     assign_company_safely(@field)
@@ -34,51 +31,56 @@ class FieldsController < ApplicationController
   @field.update!(polygon_coordinates: coords)
   render json: { ok: true }
 end
+# app/controllers/fields_controller.rb
 
-  def create
-    # constrói SEMPRE pela conta do utilizador (garante account_id)
-    @field = current_account.fields.build(field_params)
-    @field.user ||= current_user
+def create
+  @field = current_account.fields.build
+  @field.user ||= current_user
+  assign_company_safely(@field)
+  apply_field_type_from_account(@field)
 
-    # company é opcional — só atribuímos se o modelo tiver a associação
-    assign_company_safely(@field)
+  if params[:field].present?
+    @field.assign_attributes(field_params)
+  else
+    flash.now[:alert] = "Submissão inválida: faltam dados do formulário."
+    @fields = current_account.fields.includes(:sensors).order(updated_at: :desc)
+    # 🔁 passar a renderizar o index (onde vive o form)
+    return render :index, status: :unprocessable_entity
+  end
 
-    # normaliza o tipo do campo a partir do farm_type da conta (se existir)
-    apply_field_type_from_account(@field)
-
-    if @field.save
-      respond_to do |format|
-        format.html { redirect_to fields_path, notice: "Campo criado com sucesso." }
-        format.turbo_stream do
-          flash.now[:notice] = "Campo criado com sucesso."
-          render turbo_stream: turbo_stream.prepend(
-            "fields_list",
-            partial: "fields/card",
-            locals: { field: @field }
-          )
-        end
+  if @field.save
+    respond_to do |format|
+      format.html { redirect_to fields_path, notice: "Campo criado com sucesso." }
+      format.turbo_stream do
+        flash.now[:notice] = "Campo criado com sucesso."
+        render turbo_stream: turbo_stream.prepend(
+          "fields_list",
+          partial: "fields/card",
+          locals: { field: @field }
+        )
       end
-    else
-      # recarrega lista para o index não rebentar quando há erros
-      @fields = current_account.fields
-                              .select(:id, :name, :latitude, :longitude, :area, :field_type, :updated_at, :polygon_coordinates)
-                              .order(updated_at: :desc)
-
-      respond_to do |format|
-        format.html do
-          flash.now[:alert] = "Erro ao criar campo."
-          render :index, status: :unprocessable_entity
-        end
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "field_form_errors",
-            partial: "fields/form_errors",
-            locals: { field: @field }
-          )
-        end
+    end
+  else
+    @fields = current_account.fields
+                            .select(:id, :name, :latitude, :longitude, :area, :field_type, :updated_at, :polygon_coordinates)
+                            .order(updated_at: :desc)
+@new_field = @field
+    respond_to do |format|
+      format.html do
+        flash.now[:alert] = "Erro ao criar campo."
+        # 🔁 manter :index aqui também
+        render :index, status: :unprocessable_entity
+      end
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "field_form_errors",
+          partial: "fields/form_errors",
+          locals: { field: @field }
+        )
       end
     end
   end
+end
 
   def edit
     @field = current_account.fields.find(params[:id])
@@ -113,18 +115,21 @@ def show_details
          locals: { field: @field, analytics: @analytics, from:, to:, sensor_id: }
 end
 def analytics
-  from = params[:from]
-  to   = params[:to]
-  @analytics = FieldAnalyticsService.new(@field, from:, to:).call
+  from  = params[:from]
+  to    = params[:to]
+  gran  = params[:granularity].presence || '5m'
+  sens  = params[:sensor_id].presence
+
+  @analytics = FieldAnalyticsService.new(@field, from:, to:, sensor_id: sens, granularity: gran).call
 
   respond_to do |format|
-    format.turbo_stream
-    format.html { render partial: "fields/tabs/analytics",
-                         locals: { field: @field, analytics: @analytics } }
+    format.html do
+      render partial: "fields/tabs/analytics",
+             locals:  { field: @field, analytics: @analytics }
+    end
     format.json { render json: @analytics }
   end
 end
-
   private
 
   # ——— helpers ———
@@ -164,25 +169,28 @@ end
     field.field_type = ft if ft.present?
   end
 
-  def field_params
-    permitted = params.require(:field).permit(
-      :name, :area, :latitude, :longitude, :notes, :polygon_coordinates,
-      :species, :tank_volume, :stocking_density, :feeding_regime,
-      :fish_placement_date, :estimated_harvest_date, :plantation_type,
-      :production_kind, :field_type # se vier do form, deixamos passar
-    )
+def field_params
+  permitted = params.require(:field).permit(
+    :name, :area, :latitude, :longitude, :notes, :polygon_coordinates,
+    :species, :tank_volume, :stocking_density, :feeding_regime,
+    :fish_placement_date, :estimated_harvest_date, :plantation_type,
+    :production_kind, :field_type
+  )
 
-    # aceitar JSON de polígono vindo como string
-    if permitted[:polygon_coordinates].present? && permitted[:polygon_coordinates].is_a?(String)
-      begin
-        permitted[:polygon_coordinates] = JSON.parse(permitted[:polygon_coordinates])
-      rescue JSON::ParserError
-        permitted[:polygon_coordinates] = nil
-      end
+  if permitted[:polygon_coordinates].present? && permitted[:polygon_coordinates].is_a?(String)
+    begin
+      permitted[:polygon_coordinates] = JSON.parse(permitted[:polygon_coordinates])
+      ok = permitted[:polygon_coordinates].is_a?(Array) &&
+           permitted[:polygon_coordinates].all? { |p| p.is_a?(Array) && p.size == 2 && p.all? { |n| n.is_a?(Numeric) } }
+      permitted[:polygon_coordinates] = nil unless ok
+    rescue JSON::ParserError
+      permitted[:polygon_coordinates] = nil
     end
-
-    permitted
   end
+
+  permitted
+end
+
   def set_field
     # multi-tenant? use current_account/tenant para garantir isolamento
     @field = current_account.fields.find(params[:id])

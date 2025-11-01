@@ -35,7 +35,8 @@ gem 'mqtt'
 gem 'clockwork'
 gem 'sidekiq'
 
-
+gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
 gem 'dotenv-rails', groups: [:development, :test]
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]

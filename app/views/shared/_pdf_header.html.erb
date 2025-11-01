@@ -1,0 +1,9 @@
+
+<div style="width:100%;font-size:11px;color:#334155;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px;">
+  <strong>Relatório Analytics — AgriloT</strong>
+  <span style="margin-left:10px" class="muted">Campo: <%= (local_assigns[:field]&.name || "Todos") %></span>
+  <% if local_assigns[:data] %>
+    <span class="muted" style="margin-left:8px">Período: <%= data.dig(:meta,:period) %></span>
+    <span class="muted" style="margin-left:8px">Res: <%= data.dig(:meta,:res) %></span>
+  <% end %>
+</div>

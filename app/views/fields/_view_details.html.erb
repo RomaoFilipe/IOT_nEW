@@ -38,7 +38,7 @@
     <!-- tabs -->
     <div class="px-5 pt-4">
       <div class="mx-auto w-full max-w-md rounded-xl bg-slate-50 p-1 text-sm font-medium shadow-inner">
-        <div class="grid grid-cols-3 gap-1">
+        <div class="grid grid-cols-2 gap-1">
           <button id="tab-overview-<%= field_id %>"
                   class="tab-button active"
                   onclick="showFieldTab('<%= field_id %>', 'overview')">
@@ -48,11 +48,6 @@
                   class="tab-button"
                   onclick="showFieldTab('<%= field_id %>', 'iot-equipment')">
             <%= t('iot_equipment.title', default: 'IoT Equipment') %>
-          </button>
-          <button id="tab-analytics-<%= field_id %>"
-                  class="tab-button"
-                  onclick="showFieldTab('<%= field_id %>', 'analytics')">
-            <%= t('navbar.analytics', default: 'Analytics') %>
           </button>
         </div>
       </div>
@@ -67,14 +62,7 @@
       <div id="iot-equipment-<%= field_id %>" class="tab-content mt-5 hidden">
         <%= render partial: "fields/tabs/iot_equipment", locals: { field: field } %>
       </div>
-<div id="analytics-<%= field_id %>" class="tab-content mt-5 hidden">
-  <%= render "fields/tabs/analytics",
-             field: field,
-             analytics: (local_assigns[:analytics] rescue nil),
-             from: (local_assigns[:from] rescue nil),
-             to:   (local_assigns[:to]   rescue nil) %>
-</div>
-</div>
+
 
       <!-- actions -->
       <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">

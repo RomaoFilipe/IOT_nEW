@@ -1,0 +1,276 @@
+<%# ======= TÍTULO (para <title>) ======= %>
+<% content_for :title, "Relatório Analytics — #{@field ? @field.name : 'Todos os Campos'}" %>
+
+<%# ======= Helpers Ruby simples (apenas métodos locais) ======= %>
+<%
+def fmt(v, p=2)  v.nil? ? "—" : sprintf("%.#{p}f", v.to_f) end
+def cf(arr)      # carry-forward para séries com nil
+  last=nil; Array(arr).map{|x| last = (x.is_a?(Numeric) ? x.to_f : last)}
+end
+def safe_time(v) v.is_a?(Time) || v.is_a?(ActiveSupport::TimeWithZone) ? v : (Time.zone.parse(v.to_s) rescue Time.zone.now) end
+
+# Mini sparkline (sem eixos)
+def sparkline_svg(values, w:120, h:34, color:"#10b981")
+  vals = Array(values).map{|x| x.is_a?(Numeric) ? x.to_f : nil}
+  comp = vals.compact
+  return %Q(<svg width="#{w}" height="#{h}"></svg>) if comp.empty?
+  min,max = comp.min, comp.max; span = (max-min).nonzero? || 1.0
+  inner_w,inner_h,pad = w-6,h-6,3
+  pts=[]
+  vals.each_with_index do |v,i|
+    next if v.nil?
+    x = pad + i * (inner_w.to_f / [vals.size-1,1].max)
+    y = pad + (1.0 - ( (v-min)/span )) * inner_h
+    pts << "#{x.round(2)},#{y.round(2)}"
+  end
+  %Q(<svg width="#{w}" height="#{h}" class="spark"><polyline points="#{pts.join(' ')}" fill="none" stroke="#{color}" stroke-width="2"/></svg>)
+end
+
+# Eixos simples p/ charts grandes
+def axes(w:, h:, pad:28, ticks:4)
+  iw,ih = w-pad*2, h-pad*2
+  out=[]
+  out << %Q(<rect x="#{pad}" y="#{pad}" width="#{iw}" height="#{ih}" fill="none" stroke="#e2e8f0" stroke-width="1"/>)
+  (1..ticks).each do |k|
+    y = pad + ih * k/(ticks+1.0)
+    out << %Q(<line x1="#{pad}" y1="#{y}" x2="#{pad+iw}" y2="#{y}" stroke="#e2e8f0" stroke-width="0.6"/>)
+  end
+  out.join
+end
+
+def line_points(values, w:, h:, pad:28)
+  vals = Array(values).map{|x| x.is_a?(Numeric) ? x.to_f : nil}
+  comp = vals.compact; return "" if comp.empty?
+  min,max = comp.min, comp.max; span = (max-min).nonzero? || 1.0
+  iw,ih = w-pad*2, h-pad*2
+  pts=[]
+  vals.each_with_index do |v,i|
+    next if v.nil?
+    x = pad + i * (iw.to_f / [vals.size-1,1].max)
+    y = pad + (1.0 - ((v-min)/span)) * ih
+    pts << "#{x.round(2)},#{y.round(2)}"
+  end
+  pts.join(" ")
+end
+
+def bars_svg(values, w:, h:, pad:28, color:"#10b981")
+  arr = Array(values).map{|v| v.is_a?(Numeric) ? v.to_f : 0.0}
+  return "" if arr.empty?
+  max = [arr.max.to_f, 1].max
+  iw,ih = w-pad*2, h-pad*2
+  bw = iw / [arr.size,1].max * 0.7; gap = iw / [arr.size,1].max * 0.3
+  out=[]
+  arr.each_with_index do |v,i|
+    x = pad + i*(bw+gap) + gap/2.0
+    hval = (v/max)*ih
+    y = pad + (ih - hval)
+    out << %Q(<rect x="#{x.round(2)}" y="#{y.round(2)}" width="#{bw.round(2)}" height="#{hval.round(2)}" fill="#{color}"/>)
+  end
+  out.join
+end
+
+def donut_svg(values, labels, w:, h:, r:68, stroke:22)
+  vals = Array(values).map{|v| v.is_a?(Numeric) ? v.to_f : 0.0}
+  total = vals.sum
+  cx,cy = w/2.0, h/2.0
+  return %Q(<svg width="#{w}" height="#{h}"><text x="#{cx}" y="#{cy}" text-anchor="middle" fill="#64748b" font-size="12">Sem dados</text></svg>) if total<=0
+  colors=%w(#10b981 #06b6d4 #6366f1 #f59e0b #ef4444 #84cc16 #a855f7 #14b8a6)
+  out=[]
+  circ = 2*Math::PI*r
+  start=0.0
+  vals.each_with_index do |v,i|
+    frac = v/total
+    seg = (frac*circ).round(2)
+    out << %Q(<circle cx="#{cx}" cy="#{cy}" r="#{r}" fill="transparent" stroke="#{colors[i % colors.size]}" stroke-width="#{stroke}" stroke-dasharray="#{seg} #{(circ-seg).round(2)}" stroke-dashoffset="#{(-start).round(2)}"/>)
+    start += seg
+  end
+  %Q(<svg width="#{w}" height="#{h}">#{out.join}</svg>)
+end
+%>
+
+<%
+data   = (@data || {}).deep_symbolize_keys
+updated = safe_time(data[:updated_at])
+
+line   = data.dig(:charts,:line)  || {}
+bars   = data.dig(:charts,:bars)  || {}
+donut  = data.dig(:charts,:donut) || {}
+series = Array(line[:series]); cats = Array(line[:categories]).map(&:to_s)
+soil   = series.find{|s| s[:name].to_s =~ /Solo/i}&.dig(:data)
+temp   = series.find{|s| s[:name].to_s =~ /Temperatura/i}&.dig(:data)
+hum    = series.find{|s| s[:name].to_s =~ /Humidade do Ar/i}&.dig(:data)
+soil_cf= cf(soil) if soil.present?
+
+bars_labels = Array(bars[:categories]).map(&:to_s)
+bars_data   = (Array(bars[:series]).first||{})[:data] || []
+donut_labels= Array(donut[:labels]).map(&:to_s)
+donut_data  = Array(donut[:data])
+
+kpi_soil = data.dig(:kpis,:avg_soil_pct)
+kpi_airt = data.dig(:kpis,:avg_air_temp)
+kpi_airh = data.dig(:kpis,:avg_air_hum)
+kpi_last = data.dig(:charts,:gauge,:value)
+
+def tag_for(label, value)
+  return nil if value.nil?
+  v = value.to_f
+  case label
+  when /Humidade do Solo/i
+    return ["Baixa","#ef4444"] if v < 10
+    return ["Moderada","#f59e0b"] if v < 20
+    ["Boa","#10b981"]
+  when /Temperatura do Ar/i
+    return ["Baixa","#ef4444"] if v < 5
+    return ["Alta","#f59e0b"] if v > 35
+    ["Conforto","#10b981"]
+  when /Humidade do Ar/i
+    return ["Seco","#f59e0b"] if v < 30
+    return ["Húmido","#f59e0b"] if v > 80
+    ["Ok","#10b981"]
+  else
+    nil
+  end
+end
+%>
+
+<div class="card soft avoid-break">
+  <h1>Relatório de Analytics</h1>
+  <div class="small">
+    <strong>Campo:</strong> <%= @field ? @field.name : "Todos" %> ·
+    <strong>Período:</strong> <span class="badge"><%= data.dig(:meta,:period) || params[:period] || "7d" %></span> ·
+    <strong>Resolução:</strong> <span class="badge"><%= data.dig(:meta,:res) || params[:res] || "5m" %></span> ·
+    <strong>Atualizado:</strong> <%= l(updated, format: :short) %>
+    <% if (note = data.dig(:meta,:note)).present? %>
+      <span class="chip" style="margin-left:8px"><%= note %></span>
+    <% end %>
+  </div>
+</div>
+
+<div class="kpis avoid-break">
+  <%[
+    ["Média Humidade do Solo (%)", kpi_soil, soil_cf, "#10b981"],
+    ["Temperatura do Ar (°C)",     kpi_airt, temp,    "#f59e0b"],
+    ["Humidade do Ar (%)",         kpi_airh, hum,     "#06b6d4"],
+    ["Solo (Último valor) %",      kpi_last, soil_cf, "#6366f1"]
+  ].each do |label,val,spark,color| %>
+    <div class="kpi">
+      <div class="label"><%= label %></div>
+      <div style="display:flex;align-items:center;gap:8px;margin:4px 0 2px">
+        <div class="val"><%= fmt(val) %></div>
+        <% if (t = tag_for(label,val)) %>
+          <span class="tag" style="color:<%= t[1] %>;border-color:<%= t[1] %>"><%= t[0] %></span>
+        <% end %>
+      </div>
+      <%= raw sparkline_svg(spark, color: color) if Array(spark).compact.any? %>
+    </div>
+  <% end %>
+</div>
+
+<div class="card avoid-break">
+  <h2 class="mb4">Tendência — Humidade do Solo</h2>
+  <% if Array(soil_cf).compact.any? %>
+    <% w,h,p = 820,260,28 %>
+    <svg width="<%= w %>" height="<%= h %>">
+      <rect x="0" y="0" width="<%= w %>" height="<%= h %>" fill="#ffffff"/>
+      <%= raw axes(w:w,h:h,pad:p,ticks:4) %>
+      <% pts = line_points(soil_cf, w:w, h:h, pad:p) %>
+      <% if pts.present? %>
+        <polyline points="<%= pts %>" fill="none" stroke="#10b981" stroke-width="2.2"/>
+      <% end %>
+      <text x="<%= w-p %>" y="<%= p-8 %>" text-anchor="end" font-size="11" fill="#64748b">Últimos registos</text>
+    </svg>
+  <% else %>
+    <div class="small muted">Sem dados de série temporal.</div>
+  <% end %>
+</div>
+
+<div class="grid-2 avoid-break">
+  <div class="card">
+    <h2 class="mb4">Minutos de Rega / Dia</h2>
+    <% if bars_labels.any? && Array(bars_data).compact.any? %>
+      <% w,h,p = 390,260,28 %>
+      <svg width="<%= w %>" height="<%= h %>">
+        <rect x="0" y="0" width="<%= w %>" height="<%= h %>" fill="#ffffff"/>
+        <%= raw axes(w:w,h:h,pad:p,ticks:4) %>
+        <%= raw bars_svg(bars_data, w:w, h:h, pad:p, color:"#10b981") %>
+      </svg>
+      <div class="small muted">Escala relativa ao máximo do período.</div>
+    <% else %>
+      <div class="small muted">Sem dados de rega.</div>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <h2 class="mb4">Solo médio por sensor</h2>
+    <% if donut_labels.any? && donut_data.any? && donut_data.sum.to_f > 0 %>
+      <%= raw donut_svg(donut_data, donut_labels, w:390, h:260, r:70, stroke:24) %>
+      <div class="hr"></div>
+      <% donut_labels.each_with_index do |lab,i| %>
+        <div style="display:flex;justify-content:space-between">
+          <span><%= lab %></span>
+          <span><strong><%= fmt(donut_data[i]) %>%</strong></span>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="small muted">Sem distribuição por sensor.</div>
+    <% end %>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<div class="row">
+  <div class="col card avoid-break">
+    <h3>Série temporal — últimas 20 linhas</h3>
+    <% if series.any? && cats.any? %>
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <% series.each{|s| %><th><%= s[:name] %></th><% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% last_n = 20 %>
+          <% cats.last(last_n).each_with_index do |c,i| %>
+            <tr>
+              <td class="mono"><%= c %></td>
+              <% series.each do |s| %>
+                <% v = Array(s[:data]).last(last_n)[i] %>
+                <td class="right"><%= v.is_a?(Numeric) ? fmt(v) : (v || "—") %></td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <div class="small muted">* Mostradas as últimas 20 linhas.</div>
+    <% else %>
+      <div class="small muted">Sem dados para tabela.</div>
+    <% end %>
+  </div>
+
+  <div class="col card avoid-break">
+    <h3>Solo médio por sensor (tabela)</h3>
+    <% if donut_labels.any? && donut_data.any? %>
+      <table>
+        <thead><tr><th>Sensor</th><th class="right">Solo Médio (%)</th></tr></thead>
+        <tbody>
+          <% donut_labels.each_with_index do |lab,i| %>
+            <tr><td><%= lab %></td><td class="right"><%= fmt(donut_data[i]) %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="small muted">Sem dados por sensor.</div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card avoid-break" style="margin-top:12px">
+  <h2>Notas e Interpretação</h2>
+  <ul style="margin:0;padding-left:18px;line-height:1.45">
+    <li>As métricas apresentam médias no período selecionado e os últimos pontos relevantes para contexto.</li>
+    <li>“Minutos de Rega / Dia” resulta da conversão direta de segundos registados pelos atuadores (1 min = 60 s).</li>
+    <li>Valores ausentes (“—”) indicam inexistência de leituras válidas nesse intervalo ou filtro.</li>
+  </ul>
+</div>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title><%= content_for?(:title) ? yield(:title) : "Relatório Analytics" %></title>
+  <style>
+    :root{
+      --fg:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#ffffff;
+      --green:#10b981; --amber:#f59e0b; --rose:#ef4444; --sky:#06b6d4; --indigo:#6366f1;
+      --card-grad: linear-gradient(140deg,#f8fafc 0%,#ecfeff 55%,#f0fdf4 100%);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:"DejaVu Sans","Arial Unicode MS","Noto Sans",Arial,sans-serif;
+      font-size:12.8px; color:var(--fg); background:#fff; padding:18px 20px;
+    }
+    h1{font-size:22px;margin:0 0 6px;font-weight:800;letter-spacing:.2px}
+    h2{font-size:17px;margin:0 0 6px}
+    h3{font-size:14px;margin:0 0 6px;color:#344}
+    .muted{color:var(--muted)}
+    .small{font-size:12px;color:var(--muted)}
+    .badge{display:inline-block;border:1px solid #94a3b8;border-radius:999px;padding:1px 8px;font-size:11px;color:#334155}
+    .chip{display:inline-block;border:1px solid var(--border);border-radius:8px;padding:2px 8px;font-size:11px;color:#334155;background:#fff}
+    .card{border:1px solid var(--border);border-radius:12px;padding:12px 14px;background:#fff;margin-bottom:12px}
+    .card.soft{background:var(--card-grad)}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid var(--border);padding:6px 8px}
+    th{background:#f8fafc;text-align:left;font-weight:600}
+    tr:nth-child(even) td{background:#fcfcfd}
+    .right{text-align:right}.center{text-align:center}.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .kpi{border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff}
+    .kpi .label{font-size:12px;color:var(--muted)}
+    .kpi .val{font-weight:800;font-size:21px}
+    .kpi .tag{font-size:11px;border-radius:999px;padding:1px 8px;border:1px solid currentColor}
+    .spark{display:block}
+    .barwrap{height:10px;background:var(--border);border-radius:999px;overflow:hidden}
+    .bar{height:10px;background:var(--green)}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}
+    .hr{height:1px;background:var(--border);border:0;margin:10px 0}
+    /* Quebras de página cuidadas */
+    .avoid-break{page-break-inside:avoid}
+    .page-break{page-break-before:always}
+    @page{margin:14mm 12mm 14mm 12mm}
+  </style>
+</head>
+<body>
+  <%= yield %>
+</body>
+</html>

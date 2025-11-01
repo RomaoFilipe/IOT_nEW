@@ -22,7 +22,16 @@ module AnalyticsHelper
     return "—" if v.nil?
     "#{v.to_f.round(1)}%"
   end
-
+def safe_time(value)
+    case value
+    when Time, ActiveSupport::TimeWithZone
+      value
+    else
+      Time.zone.parse(value.to_s)
+    end
+  rescue
+    Time.current
+  end
   # score simplista (0–100) com base em pH (ideal ~7.5) e turbidez (baixo é melhor)
   def water_quality_score(ph: nil, turbidity: nil)
     return nil if ph.nil? && turbidity.nil?
